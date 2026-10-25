@@ -1214,9 +1214,10 @@ const FT = '"Special Elite", "Courier New", monospace';
 
 // ============================================================ réglages et scores
 const Settings = {
+  quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -1382,14 +1383,16 @@ const LOWK = new Set(['barrel', 'barrier', 'sandbags', 'parapet', 'radio', 'braz
 const $ = id => document.getElementById(id);
 const canvas = $('game'); let ctx = canvas.getContext('2d'); // let : le teaser des fiches emprunte le moteur de dessin
 const lightCanvas = document.createElement('canvas'), lctx = lightCanvas.getContext('2d');
-let W = 0, H = 0, DPR = 1, VS = 1, dprCap = 2; // dprCap : baissé automatiquement si l'appareil n'arrive pas à suivre
+let W = 0, H = 0, DPR = 1, VS = 1, dprCap = 2, SAFE = { l: 0, r: 0, t: 0, b: 0 }; // dprCap : baissé automatiquement si l'appareil n'arrive pas à suivre
 let TOUCH = false; try { TOUCH = matchMedia('(pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches; } catch (e) { }
 const STICK_R = 58;
 let LD = 2; // diviseur de résolution du calque de lumière
 // vignettes précalculées une fois, étirées à l'écran (évite un dégradé plein écran par image)
 function makeVignette(rgb, a0, a1) { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'); const gr = g.createRadialGradient(128, 128, 60, 128, 128, 182); gr.addColorStop(0, `rgba(${rgb},${a0})`); gr.addColorStop(1, `rgba(${rgb},${a1})`); g.fillStyle = gr; g.fillRect(0, 0, 256, 256); return c; }
 const VIG = makeVignette('0,0,0', 0, 0.7), VIG_RED = makeVignette('150,8,4', 0, 1);
-function resize() {
+// zones sûres (encoche, barre d'accueil des iPhone) lues depuis le CSS
+function readSafe() { let el = document.getElementById('safe-probe'); if (!el) { el = document.createElement('div'); el.id = 'safe-probe'; el.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)'; document.body.appendChild(el); } const cs = getComputedStyle(el); SAFE = { t: parseFloat(cs.paddingTop) || 0, r: parseFloat(cs.paddingRight) || 0, b: parseFloat(cs.paddingBottom) || 0, l: parseFloat(cs.paddingLeft) || 0 }; }
+function resize() { readSafe(); if (Settings.quality === 'eco') dprCap = 1; else if (Settings.quality === 'high') dprCap = 2;
   DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, dprCap)); LD = TOUCH ? 3 : 2;
   const cw = window.innerWidth, ch = window.innerHeight;
   W = Math.max(1, Math.floor(cw * DPR)); H = Math.max(1, Math.floor(ch * DPR));
@@ -1597,8 +1600,8 @@ class Input {
       if (game.state !== 'playing') return;
       const b = game.touchButtons().find(b => (x - b.x) ** 2 + (y - b.y) ** 2 < (b.r + 10) ** 2);
       if (b) { this.btnPtr.set(e.pointerId, b.id); if (b.id === 'weapon') this.wheelTouch = { id: e.pointerId, ox: x, oy: y, x, y, t0: performance.now() }; else this.tPressed.add(b.id); try { el.setPointerCapture(e.pointerId); } catch (er) { } return; }
-      const side = x < innerWidth * 0.45 ? 'move' : 'aim';
-      if (!this.sticks[side]) this.sticks[side] = { id: e.pointerId, ox: x, oy: y, x, y };
+      const side = Settings.lefty ? (x > innerWidth * 0.55 ? 'move' : 'aim') : (x < innerWidth * 0.45 ? 'move' : 'aim');
+      if (!this.sticks[side]) { const h = Settings.fixedSticks ? game.stickHome(side) : { x, y }; this.sticks[side] = { id: e.pointerId, ox: h.x, oy: h.y, x, y }; }
       try { el.setPointerCapture(e.pointerId); } catch (er) { }
     });
     el.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') return; const wt = this.wheelTouch; if (wt && wt.id === e.pointerId) { wt.x = e.clientX; wt.y = e.clientY; } for (const k of ['move', 'aim']) { const s = this.sticks[k]; if (s && s.id === e.pointerId) { s.x = e.clientX; s.y = e.clientY; } } });
@@ -2981,7 +2984,7 @@ class Game {
   }
   quip(k) { const l = QUIPS[this.charKey] && QUIPS[this.charKey][k]; if (l && this.state === 'playing') this.say(pick(l)); }
   addLight(x, y, r, c, i, life) { this.lights.push({ x, y, r, c, i, life, max: life, dead: false }); }
-  spawnP(o) { if (this.particles.length >= (TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; }
+  spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; }
   floatText(x, y, text, color) { this.texts.push({ x, y, text, color, life: 1, dead: false }); }
   makeNoise(x, y, r) { for (const z of this.hash.query(x, y, r, [])) if (dist2(z.x, z.y, x, y) < r * r) z.aggro = true; }
   nearestAttraction(x, y) { let best = null, bd = Infinity; for (const a of this.attractions) { const d = dist2(a.x, a.y, x, y); if (d < a.r * a.r && d < bd) { bd = d; best = a; } } return best; }
@@ -3556,13 +3559,20 @@ class Game {
     }
     c.restore();
   }
+  // position de repos des sticks (fixes ou fantômes), en tenant compte du mode gaucher et de l'encoche
+  stickHome(side) {
+    const cw = innerWidth, ch = innerHeight, mx = Math.max(90, cw * 0.14) + SAFE.l, ax = cw - Math.max(170, cw * 0.24) - SAFE.r, y = ch - 74 - SAFE.b * 0.6;
+    const x = side === 'move' ? mx : ax; return { x: Settings.lefty ? cw - x : x, y };
+  }
+  // près d'une boutique ou d'un distributeur : le bouton E indique l'action possible
+  nearInteract() { const p = this.player; if (!p || p.dead || !this.level) return null; for (const o of this.level.obstacles) { if (o.kind === 'shop' && rectDist(p.x, p.y, o) < 46) return 'BOUTIQUE'; if (o.kind === 'machine' && rectDist(p.x, p.y, o) < 34 && !o.broken && o.charges > 0) return 'SOINS'; } return null; }
   touchButtons() {
     // disposition « pouce droit » : les actions principales en arc au-dessus du stick de visée,
     // les objets secondaires en petit sur le bord droit ; le haut de l'écran reste libre
-    const cw = innerWidth, ch = innerHeight, p = this.player, r = Math.round(clamp(ch * 0.066, 21, 31)), rs = Math.round(r * 0.82);
-    const ax = cw - Math.max(170, cw * 0.24), ay = ch - 74, Ra = STICK_R + r + 20;
-    const arc = deg => ({ x: ax + Math.cos(deg * Math.PI / 180) * Ra, y: ay + Math.sin(deg * Math.PI / 180) * Ra });
-    const side = i => ({ x: cw - rs - 10, y: Math.max(ch * 0.4, 96) + i * (rs * 2 + 10) });
+    const cw = innerWidth, ch = innerHeight, p = this.player, sz = { petit: 0.86, normal: 1, grand: 1.18 }[Settings.btnSize] || 1, r = Math.round(clamp(ch * 0.066, 21, 31) * sz), rs = Math.round(r * 0.82);
+    const home = this.stickHome('aim'), ax = home.x, ay = home.y, Ra = STICK_R + r + 20, L = Settings.lefty;
+    const arc = deg => { const a = (L ? 180 - deg : deg) * Math.PI / 180; return { x: ax + Math.cos(a) * Ra, y: ay + Math.sin(a) * Ra }; };
+    const side = i => ({ x: L ? rs + 10 + SAFE.l : cw - rs - 10 - SAFE.r, y: Math.max(ch * 0.4, 96) + i * (rs * 2 + 10) });
     const B = (id, at, rr, o) => Object.assign({ id, x: at.x, y: at.y, r: rr }, o);
     return [
       { id: 'pause', x: cw / 2, y: 26, r: 18, label: 'II' },
@@ -3570,7 +3580,7 @@ class Game {
       B('grenade', arc(-142), r, { label: 'G', n: p.grenades, icon: 'grenade' }),
       B('special', arc(-104), Math.round(r * 1.1), { label: CHARS[p.char].sp, cd: p.spCd / p.spMax }),
       B('weapon', arc(-66), r, { label: 'ARME' }),
-      B('melee', arc(-28), r, { label: 'E' }),
+      ...(() => { const ni = this.nearInteract(); return ni ? [B('melee', arc(-28), r, { label: ni, glow: true })] : []; })(),
       B('mine', side(0), rs, { label: 'MINE', n: p.mines, icon: 'mine' }),
       B('decoy', side(1), rs, { label: 'LEURRE', n: p.decoys, icon: 'decoy' })
     ].concat(hasReward('flash') ? [B('flash', side(2), rs, { label: 'FLASH', cd: p.flashCd > 0 ? p.flashCd / 10 : 0 })] : []);
@@ -3643,8 +3653,8 @@ class Game {
     // indice d'interaction
     this.hint = null;
     if (!p.dead) for (const o of this.level.obstacles) {
-      if (o.kind === 'shop' && rectDist(p.x, p.y, o) < 46) { this.hint = `[${KL('melee')}] Ouvrir le marché noir`; break; }
-      if (o.kind === 'machine' && rectDist(p.x, p.y, o) < 34) { this.hint = o.broken || o.charges <= 0 ? 'Distributeur vide' : `[${KL('melee')}] Prendre une trousse de soin (${o.charges})`; break; }
+      if (o.kind === 'shop' && rectDist(p.x, p.y, o) < 46) { this.hint = this.input.touchMode ? 'Bouton BOUTIQUE : ouvrir le marché noir' : `[${KL('melee')}] Ouvrir le marché noir`; break; }
+      if (o.kind === 'machine' && rectDist(p.x, p.y, o) < 34) { this.hint = o.broken || o.charges <= 0 ? 'Distributeur vide' : (this.input.touchMode ? `Bouton SOINS : trousse de soin (${o.charges})` : `[${KL('melee')}] Prendre une trousse de soin (${o.charges})`); break; }
     }
     // caméra
     const S = VS * DPR, hw = W / 2 / S, hh = H / 2 / S;
@@ -4182,7 +4192,7 @@ class Game {
     c.setTransform(DPR * K, 0, 0, DPR * K, 0, 0); c.globalAlpha = 1; c.textBaseline = 'alphabetic';
     if (this.input.touchMode) {
       if (this.portrait) { c.fillStyle = 'rgba(5,5,7,.92)'; c.fillRect(0, 0, cw, ch); c.textAlign = 'center'; c.fillStyle = '#d8d2c4'; c.font = `30px ${FD}`; c.fillText('TOURNE TON TÉLÉPHONE', cw / 2, ch / 2 - 10); c.font = `15px ${FT}`; c.fillStyle = '#8b867b'; c.fillText('Le jeu se joue en mode paysage.', cw / 2, ch / 2 + 22); return; }
-      this.drawHUDTouch(cw, ch); this.drawHUDShared(cw, ch, true); this.drawInstructor(cw, ch); c.setTransform(DPR, 0, 0, DPR, 0, 0); this.drawTouchControls(W / DPR, H / DPR); c.setTransform(DPR * K, 0, 0, DPR * K, 0, 0); this.drawWheel(cw, ch); return;
+      c.save(); c.translate(SAFE.l / K, SAFE.t / K * 0.5); this.drawHUDTouch(cw - (SAFE.l + SAFE.r) / K, ch - SAFE.b / K); c.restore(); this.drawHUDShared(cw, ch, true); this.drawInstructor(cw, ch); c.setTransform(DPR, 0, 0, DPR, 0, 0); this.drawTouchControls(W / DPR, H / DPR); c.setTransform(DPR * K, 0, 0, DPR * K, 0, 0); this.drawWheel(cw, ch); return;
     }
     const small = cw < 700;
     const S = (small ? 0.72 : 1), coop = !!this.p2;
@@ -4349,12 +4359,13 @@ class Game {
     }
   }
   drawTouchControls(cw, ch) {
-    const c = ctx, inp = this.input;
+    const c = ctx, inp = this.input; c.save(); c.globalAlpha = clamp(+Settings.btnAlpha || 1, 0.3, 1);
     for (const b of this.touchButtons()) {
       const down = [...inp.btnPtr.values()].includes(b.id);
       c.fillStyle = down ? 'rgba(226,121,47,.45)' : 'rgba(10,10,12,.5)'; c.beginPath(); c.arc(b.x, b.y, b.r, 0, TAU); c.fill();
       c.strokeStyle = 'rgba(216,210,196,.35)'; c.lineWidth = 1.5; c.stroke();
       if (b.cd > 0) { c.fillStyle = 'rgba(0,0,0,.55)'; c.beginPath(); c.moveTo(b.x, b.y); c.arc(b.x, b.y, b.r, -Math.PI / 2, -Math.PI / 2 + TAU * b.cd); c.closePath(); c.fill(); }
+      else if (b.glow) { c.strokeStyle = `rgba(127,209,139,${0.6 + Math.sin(this.time * 6) * 0.35})`; c.lineWidth = 3; c.beginPath(); c.arc(b.x, b.y, b.r + 3, 0, TAU); c.stroke(); }
       else if (b.cd === 0) { c.strokeStyle = 'rgba(226,121,47,.9)'; c.lineWidth = 2.5; c.beginPath(); c.arc(b.x, b.y, b.r + 2, 0, TAU); c.stroke(); }
       if (b.icon) { if (b.n > 0) itemArt(c, b.icon, b.x, b.y, b.r * 1.25); else itemIcon(c, b.icon, b.x, b.y, b.r * 1.25, '#5a554c', false); }
       else { c.textAlign = 'center'; c.fillStyle = '#d8d2c4'; c.font = `${b.label.length > 2 ? 10 : 15}px ${b.label.length > 2 ? FT : FD}`; c.fillText(b.label, b.x, b.y + (b.label.length > 2 ? 4 : 6)); }
@@ -4370,8 +4381,8 @@ class Game {
         c.textAlign = 'center'; c.font = `11px ${FT}`; c.fillStyle = 'rgba(216,210,196,.3)'; c.fillText(label, gx, gy + 4);
       }
     };
-    drawStick(inp.sticks.move, Math.max(90, cw * 0.14), ch - 74, 'DÉPLACER');
-    drawStick(inp.sticks.aim, cw - Math.max(170, cw * 0.24), ch - 74, 'VISER · TIRER');
+    { const hm = this.stickHome('move'), ha = this.stickHome('aim'); drawStick(inp.sticks.move, hm.x, hm.y, 'DÉPLACER'); drawStick(inp.sticks.aim, ha.x, ha.y, 'VISER · TIRER'); }
+    c.restore();
   }
   drawHUDShared(cw, ch, small) {
     const c = ctx, p = this.player, t = this.time;
@@ -5640,6 +5651,11 @@ function optionsHTML(pre) {
   <label><input type="checkbox" id="${pre}-fog" ${Settings.fog ? 'checked' : ''}> Brouillard</label>
   <label for="${pre}-vol">Volume <input type="range" id="${pre}-vol" min="0" max="1" step="0.05" value="${Settings.vol}"></label>
   <label for="${pre}-music">Musique <input type="range" id="${pre}-music" min="0" max="1" step="0.05" value="${Settings.music}"></label>
+  <span class="ui-size" role="group" aria-label="Qualité"><span class="lbl">Qualité</span>${[['auto', 'Auto'], ['high', 'Haute'], ['eco', 'Économie de batterie']].map(([k, v]) => `<button type="button" class="btn sm" data-opt="quality" data-val="${k}" aria-pressed="${Settings.quality === k}">${v}</button>`).join('')}</span>
+  ${TOUCH ? `<span class="ui-size" role="group" aria-label="Taille des boutons"><span class="lbl">Boutons</span>${[['petit', 'Petits'], ['normal', 'Normaux'], ['grand', 'Grands']].map(([k, v]) => `<button type="button" class="btn sm" data-opt="btnSize" data-val="${k}" aria-pressed="${Settings.btnSize === k}">${v}</button>`).join('')}</span>
+  <label for="${pre}-alpha">Opacité des boutons <input type="range" id="${pre}-alpha" data-optr="btnAlpha" min="0.3" max="1" step="0.05" value="${Settings.btnAlpha}"></label>
+  <label><input type="checkbox" data-optc="lefty" ${Settings.lefty ? 'checked' : ''}> Mode gaucher</label>
+  <label><input type="checkbox" data-optc="fixedSticks" ${Settings.fixedSticks ? 'checked' : ''}> Sticks fixes</label>` : ''}
   <span class="ui-size" role="group" aria-label="Taille de l'interface"><span class="lbl">Taille de l'interface</span>${Object.entries(UI_SIZES).map(([k, v]) => `<button type="button" class="btn sm" data-ui="${k}" aria-pressed="${Settings.ui === k}">${v[0]}</button>`).join('')}</span>`;
 }
 function bindOptions(pre) {
@@ -5650,6 +5666,10 @@ function bindOptions(pre) {
   $(pre + '-vol').addEventListener('input', e => { Settings.vol = +e.target.value; Settings.save(); game.audio.applyVolume(); sync(); });
   $(pre + '-music').addEventListener('input', e => { Settings.music = +e.target.value; Settings.save(); game.audio.applyVolume(); sync(); });
   if (0) for (const b of el.querySelectorAll('[data-fin]')) b.addEventListener('click', () => { Settings.finisher = b.dataset.fin; Settings.save(); for (const x of document.querySelectorAll('[data-fin]')) x.setAttribute('aria-pressed', x.dataset.fin === Settings.finisher ? 'true' : 'false'); });
+  const reb = () => { bindOptions('title'); bindOptions('pause'); };
+  for (const b of el.querySelectorAll('[data-opt]')) b.addEventListener('click', () => { Settings[b.dataset.opt] = b.dataset.val; Settings.save(); if (b.dataset.opt === 'quality') { dprCap = 2; resize(); } reb(); });
+  for (const b of el.querySelectorAll('[data-optc]')) b.addEventListener('change', () => { Settings[b.dataset.optc] = b.checked; Settings.save(); reb(); });
+  for (const b of el.querySelectorAll('[data-optr]')) b.addEventListener('input', () => { Settings[b.dataset.optr] = +b.value; Settings.save(); });
   for (const b of el.querySelectorAll('[data-ui]')) b.addEventListener('click', () => { Settings.ui = b.dataset.ui; Settings.save(); applyUiScale(); for (const x of document.querySelectorAll('[data-ui]')) x.setAttribute('aria-pressed', x.dataset.ui === Settings.ui ? 'true' : 'false'); });
 }
 bindOptions('title'); bindOptions('pause');
@@ -6456,6 +6476,15 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- ouverture du studio
 let splashDoneAt = Infinity;
+// ---------- appel, changement d'appli, écran verrouillé : pause et son coupé, reprise propre au retour
+document.addEventListener('visibilitychange', () => {
+  const ac = game.audio && game.audio.ctx;
+  if (document.hidden) { if (game.state === 'playing') game.pause(); if (ac && ac.state === 'running') ac.suspend().catch(() => { }); }
+  else if (ac && ac.state === 'suspended') ac.resume().catch(() => { });
+});
+addEventListener('pagehide', () => { if (game.state === 'playing') game.pause(); });
+// ---------- hors ligne : le site garde une copie du jeu (uniquement sur le site en ligne)
+if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => { });
 // ---------- icônes et noms courts des onglets (utilisés par la barre verticale sur téléphone)
 { const ICO = { lobby: '<path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/>', perso: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>', arsenal: '<circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/>', 'btn-ach': '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>', 'btn-scores': '<path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8"/>', 'btn-credits': '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>', 'btn-settings': '<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>' };
   const SHORT = { lobby: 'Accueil', perso: 'Perso', arsenal: 'Arsenal', 'btn-ach': 'Succès', 'btn-scores': 'Scores', 'btn-credits': 'Crédits', 'btn-settings': 'Réglages' };
@@ -6512,9 +6541,10 @@ addEventListener('keydown', e => { if (game.state === 'title' && e.key === 'Ente
 let last = performance.now(), errShown = false;
 const perf = { t: 0, n: 0, slow: 0 };
 function frame(now) {
-  const raw = (now - last) / 1000, dt = Math.min(0.033, Math.max(0, raw)); last = now;
+  if (Settings.quality === 'eco' && now - last < 30) { requestAnimationFrame(frame); return; } // économie de batterie : 30 images par seconde
+  const raw = (now - last) / 1000, dt = Math.min(0.034, Math.max(0, raw)); last = now;
   // qualité automatique : en partie, si l'image tombe sous ~38 i/s pendant 3 s, on réduit la résolution d'un cran
-  if (game.state === 'playing' && raw < 0.25 && !document.hidden) { perf.t += raw; perf.n++; if (perf.t >= 3) { const avg = perf.t / perf.n; if (avg > 0.026 && dprCap > 1) { dprCap = Math.max(1, +(Math.min(dprCap, DPR) * 0.8).toFixed(2)); resize(); } perf.t = 0; perf.n = 0; } }
+  if (Settings.quality === 'auto' && game.state === 'playing' && raw < 0.25 && !document.hidden) { perf.t += raw; perf.n++; if (perf.t >= 3) { const avg = perf.t / perf.n; if (avg > 0.026 && dprCap > 1) { dprCap = Math.max(1, +(Math.min(dprCap, DPR) * 0.8).toFixed(2)); resize(); } perf.t = 0; perf.n = 0; } }
   try { game.update(dt); game.render(); } catch (err) { if (!errShown) { errShown = true; console.error(err); } }
   requestAnimationFrame(frame);
 }
