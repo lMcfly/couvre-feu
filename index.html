@@ -771,6 +771,21 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
   html.touch .hub-status{flex-direction:column;gap:4px;align-items:stretch;padding:0 5px}
   html.touch .hub-status .chip{justify-content:center;font-size:11px;padding:3px 2px}
   html.touch .hub-status .chip img{width:16px;height:11px}
+  /* moins de texte, rien qui chevauche */
+  html.touch .long-hint,html.touch .eyebrow .muted,html.touch .preview-desc,html.touch .preview-kicker{display:none}
+  html.touch #arsenal-cards .wc-kind,html.touch #arsenal-cards .wc-pips,html.touch .ft-mn,html.touch #gear-cards .wc-foot{display:none}
+  html.touch #arsenal-cards .wcard b{font-size:clamp(11px,2.2vw,14px);line-height:1.1;letter-spacing:.01em}
+  html.touch #arsenal-cards .wc-foot{text-align:center;font-size:12px;padding:4px}
+  html.touch #gear-cards{grid-template-columns:repeat(5,minmax(0,1fr))}
+  html.touch #gear-cards .wcard{padding:6px 2px;align-items:center}html.touch #gear-cards .wcard b{font-size:clamp(9px,1.7vw,11px);letter-spacing:0;text-align:center;line-height:1.1;word-break:normal;overflow-wrap:normal;hyphens:none}
+  html.touch #scr-end .stats{grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:4px}
+  html.touch #scr-end .stat{padding:5px 7px}html.touch #scr-end .stat span{font-size:9px;letter-spacing:.08em}html.touch #scr-end .stat b{font-size:15px}
+  html.touch #scr-end h2{font-size:26px}html.touch #scr-end .notice{padding-block:10px;gap:8px}
+  /* bande dessinée : une case à la fois, en grand */
+  html.touch .strip{display:flex;justify-content:center}
+  html.touch .strip .panel{display:none}
+  html.touch .strip .panel.cur{display:block;width:min(100%,calc((100vh - 130px) * 4 / 3))}
+  html.touch .comic-head h2{font-size:22px}
 }
 .shiba-chip{cursor:default}
 .shiba-chip.gold{cursor:pointer;color:#ffd23a;border-color:#ffd23a!important;box-shadow:0 0 14px rgba(255,210,58,.45);animation:shibaGlow 1.6s ease-in-out infinite}
@@ -1020,11 +1035,11 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
         <dt>ARME</dt><dd>Appui court : arme suivante. Appui long : roue des armes, glisse le doigt puis relâche.</dd>
         <dt>Boutons</dt><dd>E (mêlée, magasin, soins) · G · MINE · LEURRE · capacité · II pause</dd>
       </dl>
-      <p class="hint">Ce sont les touches par défaut : le bouton « Touches » permet de toutes les changer. Sur téléphone, les commandes tactiles s'activent toutes seules. Joue en mode paysage. Tire sur une voiture pour déclencher son alarme : la horde converge vers elle. Les voitures marquées d'une fuite d'essence explosent.</p>
+      <p class="hint long-hint">Ce sont les touches par défaut : le bouton « Touches » permet de toutes les changer. Sur téléphone, les commandes tactiles s'activent toutes seules. Joue en mode paysage. Tire sur une voiture pour déclencher son alarme : la horde converge vers elle. Les voitures marquées d'une fuite d'essence explosent.</p>
     </details>
       </div><div class="set-col">
       <h4>Sauvegarde</h4>
-      <p class="hint">La partie se sauvegarde toute seule à chaque point de sauvegarde, dans ce navigateur. Pour la reprendre sur un autre appareil ou un autre navigateur, copie le code ci-dessous puis colle-le là-bas.</p>
+      <p class="hint long-hint">La partie se sauvegarde toute seule à chaque point de sauvegarde, dans ce navigateur. Pour la reprendre sur un autre appareil ou un autre navigateur, copie le code ci-dessous puis colle-le là-bas.</p>
       <p id="save-info"></p>
       <div class="row"><button type="button" class="btn" id="btn-save-copy">Copier le code de sauvegarde</button><button type="button" class="btn" id="btn-save-delete">Supprimer la sauvegarde</button><button type="button" class="btn" id="btn-wipe">Tout remettre à zéro</button></div>
       <textarea id="save-code" rows="3" readonly hidden aria-label="Code de sauvegarde"></textarea>
@@ -1073,13 +1088,13 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
   <div class="notice">
     <p class="eyebrow">Réglages</p>
     <h2>Touches</h2>
-    <p class="hint">Clique sur une case (ou sélectionne-la à la manette et appuie sur A), puis appuie sur la touche ou le bouton voulu. Échap annule. Chaque action accepte deux touches. Les touches 1 à 6 et la molette changent toujours d'arme, et Échap met toujours en pause.</p>
+    <p class="hint long-hint">Clique sur une case (ou sélectionne-la à la manette et appuie sur A), puis appuie sur la touche ou le bouton voulu. Échap annule. Chaque action accepte deux touches. Les touches 1 à 6 et la molette changent toujours d'arme, et Échap met toujours en pause.</p>
     <div class="row kview" role="group" aria-label="Affichage"><button type="button" class="btn sm" data-kview="kb">Clavier et souris</button><button type="button" class="btn sm" data-kview="pad">Manette</button></div>
     <div id="keys-kb"><div class="tablewrap"><table class="binds" id="binds"></table></div></div>
     <div id="keys-pad" hidden>
       <p class="hint" id="pad-status">Aucune manette détectée : branche-la puis appuie sur un de ses boutons.</p>
       <div class="pad-svg" id="pad-svg"></div>
-      <p class="hint">Les sticks servent toujours à se déplacer et à viser. Dans les menus, la croix, A et B restent fixes.</p>
+      <p class="hint long-hint">Les sticks servent toujours à se déplacer et à viser. Dans les menus, la croix, A et B restent fixes.</p>
       <div class="tablewrap"><table class="binds" id="padbinds"></table></div>
     </div>
     <p class="hint" id="bind-msg" aria-live="polite"></p>
@@ -5610,7 +5625,7 @@ class Comic {
     this.idx = 0; this.reveal(); g.showScreen('scr-comic'); $('comic-next').focus();
   }
   reveal() {
-    const ps = this.strip.children; for (let i = 0; i < ps.length; i++) ps[i].classList.toggle('on', i <= this.idx);
+    const ps = this.strip.children; for (let i = 0; i < ps.length; i++) { ps[i].classList.toggle('on', i <= this.idx); ps[i].classList.toggle('cur', i === this.idx); }
     const cur = this.panels && this.panels[this.idx]; if (cur && cur.onReveal && !cur._fired) { cur._fired = true; cur.onReveal(); } $('comic-next').textContent = this.idx >= ps.length - 1 ? 'Continuer' : 'Case suivante'; }
   next() { if (this.g.state !== 'comic') return; if (this.idx < this.strip.children.length - 1) { this.idx++; this.reveal(); this.g.audio.ui(); } else this.finish(); }
   finish() { const g = this.g; if (g.state !== 'comic') return; g.showScreen(null); g.state = 'playing'; g.input.mdown = false; const d = this.done; this.done = null; if (d) d(); }
@@ -5814,7 +5829,7 @@ function renderArsenal() {
   $('av-mag').textContent = String(d.mag); $('av-res').textContent = d.infinite ? '∞' : String(d.ammoPack);
   for (const c of document.querySelectorAll('#arsenal-cards .wcard')) c.setAttribute('aria-pressed', +c.dataset.w === arsenalSel ? 'true' : 'false');
 }
-$('arsenal-cards').innerHTML = WEAPONS.map((d, i) => `<button type="button" class="wcard weapon" data-w="${i}" aria-pressed="false"><span class="wc-kind">${W_KIND[d.id] || d.type}</span><span class="wc-pips" aria-hidden="true"><i></i><i></i><i></i></span><img src="${iconURL(d.id, true)}" alt=""><b>${d.name}</b><span class="wc-foot ${d.price ? 'contra' : ''}">${d.price ? `Marché noir · $${fmt(d.price)}` : 'Arme de départ'}</span></button>`).join('');
+$('arsenal-cards').innerHTML = WEAPONS.map((d, i) => `<button type="button" class="wcard weapon" data-w="${i}" aria-pressed="false"><span class="wc-kind">${W_KIND[d.id] || d.type}</span><span class="wc-pips" aria-hidden="true"><i></i><i></i><i></i></span><img src="${iconURL(d.id, true)}" alt=""><b>${d.name}</b><span class="wc-foot ${d.price ? 'contra' : ''}">${d.price ? `<span class="ft-mn">Marché noir · </span>$${fmt(d.price)}` : '<span class="ft-mn">Arme de </span>départ'}</span></button>`).join('');
 for (const c of document.querySelectorAll('#arsenal-cards .wcard')) c.addEventListener('click', () => { arsenalSel = +c.dataset.w; renderArsenal(); });
 const GEAR = [['grenade', 'Grenade', 'Touche ' + K('grenade')], ['mine', 'Mine', 'Explose au contact'], ['decoy', 'Fusée-leurre', 'Attire la horde'], ['battery', 'Piles', 'Recharge la lampe'], ['med', 'Trousse', '+25 santé']];
 $('gear-cards').innerHTML = GEAR.map(([k, n, s2]) => `<div class="wcard gear"><img src="${iconURL(k)}" alt=""><b>${n}</b><span class="wc-foot">${s2}</span></div>`).join('');
