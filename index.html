@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta name="apple-mobile-web-app-title" content="Couvre-Feu">
 <title>Couvre-Feu</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="mobile-web-app-capable" content="yes">
@@ -737,6 +741,11 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .fs-never{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ash);cursor:pointer}
 @media (max-height:520px){.fs-wrap{padding:12px 14px;gap:6px}.fs-wrap h2{font-size:26px}.fs-ico{width:34px;height:34px}.fs-wrap p{font-size:12px}}
 .tab.fs-tab{display:inline-flex;align-items:center;gap:6px}.fs-tab svg{width:16px;height:16px}
+@media (max-width:1100px){.hub-top{gap:8px;padding-top:6px;padding-bottom:4px;min-height:42px}.hub-brand small{display:none}.hub-tabs .tab{font-size:11px;letter-spacing:.06em;padding:8px 7px}.hub-tabs .tab::after{left:7px;right:7px}.hub-status{gap:5px}.hub-status .chip{font-size:12px;padding:3px 6px}.hub-status .chip img{width:18px;height:12px}#hub-level i{display:none}}
+@media (max-width:760px){.hub-brand b,.hub-brand .brand-txt{font-size:18px}.hub-tabs .tab{font-size:10px;padding:8px 5px;letter-spacing:.03em}}
+/* fenêtres : jamais plus hautes que l'écran */
+.hub-modal{overflow-y:auto;align-items:safe center}
+@media (max-height:520px){.photo-modal{padding:8px}.launch-wrap{gap:4px}.launch-wrap .start-art{height:64px}.launch-wrap .start-title{font-size:20px}.launch-wrap .start-body{gap:5px;padding:8px 10px}.launch-wrap .diffs button{padding:5px 4px}.btn.big{padding:10px 20px;font-size:15px}.join-wrap h2{font-size:24px}.jslot{min-height:0;padding:8px}.jslot canvas{width:120px;height:90px}.secret-wrap canvas{max-height:110px;object-fit:cover}}
 .shiba-chip{cursor:default}
 .shiba-chip.gold{cursor:pointer;color:#ffd23a;border-color:#ffd23a!important;box-shadow:0 0 14px rgba(255,210,58,.45);animation:shibaGlow 1.6s ease-in-out infinite}
 @keyframes shibaGlow{50%{box-shadow:0 0 24px rgba(255,210,58,.8)}}
@@ -1331,7 +1340,7 @@ const LOWK = new Set(['barrel', 'barrier', 'sandbags', 'parapet', 'radio', 'braz
 const $ = id => document.getElementById(id);
 const canvas = $('game'); let ctx = canvas.getContext('2d'); // let : le teaser des fiches emprunte le moteur de dessin
 const lightCanvas = document.createElement('canvas'), lctx = lightCanvas.getContext('2d');
-let W = 0, H = 0, DPR = 1, VS = 1;
+let W = 0, H = 0, DPR = 1, VS = 1, dprCap = 2; // dprCap : baissé automatiquement si l'appareil n'arrive pas à suivre
 let TOUCH = false; try { TOUCH = matchMedia('(pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches; } catch (e) { }
 const STICK_R = 58;
 let LD = 2; // diviseur de résolution du calque de lumière
@@ -1339,7 +1348,7 @@ let LD = 2; // diviseur de résolution du calque de lumière
 function makeVignette(rgb, a0, a1) { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'); const gr = g.createRadialGradient(128, 128, 60, 128, 128, 182); gr.addColorStop(0, `rgba(${rgb},${a0})`); gr.addColorStop(1, `rgba(${rgb},${a1})`); g.fillStyle = gr; g.fillRect(0, 0, 256, 256); return c; }
 const VIG = makeVignette('0,0,0', 0, 0.7), VIG_RED = makeVignette('150,8,4', 0, 1);
 function resize() {
-  DPR = TOUCH ? 0.9 : Math.min(window.devicePixelRatio || 1, 1.25); LD = TOUCH ? 3 : 2;
+  DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, dprCap)); LD = TOUCH ? 3 : 2;
   const cw = window.innerWidth, ch = window.innerHeight;
   W = Math.max(1, Math.floor(cw * DPR)); H = Math.max(1, Math.floor(ch * DPR));
   canvas.width = W; canvas.height = H;
@@ -2336,14 +2345,14 @@ const GINETTE = {
   free: 'Tu apprends plus vite que John. Ne lui répète pas. Continue à t\'entraîner, ou rentre : Pause puis « Quitter ».'
 };
 const TRAIN_STEPS = [
-  { id: 'move', t: () => `Déplace-toi ${deviceNow() === 'pad' ? 'avec le stick gauche' : `avec ${KL('up')} ${KL('left')} ${KL('down')} ${KL('right')}`}`, ok: (g, s) => s.moved > 320 },
-  { id: 'shoot', t: () => `Vise ${deviceNow() === 'pad' ? 'au stick droit' : 'à la souris'} et abats 3 cibles [${KL('fire')}]`, ok: (g, s) => s.hits >= 3 },
-  { id: 'reload', t: () => `Recharge ton arme [${KL('reload')}] (ça se fait aussi tout seul quand le chargeur est vide)`, ok: (g, s) => g.player.reloadT > 0 },
-  { id: 'switch', t: () => `Change d'arme [${KL('next')}]${deviceNow() === 'pad' ? '' : ' ou touches 1 à 6'}`, ok: (g, s) => g.player.cur !== s.cur0 },
-  { id: 'roll', t: () => `Fais une roulade [${KL('roll')}] : tu es intouchable pendant le roulé`, ok: (g, s) => g.player.rollT > 0 },
-  { id: 'melee', t: () => `Approche la cible fixe et donne un coup de crosse [${KL('melee')}]`, ok: (g, s) => g.player.meleeT > 0 },
-  { id: 'grenade', t: () => `Lance une grenade sur le groupe de cibles [${KL('grenade')}]`, ok: (g, s) => g.player.grenades < s.gr0 },
-  { id: 'special', t: () => `Déclenche ta capacité spéciale : ${CHARS[g_char()].spLong} [${KL('special')}]`, ok: (g, s) => g.player.spCd > 0 },
+  { id: 'move', t: () => deviceNow() === 'touch' ? 'Pose le pouce gauche sur l\'écran et glisse : c\'est le stick DÉPLACER' : `Déplace-toi ${deviceNow() === 'pad' ? 'avec le stick gauche' : `avec ${KL('up')} ${KL('left')} ${KL('down')} ${KL('right')}`}`, ok: (g, s) => s.moved > 320 },
+  { id: 'shoot', t: () => deviceNow() === 'touch' ? 'Pouce droit sur VISER · TIRER, pousse au-delà de la moitié pour tirer, et abats 3 cibles' : `Vise ${deviceNow() === 'pad' ? 'au stick droit' : 'à la souris'} et abats 3 cibles [${KL('fire')}]`, ok: (g, s) => s.hits >= 3 },
+  { id: 'reload', t: () => deviceNow() === 'touch' ? 'Au tactile, le rechargement est automatique : vide ton chargeur et regarde' : `Recharge ton arme [${KL('reload')}] (ça se fait aussi tout seul quand le chargeur est vide)`, ok: (g, s) => g.player.reloadT > 0 },
+  { id: 'switch', t: () => deviceNow() === 'touch' ? 'Touche le bouton ARME pour changer d\'arme (appui long : la roue des armes)' : `Change d'arme [${KL('next')}]${deviceNow() === 'pad' ? '' : ' ou touches 1 à 6'}`, ok: (g, s) => g.player.cur !== s.cur0 },
+  { id: 'roll', t: () => `Fais une roulade [${deviceNow() === 'touch' ? 'bouton ROULADE' : KL('roll')}] : tu es intouchable pendant le roulé`, ok: (g, s) => g.player.rollT > 0 },
+  { id: 'melee', t: () => `Approche la cible fixe et donne un coup de crosse [${deviceNow() === 'touch' ? 'bouton E' : KL('melee')}]`, ok: (g, s) => g.player.meleeT > 0 },
+  { id: 'grenade', t: () => `Lance une grenade sur le groupe de cibles [${deviceNow() === 'touch' ? 'bouton grenade' : KL('grenade')}]`, ok: (g, s) => g.player.grenades < s.gr0 },
+  { id: 'special', t: () => `Déclenche ta capacité spéciale : ${CHARS[g_char()].spLong} [${deviceNow() === 'touch' ? 'bouton ' + CHARS[g_char()].sp : KL('special')}]`, ok: (g, s) => g.player.spCd > 0 },
   { id: 'free', t: () => 'Entraînement terminé ! Tire librement · Pause puis « Quitter » pour revenir au menu', ok: () => false }
 ];
 function g_char() { return game.charKey; }
@@ -3506,18 +3515,23 @@ class Game {
     c.restore();
   }
   touchButtons() {
-    const cw = innerWidth, ch = innerHeight, p = this.player, r = Math.round(clamp(ch * 0.065, 22, 30));
-    const x1 = cw - r - 16, x2 = x1 - r * 2 - 14, y0 = Math.max(122, ch * 0.3), dy = r * 2 + 10;
+    // disposition « pouce droit » : les actions principales en arc au-dessus du stick de visée,
+    // les objets secondaires en petit sur le bord droit ; le haut de l'écran reste libre
+    const cw = innerWidth, ch = innerHeight, p = this.player, r = Math.round(clamp(ch * 0.066, 21, 31)), rs = Math.round(r * 0.82);
+    const ax = cw - Math.max(170, cw * 0.24), ay = ch - 74, Ra = STICK_R + r + 20;
+    const arc = deg => ({ x: ax + Math.cos(deg * Math.PI / 180) * Ra, y: ay + Math.sin(deg * Math.PI / 180) * Ra });
+    const side = i => ({ x: cw - rs - 10, y: Math.max(ch * 0.4, 96) + i * (rs * 2 + 10) });
+    const B = (id, at, rr, o) => Object.assign({ id, x: at.x, y: at.y, r: rr }, o);
     return [
       { id: 'pause', x: cw / 2, y: 26, r: 18, label: 'II' },
-      { id: 'special', x: x2, y: y0, r, label: CHARS[p.char].sp, cd: p.spCd / p.spMax },
-      { id: 'weapon', x: x1, y: y0, r, label: 'ARME' },
-      { id: 'melee', x: x1, y: y0 + dy, r, label: 'E' },
-      { id: 'grenade', x: x1, y: y0 + dy * 2, r, label: 'G', n: p.grenades, icon: 'grenade' },
-      { id: 'mine', x: x2, y: y0 + dy, r, label: 'MINE', n: p.mines, icon: 'mine' },
-      { id: 'decoy', x: x2, y: y0 + dy * 2, r, label: 'LEURRE', n: p.decoys, icon: 'decoy' },
-      { id: 'roll', x: x2 - r * 2 - 14, y: y0 + dy * 2, r, label: 'ROULADE', cd: p.rollCd > 0 ? p.rollCd / 0.55 : 0 }
-    ].concat(hasReward('flash') ? [{ id: 'flash', x: x2 - r * 2 - 14, y: y0 + dy, r, label: 'FLASH', cd: p.flashCd > 0 ? p.flashCd / 10 : 0 }] : []);
+      B('roll', arc(180), Math.round(r * 1.15), { label: 'ROULADE', cd: p.rollCd > 0 ? p.rollCd / 0.55 : 0 }),
+      B('grenade', arc(-142), r, { label: 'G', n: p.grenades, icon: 'grenade' }),
+      B('special', arc(-104), Math.round(r * 1.1), { label: CHARS[p.char].sp, cd: p.spCd / p.spMax }),
+      B('weapon', arc(-66), r, { label: 'ARME' }),
+      B('melee', arc(-28), r, { label: 'E' }),
+      B('mine', side(0), rs, { label: 'MINE', n: p.mines, icon: 'mine' }),
+      B('decoy', side(1), rs, { label: 'LEURRE', n: p.decoys, icon: 'decoy' })
+    ].concat(hasReward('flash') ? [B('flash', side(2), rs, { label: 'FLASH', cd: p.flashCd > 0 ? p.flashCd / 10 : 0 })] : []);
   }
   updatePlaying(dt, inp) {
     this.portrait = this.input.touchMode && innerHeight > innerWidth * 1.05;
@@ -4130,8 +4144,8 @@ class Game {
     }
     const small = cw < 700;
     const S = (small ? 0.72 : 1), coop = !!this.p2;
-    // score et multiplicateur, en haut au centre
-    { const m = this.mult, y = small ? 34 : 46; c.font = `${small ? 28 : 40}px ${FD}`; c.textAlign = 'right'; c.fillStyle = '#d8d2c4'; c.fillText(fmt(this.score), cw / 2 + 6, y);
+    // score et multiplicateur, en haut au centre (pas pendant l'entraînement)
+    if (this.mode !== 'training') { const m = this.mult, y = small ? 34 : 46; c.font = `${small ? 28 : 40}px ${FD}`; c.textAlign = 'right'; c.fillStyle = '#d8d2c4'; c.fillText(fmt(this.score), cw / 2 + 6, y);
       c.textAlign = 'left'; c.font = `${(small ? 22 : 30) + this.multPulse * 10}px ${FD}`; c.fillStyle = m >= 8 ? '#ff4a2c' : m >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText(m.toFixed(1) + '×', cw / 2 + 20, y);
       c.textAlign = 'center'; c.font = `12px ${FT}`; c.fillStyle = '#8b867b'; let sub = `${fmt(this.kills)} abattus`;
       if (this.mode !== 'training') sub += '   ' + '■'.repeat(Math.max(0, this.lives)) + '□'.repeat(Math.max(0, this.diff.lives - this.lives)); if (this.mode === 'story') sub += `   shibas ${this.shibaFound.size}/${SHIBAS_TOTAL}`;
@@ -4219,7 +4233,7 @@ class Game {
   drawInstructor(cw, ch) {
     const s = this.train; if (!s || !s.tut || this.state !== 'playing') return;
     const c = ctx, i = Math.min(s.step, TRAIN_STEPS.length - 1), st = TRAIN_STEPS[i], line = GINETTE[st.id] + (st.id === 'free' ? '' : ' ' + st.t() + '.');
-    const touch = this.input.touchMode, small = cw < 760, r = touch || small ? 30 : 40, px = cw - r - (touch ? 70 : 22), py = r + (touch ? 74 : 18), k = Math.min(1, s.stepT * 4);
+    const touch = this.input.touchMode, small = cw < 760, r = touch || small ? 26 : 40, px = cw - r - (touch ? 18 : 22), py = r + (touch ? 12 : 18), k = Math.min(1, s.stepT * 4);
     const talk = s.stepT < line.length / 55 + 0.2 ? Math.abs(Math.sin(this.time * 15)) : 0;
     c.save(); c.globalAlpha = k;
     // médaillon holographique : IA bleue, carré court, circuits lumineux, lignes de balayage
@@ -4243,18 +4257,17 @@ class Game {
     c.restore(); c.globalAlpha = k;
     // micro tenu devant la bouche
     const mx = px - r * 0.95, my = py + r * 0.55;
-    c.strokeStyle = '#120c09'; c.lineWidth = r * 0.16; c.lineCap = 'round'; c.beginPath(); c.moveTo(mx + r * 0.1, my + r * 0.1); c.lineTo(mx + r * 0.55, my + r * 0.75); c.stroke();
+    c.strokeStyle = '#120c09'; c.lineWidth = r * 0.16; c.lineCap = 'round'; c.beginPath(); c.moveTo(mx + 0.1 * r, my + r * 0.1); c.lineTo(mx + 0.55 * r, my + r * 0.75); c.stroke();
     c.strokeStyle = '#5fc8ff'; c.lineWidth = r * 0.08; c.stroke();
     c.fillStyle = '#16304f'; c.strokeStyle = '#120c09'; c.lineWidth = 2; c.beginPath(); c.arc(mx, my, r * 0.24, 0, TAU); c.fill(); c.stroke();
     c.strokeStyle = 'rgba(200,200,210,.55)'; c.lineWidth = 1; for (let j = -2; j <= 2; j++) { c.beginPath(); c.moveTo(mx + j * r * 0.08, my - r * 0.2); c.lineTo(mx + j * r * 0.08, my + r * 0.2); c.stroke(); }
     if (talk > 0) { c.strokeStyle = 'rgba(95,200,255,.9)'; c.lineWidth = 1.5; for (let j = 1; j <= 2; j++) { c.beginPath(); c.arc(mx, my, r * 0.3 + j * 5 + talk * 3, Math.PI * 0.7, Math.PI * 1.3); c.stroke(); } }
     // bulle qui sort du micro, vers la gauche
-    const fs = touch || small ? 12 : 14, lh = fs + 4, bw = Math.min(touch ? 300 : 420, cw * (touch ? 0.36 : 0.4)); c.font = `${fs}px ${FT}`;
+    const fs = touch || small ? 12 : 14, lh = fs + 4, bw = touch ? Math.max(200, Math.min(320, cw - r * 2.6 - 60 - (cw / 2 + 28))) : Math.min(420, cw * 0.4); // au tactile : ne déborde pas sur le bouton pause c.font = `${fs}px ${FT}`;
     const all = wrapLines(c, line, bw - 24), n = Math.floor(s.stepT * 55); let left = n; const shown = all.map(l => { const t2 = l.slice(0, Math.max(0, left)); left -= l.length + 1; return t2; });
-    const bh = all.length * lh + 30, bx = mx - r * 0.5 - 14 - bw, by = Math.max(touch ? 60 : 90, my - bh * 0.35);
+    const bh = all.length * lh + 30, bx = mx - r * 0.5 - 14 - bw, by = touch ? 8 : Math.max(90, my - bh * 0.35);
     c.fillStyle = 'rgba(8,22,40,.92)'; c.strokeStyle = '#5fc8ff'; c.lineWidth = 2; c.shadowColor = 'rgba(95,200,255,.6)'; c.shadowBlur = 10; c.beginPath(); RR(c, bx, by, bw, bh, 8); c.fill(); c.stroke(); c.shadowBlur = 0;
-    c.beginPath(); c.moveTo(bx + bw - 1, by + Math.min(bh - 14, Math.max(10, my - by - 8))); c.lineTo(mx - r * 0.3, my); c.lineTo(bx + bw - 1, by + Math.min(bh - 4, Math.max(20, my - by + 8))); c.closePath(); c.fill(); c.stroke();
-    c.fillStyle = 'rgba(8,22,40,.92)'; c.fillRect(bx + bw - 4, by + Math.min(bh - 14, Math.max(10, my - by - 8)) + 1, 5, 14);
+    { const ex = bx + bw - 1, t1 = by + Math.min(bh - 14, Math.max(10, my - by - 8)), t2 = by + Math.min(bh - 4, Math.max(20, my - by + 8)); c.beginPath(); c.moveTo(ex, t1); c.lineTo(mx - r * 0.3, my); c.lineTo(ex, t2); c.closePath(); c.fill(); c.stroke(); c.fillStyle = 'rgba(8,22,40,.92)'; c.fillRect(ex - 3, t1 + 1, 4, t2 - t1 - 2); }
     c.textAlign = 'left'; c.fillStyle = '#7fd6ff'; c.font = `${fs - 1}px ${FD}`; c.fillText('CORTANA', bx + 12, by + 17);
     c.fillStyle = 'rgba(160,220,255,.55)'; c.font = `10px ${FT}`; c.textAlign = 'right'; c.fillText(st.id === 'free' ? 'terminé' : `étape ${i + 1}/${TRAIN_STEPS.length - 1}`, bx + bw - 10, by + 16);
     c.textAlign = 'left'; c.fillStyle = '#e4f6ff'; c.font = `${fs}px ${FT}`; shown.forEach((l, j) => c.fillText(l, bx + 12, by + 22 + lh * (j + 0.9)));
@@ -4281,8 +4294,8 @@ class Game {
         c.save(); c.translate(cw / 2 + Math.cos(a) * k, ch / 2 + Math.sin(a) * k); c.rotate(a); c.globalAlpha = 0.6 + Math.sin(t * 4) * 0.25; c.fillStyle = '#e2792f'; c.beginPath(); c.moveTo(13, 0); c.lineTo(-7, -8); c.lineTo(-3, 0); c.lineTo(-7, 8); c.closePath(); c.fill(); c.restore(); c.globalAlpha = 1;
       }
     }
-    c.textAlign = 'right'; c.font = `26px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(fmt(this.score), cw - 16, 32);
-    c.font = `${21 + this.multPulse * 8}px ${FD}`; c.fillStyle = this.mult >= 8 ? '#ff4a2c' : this.mult >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText('×' + this.mult.toFixed(1), cw - 16, 58);
+    if (this.mode !== 'training') { c.textAlign = 'right'; c.font = `26px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(fmt(this.score), cw - 16, 32);
+    c.font = `${21 + this.multPulse * 8}px ${FD}`; c.fillStyle = this.mult >= 8 ? '#ff4a2c' : this.mult >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText('×' + this.mult.toFixed(1), cw - 16, 58); }
     const w = p.weapon; c.textAlign = 'center';
     c.font = `22px ${FD}`; c.fillStyle = w.ammo === 0 ? '#e0321f' : '#d8d2c4'; c.fillText(`${w.ammo} / ${w.def.infinite ? '∞' : w.reserve}`, cw / 2, ch - 14);
     c.font = `12px ${FT}`; c.fillStyle = this.weaponFlash > 0 ? '#f0b25a' : '#8b867b'; c.fillText(w.def.name.toUpperCase() + (p.reloadT > 0 ? ' · RECHARGE' : ''), cw / 2, ch - 40);
@@ -4315,8 +4328,8 @@ class Game {
         c.textAlign = 'center'; c.font = `11px ${FT}`; c.fillStyle = 'rgba(216,210,196,.3)'; c.fillText(label, gx, gy + 4);
       }
     };
-    drawStick(inp.sticks.move, Math.max(90, cw * 0.14), ch - 92, 'DÉPLACER');
-    drawStick(inp.sticks.aim, cw - Math.max(170, cw * 0.24), ch - 92, 'VISER · TIRER');
+    drawStick(inp.sticks.move, Math.max(90, cw * 0.14), ch - 74, 'DÉPLACER');
+    drawStick(inp.sticks.aim, cw - Math.max(170, cw * 0.24), ch - 74, 'VISER · TIRER');
   }
   drawHUDShared(cw, ch, small) {
     const c = ctx, p = this.player, t = this.time;
@@ -6441,8 +6454,11 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && gam
 addEventListener('keydown', e => { if (game.state === 'title' && e.key === 'Enter' && !game.keysOpen && performance.now() - splashDoneAt > 300 && document.activeElement === document.body && $('launch-modal').hidden && !join.open) openLaunch('story'); });
 
 let last = performance.now(), errShown = false;
+const perf = { t: 0, n: 0, slow: 0 };
 function frame(now) {
-  const dt = Math.min(0.033, Math.max(0, (now - last) / 1000)); last = now;
+  const raw = (now - last) / 1000, dt = Math.min(0.033, Math.max(0, raw)); last = now;
+  // qualité automatique : en partie, si l'image tombe sous ~38 i/s pendant 3 s, on réduit la résolution d'un cran
+  if (game.state === 'playing' && raw < 0.25 && !document.hidden) { perf.t += raw; perf.n++; if (perf.t >= 3) { const avg = perf.t / perf.n; if (avg > 0.026 && dprCap > 1) { dprCap = Math.max(1, +(Math.min(dprCap, DPR) * 0.8).toFixed(2)); resize(); } perf.t = 0; perf.n = 0; } }
   try { game.update(dt); game.render(); } catch (err) { if (!errShown) { errShown = true; console.error(err); } }
   requestAnimationFrame(frame);
 }
