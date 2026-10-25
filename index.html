@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Couvre-Feu</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b0b0d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@700&family=Saira+Stencil+One&family=Special+Elite&display=swap">
@@ -727,6 +731,12 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .pause-stats b{font-family:var(--display);font-size:24px;font-weight:400;color:var(--bone);line-height:1.1}
 .pause-stats span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ash)}
 .pause-main,.pause-settings{display:flex;flex-direction:column;gap:10px}
+.fs-wrap{width:min(440px,100%);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:22px 18px;background:linear-gradient(180deg,rgba(26,22,20,.97),rgba(10,10,12,.97));border:1px solid rgba(255,255,255,.12);border-top:3px solid var(--blood);border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.fs-wrap p{margin:0;color:#c6c0b2;font-size:14px;line-height:1.45}
+.fs-ico{width:58px;height:58px;color:var(--sodium)}.fs-ico svg{width:100%;height:100%}
+.fs-never{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ash);cursor:pointer}
+@media (max-height:520px){.fs-wrap{padding:12px 14px;gap:6px}.fs-wrap h2{font-size:26px}.fs-ico{width:34px;height:34px}.fs-wrap p{font-size:12px}}
+.tab.fs-tab{display:inline-flex;align-items:center;gap:6px}.fs-tab svg{width:16px;height:16px}
 .shiba-chip{cursor:default}
 .shiba-chip.gold{cursor:pointer;color:#ffd23a;border-color:#ffd23a!important;box-shadow:0 0 14px rgba(255,210,58,.45);animation:shibaGlow 1.6s ease-in-out infinite}
 @keyframes shibaGlow{50%{box-shadow:0 0 24px rgba(255,210,58,.8)}}
@@ -829,6 +839,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
       <button type="button" class="tab" id="btn-scores" aria-expanded="false">Scores</button>
       <button type="button" class="tab" id="btn-credits" aria-expanded="false">Crédits</button>
       <button type="button" class="tab" id="btn-settings" aria-expanded="false">Paramètres</button>
+      <button type="button" class="tab fs-tab" id="btn-fs" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></button>
       <span class="kb-hint" data-hint="next">RB</span>
     </nav>
     <div class="hub-status">
@@ -1012,6 +1023,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
       <div class="opts" id="opts-pause"></div>
       <div class="row">
         <button type="button" class="btn" id="btn-keys-pause">Touches et manette</button>
+        <button type="button" class="btn" id="btn-fs-pause">Plein écran</button>
         <button type="button" class="btn primary" id="btn-pause-back">‹ Retour</button>
       </div>
     </div>
@@ -1076,6 +1088,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 </div></div>
 <div id="join-modal" class="photo-modal hub-modal join-modal" hidden role="dialog" aria-labelledby="join-h"><div class="join-wrap"><p class="eyebrow">Campagne à deux</p><h2 id="join-h">Connexion des manettes</h2><p class="join-hint" id="join-hint"></p><div class="join-slots" id="join-slots"></div><div class="row center"><button type="button" class="btn" id="join-back">Retour</button><button type="button" class="btn primary big" id="join-go" disabled>Lancer la partie</button></div></div></div>
 <div id="secret-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="secret-h"><div class="secret-wrap"><canvas id="secret-cv" width="480" height="240" aria-hidden="true"></canvas><p class="eyebrow">Niveau secret</p><h2 id="secret-h">Le Paradis des Shibas</h2><p>Les 12 shibas sont sauvés. Le Shibanophile t'attend sur la Place de la Mairie : protège les 9 shibas du paradis.</p><div class="row center"><button type="button" class="btn" id="secret-close">Retour</button><button type="button" class="btn primary big" id="btn-paradise-title">Entrer au Paradis</button></div></div></div>
+<div id="fs-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="fs-h"><div class="fs-wrap"><div class="fs-ico" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p class="eyebrow">Couvre-Feu</p><h2 id="fs-h">Jouer en plein écran ?</h2><p id="fs-txt">Pour une meilleure immersion, le jeu passe en plein écran.</p><div class="row center"><button type="button" class="btn" id="fs-no">Non merci</button><button type="button" class="btn primary big" id="fs-yes">Plein écran</button></div><label class="fs-never"><input type="checkbox" id="fs-never"> Ne plus me demander</label></div></div>
 <div id="mut-modal" class="photo-modal mut-modal" hidden role="dialog" aria-labelledby="mut-h"><div class="mut-wrap"><p class="eyebrow" id="mut-night"></p><h2 id="mut-h">Choisis une mutation</h2><div class="mut-list" id="mut-list"></div></div></div>
 <footer id="prompt-bar" class="prompt-bar" hidden aria-hidden="true"></footer>
 <div id="pad-cursor" hidden aria-hidden="true"><span class="ring"></span><svg viewBox="0 0 32 32"><g stroke="#120c09" stroke-width="1.6" stroke-linejoin="round"><path d="M16 2C9 2 4 7 4 14c0 4 2 6.5 4 8v2h16v-2c2-1.5 4-4 4-8C28 7 23 2 16 2z" fill="#b7c29c"/><path d="M13 3l1.5 3.5-2 2.5 1 2.5" fill="none" stroke-width="1.1"/><path d="M24 9c-1 1-2.5 1-3 2.5" fill="none" stroke="#7d8a5f" stroke-width="1.4"/><ellipse cx="11" cy="14" rx="3.4" ry="3.9" fill="#1a0f0c"/><ellipse cx="21" cy="14" rx="3.4" ry="3.9" fill="#1a0f0c"/><circle cx="11.6" cy="14.6" r="1.3" fill="#ff3b2a" stroke="none"/><circle cx="20.4" cy="14.6" r="1.3" fill="#ff3b2a" stroke="none"/><path d="M16 17.4l-1.7 3h3.4z" fill="#1a0f0c"/><path d="M10 22.5h12" fill="none" stroke-width="1.2"/><g class="jaw"><path d="M9 24h14v3.3c0 1.6-1.4 2.7-3 2.7h-8c-1.6 0-3-1.1-3-2.7z" fill="#a3ae86"/><path d="M12.5 24v3.4M16 24v3.6M19.5 24v3.4" fill="none" stroke-width="1.1"/></g></g></svg></div>
@@ -6066,7 +6079,7 @@ addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft') { setWard(wardIdx - 1); e.preventDefault(); } else if (e.key === 'ArrowRight') { setWard(wardIdx + 1); e.preventDefault(); }
 });
 $('btn-start').addEventListener('click', () => {
-  if (TOUCH) { try { const r = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if (r && r.then) r.then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape')).catch(() => { }); } catch (e) { } }
+  if (TOUCH && !fsEl()) { enterFullscreen(); } if (0) { try { const r = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if (r && r.then) r.then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape')).catch(() => { }); } catch (e) { } }
   const sv = readSave();
   if (launchMode === 'story' && sv) { const b = $('btn-start'); if (!b.dataset.confirm) { b.dataset.confirm = '1'; b.textContent = 'Confirmer : effacer la sauvegarde'; b.classList.add('danger'); return; } clearSave(); }
   if (launchMode === 'coop' && sv && !$('btn-start').dataset.confirm) { const b = $('btn-start'); b.dataset.confirm = '1'; b.textContent = 'Confirmer : la sauvegarde solo sera remplacée'; b.classList.add('danger'); return; }
@@ -6175,7 +6188,7 @@ function openLaunch(mode) {
   game.audio.init(); game.audio.ui(); launchMode = mode; $('btn-start').dataset.confirm = ''; $('btn-start').classList.remove('danger'); refreshContinue(); launchText();
   $('launch-modal').hidden = false; requestAnimationFrame(() => { const b = !$('btn-continue').hidden ? $('btn-continue') : $('btn-start'); b.focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo(b); });
 }
-function closeHubModals() { let any = false; for (const id of ['launch-modal', 'secret-modal']) if (!$(id).hidden) { $(id).hidden = true; any = true; } if (!$('join-modal').hidden) { closeJoin(); any = true; } return any; }
+function closeHubModals() { let any = closeFsModal(); for (const id of ['launch-modal', 'secret-modal']) if (!$(id).hidden) { $(id).hidden = true; any = true; } if (!$('join-modal').hidden) { closeJoin(); any = true; } return any; }
 $('launch-close').addEventListener('click', () => { closeHubModals(); game.audio.ui(); });
 $('launch-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeHubModals(); });
 $('secret-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeHubModals(); });
@@ -6388,9 +6401,38 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- ouverture du studio
 let splashDoneAt = Infinity;
+// ---------- plein écran : proposé à l'ouverture (le navigateur exige un appui du joueur)
+const IOS = /iPhone|iPod/.test(navigator.userAgent) || (/iPad|Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+const fsOK = () => !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+const standalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+function enterFullscreen() {
+  const el = document.documentElement, req = el.requestFullscreen || el.webkitRequestFullscreen; if (!req) return Promise.resolve(false);
+  try { const r = req.call(el, { navigationUI: 'hide' }); return Promise.resolve(r).then(() => { try { if (TOUCH && screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => { }); } catch (e) { } return true; }).catch(() => false); } catch (e) { return Promise.resolve(false); }
+}
+function toggleFullscreen() { if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } else enterFullscreen(); }
+function fsNever() { try { return localStorage.getItem('couvrefeu.fsnever') === '1'; } catch (e) { return false; } }
+function offerFullscreen(force) {
+  if (!force && navigator.webdriver) return; // tests automatisés
+  if (fsEl() || standalone() || fsNever()) return;
+  if (!fsOK() && !IOS) return;
+  const m = $('fs-modal');
+  if (!fsOK() && IOS) { $('fs-h').textContent = 'Jouer en plein écran'; $('fs-txt').innerHTML = 'Sur iPhone, touche <b>Partager</b> puis <b>« Sur l\'écran d\'accueil »</b> : le jeu s\'ouvrira en plein écran comme une application.'; $('fs-yes').textContent = 'Compris'; m.dataset.ios = '1'; }
+  m.hidden = false; requestAnimationFrame(() => { $('fs-yes').focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo($('fs-yes')); });
+}
+function closeFsModal() { const m = $('fs-modal'); if (m.hidden) return false; if ($('fs-never').checked) { try { localStorage.setItem('couvrefeu.fsnever', '1'); } catch (e) { } } m.hidden = true; return true; }
+$('fs-yes').addEventListener('click', () => { game.audio.init(); const ios = $('fs-modal').dataset.ios; closeFsModal(); if (!ios) enterFullscreen(); });
+$('fs-no').addEventListener('click', () => { game.audio.init(); closeFsModal(); });
+$('fs-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeFsModal(); });
+$('btn-fs').addEventListener('click', () => { game.audio.init(); toggleFullscreen(); });
+$('btn-fs-pause').addEventListener('click', () => toggleFullscreen());
+const syncFsBtn = () => { const on = !!fsEl(); $('btn-fs').setAttribute('aria-pressed', on); $('btn-fs-pause').textContent = on ? 'Quitter le plein écran' : 'Plein écran'; };
+document.addEventListener('fullscreenchange', syncFsBtn); document.addEventListener('webkitfullscreenchange', syncFsBtn);
+if (!fsOK()) { $('btn-fs').hidden = true; $('btn-fs-pause').hidden = true; }
+window.__offerFs = () => offerFullscreen(true);
 (() => {
   const sp = $('splash'); let done = false;
-  const end = () => { if (done) return; done = true; sp.hidden = true; splashDoneAt = performance.now(); };
+  const end = () => { if (done) return; done = true; sp.hidden = true; splashDoneAt = performance.now(); setTimeout(offerFullscreen, 250); };
   let reduce = false; try { reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { }
   setTimeout(end, reduce ? 1500 : 3900);
   sp.addEventListener('pointerdown', end); addEventListener('keydown', end, { once: true });
