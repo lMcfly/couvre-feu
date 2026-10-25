@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="favicon.png">
@@ -28,7 +28,7 @@
   --paper:#efe6cf; --ink:#151213; --cap:#f3d34a;
   color-scheme:dark;
 }
-html,body{height:100%}
+html,body{height:100%;touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%;overscroll-behavior:none}
 body{margin:0;background:var(--night);color:var(--bone);font-family:var(--type);overflow:hidden;-webkit-user-select:none;user-select:none}
 #game{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:none;touch-action:none;background:var(--night)}
 .screen{position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;
@@ -746,6 +746,13 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 /* fenêtres : jamais plus hautes que l'écran */
 .hub-modal{overflow-y:auto;align-items:safe center}
 @media (max-height:520px){.photo-modal{padding:8px}.launch-wrap{gap:4px}.launch-wrap .start-art{height:64px}.launch-wrap .start-title{font-size:20px}.launch-wrap .start-body{gap:5px;padding:8px 10px}.launch-wrap .diffs button{padding:5px 4px}.btn.big{padding:10px 20px;font-size:15px}.join-wrap h2{font-size:24px}.jslot{min-height:0;padding:8px}.jslot canvas{width:120px;height:90px}.secret-wrap canvas{max-height:110px;object-fit:cover}}
+.rotate-overlay{display:none;position:fixed;inset:0;z-index:9999;background:#0b0b0d;color:var(--bone);flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px}
+.rotate-overlay svg{width:96px;height:96px;color:var(--sodium);animation:rotPhone 2.2s ease-in-out infinite}
+.rotate-overlay b{font-family:var(--display);font-size:28px;font-weight:400;letter-spacing:.04em}
+.rotate-overlay p{margin:0;color:var(--ash);font-size:14px;max-width:280px;line-height:1.4}
+@keyframes rotPhone{0%,20%{transform:rotate(0)}50%,80%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+/* seulement sur téléphone (pas les tablettes) : écran tactile étroit tenu en portrait */
+@media (orientation:portrait) and (pointer:coarse) and (max-width:600px){.rotate-overlay{display:flex}}
 .shiba-chip{cursor:default}
 .shiba-chip.gold{cursor:pointer;color:#ffd23a;border-color:#ffd23a!important;box-shadow:0 0 14px rgba(255,210,58,.45);animation:shibaGlow 1.6s ease-in-out infinite}
 @keyframes shibaGlow{50%{box-shadow:0 0 24px rgba(255,210,58,.8)}}
@@ -1097,6 +1104,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 </div></div>
 <div id="join-modal" class="photo-modal hub-modal join-modal" hidden role="dialog" aria-labelledby="join-h"><div class="join-wrap"><p class="eyebrow">Campagne à deux</p><h2 id="join-h">Connexion des manettes</h2><p class="join-hint" id="join-hint"></p><div class="join-slots" id="join-slots"></div><div class="row center"><button type="button" class="btn" id="join-back">Retour</button><button type="button" class="btn primary big" id="join-go" disabled>Lancer la partie</button></div></div></div>
 <div id="secret-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="secret-h"><div class="secret-wrap"><canvas id="secret-cv" width="480" height="240" aria-hidden="true"></canvas><p class="eyebrow">Niveau secret</p><h2 id="secret-h">Le Paradis des Shibas</h2><p>Les 12 shibas sont sauvés. Le Shibanophile t'attend sur la Place de la Mairie : protège les 9 shibas du paradis.</p><div class="row center"><button type="button" class="btn" id="secret-close">Retour</button><button type="button" class="btn primary big" id="btn-paradise-title">Entrer au Paradis</button></div></div></div>
+<div class="rotate-overlay" id="rotate-overlay" role="alert"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="20" y="6" width="24" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="32" cy="43" r="2.5" fill="currentColor"/><path d="M50 52a18 18 0 0 1-30 6" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M18 52l2 7 7-2" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Tourne ton téléphone</b><p>Couvre-Feu se joue en mode paysage.</p></div>
 <div id="fs-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="fs-h"><div class="fs-wrap"><div class="fs-ico" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p class="eyebrow">Couvre-Feu</p><h2 id="fs-h">Jouer en plein écran ?</h2><p id="fs-txt">Pour une meilleure immersion, le jeu passe en plein écran.</p><div class="row center"><button type="button" class="btn" id="fs-no">Non merci</button><button type="button" class="btn primary big" id="fs-yes">Plein écran</button></div><label class="fs-never"><input type="checkbox" id="fs-never"> Ne plus me demander</label></div></div>
 <div id="mut-modal" class="photo-modal mut-modal" hidden role="dialog" aria-labelledby="mut-h"><div class="mut-wrap"><p class="eyebrow" id="mut-night"></p><h2 id="mut-h">Choisis une mutation</h2><div class="mut-list" id="mut-list"></div></div></div>
 <footer id="prompt-bar" class="prompt-bar" hidden aria-hidden="true"></footer>
@@ -6414,6 +6422,16 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- ouverture du studio
 let splashDoneAt = Infinity;
+// ---------- pas de zoom, sur aucun appareil : pincement, double-tap, Ctrl + molette, Ctrl + / -
+for (const ev of ['gesturestart', 'gesturechange', 'gestureend']) document.addEventListener(ev, e => e.preventDefault(), { passive: false });
+document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
+// (le double-tap est neutralisé par touch-action: manipulation, sans bloquer les appuis rapides sur les boutons)
+document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
+addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0', '_'].includes(e.key)) e.preventDefault(); });
+// ---------- paysage : on verrouille dès qu'on peut (plein écran ou application installée)
+function lockLandscape() { try { if (screen.orientation && screen.orientation.lock && (fsEl() || standalone())) screen.orientation.lock('landscape').catch(() => { }); } catch (e) { } }
+document.addEventListener('pointerdown', lockLandscape, { once: true });
 // ---------- plein écran : proposé à l'ouverture (le navigateur exige un appui du joueur)
 const IOS = /iPhone|iPod/.test(navigator.userAgent) || (/iPad|Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
@@ -6440,7 +6458,7 @@ $('fs-modal').addEventListener('click', e => { if (e.target === e.currentTarget)
 $('btn-fs').addEventListener('click', () => { game.audio.init(); toggleFullscreen(); });
 $('btn-fs-pause').addEventListener('click', () => toggleFullscreen());
 const syncFsBtn = () => { const on = !!fsEl(); $('btn-fs').setAttribute('aria-pressed', on); $('btn-fs-pause').textContent = on ? 'Quitter le plein écran' : 'Plein écran'; };
-document.addEventListener('fullscreenchange', syncFsBtn); document.addEventListener('webkitfullscreenchange', syncFsBtn);
+document.addEventListener('fullscreenchange', () => { syncFsBtn(); lockLandscape(); }); document.addEventListener('webkitfullscreenchange', syncFsBtn);
 if (!fsOK()) { $('btn-fs').hidden = true; $('btn-fs-pause').hidden = true; }
 window.__offerFs = () => offerFullscreen(true);
 (() => {
