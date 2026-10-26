@@ -766,6 +766,20 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .fs-wrap{width:min(440px,100%);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:22px 18px;background:linear-gradient(180deg,rgba(26,22,20,.97),rgba(10,10,12,.97));border:1px solid rgba(255,255,255,.12);border-top:3px solid var(--blood);border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .fs-wrap p{margin:0;color:#c6c0b2;font-size:14px;line-height:1.45}
 .fs-ico{width:58px;height:58px;color:var(--sodium)}.fs-ico svg{width:100%;height:100%}
+.inst-wrap{width:min(520px,100%);text-align:left;align-items:stretch;max-height:calc(100vh - 24px);overflow:auto}
+.inst-wrap>.eyebrow,.inst-wrap>h2,.inst-wrap>.inst-ico{align-self:center;text-align:center}
+.inst-ico{font-size:34px;line-height:1}
+.inst-steps{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.inst-steps li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45;color:#e8e2d0}
+.inst-steps li>span{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--blood);color:#fff;font-family:var(--comic-title);font-size:16px}
+.inst-steps li.done{opacity:.6}.inst-steps li.done>span{background:#2f6f45}
+.inst-steps em{display:block;font-style:normal;font-size:12px;color:#7fd18b}
+.inst-steps .inst-os{margin:6px 0 0;padding:7px 9px;background:rgba(255,255,255,.06);border-left:3px solid var(--ember);font-size:14px}
+.inst-share{display:inline-block;width:14px;height:16px;vertical-align:-2px;border:2px solid currentColor;border-top:0;border-radius:0 0 2px 2px;position:relative;margin:0 2px}
+.inst-share::before{content:"";position:absolute;left:4px;top:-7px;width:2px;height:12px;background:currentColor}
+.inst-share::after{content:"";position:absolute;left:1.5px;top:-8px;width:5px;height:5px;border-left:2px solid currentColor;border-top:2px solid currentColor;transform:rotate(45deg)}
+.inst-end{text-align:center;font-weight:700;color:#ffd23a!important}
+@media (max-height:520px){.inst-wrap{gap:6px;padding:12px 14px}.inst-wrap>p:not(.inst-end):not(.eyebrow){display:none}.inst-ico{display:none}.inst-wrap h2{font-size:24px;margin:0}.inst-steps{gap:5px}.inst-steps li{font-size:13px}.inst-steps .inst-os{font-size:13px;padding:5px 8px}}
 .fs-never{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ash);cursor:pointer}
 @media (max-height:520px){.fs-wrap{padding:12px 14px;gap:6px}.fs-wrap h2{font-size:26px}.fs-ico{width:34px;height:34px}.fs-wrap p{font-size:12px}}
 .tab.fs-tab{display:inline-flex;align-items:center;gap:6px}.fs-tab svg{width:16px;height:16px}
@@ -1028,6 +1042,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
     <div class="sheet-body set-cols"><div class="set-col">
       <h4>Son et affichage</h4>
       <div class="opts" id="opts-title"></div>
+      <div class="row"><button type="button" class="btn" id="btn-install">📲 Installer sur l'écran d'accueil</button></div>
       <h4>Commandes</h4>
       <div class="row"><button type="button" class="btn" id="btn-keys">Personnaliser les touches et la manette</button></div>
       <details class="controls"><summary>Voir les contrôles par défaut</summary><div class="cols">
@@ -1172,6 +1187,14 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 <div id="secret-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="secret-h"><div class="secret-wrap"><canvas id="secret-cv" width="480" height="240" aria-hidden="true"></canvas><p class="eyebrow">Niveau secret</p><h2 id="secret-h">Le Paradis des Shibas</h2><p>Les 12 shibas sont sauvés. Le Shibanophile t'attend sur la Place de la Mairie : protège les 9 shibas du paradis.</p><div class="row center"><button type="button" class="btn" id="secret-close">Retour</button><button type="button" class="btn primary big" id="btn-paradise-title">Entrer au Paradis</button></div></div></div>
 <div class="rotate-overlay" id="rotate-overlay" role="alert"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="20" y="6" width="24" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="32" cy="43" r="2.5" fill="currentColor"/><path d="M50 52a18 18 0 0 1-30 6" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M18 52l2 7 7-2" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Tourne ton téléphone</b><p>Couvre-Feu se joue en mode paysage.</p></div>
 <div id="fs-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="fs-h"><div class="fs-wrap"><div class="fs-ico" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p class="eyebrow">Couvre-Feu</p><h2 id="fs-h">Jouer en plein écran ?</h2><p id="fs-txt">Pour une meilleure immersion, le jeu passe en plein écran.</p><div class="row center"><button type="button" class="btn" id="fs-no">Non merci</button><button type="button" class="btn primary big" id="fs-yes">Plein écran</button></div><label class="fs-never"><input type="checkbox" id="fs-never"> Ne plus me demander</label></div></div>
+<div id="install-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="inst-h"><div class="fs-wrap inst-wrap"><div class="inst-ico" aria-hidden="true">💀</div><p class="eyebrow">Couvre-Feu</p><h2 id="inst-h">Installer le jeu</h2><p>Mets Couvre-Feu sur ton écran d'accueil : il s'ouvre en plein écran, comme une appli.</p>
+<ol class="inst-steps">
+<li class="done"><span>1</span><div>Ouvre ton navigateur internet : <b>Safari</b> sur iPhone, <b>Chrome</b> sur Android.<em>✓ C'est fait</em></div></li>
+<li class="done"><span>2</span><div>Va sur <b>lmcfly.github.io/couvre-feu</b><em>✓ Tu y es</em></div></li>
+<li><span>3</span><div>Ajoute le jeu à ton écran d'accueil :<p class="inst-os" data-os="ios"><b>iPhone</b> : touche <b>Partager</b> <i class="inst-share" aria-hidden="true"></i> (carré avec flèche), puis <b>Sur l'écran d'accueil</b>, puis <b>Ajouter</b>.</p><p class="inst-os" data-os="android"><b>Android</b> : touche <b>⋮</b>, puis <b>Ajouter à l'écran d'accueil</b>.</p></div></li>
+</ol>
+<p class="inst-end">C'est fait : lance le jeu depuis l'icône tête de mort 💀</p>
+<div class="row center"><button type="button" class="btn" id="inst-later">Plus tard</button><button type="button" class="btn primary big" id="inst-now" hidden>Installer maintenant</button><button type="button" class="btn primary big" id="inst-ok">Compris</button></div></div></div>
 <div id="mut-modal" class="photo-modal mut-modal" hidden role="dialog" aria-labelledby="mut-h"><div class="mut-wrap"><p class="eyebrow" id="mut-night"></p><h2 id="mut-h">Choisis une mutation</h2><div class="mut-list" id="mut-list"></div></div></div>
 <footer id="prompt-bar" class="prompt-bar" hidden aria-hidden="true"></footer>
 <div id="pad-cursor" hidden aria-hidden="true"><span class="ring"></span><svg viewBox="0 0 32 32"><g stroke="#120c09" stroke-width="1.6" stroke-linejoin="round"><path d="M16 2C9 2 4 7 4 14c0 4 2 6.5 4 8v2h16v-2c2-1.5 4-4 4-8C28 7 23 2 16 2z" fill="#b7c29c"/><path d="M13 3l1.5 3.5-2 2.5 1 2.5" fill="none" stroke-width="1.1"/><path d="M24 9c-1 1-2.5 1-3 2.5" fill="none" stroke="#7d8a5f" stroke-width="1.4"/><ellipse cx="11" cy="14" rx="3.4" ry="3.9" fill="#1a0f0c"/><ellipse cx="21" cy="14" rx="3.4" ry="3.9" fill="#1a0f0c"/><circle cx="11.6" cy="14.6" r="1.3" fill="#ff3b2a" stroke="none"/><circle cx="20.4" cy="14.6" r="1.3" fill="#ff3b2a" stroke="none"/><path d="M16 17.4l-1.7 3h3.4z" fill="#1a0f0c"/><path d="M10 22.5h12" fill="none" stroke-width="1.2"/><g class="jaw"><path d="M9 24h14v3.3c0 1.6-1.4 2.7-3 2.7h-8c-1.6 0-3-1.1-3-2.7z" fill="#a3ae86"/><path d="M12.5 24v3.4M16 24v3.6M19.5 24v3.4" fill="none" stroke-width="1.1"/></g></g></svg></div>
@@ -1701,8 +1724,8 @@ class Input {
       if (mv && mv.l > 0.12) { mx = mv.x; my = mv.y; }
       let ang = null, fire = false;
       if (av && av.l > 0.25) { ang = Math.atan2(av.y, av.x); fire = av.l > 0.6; }
-      if (ang == null && mv && mv.l > 0.12) ang = Math.atan2(mv.y, mv.x);
-      if (ang != null) this.lastAimAng = ang;
+      // la visée reste là où on l'a laissée : se déplacer ne la fait pas tourner
+      if (ang != null) this.lastAimAng = ang; else if (this.lastAimAng == null) this.lastAimAng = p.aim;
       a.aimX = p.x + Math.cos(this.lastAimAng) * 240; a.aimY = p.y + Math.sin(this.lastAimAng) * 240; a.gpAim = true;
       a.fire = fire; a.firePressed = fire && p.cd <= 0 && (p.weapon.ammo > 0 || !this.prevTouchFire); this.prevTouchFire = fire;
       const tp = this.tPressed;
@@ -4031,10 +4054,26 @@ class Game {
     if (ob && ob.tx != null && this.activeZone === 2 && this.level.obj[2].picked && !this.level.obj[2].done) glow(ob.tx, ob.ty, 120, '255,200,90', 0.3 + Math.sin(t * 4) * 0.12);
     L.globalCompositeOperation = 'source-over';
   }
+  // ligne de visée laser : part du canon, s'arrête sur le premier mur ou le premier zombie
+  drawLaser(q, col) {
+    const c = ctx, m = q.muzzle(), dx = Math.cos(q.aim), dy = Math.sin(q.aim); let len = 460, hitZ = false;
+    for (const o of this.level.queryRect(Math.min(m.x, m.x + dx * len), Math.min(m.y, m.y + dy * len), Math.abs(dx * len), Math.abs(dy * len))) { if (LOWK.has(o.kind)) continue; const d = rayRect(m.x, m.y, dx, dy, o, len); if (d < len) len = Math.max(0, d); }
+    for (const z of this.zombies) { if (z.dead || z.spawnT > 0) continue; const ox = z.x - m.x, oy = z.y - m.y, tt = ox * dx + oy * dy; if (tt < 0 || tt > len) continue; const px = ox - dx * tt, py = oy - dy * tt, r = z.r + 2; if (px * px + py * py < r * r) { len = tt - Math.sqrt(r * r - px * px - py * py); hitZ = true; } }
+    if (len < 4) return;
+    const x0 = m.x, y0 = m.y - 14, x1 = m.x + dx * len, y1 = m.y + dy * len - 14, fl = 0.85 + Math.sin(this.time * 30) * 0.05;
+    c.save(); c.globalCompositeOperation = 'lighter'; c.lineCap = 'round';
+    let gr = c.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, `rgba(${col},${0.22 * fl})`); gr.addColorStop(1, `rgba(${col},${hitZ ? 0.18 : 0.02})`);
+    c.strokeStyle = gr; c.lineWidth = 5; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
+    gr = c.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, `rgba(${col},${0.9 * fl})`); gr.addColorStop(1, `rgba(${col},${hitZ ? 0.8 : 0.08})`);
+    c.strokeStyle = gr; c.lineWidth = 1.4; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
+    if (hitZ || len < 455) { c.fillStyle = `rgba(${col},${hitZ ? 0.95 : 0.6})`; c.beginPath(); c.arc(x1, y1, hitZ ? 3 : 2, 0, TAU); c.fill(); c.fillStyle = `rgba(${col},.25)`; c.beginPath(); c.arc(x1, y1, hitZ ? 8 : 5, 0, TAU); c.fill(); }
+    c.restore();
+  }
   renderEmissive(inView) {
     const c = ctx, t = this.time, p = this.player;
     for (const pt of this.particles) if (pt.emissive && inView(pt.x, pt.y)) this.drawParticle(pt);
     c.globalAlpha = 1;
+    if (this.state === 'playing' || this.state === 'paused') for (const q of this.players()) if (q && !q.dead && !q.hidden) this.drawLaser(q, q === this.p2 ? '255,170,90' : '90,170,255');
     for (const b of this.bullets) { c.strokeStyle = b.charged ? 'rgba(200,235,255,.95)' : 'rgba(255,215,150,.85)'; c.lineWidth = b.charged ? 4 : 1.6; c.beginPath(); c.moveTo(b.px - b.vx * 0.012, b.py - b.vy * 0.012 - 14); c.lineTo(b.x, b.y - 14); c.stroke(); }
     for (const f of this.flames) { const k = f.life / f.max; c.globalAlpha = Math.min(1, k * 1.4) * 0.7; c.fillStyle = k > 0.65 ? '#ffd88a' : k > 0.35 ? '#ff7a22' : '#9c2410'; c.beginPath(); c.arc(f.x, f.y - 12, f.r, 0, TAU); c.fill(); } c.globalAlpha = 1;
     for (const r of this.rockets) { c.fillStyle = '#ffd27a'; c.beginPath(); c.arc(r.x, r.y - 14, 4, 0, TAU); c.fill(); }
@@ -6483,7 +6522,7 @@ function openLaunch(mode) {
   game.audio.init(); game.audio.ui(); launchMode = mode; $('btn-start').dataset.confirm = ''; $('btn-start').classList.remove('danger'); refreshContinue(); launchText();
   $('launch-modal').hidden = false; requestAnimationFrame(() => { const b = !$('btn-continue').hidden ? $('btn-continue') : $('btn-start'); b.focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo(b); });
 }
-function closeHubModals() { let any = closeFsModal(); for (const id of ['launch-modal', 'secret-modal']) if (!$(id).hidden) { $(id).hidden = true; any = true; } if (!$('join-modal').hidden) { closeJoin(); any = true; } return any; }
+function closeHubModals() { let any = closeFsModal(); if (closeInstall()) any = true; for (const id of ['launch-modal', 'secret-modal']) if (!$(id).hidden) { $(id).hidden = true; any = true; } if (!$('join-modal').hidden) { closeJoin(); any = true; } return any; }
 $('launch-close').addEventListener('click', () => { closeHubModals(); game.audio.ui(); });
 $('launch-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeHubModals(); });
 $('secret-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeHubModals(); });
@@ -6747,7 +6786,19 @@ document.addEventListener('pointerdown', lockLandscape, { once: true });
 const IOS = /iPhone|iPod/.test(navigator.userAgent) || (/iPad|Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
 const fsOK = () => !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
-const standalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+// appli installée (repéré au lancement : plus tard, le plein écran du navigateur fausserait le test)
+const INSTALLED = (() => { try { return matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || !!navigator.standalone; } catch (e) { return false; } })();
+const standalone = () => INSTALLED || (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+const ANDROID = /Android/i.test(navigator.userAgent);
+let installEvt = null; addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; const b = $('inst-now'); if (b) b.hidden = false; });
+addEventListener('appinstalled', () => { installEvt = null; closeInstall(); try { localStorage.setItem('couvrefeu.installseen', '1'); } catch (e) { } });
+function installSeen() { try { return localStorage.getItem('couvrefeu.installseen') === '1'; } catch (e) { return false; } }
+function showInstall() {
+  const m = $('install-modal'); for (const p of m.querySelectorAll('.inst-os')) p.hidden = (IOS && p.dataset.os !== 'ios') || (ANDROID && p.dataset.os !== 'android');
+  $('inst-now').hidden = !installEvt; $('inst-ok').hidden = !!installEvt;
+  m.hidden = false; requestAnimationFrame(() => { const b = installEvt ? $('inst-now') : $('inst-ok'); b.focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo(b); });
+}
+function closeInstall() { const m = $('install-modal'); if (!m || m.hidden) return false; m.hidden = true; try { localStorage.setItem('couvrefeu.installseen', '1'); } catch (e) { } return true; }
 function enterFullscreen() {
   const el = document.documentElement, req = el.requestFullscreen || el.webkitRequestFullscreen; if (!req) return Promise.resolve(false);
   try { const r = req.call(el, { navigationUI: 'hide' }); return Promise.resolve(r).then(() => { try { if (TOUCH && screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => { }); } catch (e) { } return true; }).catch(() => false); } catch (e) { return Promise.resolve(false); }
@@ -6756,7 +6807,9 @@ function toggleFullscreen() { if (fsEl()) { (document.exitFullscreen || document
 function fsNever() { try { return localStorage.getItem('couvrefeu.fsnever') === '1'; } catch (e) { return false; } }
 function offerFullscreen(force) {
   if (!force && navigator.webdriver) return; // tests automatisés
-  if (fsEl() || standalone() || fsNever()) return;
+  if (fsEl() || standalone()) return;
+  if (TOUCH && !installSeen()) { showInstall(); return; } // sur mobile, on propose d'abord d'installer le jeu
+  if (fsNever()) return;
   if (!fsOK() && !IOS) return;
   const m = $('fs-modal');
   if (!fsOK() && IOS) { $('fs-h').textContent = 'Jouer en plein écran'; $('fs-txt').innerHTML = 'Sur iPhone, touche <b>Partager</b> puis <b>« Sur l\'écran d\'accueil »</b> : le jeu s\'ouvrira en plein écran comme une application.'; $('fs-yes').textContent = 'Compris'; m.dataset.ios = '1'; }
@@ -6765,13 +6818,19 @@ function offerFullscreen(force) {
 function closeFsModal() { const m = $('fs-modal'); if (m.hidden) return false; if ($('fs-never').checked) { try { localStorage.setItem('couvrefeu.fsnever', '1'); } catch (e) { } } m.hidden = true; return true; }
 $('fs-yes').addEventListener('click', () => { game.audio.init(); const ios = $('fs-modal').dataset.ios; closeFsModal(); if (!ios) enterFullscreen(); });
 $('fs-no').addEventListener('click', () => { game.audio.init(); closeFsModal(); });
+$('inst-later').addEventListener('click', () => { game.audio.init(); closeInstall(); if (fsOK() && !fsNever()) enterFullscreen(); });
+$('inst-ok').addEventListener('click', () => { game.audio.init(); closeInstall(); });
+$('inst-now').addEventListener('click', () => { game.audio.init(); const e = installEvt; if (!e) return closeInstall(); e.prompt(); (e.userChoice || Promise.resolve()).then(() => { installEvt = null; closeInstall(); }); });
+$('install-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeInstall(); });
+$('btn-install').addEventListener('click', () => { game.audio.init(); game.audio.ui(); showInstall(); });
+if (!TOUCH || standalone()) $('btn-install').hidden = true;
 $('fs-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeFsModal(); });
 $('btn-fs').addEventListener('click', () => { game.audio.init(); toggleFullscreen(); });
 $('btn-fs-pause').addEventListener('click', () => toggleFullscreen());
 const syncFsBtn = () => { const on = !!fsEl(); $('btn-fs').setAttribute('aria-pressed', on); $('btn-fs-pause').textContent = on ? 'Quitter le plein écran' : 'Plein écran'; };
 document.addEventListener('fullscreenchange', () => { syncFsBtn(); lockLandscape(); }); document.addEventListener('webkitfullscreenchange', syncFsBtn);
 if (!fsOK()) { $('btn-fs').hidden = true; $('btn-fs-pause').hidden = true; }
-window.__offerFs = () => offerFullscreen(true);
+window.__offerFs = () => offerFullscreen(true); window.__showInstall = showInstall;
 (() => {
   const sp = $('splash'); let done = false;
   const end = () => { if (done) return; done = true; sp.hidden = true; splashDoneAt = performance.now(); setTimeout(offerFullscreen, 250); };
