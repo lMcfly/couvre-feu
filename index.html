@@ -2371,6 +2371,8 @@ const BOSS_ENTRIES = {
   chirurgien: [{ fx: 'fade', dark: true, prop: 'lamp' }, { fx: 'run', prop: 'bed' }, { fx: 'rise', prop: 'drawer' }],
   shibanophile: [{ fx: 'fade', where: 'keep', prop: 'ultra' }, { fx: 'burst', prop: 'costume', label: 'WOUF ?' }, { fx: 'burst', prop: 'cage' }]
 };
+// l'entrée retenue pour chaque boss
+const BOSS_PICK = { controleur: 1, speakerine: 0, gardien: 1, abomination: 1, chirurgien: 1, shibanophile: 1 };
 const RAGE_TXT = { controleur: 'il appelle des renforts', speakerine: 'son micro hurle maintenant', gardien: 'il pousse des épaves', abomination: 'le sol tremble sous ses pas', chirurgien: 'il gaze la salle', shibanophile: 'il sort les croquettes' };
 const bossName = b => (b.title || 'Le boss').toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase()).replace(/ (Du|De|Des|La|Le|Les|L')(?= )/g, m => m.toLowerCase()).replace(/^L'a/, "L'A");
 class Boss extends Zombie {
@@ -3008,7 +3010,7 @@ class Game {
     this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.mapHover = null;
     this.zombies = []; this.bullets = []; this.flames = []; this.rockets = []; this.throwables = []; this.mines = []; this.acids = [];
     this.puddles = []; this.fires = []; this.shockwaves = []; this.beams = []; this.particles = []; this.pickups = []; this.lights = []; this.survivors = [];
-    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.hazards = []; this.blackoutT = 0;
+    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
     if (this.level) for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
     this.level = new Level(this); this.director.reset(); this.bossRef = null;
   }
@@ -3221,10 +3223,10 @@ class Game {
   }
   mapContinue() { if (this.state !== 'map') return; const f = this.mapGo; this.mapGo = null; this.state = 'playing'; this.showScreen(null); this.input.mdown = false; if (f) f(); }
   showScreen(id) { for (const s of document.querySelectorAll('.screen')) s.hidden = s.id !== id; }
-  screenToWorld(sx, sy) { const S = VS * DPR; return { x: (sx * DPR - (W / 2 - this.cam.x * S)) / S, y: (sy * DPR - (H / 2 - this.cam.y * S)) / S }; }
+  screenToWorld(sx, sy) { const S = VS * DPR * (this.zoom || 1); return { x: (sx * DPR - (W / 2 - this.cam.x * S)) / S, y: (sy * DPR - (H / 2 - this.cam.y * S)) / S }; }
   wheelCenter() { const ch = H / DPR / HUDK, cw = W / DPR / HUDK, Ro = Math.min(TOUCH ? 92 : 104, ch * 0.24), ps = this.w2h(this.player.x, this.player.y - 16); return { x: clamp(ps.x, Ro + 12, cw - Ro - 12), y: clamp(ps.y, Ro + 40, ch - Ro - 50) }; }
   w2h(x, y) { const s = this.worldToScreen(x, y); s.x /= HUDK; s.y /= HUDK; return s; }
-  worldToScreen(x, y) { const S = VS * DPR; return { x: ((x - this.cam.x) * S + W / 2) / DPR, y: ((y - this.cam.y) * S + H / 2) / DPR }; }
+  worldToScreen(x, y) { const S = VS * DPR * (this.zoom || 1); return { x: ((x - this.cam.x) * S + W / 2) / DPR, y: ((y - this.cam.y) * S + H / 2) / DPR }; }
   // ---------- aides
   later(t, fn) { this.timers.push({ t, fn, dead: false }); }
   shake(a) { this.trauma = Math.min(1, this.trauma + a); }
@@ -3375,7 +3377,7 @@ class Game {
   }
   // entrée du boss : 3 mises en scène par boss, tirées au hasard, et un endroit qui change
   bossEntry(b) {
-    const v = randi(0, 2), p = this.player, E = BOSS_ENTRIES[b.bkind][v], T = b.ultimate || !b.mini ? 2.6 : 2.2;
+    const v = BOSS_PICK[b.bkind] || 0, p = this.player, E = BOSS_ENTRIES[b.bkind][v], T = b.ultimate || !b.mini ? 2.6 : 2.2;
     const hosp = this.mode === 'hospital', k = clamp(this.activeZone, 0, 3), Z = ZONES[k];
     const x0 = hosp ? HOSP.morgue + 70 : Z.x0 + 80, x1 = hosp ? ZONES[0].x1 - 70 : Z.x1 - 80, aim = p.aim || 0;
     const spot = (a, d) => { for (let t = 0; t < 12; t++) { const aa = a + (t ? rand(-0.6, 0.6) : 0), dd = d * (t ? rand(0.8, 1.15) : 1), x = clamp(p.x + Math.cos(aa) * dd, x0, x1), y = clamp(p.y + Math.sin(aa) * dd, ST + 60, SB - 60); if (Math.hypot(x - p.x, y - p.y) > d * 0.65 && !this.level.pointObstacle(x, y) && !this.level.queryRect(x - 40, y - 40, 80, 80).some(o => rectDist(x, y, o) < 34)) return { x, y }; } return null; };
@@ -3389,6 +3391,7 @@ class Game {
     if (E.fx === 'drop') b.jumpZ = 600;
     if (E.dark) this.blackoutT = Math.max(this.blackoutT, T * 0.75);
     if (E.label) this.later(0.3, () => this.floatText(b.entry.tx, b.entry.ty - 80, E.label, '#ffd23a'));
+    this.cine = { b, t: 0 }; this.input.mdown = false;
     if (E.fx === 'drop' && E.impact) this.later(T * 0.55, () => { if (b.dead) return; this.shake(1); this.audio.explosion(1); this.scorch(b.x, b.y, 80); this.shockwaves.push(new Shockwave(this, b.x, b.y, 260, 18 * this.diff.dmg)); });
     return v;
   }
@@ -3948,6 +3951,7 @@ class Game {
     this.portrait = this.input.touchMode && innerHeight > innerWidth * 1.05;
     if (this.portrait) { this.audio.flame(false); return; }
     if (inp.pause) { this.closeWheel(false); this.pause(); return; }
+    if (this.cine) { this.updateCine(dt, inp); return; }
     const p = this.player; this.runTime += dt;
     const realDt = dt; let pdt = dt;
     const W8 = this.wheel || (this.wheel = { open: false, sel: -1, k: 0 });
@@ -4020,7 +4024,8 @@ class Game {
       if (o.kind === 'machine' && rectDist(p.x, p.y, o) < 34) { this.hint = o.broken || o.charges <= 0 ? 'Distributeur vide' : (this.input.touchMode ? `Bouton SOINS : trousse de soin (${o.charges})` : `[${KL('melee')}] Prendre une trousse de soin (${o.charges})`); break; }
     }
     // caméra
-    const S = VS * DPR, hw = W / 2 / S, hh = H / 2 / S;
+    this.zoom = lerp(this.zoom || 1, 1, 1 - Math.exp(-4 * realDt)); this.cineK = Math.max(0, (this.cineK || 0) - realDt * 2.5);
+    const S = VS * DPR * this.zoom, hw = W / 2 / S, hh = H / 2 / S;
     let tx = p.x, ty = p.y;
     if (this.p2 && !this.p2.dead && !p.dead) { tx = (p.x + this.p2.x) / 2; ty = (p.y + this.p2.y) / 2; }
     else if (p.dead && this.p2 && !this.p2.dead) { tx = this.p2.x; ty = this.p2.y; }
@@ -4031,6 +4036,19 @@ class Game {
     // musique : intensité selon les zombies proches
     let near = 0; for (const z of this.zombies) if (z.aggro && dist2(z.x, z.y, p.x, p.y) < 500 * 500) near++;
     this.audio.musicTick(this.bossRef && !this.bossRef.dead ? 1 : clamp(near / 30, 0, 1));
+  }
+  // cinématique d'entrée d'un boss : zoom, bandes noires, tout le reste est figé
+  updateCine(dt, inp) {
+    const C = this.cine, b = C.b, E = b.entry; C.t += dt;
+    const I = this.input, skip = C.t > 0.5 && (inp.firePressed || inp.roll || inp.melee || inp.special || inp.grenade || inp.reload || inp.cycle || I.pc.size > 0 || I.tPressed.size > 0 || (I.touchMode && (I.sticks.aim || I.sticks.move)));
+    if (skip && b.state === 'intro') { b.st = Math.min(b.st, 0.01); if (E) E.popped = true; }
+    this.hash.clear(); for (const z of this.zombies) if (!z.dead) this.hash.insert(z);
+    if (!b.dead) b.update(dt);
+    this.updateCommon(dt); if (this.blackoutT > 0) this.blackoutT -= dt;
+    this.cineK = Math.min(1, (this.cineK || 0) + dt * 3);
+    const k = 1 - Math.exp(-4 * dt), tx = E ? E.tx : b.x, ty = (E ? E.ty : b.y) - b.r * 1.4;
+    this.cam.x = lerp(this.cam.x, tx, k); this.cam.y = lerp(this.cam.y, ty, k); this.zoom = lerp(this.zoom || 1, 1.6, k);
+    if (b.dead || b.state !== 'intro') { this.cine = null; this.audio.roar(1); this.shake(0.5); this.player.inv = Math.max(this.player.inv, 0.6); }
   }
   updateCommon(dt) {
     for (const t of this.timers) { t.t -= dt; if (t.t <= 0 && !t.dead) { t.dead = true; t.fn(); } } compact(this.timers);
@@ -4065,7 +4083,7 @@ class Game {
     }
   }
   updateWeather(dt) {
-    const S = VS * DPR, hw = W / 2 / S + 60, hh = H / 2 / S + 60, cx = this.cam.x, cy = this.cam.y;
+    const S = VS * DPR * (this.zoom || 1), hw = W / 2 / S + 60, hh = H / 2 / S + 60, cx = this.cam.x, cy = this.cam.y;
     if (Settings.rain && this.mode !== 'hospital') {
       while (this.rain.length < (TOUCH ? 150 : 260)) this.rain.push({ x: cx + rand(-hw, hw), y: cy + rand(-hh, hh), z: rand(0, 380), v: rand(650, 900) });
       for (const d of this.rain) {
@@ -4108,7 +4126,7 @@ class Game {
 
   // ============================================================ rendu
   render() {
-    const c = ctx, S = VS * DPR, p = this.player;
+    const c = ctx, S = VS * DPR * (this.zoom || 1), p = this.player;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
     const ox = W / 2 - this.cam.x * S + this.shakeX * S, oy = H / 2 - this.cam.y * S + this.shakeY * S;
     c.setTransform(S, 0, 0, S, ox, oy);
@@ -4172,6 +4190,9 @@ class Game {
       const low = p.hp < 35 && !p.dead ? (0.18 + Math.sin(this.time * 6) * 0.08) * (1 - p.hp / 35) : 0, hf = Math.max(this.hurtFlash * 0.45, low);
       if (hf > 0.01) { c.globalAlpha = Math.min(1, hf); c.drawImage(VIG_RED, 0, 0, W, H); c.globalAlpha = 1; }
       this.drawHUD();
+      const ck = this.cine ? Math.min(1, this.cineK || 0) : (this.cineK || 0);
+      if (ck > 0.01) { const bh = Math.round(H * 0.12 * ck); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#000'; c.fillRect(0, 0, W, bh); c.fillRect(0, H - bh, W, bh);
+        if (this.cine && this.cine.t > 0.5) { c.globalAlpha = ck * (0.55 + Math.sin(this.time * 4) * 0.25); c.fillStyle = '#d8d2c4'; c.font = `${Math.round(13 * DPR)}px ${FT}`; c.textAlign = 'right'; c.fillText(this.input.touchMode ? 'Touche l\'écran pour passer ›' : 'Une touche pour passer ›', W - 24 * DPR, H - bh / 2 + 5 * DPR); c.globalAlpha = 1; } }
     }
   }
   renderLights(S, ox, oy, inView) {
