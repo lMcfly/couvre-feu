@@ -4679,15 +4679,8 @@ class Game {
       if (q.charging && q.charge > 0) { c.strokeStyle = q.charge >= 1 ? '#bfe6ff' : 'rgba(191,230,255,.7)'; c.lineWidth = 3; c.beginPath(); c.arc(s2.x, s2.y, 22, -Math.PI / 2, -Math.PI / 2 + TAU * q.charge); c.stroke(); if (q.charge >= 1) { c.font = `11px ${FT}`; c.textAlign = 'center'; c.fillStyle = '#bfe6ff'; c.fillText('CHARGÉ', s2.x, s2.y + 38); } }
     }
     // viseur
-    let aimS; if (this.input.act.gpAim) aimS = this.w2h(this.input.act.aimX, this.input.act.aimY); else aimS = { x: this.input.mx / HUDK, y: this.input.my / HUDK };
-    // au tactile et à la manette, la ligne laser suffit : pas de viseur, la jauge du tir chargé entoure le perso
-    if (!p.dead && this.input.act.gpAim) { if (p.charging && p.charge > 0) { const ps = this.w2h(p.x, p.y - 16); c.strokeStyle = p.charge >= 1 ? '#bfe6ff' : 'rgba(191,230,255,.6)'; c.lineWidth = 2.5; c.beginPath(); c.arc(ps.x, ps.y, 22, -Math.PI / 2, -Math.PI / 2 + TAU * p.charge); c.stroke(); } }
-    else if (!p.dead) {
-      const spread = 8 + p.recoil * 6 + (p.sprinting ? 6 : 0); c.strokeStyle = 'rgba(240,230,210,.85)'; c.lineWidth = 1.5; c.beginPath();
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { c.moveTo(aimS.x + dx * spread, aimS.y + dy * spread); c.lineTo(aimS.x + dx * (spread + 7), aimS.y + dy * (spread + 7)); } c.stroke();
-      c.fillStyle = '#e2792f'; c.fillRect(aimS.x - 1, aimS.y - 1, 2, 2);
-      if (p.charging && p.charge > 0) { c.strokeStyle = p.charge >= 1 ? '#bfe6ff' : 'rgba(191,230,255,.6)'; c.lineWidth = 2.5; c.beginPath(); c.arc(aimS.x, aimS.y, 20, -Math.PI / 2, -Math.PI / 2 + TAU * p.charge); c.stroke(); }
-    }
+    // la ligne laser suffit : plus de viseur (tactile, manette et souris), la jauge du tir chargé entoure le perso
+    if (!p.dead) { if (p.charging && p.charge > 0) { const ps = this.w2h(p.x, p.y - 16); c.strokeStyle = p.charge >= 1 ? '#bfe6ff' : 'rgba(191,230,255,.6)'; c.lineWidth = 2.5; c.beginPath(); c.arc(ps.x, ps.y, 22, -Math.PI / 2, -Math.PI / 2 + TAU * p.charge); c.stroke(); } }
   }
 }
 // version illustrée des armes (style BD : contour encre, métal, bois, détails colorés)
