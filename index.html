@@ -1269,10 +1269,10 @@ const FT = '"Special Elite", "Courier New", monospace';
 
 // ============================================================ réglages et scores
 const Settings = {
-  quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false,
+  quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -1723,7 +1723,7 @@ class Input {
       const p = game.player, mv = this.stickVec(this.sticks.move), av = this.stickVec(this.sticks.aim);
       if (mv && mv.l > 0.12) { mx = mv.x; my = mv.y; }
       let ang = null, fire = false;
-      if (av && av.l > 0.25) { ang = Math.atan2(av.y, av.x); fire = av.l > 0.6; }
+      if (av && av.l > 0.25) { ang = Math.atan2(av.y, av.x); fire = av.l > clamp(+Settings.fireAt || 0.6, 0.3, 0.9); }
       // la visée reste là où on l'a laissée : se déplacer ne la fait pas tourner
       if (ang != null) this.lastAimAng = ang; else if (this.lastAimAng == null) this.lastAimAng = p.aim;
       a.aimX = p.x + Math.cos(this.lastAimAng) * 240; a.aimY = p.y + Math.sin(this.lastAimAng) * 240; a.gpAim = true;
@@ -1731,6 +1731,7 @@ class Input {
       const tp = this.tPressed;
       if (tp.has('melee')) a.melee = true; if (tp.has('grenade')) a.grenade = true; if (tp.has('mine')) a.mine = true;
       const wt = this.wheelTouch; if (wt && performance.now() - wt.t0 >= 250) { a.wheelHeld = true; const dx = wt.x - wt.ox, dy = wt.y - wt.oy; a.wheelDir = Math.hypot(dx, dy) > 22 ? Math.atan2(dy, dx) : null; }
+      if (tp.has('reload')) a.reload = true;
       if (tp.has('decoy')) a.decoy = true; if (tp.has('roll')) a.roll = true; if (tp.has('flash')) a.flash = true; if (tp.has('weapon')) a.cycle = 1; if (tp.has('pause')) a.pause = true; if (tp.has('special')) a.special = true;
     }
     const gp = this.gamepad(); this.pad = null;
@@ -3752,6 +3753,7 @@ class Game {
     const B = (id, at, rr, o) => Object.assign({ id, x: at.x, y: at.y, r: rr }, o);
     return [
       { id: 'pause', x: cw / 2, y: 26, r: 18, label: 'II' },
+      { id: 'reload', x: SAFE.l + (cw - SAFE.l - SAFE.r) / 2, y: SAFE.t * 0.5 + ch - SAFE.b - 28 * HUDK, r: Math.round(36 * HUDK), label: '', hide: true },
       B('roll', arc(180), Math.round(r * 1.15), { label: 'ROULADE', cd: p.rollCd > 0 ? p.rollCd / 0.55 : 0 }),
       B('grenade', arc(-142), r, { label: 'G', n: p.grenades, icon: 'grenade' }),
       B('special', arc(-104), Math.round(r * 1.1), { label: CHARS[p.char].sp, cd: p.spCd / p.spMax }),
@@ -3840,7 +3842,7 @@ class Game {
     let tx = p.x, ty = p.y;
     if (this.p2 && !this.p2.dead && !p.dead) { tx = (p.x + this.p2.x) / 2; ty = (p.y + this.p2.y) / 2; }
     else if (p.dead && this.p2 && !this.p2.dead) { tx = this.p2.x; ty = this.p2.y; }
-    else if (!p.dead) { const ax = Math.cos(p.aim), ay = Math.sin(p.aim), lead = TOUCH ? 0.45 : 1; tx += ax * 150 * lead; ty += ay * 110 * lead; }
+    else if (!p.dead) { const ax = Math.cos(p.aim), ay = Math.sin(p.aim), lead = TOUCH ? (this.input.sticks.aim ? 1 : 0.6) : 1; tx += ax * 150 * lead; ty += ay * 110 * lead; }
     const k = 1 - Math.exp(-5 * realDt); this.cam.x = lerp(this.cam.x, tx, k); this.cam.y = lerp(this.cam.y, ty, k);
     this.cam.x = hw * 2 >= WORLD.w ? WORLD.w / 2 : clamp(this.cam.x, hw, WORLD.w - hw);
     this.cam.y = hh * 2 >= 1280 ? 560 : clamp(this.cam.y, -110 + hh, 1170 - hh);
@@ -4577,6 +4579,7 @@ class Game {
     c.font = `${21 + this.multPulse * 8}px ${FD}`; c.fillStyle = this.mult >= 8 ? '#ff4a2c' : this.mult >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText('×' + this.mult.toFixed(1), cw - 16, 58); }
     const w = p.weapon; c.textAlign = 'center';
     c.font = `22px ${FD}`; c.fillStyle = w.ammo === 0 ? '#e0321f' : '#d8d2c4'; c.fillText(`${w.ammo} / ${w.def.infinite ? '∞' : w.reserve}`, cw / 2, ch - 14);
+    if (p.reloadT <= 0 && w.ammo < w.magSize() && (w.def.infinite || w.reserve > 0)) { const tw = c.measureText(`${w.ammo} / ${w.def.infinite ? '∞' : w.reserve}`).width; c.font = `18px ${FD}`; c.fillStyle = `rgba(240,178,90,${0.55 + Math.sin(t * 4) * 0.3})`; c.fillText('↻', cw / 2 + tw / 2 + 14, ch - 15); }
     c.font = `12px ${FT}`; c.fillStyle = this.weaponFlash > 0 ? '#f0b25a' : '#8b867b'; c.fillText(w.def.name.toUpperCase() + (p.reloadT > 0 ? ' · RECHARGE' : ''), cw / 2, ch - 40);
     const boss = this.bossRef;
     if (boss && !boss.dead && boss.state !== 'intro') {
@@ -4588,6 +4591,7 @@ class Game {
   drawTouchControls(cw, ch) {
     const c = ctx, inp = this.input; c.save(); c.globalAlpha = clamp(+Settings.btnAlpha || 1, 0.3, 1);
     for (const b of this.touchButtons()) {
+      if (b.hide) continue;
       const down = [...inp.btnPtr.values()].includes(b.id);
       c.fillStyle = down ? 'rgba(226,121,47,.45)' : 'rgba(10,10,12,.5)'; c.beginPath(); c.arc(b.x, b.y, b.r, 0, TAU); c.fill();
       c.strokeStyle = 'rgba(216,210,196,.35)'; c.lineWidth = 1.5; c.stroke();
@@ -4601,8 +4605,9 @@ class Game {
     const drawStick = (s, gx, gy, label) => {
       if (s) {
         const v = inp.stickVec(s);
-        c.strokeStyle = 'rgba(216,210,196,.3)'; c.lineWidth = 2; c.beginPath(); c.arc(s.ox, s.oy, STICK_R, 0, TAU); c.stroke();
-        c.fillStyle = 'rgba(216,210,196,.35)'; c.beginPath(); c.arc(s.ox + v.x * STICK_R, s.oy + v.y * STICK_R, 24, 0, TAU); c.fill();
+        c.fillStyle = 'rgba(216,210,196,.05)'; c.beginPath(); c.arc(s.ox, s.oy, STICK_R, 0, TAU); c.fill(); c.strokeStyle = 'rgba(216,210,196,.2)'; c.lineWidth = 1.5; c.stroke();
+        c.fillStyle = 'rgba(216,210,196,.22)'; c.beginPath(); c.arc(s.ox + v.x * STICK_R, s.oy + v.y * STICK_R, 24, 0, TAU); c.fill(); c.strokeStyle = 'rgba(255,255,255,.28)'; c.lineWidth = 1.5; c.stroke();
+        if (s === inp.sticks.aim && v.l > clamp(+Settings.fireAt || 0.6, 0.3, 0.9)) { c.strokeStyle = 'rgba(226,121,47,.5)'; c.lineWidth = 2; c.beginPath(); c.arc(s.ox, s.oy, STICK_R, 0, TAU); c.stroke(); }
       } else {
         c.strokeStyle = 'rgba(216,210,196,.12)'; c.lineWidth = 2; c.beginPath(); c.arc(gx, gy, STICK_R, 0, TAU); c.stroke();
         c.textAlign = 'center'; c.font = `11px ${FT}`; c.fillStyle = 'rgba(216,210,196,.3)'; c.fillText(label, gx, gy + 4);
@@ -4668,15 +4673,16 @@ class Game {
       c.font = `${small ? 40 : 66}px ${FD}`; c.fillStyle = '#b0231c'; c.fillText(CHARS[this.charKey].fallen, cw / 2, ch / 2);
       c.font = `16px ${FT}`; c.fillStyle = '#c6c0b2'; c.fillText(this.lives > 0 ? 'Le multiplicateur retombe à ×1. Retour au dernier point de sauvegarde…' : 'Plus aucune vie. Fin de la nuit.', cw / 2, ch / 2 + 34); c.globalAlpha = 1;
     }
-    // viseur du J2 (bleu) avec sa jauge de tir chargé
+    // jauge de tir chargé du J2, autour de lui
     if (this.p2 && !this.p2.dead && this.state === 'playing') {
-      const q = this.p2, s2 = this.w2h(q.x + Math.cos(q.aim) * 200, q.y + Math.sin(q.aim) * 200), sp = 8 + q.recoil * 6;
-      c.strokeStyle = 'rgba(110,170,255,.95)'; c.lineWidth = 2; c.beginPath(); c.arc(s2.x, s2.y, sp + 4, 0, TAU); c.stroke(); c.fillStyle = '#7fb8ff'; c.fillRect(s2.x - 1.5, s2.y - 1.5, 3, 3);
+      const q = this.p2, s2 = this.w2h(q.x, q.y - 16); // plus de réticule : la ligne laser orange suffit
       if (q.charging && q.charge > 0) { c.strokeStyle = q.charge >= 1 ? '#bfe6ff' : 'rgba(191,230,255,.7)'; c.lineWidth = 3; c.beginPath(); c.arc(s2.x, s2.y, 22, -Math.PI / 2, -Math.PI / 2 + TAU * q.charge); c.stroke(); if (q.charge >= 1) { c.font = `11px ${FT}`; c.textAlign = 'center'; c.fillStyle = '#bfe6ff'; c.fillText('CHARGÉ', s2.x, s2.y + 38); } }
     }
     // viseur
     let aimS; if (this.input.act.gpAim) aimS = this.w2h(this.input.act.aimX, this.input.act.aimY); else aimS = { x: this.input.mx / HUDK, y: this.input.my / HUDK };
-    if (!p.dead) {
+    // au tactile et à la manette, la ligne laser suffit : pas de viseur, la jauge du tir chargé entoure le perso
+    if (!p.dead && this.input.act.gpAim) { if (p.charging && p.charge > 0) { const ps = this.w2h(p.x, p.y - 16); c.strokeStyle = p.charge >= 1 ? '#bfe6ff' : 'rgba(191,230,255,.6)'; c.lineWidth = 2.5; c.beginPath(); c.arc(ps.x, ps.y, 22, -Math.PI / 2, -Math.PI / 2 + TAU * p.charge); c.stroke(); } }
+    else if (!p.dead) {
       const spread = 8 + p.recoil * 6 + (p.sprinting ? 6 : 0); c.strokeStyle = 'rgba(240,230,210,.85)'; c.lineWidth = 1.5; c.beginPath();
       for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { c.moveTo(aimS.x + dx * spread, aimS.y + dy * spread); c.lineTo(aimS.x + dx * (spread + 7), aimS.y + dy * (spread + 7)); } c.stroke();
       c.fillStyle = '#e2792f'; c.fillRect(aimS.x - 1, aimS.y - 1, 2, 2);
@@ -5906,7 +5912,8 @@ function optionsHTML(pre) {
   ${TOUCH ? `<span class="ui-size" role="group" aria-label="Taille des boutons"><span class="lbl">Boutons</span>${[['petit', 'Petits'], ['normal', 'Normaux'], ['grand', 'Grands']].map(([k, v]) => `<button type="button" class="btn sm" data-opt="btnSize" data-val="${k}" aria-pressed="${Settings.btnSize === k}">${v}</button>`).join('')}</span>
   <label for="${pre}-alpha">Opacité des boutons <input type="range" id="${pre}-alpha" data-optr="btnAlpha" min="0.3" max="1" step="0.05" value="${Settings.btnAlpha}"></label>
   <label><input type="checkbox" data-optc="lefty" ${Settings.lefty ? 'checked' : ''}> Mode gaucher</label>
-  <label><input type="checkbox" data-optc="fixedSticks" ${Settings.fixedSticks ? 'checked' : ''}> Sticks fixes</label>` : ''}
+  <label><input type="checkbox" data-optc="fixedSticks" ${Settings.fixedSticks ? 'checked' : ''}> Sticks fixes</label>
+  <label for="${pre}-fireat">Le stick droit tire à partir de <b id="${pre}-fireat-v">${Math.round((+Settings.fireAt || 0.6) * 100)} %</b> <input type="range" id="${pre}-fireat" data-optr="fireAt" min="0.3" max="0.9" step="0.05" value="${+Settings.fireAt || 0.6}"></label>` : ''}
   <span class="ui-size" role="group" aria-label="Taille de l'interface"><span class="lbl">Taille de l'interface</span>${Object.entries(UI_SIZES).map(([k, v]) => `<button type="button" class="btn sm" data-ui="${k}" aria-pressed="${Settings.ui === k}">${v[0]}</button>`).join('')}</span>`;
 }
 function bindOptions(pre) {
@@ -5920,7 +5927,7 @@ function bindOptions(pre) {
   const reb = () => { bindOptions('title'); bindOptions('pause'); };
   for (const b of el.querySelectorAll('[data-opt]')) b.addEventListener('click', () => { Settings[b.dataset.opt] = b.dataset.val; Settings.save(); if (b.dataset.opt === 'quality') { dprCap = 2; resize(); } reb(); });
   for (const b of el.querySelectorAll('[data-optc]')) b.addEventListener('change', () => { Settings[b.dataset.optc] = b.checked; Settings.save(); reb(); });
-  for (const b of el.querySelectorAll('[data-optr]')) b.addEventListener('input', () => { Settings[b.dataset.optr] = +b.value; Settings.save(); });
+  for (const b of el.querySelectorAll('[data-optr]')) b.addEventListener('input', () => { Settings[b.dataset.optr] = +b.value; Settings.save(); if (b.dataset.optr === 'fireAt') for (const p of ['title', 'pause']) { const v = $(p + '-fireat-v'), r = $(p + '-fireat'); if (v) v.textContent = Math.round(b.value * 100) + ' %'; if (r && r !== b) r.value = b.value; } });
   for (const b of el.querySelectorAll('[data-ui]')) b.addEventListener('click', () => { Settings.ui = b.dataset.ui; Settings.save(); applyUiScale(); for (const x of document.querySelectorAll('[data-ui]')) x.setAttribute('aria-pressed', x.dataset.ui === Settings.ui ? 'true' : 'false'); });
 }
 bindOptions('title'); bindOptions('pause');
