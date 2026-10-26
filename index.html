@@ -1670,7 +1670,7 @@ class Input {
     el.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
     el.addEventListener('pointerdown', e => {
       if (e.pointerType === 'mouse') return;
-      e.preventDefault(); this.setTouch(true); game.audio.init();
+      e.preventDefault(); this.setTouch(true); game.audio.init(); this.lastTap = performance.now();
       const x = e.clientX, y = e.clientY;
       if (game.state !== 'playing') return;
       const b = game.touchButtons().find(b => (x - b.x) ** 2 + (y - b.y) ** 2 < (b.r + 10) ** 2);
@@ -2766,8 +2766,8 @@ class Hazard {
       case 'ram': { // voiture poussée en ligne droite : explose sur un mur
         this.x += this.vx * dt; this.y += this.vy * dt; if (Math.random() < dt * 20) g.spawnP({ x: this.x, y: this.y, vx: rand(-30, 30), vy: rand(-30, 30), life: 0.6, type: 'smoke', size: 8, grow: 14 });
         for (const z of g.hash.query(this.x, this.y, 46, g._qs)) if (!z.dead && z.type !== 'boss' && !this.hitZ.has(z)) { this.hitZ.add(z); z.damage(300, this.vx, this.vy, 'explosion'); }
-        for (const q of g.players()) if (!q.dead && dist2(q.x, q.y, this.x, this.y) < 40 * 40 && !this.hitP) { this.hitP = true; q.hurt(30 * g.diff.dmg, this.x - this.vx * 0.1, this.y - this.vy * 0.1, 700); }
-        if (this.t > 2.6 || g.level.pointObstacle(this.x + Math.sign(this.vx) * 30, this.y) || g.level.pointObstacle(this.x, this.y + Math.sign(this.vy) * 18) || this.y < ST + 10 || this.y > SB - 10) { this.dead = true; g.explosion(this.x, this.y, 130, 110, 'barrel'); g.fires.push(new FireArea(g, this.x, this.y, 50, 3)); }
+        for (const q of g.players()) if (!q.dead && dist2(q.x, q.y, this.x, this.y) < 40 * 40 && !this.hitP) { this.hitP = true; q.hurt(22 * g.diff.dmg, this.x - this.vx * 0.1, this.y - this.vy * 0.1, 700); }
+        if (this.t > 2.6 || g.level.pointObstacle(this.x + Math.sign(this.vx) * 30, this.y) || g.level.pointObstacle(this.x, this.y + Math.sign(this.vy) * 18) || this.y < ST + 10 || this.y > SB - 10) { this.dead = true; g.explosion(this.x, this.y, 125, 70, 'barrel'); g.fires.push(new FireArea(g, this.x, this.y, 50, 3)); }
         break; }
       case 'blade':
         this.x += this.vx * dt; this.y += this.vy * dt;
@@ -3415,7 +3415,7 @@ class Game {
     if (E.fx === 'drop') b.jumpZ = 600;
     if (E.dark) this.blackoutT = Math.max(this.blackoutT, T * 0.75);
     if (E.label) this.later(0.3, () => this.floatText(b.entry.tx, b.entry.ty - 80, E.label, '#ffd23a'));
-    this.cine = { b, t: 0 }; this.input.mdown = false;
+    this.cine = { b, t: 0, t0: performance.now() }; this.input.mdown = false;
     if (E.fx === 'drop' && E.impact) this.later(T * 0.55, () => { if (b.dead) return; this.shake(1); this.audio.explosion(1); this.scorch(b.x, b.y, 80); this.shockwaves.push(new Shockwave(this, b.x, b.y, 260, 18 * this.diff.dmg)); });
     return v;
   }
@@ -3537,7 +3537,7 @@ class Game {
   }
   noteKill(z) {
     if (this.mode === 'training') return; const k = beastKey(z), S = Settings.seen || (Settings.seen = {}); if (S[k] == null) this.noteNewBeast(k); S[k] = (S[k] || 0) + 1;
-    if (z.costume && HALLOWEEN) {
+    if (HALLOWEEN && COSTUMES.includes(z.costume)) {
       const y = new Date().getFullYear(); if (!Settings.hw || Settings.hw.y !== y) Settings.hw = { y, n: 0 }; Settings.hw.n++;
       if (Settings.hw.n >= HW_GOAL && !Settings.pumpkin) { Settings.pumpkin = true; this.later(0.4, () => { this.achCards.push({ name: 'Halloween · Tête de citrouille débloquée', t: 4.5 }); this.audio.objective(); }); }
       else if (!Settings.pumpkin && Settings.hw.n % 10 === 0) this.floatText(z.x, z.y - 52, `🎃 ${Settings.hw.n} / ${HW_GOAL}`, '#ff9a3a');
@@ -3685,7 +3685,7 @@ class Game {
     if (e.t <= 0) { this.toast({ blackout: 'Le courant revient', fog: 'Le brouillard se lève', ash: 'Les cendres retombent', icecream: 'Le camion de glaces s\'éloigne' }[e.id], '#c6c0b2'); this.event = null; }
   }
   onBossKilled(b) {
-    this.audio.setTheme(this.mode === 'secret' ? 'paradis' : this.mode === 'hospital' ? 'parking' : ['gare', 'boulevard', 'parking', 'mairie'][clamp(this.activeZone, 0, 3)]); this.blackoutT = 0; for (const h of this.hazards) if (h.kind === 'leash' || h.kind === 'fine') h.dead = true;
+    this.audio.setTheme(this.mode === 'secret' ? 'paradis' : this.mode === 'hospital' ? 'parking' : ['gare', 'boulevard', 'parking', 'mairie'][clamp(this.activeZone, 0, 3)]); this.blackoutT = 0; for (const h of this.hazards) if (h.kind !== 'barrier' && h.kind !== 'ram') h.dead = true;
     if (b.mini) {
       this.slowMo(1.6, b.title + ' EST TOMBÉ'); this.audio.roar(1); this.shake(0.8); if (this.bossRef === b) this.bossRef = null;
       const pts = Math.round(6000 * this.diff.score); this.score += pts; this.player.money += 400; this.unlock('boss');
@@ -4068,7 +4068,7 @@ class Game {
   // cinématique d'entrée d'un boss : zoom, bandes noires, tout le reste est figé
   updateCine(dt, inp) {
     const C = this.cine, b = C.b, E = b.entry; C.t += dt;
-    const I = this.input, skip = C.t > 0.5 && (inp.firePressed || inp.roll || inp.melee || inp.special || inp.grenade || inp.reload || inp.cycle || I.pc.size > 0 || I.tPressed.size > 0 || (I.touchMode && (I.sticks.aim || I.sticks.move)));
+    const I = this.input, skip = C.t > 0.5 && (I.touchMode ? (I.lastTap || 0) > C.t0 + 300 : (inp.firePressed || inp.roll || inp.melee || inp.special || inp.grenade || inp.reload || inp.cycle || I.pc.size > 0));
     if (skip && b.state === 'intro') { b.st = Math.min(b.st, 0.01); if (E) E.popped = true; }
     this.hash.clear(); for (const z of this.zombies) if (!z.dead) this.hash.insert(z);
     if (!b.dead) b.update(dt);
@@ -4674,22 +4674,27 @@ class Game {
   }
   // dessine le boss hors écran puis le compose : contour d'encre, lumière en haut, ombre en bas, liseré chaud
   inkBoss(z, draw) {
-    const c = ctx, m = c.getTransform(), k = Math.max(0.5, Math.hypot(m.a, m.b)), r = z.r, Wb = Math.ceil(r * 8 * k), Hb = Math.ceil(r * 7 * k), ox = Wb / 2, oy = Hb * 0.86;
-    const B = this._inkB || (this._inkB = [document.createElement('canvas'), document.createElement('canvas'), document.createElement('canvas')]);
-    for (const cv of B) { if (cv.width < Wb) cv.width = Wb; if (cv.height < Hb) cv.height = Hb; }
-    const [a, sil, out] = B, ac = a.getContext('2d'); ac.setTransform(1, 0, 0, 1, 0, 0); ac.clearRect(0, 0, a.width, a.height); ac.setTransform(k, 0, 0, k, ox, oy);
-    const saved = ctx; ctx = ac; try { draw(); } finally { ctx = saved; }
-    ac.setTransform(1, 0, 0, 1, 0, 0); ac.globalCompositeOperation = 'source-atop';
-    const g1 = ac.createLinearGradient(0, oy - r * 3.4 * k, 0, oy); g1.addColorStop(0, 'rgba(255,244,226,.22)'); g1.addColorStop(0.5, 'rgba(255,244,226,0)'); g1.addColorStop(1, 'rgba(14,4,22,.45)'); ac.fillStyle = g1; ac.fillRect(0, 0, Wb, Hb);
-    const g2 = ac.createRadialGradient(ox - r * 0.8 * k, oy - r * 3 * k, 0, ox - r * 0.8 * k, oy - r * 3 * k, r * 3 * k); g2.addColorStop(0, 'rgba(255,250,235,.18)'); g2.addColorStop(1, 'rgba(255,250,235,0)'); ac.fillStyle = g2; ac.fillRect(0, 0, Wb, Hb);
-    ac.globalCompositeOperation = 'source-over';
-    const sc = sil.getContext('2d'); sc.setTransform(1, 0, 0, 1, 0, 0); sc.clearRect(0, 0, sil.width, sil.height); sc.drawImage(a, 0, 0); sc.globalCompositeOperation = 'source-in'; sc.fillStyle = INK; sc.fillRect(0, 0, Wb, Hb); sc.globalCompositeOperation = 'source-over';
-    const oc = out.getContext('2d'); oc.setTransform(1, 0, 0, 1, 0, 0); oc.clearRect(0, 0, out.width, out.height); const t = Math.max(1.6, k * 1.5);
-    for (const [dx, dy] of [[t, 0], [-t, 0], [0, t], [0, -t], [t * 0.7, t * 0.7], [-t * 0.7, t * 0.7], [t * 0.7, -t * 0.7], [-t * 0.7, -t * 0.7]]) oc.drawImage(sil, dx, dy);
-    oc.drawImage(a, 0, 0);
-    // liseré : silhouette chaude décalée vers la lumière, qui dépasse du contour d'un côté
-    sc.globalCompositeOperation = 'source-in'; sc.fillStyle = z.phase >= 2 ? '#ff5a32' : '#ffbe78'; sc.fillRect(0, 0, Wb, Hb); sc.globalCompositeOperation = 'source-over';
-    c.save(); c.scale(1 / k, 1 / k); c.globalAlpha *= 0.85; c.drawImage(sil, 0, 0, Wb, Hb, -ox - t * 1.6, -oy - t * 1.6, Wb, Hb); c.globalAlpha /= 0.85; c.drawImage(out, 0, 0, Wb, Hb, -ox, -oy, Wb, Hb); c.restore();
+    const c = ctx, m = c.getTransform(), k = clamp(Math.hypot(m.a, m.b), 0.5, Settings.quality === 'eco' ? 1.1 : TOUCH ? 1.4 : 1.7), r = z.r, Wb = Math.ceil(r * 8 * k), Hb = Math.ceil(r * 7 * k), ox = Wb / 2, oy = Hb * 0.86, t = Math.max(1.6, k * 1.4);
+    const I = z._ink || (z._ink = { a: document.createElement('canvas'), sil: document.createElement('canvas'), out: document.createElement('canvas'), at: -1, k: 0 });
+    // le boss est recomposé 20 à 30 fois par seconde (sa position, elle, suit chaque image)
+    if (this.time - I.at >= (TOUCH ? 1 / 20 : 1 / 30) || Math.abs(I.k - k) > 0.15 || z.hitFlash > 0 && !I.flash) { I.flash = z.hitFlash > 0;
+      I.at = this.time; I.k = k;
+      for (const cv of [I.a, I.sil, I.out]) if (cv.width !== Wb || cv.height !== Hb) { cv.width = Wb; cv.height = Hb; }
+      const { a, sil, out } = I, ac = a.getContext('2d'); ac.setTransform(1, 0, 0, 1, 0, 0); ac.clearRect(0, 0, Wb, Hb); ac.setTransform(k, 0, 0, k, ox, oy);
+      const saved = ctx; ctx = ac; try { draw(); } finally { ctx = saved; }
+      ac.setTransform(1, 0, 0, 1, 0, 0); ac.globalCompositeOperation = 'source-atop';
+      const g1 = ac.createLinearGradient(0, oy - r * 3.4 * k, 0, oy); g1.addColorStop(0, 'rgba(255,244,226,.24)'); g1.addColorStop(0.5, 'rgba(255,244,226,0)'); g1.addColorStop(1, 'rgba(14,4,22,.45)'); ac.fillStyle = g1; ac.fillRect(0, 0, Wb, Hb);
+      ac.globalCompositeOperation = 'source-over';
+      const sc = sil.getContext('2d'); sc.clearRect(0, 0, Wb, Hb); sc.drawImage(a, 0, 0); sc.globalCompositeOperation = 'source-in'; sc.fillStyle = INK; sc.fillRect(0, 0, Wb, Hb); sc.globalCompositeOperation = 'source-over';
+      const oc = out.getContext('2d'); oc.clearRect(0, 0, Wb, Hb);
+      // liseré : silhouette chaude décalée vers la lumière, sous le contour
+      sc.globalCompositeOperation = 'source-in'; sc.fillStyle = z.phase >= 2 ? '#ff5a32' : '#ffbe78'; sc.fillRect(0, 0, Wb, Hb);
+      oc.globalAlpha = 0.85; oc.drawImage(sil, -t * 1.6, -t * 1.6); oc.globalAlpha = 1;
+      sc.fillStyle = INK; sc.fillRect(0, 0, Wb, Hb); sc.globalCompositeOperation = 'source-over';
+      for (const [dx, dy] of [[t, 0], [-t, 0], [0, t], [0, -t]]) oc.drawImage(sil, dx, dy);
+      oc.drawImage(a, 0, 0);
+    }
+    c.save(); c.scale(1 / k, 1 / k); c.drawImage(I.out, -ox, -oy); c.restore();
   }
   // télégraphes au sol, dessinés sous le boss (coordonnées locales)
   drawBossTele(z) {
