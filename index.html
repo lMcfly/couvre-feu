@@ -262,6 +262,7 @@ details.controls[open]{display:flex;flex-direction:column;gap:10px}
 @media (max-height:480px){.map-frame canvas{height:calc(100vh / var(--ui,1) - 110px)}.map-top,#map-report .hint{display:none}.map-wrap{gap:5px;padding-block:0}.map-info{font-size:12px;min-height:0}.screen.map-screen .btn{padding:8px 12px}}
 .map-info{margin:0;font-size:14px;color:#c6c0b2;min-height:1.4em}
 .sheet-card.wide{max-width:980px}
+.sc-tabs,.sc-modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.sc-modes .btn{font-size:11px;padding:4px 8px}
 .new-beasts{margin:10px 0 4px;padding:10px 12px;background:#f3e6c4;color:#151213;border:3px solid #151213;box-shadow:4px 4px 0 #151213;transform:rotate(-.6deg);text-align:left}
 .nb-h{margin:0 0 6px;font:24px/1 var(--comic-title);color:#b0231c;letter-spacing:.03em;-webkit-text-stroke:.5px #151213}
 .nb-row{display:flex;gap:10px;flex-wrap:wrap}
@@ -1295,7 +1296,7 @@ const Settings = {
   quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, online: this.online, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -1375,6 +1376,24 @@ function KL(a) {
   return K(a);
 }
 const keyPhrase = a => deviceNow() === 'kb' ? `Touche ${K(a)}` : `Bouton ${KL(a)}`;
+// ---------- classement en ligne (Supabase) : laisser vide pour le désactiver
+const ONLINE = { url: '', key: '' };
+const Online = {
+  on: () => !!(ONLINE.url && ONLINE.key) && Settings.online !== false,
+  hdr: () => ({ apikey: ONLINE.key, Authorization: 'Bearer ' + ONLINE.key, 'Content-Type': 'application/json' }),
+  pending() { try { return JSON.parse(localStorage.getItem('couvrefeu.pending') || '[]'); } catch (e) { return []; } },
+  setPending(l) { try { localStorage.setItem('couvrefeu.pending', JSON.stringify(l.slice(-20))); } catch (e) { } },
+  // envoie le score (et ceux restés en attente hors ligne)
+  async send(entry) {
+    if (!this.on()) return false; const l = this.pending(); if (entry) l.push(entry); if (!l.length) return true;
+    try { const r = await fetch(ONLINE.url + '/rest/v1/scores', { method: 'POST', headers: { ...this.hdr(), Prefer: 'return=minimal' }, body: JSON.stringify(l.map(e => ({ name: String(e.name).slice(0, 16), perso: String(e.char || '').slice(0, 20), mode: e.mode, diff: String(e.diff).slice(0, 40), score: Math.max(0, Math.floor(e.score)), kills: Math.max(0, e.kills | 0), duree: Math.min(86400, Math.max(0, e.time | 0)), win: !!e.win }))) });
+      if (!r.ok) throw new Error(r.status); this.setPending([]); return true; } catch (er) { this.setPending(l); return false; }
+  },
+  async top(mode) {
+    const q = `${ONLINE.url}/rest/v1/scores?select=name,perso,mode,diff,score,kills,win,created_at&order=score.desc&limit=30${mode && mode !== 'all' ? '&mode=eq.' + encodeURIComponent(mode) : ''}`;
+    const r = await fetch(q, { headers: this.hdr() }); if (!r.ok) throw new Error(r.status); return r.json();
+  }
+};
 const Scores = {
   mem: [],
   list() { try { const s = localStorage.getItem('couvrefeu.scores'); if (s) return JSON.parse(s); } catch (e) { } return this.mem; },
@@ -2396,7 +2415,7 @@ const BOSS_ENTRIES = {
 };
 // l'entrée retenue pour chaque boss
 const BOSS_PICK = { controleur: 1, speakerine: 0, gardien: 1, abomination: 1, chirurgien: 1, shibanophile: 1 };
-const BOSS_HINT = { controleur: 'sors du cercle rouge quand il siffle', speakerine: 'dans le noir, vise ses yeux rouges', gardien: 'ses barrières ferment les passages', abomination: 'tue les zombies qu\'elle aspire', chirurgien: 'fuis le faisceau de sa frontale', shibanophile: 'roule pour couper sa laisse' };
+const BOSS_HINT = { controleur: 'sors du cercle quand il siffle', speakerine: 'dans le noir, vise ses yeux rouges', gardien: 'ses barrières ferment les passages', abomination: 'tue les zombies qu\'elle aspire', chirurgien: 'fuis le faisceau de sa frontale', shibanophile: 'roule pour couper sa laisse' };
 const RAGE_TXT = { controleur: 'il appelle des renforts', speakerine: 'son micro hurle maintenant', gardien: 'il pousse des épaves', abomination: 'le sol tremble sous ses pas', chirurgien: 'il gaze la salle', shibanophile: 'il sort les croquettes' };
 const bossName = b => (b.title || 'Le boss').toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase()).replace(/ (Du|De|Des|La|Le|Les|L')(?= )/g, m => m.toLowerCase()).replace(/^L'a/, "L'A");
 class Boss extends Zombie {
@@ -2804,8 +2823,8 @@ class Hazard {
   draw(c, t) {
     switch (this.kind) {
       case 'fine': { const k = this.t / this.life; c.save(); c.translate(this.x, this.y); c.scale(1, 0.62);
-        c.fillStyle = `rgba(224,50,31,${0.1 + k * 0.18})`; c.beginPath(); c.arc(0, 0, this.r, 0, TAU); c.fill();
-        c.strokeStyle = `rgba(255,80,50,${0.6 + Math.sin(t * 16) * 0.3})`; c.lineWidth = 4; c.setLineDash([14, 10]); c.lineDashOffset = -t * 60; c.beginPath(); c.arc(0, 0, this.r, 0, TAU); c.stroke(); c.setLineDash([]);
+        c.fillStyle = `rgba(${DZ()},${0.1 + k * 0.18})`; c.beginPath(); c.arc(0, 0, this.r, 0, TAU); c.fill();
+        c.strokeStyle = `rgba(${DZ()},${0.6 + Math.sin(t * 16) * 0.3})`; c.lineWidth = 4; c.setLineDash([14, 10]); c.lineDashOffset = -t * 60; c.beginPath(); c.arc(0, 0, this.r, 0, TAU); c.stroke(); c.setLineDash([]);
         c.strokeStyle = 'rgba(255,210,58,.9)'; c.lineWidth = 6; c.beginPath(); c.arc(0, 0, this.r + 8, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - k)); c.stroke(); c.restore();
         c.font = `16px Bangers, Impact, sans-serif`; c.textAlign = 'center'; c.fillStyle = '#ffd23a'; c.fillText('VOS PAPIERS !', this.x, this.y - this.r * 0.62 - 12); break; }
       case 'ram': { const hor = Math.abs(this.vx) >= Math.abs(this.vy), w = hor ? 96 : 46, h = hor ? 46 : 96; c.save(); c.translate(rand(-1, 1), rand(-0.6, 0.6)); this.g.drawCar({ x: this.x - w / 2, y: this.y - h / 2, w, h, z: 24, color: '#6a5a3a', hor, hp: 30, maxHp: 170 }); c.fillStyle = `rgba(255,${140 + Math.random() * 80 | 0},40,.85)`; for (let i = 0; i < 3; i++) { c.beginPath(); c.arc(this.x - Math.sign(this.vx || 1) * w * 0.3 + rand(-8, 8), this.y - 30 - rand(0, 10), rand(4, 8), 0, TAU); c.fill(); } c.restore(); break; }
@@ -2813,7 +2832,7 @@ class Hazard {
         c.fillStyle = '#4a4e52'; RR(c, -40, -26, 80, 30, 6); c.fill(); c.fillStyle = '#6a6e70'; RR(c, -24, -40, 46, 16, 5); c.fill(); c.fillStyle = 'rgba(140,180,200,.5)'; c.fillRect(-20, -37, 18, 10); c.fillStyle = '#1a1a1c'; for (const wx of [-26, 24]) { c.beginPath(); c.arc(wx, 4, 9, 0, TAU); c.fill(); }
         c.fillStyle = '#e8c860'; c.fillRect(-36, -16, 18, 4); c.fillRect(-36, -10, 18, 4); c.fillStyle = '#ff6a22'; c.fillRect(34, -18, 6, 8); c.fillStyle = 'rgba(255,160,60,.8)'; c.beginPath(); c.arc(-42 + Math.random() * 3, -12, 5 + Math.random() * 3, 0, TAU); c.fill(); c.restore(); break; }
       case 'blade': c.save(); c.translate(this.x, this.y - 18); c.rotate(Math.atan2(this.vy, this.vx)); c.fillStyle = '#e8eef2'; c.beginPath(); c.moveTo(10, 0); c.lineTo(-2, -3); c.lineTo(-2, 3); c.fill(); c.fillStyle = '#3a4448'; c.fillRect(-9, -1.5, 8, 3); c.restore(); break;
-      case 'gas': { const a = Math.min(1, this.t * 3, (this.life - this.t) * 1.5); c.save(); c.globalAlpha = a; c.translate(this.x, this.y); c.scale(1, 0.62); const gr = c.createRadialGradient(0, 0, 10, 0, 0, this.r); gr.addColorStop(0, 'rgba(120,230,150,.45)'); gr.addColorStop(1, 'rgba(60,160,90,0)'); c.fillStyle = gr; c.beginPath(); c.arc(0, 0, this.r, 0, TAU); c.fill(); c.restore(); break; }
+      case 'gas': { const a = Math.min(1, this.t * 3, (this.life - this.t) * 1.5); c.save(); c.globalAlpha = a; c.translate(this.x, this.y); c.scale(1, 0.62); const gr = c.createRadialGradient(0, 0, 10, 0, 0, this.r); gr.addColorStop(0, `rgba(${TOX()},.45)`); gr.addColorStop(1, `rgba(${TOX()},0)`); c.fillStyle = gr; c.beginPath(); c.arc(0, 0, this.r, 0, TAU); c.fill(); c.restore(); break; }
       case 'leash': { const b = this.boss; if (!b) break; c.save(); c.strokeStyle = 'rgba(255,90,200,.9)'; c.lineWidth = 3; c.shadowColor = '#ff5ad0'; c.shadowBlur = 10; c.beginPath(); c.moveTo(b.x + Math.cos(b.dir) * b.r * 0.8, b.y - b.r * 1.3); const mx = (b.x + this.x) / 2, my = (b.y + this.y) / 2 - (this.hooked ? 10 : 40); c.quadraticCurveTo(mx, my, this.x, this.y - 16); c.stroke(); c.fillStyle = '#ffd0f0'; c.beginPath(); c.arc(this.x, this.y - 16, 5, 0, TAU); c.fill(); c.restore(); break; }
       case 'kibble': { c.save(); c.translate(this.x, this.y); c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(0, 3, 26, 9, 0, 0, TAU); c.fill(); c.fillStyle = '#8a5a2a'; for (let i = 0; i < 16; i++) { const a = i * 2.4, d = (i % 5) * 4; c.beginPath(); c.arc(Math.cos(a) * d, Math.sin(a) * d * 0.5 - 2, 3, 0, TAU); c.fill(); } c.font = '13px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillStyle = '#ffb060'; c.fillText('CROQUETTES', 0, -16 + Math.sin(t * 4) * 2); c.restore(); break; }
     }
@@ -2994,7 +3013,7 @@ const BESTIARY = [
   { k: 'spitter', name: 'Le Cracheur', type: 'Tir d\'acide', m: 3, txt: 'Champion régional de crachat de noyaux de cerise. Il a juste changé de munitions.', tip: 'Il recule pour viser. Zigzague et colle-le.' },
   { k: 'riot', name: 'Le CRS', type: 'Bouclier', m: 3, txt: 'Son bouclier a survécu à trois manifs et une apocalypse. Son sens de l\'humour, non.', tip: 'Le bouclier arrête les balles : contourne-le, ou une grenade.' },
   { k: 'brute', name: 'La Brute', type: 'Charge', m: 4, txt: 'Videur au Macumba depuis 1998. Tu n\'es toujours pas sur la liste.', tip: 'Fais-le charger contre un mur : il reste sonné.' },
-  { k: 'mini0', name: 'Le Contrôleur', type: 'Boss · secteur 1', m: 4, boss: true, txt: 'Il verbalise depuis quarante ans. La mort n\'a pas annulé l\'amende.', tip: '« Vos papiers ! » : sors du cercle rouge avant la fin, sinon c\'est l\'amende. En rage, il appelle des renforts.' },
+  { k: 'mini0', name: 'Le Contrôleur', type: 'Boss · secteur 1', m: 4, boss: true, txt: 'Il verbalise depuis quarante ans. La mort n\'a pas annulé l\'amende.', tip: '« Vos papiers ! » : sors du cercle avant la fin, sinon c\'est l\'amende. En rage, il appelle des renforts.' },
   { k: 'mini1', name: 'La Speakerine', type: 'Boss · secteur 2', m: 4, boss: true, txt: 'Elle présente encore la météo : couvre-feu, avec de forts risques de morsures.', tip: 'Coupure de courant : suis tes yeux et son écran. En rage, son micro étourdit : roule quand l\'onde arrive.' },
   { k: 'mini2', name: 'Le Gardien du parking', type: 'Boss · secteur 3', m: 4, boss: true, txt: 'Ton ticket a expiré. Toi aussi, bientôt.', tip: 'Ses barrières ferment les passages. En rage, il pousse des épaves : écarte-toi de la ligne orange.' },
   { k: 'boss', name: 'L\'Abomination', type: 'Boss · secteur 4', m: 5, boss: true, txt: 'Trois conseillers municipaux, un adjoint et un pigeon. Le conseil n\'a jamais été aussi soudé.', tip: 'Tue les zombies qu\'elle aspire avant qu\'elle les avale. En rage, roule au passage des ondes du séisme.' },
@@ -3263,7 +3282,7 @@ class Game {
   worldToScreen(x, y) { const S = VS * DPR * (this.zoom || 1); return { x: ((x - this.cam.x) * S + W / 2) / DPR, y: ((y - this.cam.y) * S + H / 2) / DPR }; }
   // ---------- aides
   later(t, fn) { this.timers.push({ t, fn, dead: false }); }
-  shake(a) { this.trauma = Math.min(1, this.trauma + a); }
+  shake(a) { if (Settings.calm) a *= 0.25; this.trauma = Math.min(1, this.trauma + a); }
   // Messages rangés par type : butin au-dessus du joueur, refus sous le joueur, répliques en bulle, succès en carte, le reste dans le fil à gauche
   toast(msg, color = '#d8d2c4') {
     if (msg.startsWith('Succès débloqué : ')) { const name = msg.slice(18); if (!this.achCards.some(a => a.name === name)) this.achCards.push({ name, t: 3.8 }); return; }
@@ -3855,6 +3874,7 @@ class Game {
     const name = ($('end-name').value || 'Survivant').trim().slice(0, 16) || 'Survivant'; Settings.name = name; Settings.save();
     const entry = { name, char: CHARS[this.charKey].name, score: Math.floor(this.score), diff: (this.endless ? `Nuit sans fin ${this.endless.night} · ` : this.dailyMod ? 'Défi · ' : this.mode === 'survival' ? 'Survie · ' : this.mode === 'secret' ? 'Paradis · ' : this.mode === 'hospital' ? 'Hôpital · ' : '') + this.diff.name, kills: this.kills, time: Math.floor(this.runTime), win: !!this.lastVictory, wave: this.mode === 'survival' ? this.surv.wave : 0, date: Date.now() };
     const top = Scores.add(entry); $('end-scores').innerHTML = scoreTable(top, entry.date); $('btn-save').disabled = true; $('btn-again').focus();
+    if (Online.on() && this.mode !== 'training') { entry.mode = this.endless ? 'endless' : this.dailyMod ? 'daily' : this.coop ? 'coop' : this.mode; Online.send(entry).then(ok => this.toast(ok ? 'Score envoyé au classement en ligne' : 'Hors ligne : score envoyé à la prochaine connexion', ok ? '#7fd18b' : '#8b867b')); }
   }
   // ---------- mise à jour
   update(dt) {
@@ -3897,7 +3917,7 @@ class Game {
   }
   drawScreenFx(c) {
     if (this.p2 && this.state === 'playing') { const q = this.p2, s0 = this.worldToScreen(q.x, q.y), x = s0.x * DPR, y = (s0.y - 52) * DPR, w = 44 * DPR; c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(x - w / 2, y, w, 6 * DPR); c.fillStyle = q.dead ? '#555' : '#5fb8ff'; c.fillRect(x - w / 2, y, w * Math.max(0, q.hp) / q.maxHp, 6 * DPR); c.font = `${Math.round(11 * DPR)}px ${FD}`; c.textAlign = 'center'; c.fillStyle = '#9fd6e6'; c.fillText('J2', x, y - 3 * DPR); }
-    if (this.flashFx > 0) { c.fillStyle = `rgba(255,250,230,${this.flashFx * 1.6})`; c.fillRect(0, 0, W, H); }
+    if (this.flashFx > 0) { c.fillStyle = `rgba(255,250,230,${this.flashFx * (Settings.calm ? 0.35 : 1.6)})`; c.fillRect(0, 0, W, H); }
     const e = this.event, p = this.player;
     if (e && this.state === 'playing') {
       const fade = Math.min(1, (e.max - e.t) / 2, e.t / 2);
@@ -4172,11 +4192,11 @@ class Game {
     const inView = (x, y, m = 60) => x > vx0 - m && x < vx1 + m && y > vy0 - m && y < vy1 + m;
     this.level.ground.draw(c, vx0, Math.max(0, vy0), vx1, vy1);
     // sol : flaques d'acide, coffres, mines, objets, anneau d'objectif
-    for (const pd of this.puddles) { if (!inView(pd.x, pd.y)) continue; c.globalAlpha = Math.min(1, pd.life / 1.5) * 0.55; c.fillStyle = '#5f9a2c'; c.beginPath(); c.ellipse(pd.x, pd.y, pd.r, pd.r * 0.6, 0, 0, TAU); c.fill(); } c.globalAlpha = 1;
+    for (const pd of this.puddles) { if (!inView(pd.x, pd.y)) continue; c.globalAlpha = Math.min(1, pd.life / 1.5) * 0.55; c.fillStyle = Settings.cb ? '#2c6a9a' : '#5f9a2c'; c.beginPath(); c.ellipse(pd.x, pd.y, pd.r, pd.r * 0.6, 0, 0, TAU); c.fill(); } c.globalAlpha = 1;
     for (const m of this.mines) { c.fillStyle = '#2b2d2a'; c.beginPath(); c.ellipse(m.x, m.y, 10, 6, 0, 0, TAU); c.fill(); c.fillStyle = '#4a4d47'; c.fillRect(m.x - 4, m.y - 4, 8, 3); }
     for (const pk of this.pickups) if (inView(pk.x, pk.y)) this.drawPickup(pk);
     for (const hz of this.hazards) if (inView(hz.x, hz.y, 260)) hz.draw(c, this.time);
-    { const bo = this.bossRef; if (bo && !bo.dead && (bo.state === 'windLeap' || bo.state === 'leap')) { const pulse = 0.5 + Math.sin(this.time * 18) * 0.25; c.strokeStyle = `rgba(224,50,31,${pulse + 0.2})`; c.lineWidth = 3; c.beginPath(); c.ellipse(bo.leapX, bo.leapY, bo.r + 70, (bo.r + 70) * 0.55, 0, 0, TAU); c.stroke(); c.fillStyle = `rgba(224,50,31,${pulse * 0.25})`; c.fill(); } }
+    { const bo = this.bossRef; if (bo && !bo.dead && (bo.state === 'windLeap' || bo.state === 'leap')) { const pulse = 0.5 + Math.sin(this.time * 18) * 0.25; c.strokeStyle = `rgba(${DZ()},${pulse + 0.2})`; c.lineWidth = 3; c.beginPath(); c.ellipse(bo.leapX, bo.leapY, bo.r + 70, (bo.r + 70) * 0.55, 0, 0, TAU); c.stroke(); c.fillStyle = `rgba(224,50,31,${pulse * 0.25})`; c.fill(); } }
     if (this.mode === 'secret' && this.npcShibas) for (const sh of this.npcShibas) if (!sh.caught && inView(sh.x, sh.y)) drawShibaSprite(c, sh.x, sh.y, 1.1, this.time + sh.x);
     if (this.buddy && inView(this.buddy.x, this.buddy.y)) { const b = this.buddy; c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(b.x, b.y + 2, 10, 4, 0, 0, TAU); c.fill(); drawShibaSprite(c, b.x, b.y - b.hop, 1, this.time * 1.6); }
     if (this.event && this.event.id === 'icecream' && inView(this.event.x, this.event.y, 120)) drawIceTruck(c, this.event.x, this.event.y, this.time);
@@ -4279,7 +4299,7 @@ class Game {
       if (l.flick) { const v = Math.sin(t * 3 + l.phase) * Math.sin(t * 17.3 + l.phase * 3); if (v > 0.72) i = 0.05; else i *= 0.85 + Math.random() * 0.15; }
       l._i = i; glow(l.x, l.y + 12, 250, '255,165,85', i);
     }
-    for (const f of this.level.fixedLights) { const fl = f.flick === 3 ? (Math.sin(t * 2.3 + f.x) * Math.sin(t * 11.7 + f.y * 0.01) > 0.55 ? 0.04 : 0.8 + Math.random() * 0.2) : f.flick === 2 ? 0.75 + Math.random() * 0.25 : f.flick === 1 ? 0.95 + Math.sin(t * 2) * 0.05 : 1; glow(f.x, f.y, f.r, f.c, f.i * fl); }
+    for (const f of this.level.fixedLights) { const fl = Settings.calm && f.flick >= 2 ? 0.8 : f.flick === 3 ? (Math.sin(t * 2.3 + f.x) * Math.sin(t * 11.7 + f.y * 0.01) > 0.55 ? 0.04 : 0.8 + Math.random() * 0.2) : f.flick === 2 ? 0.75 + Math.random() * 0.25 : f.flick === 1 ? 0.95 + Math.sin(t * 2) * 0.05 : 1; glow(f.x, f.y, f.r, f.c, f.i * fl); }
     for (const f of this.fires) glow(f.x, f.y, f.r * 4.5, '255,130,50', 0.85 * Math.min(1, f.life / 1.5) * (0.75 + Math.random() * 0.25));
     for (const l of this.lights) glow(l.x, l.y, l.r, l.c, l.i * (l.life / l.max));
     if (this.event && this.event.id === 'icecream') { const e = this.event; glow(e.x + 52, e.y - 30, 170, '255,220,170', 0.75); glow(e.x - 14, e.y - 50, 90, '214,140,160', 0.5 + Math.sin(this.time * 17) * 0.15); }
@@ -4288,7 +4308,7 @@ class Game {
       if (c.alarm > 0 && Math.floor(t * 4) % 2 === 0) { glow(c.x, c.y + c.h / 2, 120, '255,170,60', 0.8); glow(c.x + c.w, c.y + c.h / 2, 120, '255,170,60', 0.8); }
     }
     for (const z of this.zombies) { if (z.type === 'bomber') glow(z.x, z.y - 14, 70, '140,255,90', 0.35 + Math.sin(t * 8 + z.walkT) * 0.1); else if (z.type === 'boss') glow(z.x, z.y - 40, 140, '255,40,20', 0.35); }
-    for (const pd of this.puddles) glow(pd.x, pd.y, pd.r * 1.8, '120,255,60', 0.2 * Math.min(1, pd.life / 1.5));
+    for (const pd of this.puddles) glow(pd.x, pd.y, pd.r * 1.8, Settings.cb ? '80,160,255' : '120,255,60', 0.2 * Math.min(1, pd.life / 1.5));
     for (const a of this.acids) glow(a.x, a.y - a.z, 40, '140,255,70', 0.4);
     for (const th of this.throwables) if (th.kind === 'decoy' && th.landed) glow(th.x, th.y, 260, '255,60,40', 0.75 + Math.random() * 0.25);
     for (const m of this.mines) if (m.arm <= 0 && Math.floor(m.t * 2) % 2 === 0) glow(m.x, m.y, 30, '255,40,30', 0.5);
@@ -4341,7 +4361,7 @@ class Game {
       c.lineTo(b.x2, b.y2 - 14);
       c.strokeStyle = `rgba(150,215,255,${k})`; c.lineWidth = (b.bolt ? 6 : 9) * k; c.stroke(); c.strokeStyle = `rgba(255,255,255,${k})`; c.lineWidth = 2.5 * k; c.stroke();
     }
-    for (const a of this.acids) { c.fillStyle = '#9cff5a'; c.globalAlpha = 0.85; c.beginPath(); c.arc(a.x, a.y - a.z, a.big ? 7 : 5, 0, TAU); c.fill(); } c.globalAlpha = 1;
+    for (const a of this.acids) { c.fillStyle = ACID(); c.globalAlpha = 0.85; c.beginPath(); c.arc(a.x, a.y - a.z, a.big ? 7 : 5, 0, TAU); c.fill(); } c.globalAlpha = 1;
     for (const s of this.shockwaves) { c.strokeStyle = `rgba(255,140,60,${1 - s.r / s.max})`; c.lineWidth = 6; c.beginPath(); c.ellipse(s.x, s.y, s.r, s.r * 0.85, 0, 0, TAU); c.stroke(); }
     // yeux dans la nuit
     for (const z of this.zombies) {
@@ -4574,7 +4594,7 @@ class Game {
     c.fillStyle = 'rgba(80,10,8,.55)'; c.fillRect(-r * 0.3 + (z.seed || 0), -r * 1.2, r * 0.35, r * 0.3);
     const hy = -r * (z.type === 'spitter' ? 2.2 : 1.95) + Math.sin(t * 0.5);
     c.fillStyle = z.skin; c.beginPath(); c.arc(ca * r * 0.25, hy, r * (z.type === 'brute' ? 0.45 : 0.52), 0, TAU); c.fill();
-    if (z.type === 'spitter' && z.spitWind > 0) { c.fillStyle = '#9cff5a'; c.beginPath(); c.arc(ca * r * 0.6, hy + 3, 3 + (0.45 - z.spitWind) * 6, 0, TAU); c.fill(); }
+    if (z.type === 'spitter' && z.spitWind > 0) { c.fillStyle = ACID(); c.beginPath(); c.arc(ca * r * 0.6, hy + 3, 3 + (0.45 - z.spitWind) * 6, 0, TAU); c.fill(); }
     if (sa >= 0) arms();
     if (z.costume) drawCostume(c, z.costume, ca * r * 0.25, hy, r, z.walkT);
     if (z.hitFlash > 0) { c.globalAlpha = 0.6; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 0.85, r * 1.15, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
@@ -4586,7 +4606,7 @@ class Game {
     const c = ctx, r = z.r, t = z.walkT, crouch = z.bState === 'crouch', leap = z.bState === 'leap';
     const lift = leap ? 9 : crouch ? -3 : 0, step = Math.sin(t * 1.7) * r * 0.4, fx = ca * r * 0.95, fy = sa * r * 0.4;
     if (crouch) { // télégraphe : la trajectoire du bond s'affiche au sol
-      const k = 1 - z.bT / 0.42; c.strokeStyle = `rgba(255,70,40,${0.25 + k * 0.5})`; c.lineWidth = 3; c.setLineDash([8, 6]); c.beginPath(); c.moveTo(0, 0); c.lineTo(z.cdx * 150, z.cdy * 150); c.stroke(); c.setLineDash([]);
+      const k = 1 - z.bT / 0.42; c.strokeStyle = `rgba(${DZ()},${0.25 + k * 0.5})`; c.lineWidth = 3; c.setLineDash([8, 6]); c.beginPath(); c.moveTo(0, 0); c.lineTo(z.cdx * 150, z.cdy * 150); c.stroke(); c.setLineDash([]);
       c.translate(rand(-1, 1), 0);
     }
     c.strokeStyle = shade(z.skin, -0.35); c.lineWidth = 3.2; c.lineCap = 'round'; c.beginPath();
@@ -4650,7 +4670,7 @@ class Game {
     const E = z.state === 'intro' && z.entry, ek = E ? 1 - Math.max(0, z.st) / E.T : 1;
     if (E) {
       // repère au sol : là où il va se tenir
-      { const ox = E.tx - z.x, oy = E.ty - z.y + (z.jumpZ || 0), pu = 0.5 + Math.sin(t * 12) * 0.3; c.save(); c.translate(ox, oy); c.scale(1, 0.55); c.strokeStyle = `rgba(224,50,31,${pu})`; c.lineWidth = 4; c.beginPath(); c.arc(0, 0, r * 1.6, 0, TAU); c.stroke(); c.restore(); c.fillStyle = `rgba(255,90,60,${pu})`; c.font = '22px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillText('!', ox, oy + 8); }
+      { const ox = E.tx - z.x, oy = E.ty - z.y + (z.jumpZ || 0), pu = 0.5 + Math.sin(t * 12) * 0.3; c.save(); c.translate(ox, oy); c.scale(1, 0.55); c.strokeStyle = `rgba(${DZ()},${pu})`; c.lineWidth = 4; c.beginPath(); c.arc(0, 0, r * 1.6, 0, TAU); c.stroke(); c.restore(); c.fillStyle = `rgba(255,90,60,${pu})`; c.font = '22px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillText('!', ox, oy + 8); }
       if (E.prop === 'metro' || E.prop === 'drawer' || E.prop === 'gore') { c.fillStyle = E.prop === 'gore' ? '#2a0a08' : '#0a0a0c'; c.beginPath(); c.ellipse(0, 0, r * 1.3, r * 0.5, 0, 0, TAU); c.fill(); c.strokeStyle = E.prop === 'metro' ? '#d0a020' : E.prop === 'drawer' ? '#9aa4a8' : '#5a1410'; c.lineWidth = 3; c.stroke(); if (E.prop === 'metro') { c.fillStyle = '#d0a020'; c.font = '14px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillText('M', 0, -r * 0.6); } }
       if (E.prop === 'tvset' && ek < 0.5) { c.fillStyle = '#4a3e36'; RR(c, -r * 0.7, -r * 1.1, r * 1.4, r * 1.0, 6); c.fill(); c.fillStyle = `rgba(160,230,220,${0.5 + Math.random() * 0.5})`; c.fillRect(-r * 0.55, -r * 0.98, r * 1.1, r * 0.72); }
       if (E.prop === 'cables') { c.strokeStyle = '#1a1818'; c.lineWidth = 2; for (const sx of [-r * 0.4, 0, r * 0.4]) { c.beginPath(); c.moveTo(sx, -r * 2.6 - (z.jumpZ || 0) * 0); c.lineTo(sx + Math.sin(t * 3 + sx) * 8, -900); c.stroke(); } }
@@ -4662,7 +4682,7 @@ class Game {
     let hide = false;
     if (E) {
       if (E.fx === 'rise') { const u = Math.min(1, ek / 0.75); c.beginPath(); c.rect(-r * 3, -r * 6, r * 6, r * 6); c.clip(); c.translate(0, (1 - u) * r * 3.4); }
-      if (E.fx === 'fade') { if (ek < 0.45) hide = true; else c.globalAlpha = Math.min(1, (ek - 0.45) / 0.4) * (Math.random() < 0.25 ? 0.4 : 1); }
+      if (E.fx === 'fade') { if (ek < 0.45) hide = true; else c.globalAlpha = Math.min(1, (ek - 0.45) / 0.4) * (!Settings.calm && Math.random() < 0.25 ? 0.4 : 1); }
       if (E.fx === 'tv') { const u = clamp((ek - 0.35) / 0.4, 0.02, 1); c.translate(0, -r * 1.4); c.scale(Math.min(1, 0.3 + u), u); c.translate(0, r * 1.4); if (u < 1) { c.fillStyle = 'rgba(255,255,255,.9)'; c.fillRect(-r * 1.4, -r * 1.45, r * 2.8, 3 / u); } }
       if (E.fx === 'burst') { const u = E.prop === 'cage' ? (ek < 0.6 ? 0.45 : Math.min(1.12, 0.45 + (ek - 0.6) * 3)) : 1; c.translate(0, 0); c.scale(Math.min(1, u), Math.min(1, u)); if (E.prop === 'cage' && ek < 0.6) c.translate(Math.sin(t * 40) * 3, 0); }
     }
@@ -4712,7 +4732,7 @@ class Game {
     if (z.state === 'windEcho') { const k = 1 - z.st / 0.8; c.save(); c.scale(1, 0.62); c.fillStyle = `rgba(150,220,255,${0.12 + k * 0.25})`; c.beginPath(); c.moveTo(0, 0); c.arc(0, 0, 320 * (0.3 + k * 0.7), z.echoA - 0.6, z.echoA + 0.6); c.closePath(); c.fill(); c.strokeStyle = 'rgba(190,240,255,.7)'; c.lineWidth = 2; c.stroke(); c.restore(); }
     if (z.state === 'windBlades' && z.bladeA) { c.strokeStyle = `rgba(232,246,255,${0.35 + Math.sin(t * 30) * 0.2})`; c.lineWidth = 2; c.setLineDash([10, 8]); c.beginPath(); for (const a of z.bladeA) { c.moveTo(Math.cos(a) * 30, Math.sin(a) * 30); c.lineTo(Math.cos(a) * 520, Math.sin(a) * 520); } c.stroke(); c.setLineDash([]); }
     if (z.state === 'windRam') { c.strokeStyle = `rgba(255,120,40,${0.5 + Math.sin(t * 20) * 0.3})`; c.lineWidth = 34; c.globalAlpha = 0.25; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(z.ramA) * 700, Math.sin(z.ramA) * 700); c.stroke(); c.globalAlpha = 1; }
-    if (z.state === 'windQuake') { for (let i = 1; i <= 3; i++) { c.strokeStyle = `rgba(224,50,31,${0.25 + Math.sin(t * 18 + i) * 0.15})`; c.lineWidth = 3; c.beginPath(); c.ellipse(0, 0, 140 * i, 85 * i, 0, 0, TAU); c.stroke(); } }
+    if (z.state === 'windQuake') { for (let i = 1; i <= 3; i++) { c.strokeStyle = `rgba(${DZ()},${0.25 + Math.sin(t * 18 + i) * 0.15})`; c.lineWidth = 3; c.beginPath(); c.ellipse(0, 0, 140 * i, 85 * i, 0, 0, TAU); c.stroke(); } }
     if (z.state === 'absorb') { c.strokeStyle = 'rgba(140,220,110,.55)'; c.lineWidth = 2; for (const o of this.zombies) { if (o === z || o.dead || o.type === 'boss') continue; const dx = o.x - z.x, dy = o.y - z.y; if (dx * dx + dy * dy > 430 * 430) continue; c.beginPath(); c.moveTo(0, -z.r); c.quadraticCurveTo(dx * 0.5 + Math.sin(t * 8 + o.x) * 20, dy * 0.5 - 40, dx, dy - o.r); c.stroke(); } }
   }
   drawControleur(c, z, ca, sa, r, t) {
@@ -4845,7 +4865,7 @@ class Game {
       case 'splash': c.globalAlpha = k * 0.45; c.strokeStyle = '#9aa6b4'; c.lineWidth = 1; c.beginPath(); c.ellipse(p.x, p.y, p.size * 0.5, p.size * 0.22, 0, 0, TAU); c.stroke(); break;
       case 'fire': c.globalAlpha = Math.min(1, k * 1.5) * 0.8; c.fillStyle = k > 0.6 ? '#ffd27a' : k > 0.3 ? '#ff7a1a' : '#a3200f'; c.beginPath(); c.arc(p.x, p.y - p.z, p.size * (0.6 + k * 0.5), 0, TAU); c.fill(); break;
       case 'spark': c.globalAlpha = k; c.strokeStyle = p.color || '#ffcf80'; c.lineWidth = p.size; c.beginPath(); c.moveTo(p.x, p.y - p.z); c.lineTo(p.x - p.vx * 0.03, p.y - p.z - p.vy * 0.03); c.stroke(); break;
-      case 'acid': c.globalAlpha = k; c.fillStyle = '#9cff5a'; c.fillRect(p.x - 1.5, p.y - p.z - 1.5, 3, 3); break;
+      case 'acid': c.globalAlpha = k; c.fillStyle = ACID(); c.fillRect(p.x - 1.5, p.y - p.z - 1.5, 3, 3); break;
       case 'ring': c.globalAlpha = k * 0.8; c.strokeStyle = '#ffb060'; c.lineWidth = 5 * k + 1; c.beginPath(); c.ellipse(p.x, p.y, p.size, p.size * 0.8, 0, 0, TAU); c.stroke(); break;
     }
   }
@@ -5604,6 +5624,8 @@ function escapeHtml(s) { return String(s).replace(/[&<>"']/g, ch => ({ '&': '&am
 
 // ============================================================ BD : cases dessinées à la volée sur canvas (480×360)
 const INK = '#151213';
+// accessibilité : danger (rouge → orange vif) et toxique (vert → bleu) quand le mode daltonien est actif
+const DZ = () => Settings.cb ? '255,150,0' : '224,50,31', TOX = () => Settings.cb ? '90,170,255' : '120,230,150', ACID = () => Settings.cb ? '#6ab8ff' : '#9cff5a';
 function drawPumpkin(c, x, y, s, t, head) {
   c.save(); c.translate(x, y); c.scale(s, s);
   if (!head) { c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(0, 9, 14, 5, 0, 0, TAU); c.fill(); }
@@ -6333,6 +6355,9 @@ window.__cf = game;
 function optionsHTML(pre) {
   return `<label><input type="checkbox" id="${pre}-rain" ${Settings.rain ? 'checked' : ''}> Pluie</label>
   <label><input type="checkbox" id="${pre}-fog" ${Settings.fog ? 'checked' : ''}> Brouillard</label>
+  <label title="Zones de danger en orange, gaz et acide en bleu"><input type="checkbox" data-optc="cb" ${Settings.cb ? 'checked' : ''}> Mode daltonien</label>
+  <label title="Moins de tremblements d'écran, de flashs et de lumières qui clignotent"><input type="checkbox" data-optc="calm" ${Settings.calm ? 'checked' : ''}> Effets réduits</label>
+  ${ONLINE.url ? `<label title="Ton nom et ton score sont envoyés au classement partagé avec tes amis"><input type="checkbox" data-optc="online" ${Settings.online !== false ? 'checked' : ''}> Classement en ligne</label>` : ''}
   <label for="${pre}-vol">Volume <input type="range" id="${pre}-vol" min="0" max="1" step="0.05" value="${Settings.vol}"></label>
   <label for="${pre}-music">Musique <input type="range" id="${pre}-music" min="0" max="1" step="0.05" value="${Settings.music}"></label>
   <span class="ui-size" role="group" aria-label="Qualité"><span class="lbl">Qualité</span>${[['auto', 'Auto'], ['high', 'Haute'], ['eco', 'Économie de batterie']].map(([k, v]) => `<button type="button" class="btn sm" data-opt="quality" data-val="${k}" aria-pressed="${Settings.quality === k}">${v}</button>`).join('')}</span>
@@ -6870,7 +6895,23 @@ $('btn-settings').addEventListener('click', e => { refreshContinue(); togglePane
 function closeSheets() { for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden = true; $(bid).setAttribute('aria-expanded', 'false'); } $('scr-title').classList.remove('page-open'); if (typeof setTab === 'function') setTab(hubTab); }
 for (const sh of document.querySelectorAll('.sheet')) sh.addEventListener('click', e => { if (e.target === sh || e.target.closest('.sheet-close')) { closeSheets(); game.audio.ui(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !game.keysOpen && document.querySelector('.sheet:not([hidden])')) { e.preventDefault(); closeSheets(); } });
-$('btn-scores').addEventListener('click', e => togglePanel('panel-scores', e.currentTarget, () => scoreTable(Scores.list())));
+const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
+function scoresHTML() {
+  if (!Online.on()) return scoreTable(Scores.list()) + (ONLINE.url ? '<p class="hint">Classement en ligne désactivé dans les Paramètres.</p>' : '');
+  return `<div class="sc-tabs" role="tablist"><button type="button" class="btn sm" data-sct="local" aria-pressed="false">Sur cet appareil</button><button type="button" class="btn sm" data-sct="online" aria-pressed="true">En ligne</button></div><div class="sc-modes">${ONLINE_MODES.map(([k, v]) => `<button type="button" class="btn sm" data-scm="${k}" aria-pressed="${k === 'all'}">${v}</button>`).join('')}</div><div id="sc-body"><p class="hint">Chargement du classement…</p></div>`;
+}
+async function loadOnline(mode) {
+  const el = $('sc-body'); if (!el) return; el.innerHTML = '<p class="hint">Chargement du classement…</p>';
+  try { const l = await Online.top(mode); const me = (Settings.name || '').trim();
+    el.innerHTML = !l.length ? '<p class="empty">Personne n\'a encore envoyé de score ici. À toi de jouer !</p>' : `<div class="tablewrap"><table class="scores"><thead><tr><th>#</th><th>Nom</th><th>Perso</th><th class="num">Score</th><th>Mode</th><th class="num">Abattus</th></tr></thead><tbody>${l.map((e, i) => `<tr class="${e.name === me ? 'me' : ''}"><td>${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.perso || '–')}</td><td class="num">${fmt(e.score)}</td><td>${escapeHtml(e.diff || e.mode || '')}</td><td class="num">${fmt(e.kills || 0)}</td></tr>`).join('')}</tbody></table></div>`;
+  } catch (er) { el.innerHTML = '<p class="empty">Classement en ligne injoignable (pas de réseau ?). Tes scores restent enregistrés sur l\'appareil.</p>'; }
+}
+$('btn-scores').addEventListener('click', e => {
+  togglePanel('panel-scores', e.currentTarget, scoresHTML); if (!Online.on()) return; Online.send(null); loadOnline('all');
+  const body = $('panel-scores').querySelector('.sheet-body'), sel = (attr, v) => { for (const b of body.querySelectorAll(`[${attr}]`)) b.setAttribute('aria-pressed', b.getAttribute(attr) === v); };
+  for (const b of body.querySelectorAll('[data-scm]')) b.addEventListener('click', () => { game.audio.ui(); sel('data-scm', b.dataset.scm); sel('data-sct', 'online'); body.querySelector('.sc-modes').hidden = false; loadOnline(b.dataset.scm); });
+  for (const b of body.querySelectorAll('[data-sct]')) b.addEventListener('click', () => { game.audio.ui(); sel('data-sct', b.dataset.sct); const loc = b.dataset.sct === 'local'; body.querySelector('.sc-modes').hidden = loc; if (loc) $('sc-body').innerHTML = scoreTable(Scores.list()); else loadOnline((body.querySelector('[data-scm][aria-pressed="true"]') || {}).dataset?.scm || 'all'); });
+});
 $('btn-resume').addEventListener('click', () => game.resume());
 $('btn-pause-settings').addEventListener('click', () => { game.audio.ui(); $('pause-main').hidden = true; $('pause-settings').hidden = false; requestAnimationFrame(() => { $('btn-pause-back').focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo($('btn-pause-back')); }); });
 $('btn-pause-back').addEventListener('click', () => { game.audio.ui(); $('pause-settings').hidden = true; $('pause-main').hidden = false; requestAnimationFrame(() => { $('btn-resume').focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo($('btn-resume')); }); });
@@ -7070,7 +7111,7 @@ function drawBeast(cv, k, known) {
 }
 function drawBestiary() { for (const cv of document.querySelectorAll('canvas[data-beast]')) drawBeast(cv, cv.dataset.beast, !!cv.dataset.known); }
 $('btn-best').addEventListener('click', e => { togglePanel('panel-best', e.currentTarget, bestHTML); drawBestiary(); fontsReady.then(drawBestiary); });
-window.__drawBestiary = drawBestiary; window.__v42 = { HALLOWEEN, Zombie, Settings, HOSP };
+window.__drawBestiary = drawBestiary; window.__v42 = { HALLOWEEN, Zombie, Settings, HOSP, ONLINE, Online };
 $('btn-quit').addEventListener('click', () => { game.audio.flame(false); game.setupDemo(); game.showScreen('scr-title'); refreshSurvivalBtn(); });
 $('btn-save').addEventListener('click', () => game.saveScore());
 $('end-name').addEventListener('keydown', e => { if (e.key === 'Enter') game.saveScore(); });
