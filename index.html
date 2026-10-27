@@ -1389,7 +1389,7 @@ function KL(a) {
 }
 const keyPhrase = a => deviceNow() === 'kb' ? `Touche ${K(a)}` : `Bouton ${KL(a)}`;
 // ---------- classement en ligne (Supabase) : laisser vide pour le désactiver
-const ONLINE = { url: '', key: '' };
+const ONLINE = { url: 'https://rnsndniniqpdbubqmpcx.supabase.co', key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJuc25kbmluaXFwZGJ1YnFtcGN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwOTczMzQsImV4cCI6MjEwODY3MzMzNH0.Z46hidwrJHpWHvdpl-7sX8sg8bXowXNtiPjVr7emeJg' }; // clé publique « anon » : lecture et ajout de scores seulement
 const Online = {
   on: () => !!(ONLINE.url && ONLINE.key) && Settings.online !== false,
   hdr: () => ({ apikey: ONLINE.key, Authorization: 'Bearer ' + ONLINE.key, 'Content-Type': 'application/json' }),
@@ -6389,8 +6389,8 @@ class SupaSig {
     this.ready = new Promise((res, rej) => {
       const ws = this.ws = new WebSocket(ONLINE.url.replace(/^http/, 'ws') + '/realtime/v1/websocket?apikey=' + encodeURIComponent(ONLINE.key) + '&vsn=1.0.0');
       const to = setTimeout(() => rej(new Error('délai')), 8000);
-      ws.onopen = () => { this.raw({ topic: this.topic, event: 'phx_join', payload: { config: { broadcast: { self: false, ack: false }, presence: { key: '' } }, access_token: ONLINE.key } }); this.hb = setInterval(() => this.raw({ topic: 'phoenix', event: 'heartbeat', payload: {} }), 25000); };
-      ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (er) { return; } if (m.event === 'phx_reply' && m.topic === this.topic && !this.joined) { this.joined = true; clearTimeout(to); res(); for (const x of this.q) this.send(x); this.q = []; } else if (m.event === 'broadcast' && m.payload) this.onMsg(m.payload.payload); };
+      ws.onopen = () => { this.raw({ topic: this.topic, event: 'phx_join', payload: { config: { broadcast: { self: false, ack: false }, presence: { key: '' }, private: false }, access_token: ONLINE.key } }); this.hb = setInterval(() => this.raw({ topic: 'phoenix', event: 'heartbeat', payload: {} }), 25000); };
+      ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (er) { return; } if (m.event === 'phx_reply' && m.topic === this.topic && !this.joined) { clearTimeout(to); if (m.payload && m.payload.status === 'ok') { this.joined = true; res(); for (const x of this.q) this.send(x); this.q = []; } else rej(new Error('refus')); } else if (m.event === 'broadcast' && m.payload) this.onMsg(m.payload.payload); };
       ws.onerror = () => { clearTimeout(to); rej(new Error('réseau')); }; ws.onclose = () => { clearInterval(this.hb); if (this.onClose) this.onClose(); };
     });
   }
