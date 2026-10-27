@@ -1308,7 +1308,7 @@ const Settings = {
   quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, online: this.online, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -2271,7 +2271,7 @@ class Player {
     const g = this.g; if (this.inv > 0 || this.rollT > 0 || this.dead || g.state !== 'playing') return;
     dmg *= 1 - 0.15 * this.armor; this.hp -= dmg; this.inv = 0.35; g.zoneHit = true; this.lastHurt = g.time;
     g.mult = Math.max(1, g.mult - 1); g.hurtFlash = Math.min(1, 0.35 + dmg / 40); g.shake(0.25 + dmg / 80); g.audio.hurt();
-    const dx = this.x - sx, dy = this.y - sy, d = Math.hypot(dx, dy) || 1; this.kx += dx / d * kb; this.ky += dy / d * kb;
+    const dx = this.x - sx, dy = this.y - sy, d = Math.hypot(dx, dy) || 1; this.kx += dx / d * kb; this.ky += dy / d * kb; if (this.isP2 && g.net === 'host') g.netEmit(['kb', Math.round(dx / d * kb), Math.round(dy / d * kb)]);
     g.bleed(this.x, this.y, dx / d, dy / d, 6);
     if (this.hp <= 0) { if (this.isP2) g.onP2Death(this); else g.onPlayerDeath(); }
     else if (this.hp < 30 && !this.lowQuip) { this.lowQuip = true; g.quip('low'); }
@@ -3304,7 +3304,7 @@ class Game {
     if (/^\+/.test(msg)) { const o = this.pops.find(x => x.msg === msg); if (o) { o.n++; o.t = 1.6; } else { this.pops.push({ msg, color, t: 1.6, n: 1 }); if (this.pops.length > 3) this.pops.shift(); } return; }
     if (color === '#8b867b' || /plus de munitions|^Plus de |en recharge|déjà au maximum|^Distributeur vide/.test(msg)) { this.denyMsg = { msg, color: color === '#8b867b' ? '#c6c0b2' : color, t: 1.4 }; return; }
     const f = this.toasts.find(x => x.msg === msg); if (f) { f.n++; f.t = Math.max(f.t, 3.2); return; }
-    this.toasts.unshift({ msg, color, t: 4.2, n: 1, age: 0 }); if (this.toasts.length > 3) this.toasts.length = 3;
+    this.toasts.unshift({ msg, color, t: this.p2 ? 2.8 : 4.2, n: 1, age: 0 }); if (this.toasts.length > 3) this.toasts.length = 3;
   }
   say(msg) { this.speech = { msg, t: 3 }; }
   banner(title, sub) { this.netEmit(['banner', title, sub]); this.bannerObj = { title, sub, t: 3.6 }; }
@@ -3625,7 +3625,7 @@ class Game {
       const inside = dist2(a.x, a.y, d.downX, d.downY) < REVIVE_R * REVIVE_R;
       d.revT = clamp((d.revT || 0) + (inside ? dt : -dt * 1.5), 0, REVIVE_T);
       if (inside && Math.random() < dt * 12) { const an = rand(0, TAU), rr = rand(10, REVIVE_R); this.spawnP({ x: d.downX + Math.cos(an) * rr, y: d.downY + Math.sin(an) * rr * 0.6, z: 2, vz: rand(40, 90), life: 0.7, type: 'spark', size: 1.6, color: '#7fd18b', emissive: true }); }
-      if (d.revT >= REVIVE_T) { this.reviveUsed = true; this.revivePlayer(d, d.downX, d.downY, 0.5); this.audio.objective(); this.toast(`${this.pName(d)} est relevé ! Plus de réanimation possible cette manche`, '#7fd18b'); }
+      if (d.revT >= REVIVE_T) { this.reviveUsed = true; this.revivePlayer(d, d.downX, d.downY, 0.5); this.audio.objective(); this.toast(`${this.pName(d)} est relevé !`, '#7fd18b'); }
     }
   }
   revivePlayer(d, x, y, f) { d.dead = false; d.hp = Math.round(d.maxHp * f); d.x = x; d.y = y; d.inv = 2; d.revT = 0; d.downX = d.downY = null; if (d === this.player) this.p1Down = 0; }
@@ -3638,7 +3638,7 @@ class Game {
     if (q.dead) return; q.dead = true; q.hp = 0; q.carry = null;
     q.downX = q.x; q.downY = q.y; q.revT = 0;
     if (this.player.dead) { this.p1Down = 0; const p = this.player; p.dead = false; p.hp = 1; this.onPlayerDeath(); this.bleed(q.x, q.y, 0, 0, 20); return; } this.bleed(q.x, q.y, 0, 0, 20); this.audio.death();
-    this.toast(`${this.pName(q)} est à terre : ${this.reviveUsed ? 'retour en fin de manche' : `${this.pName(this.player)} doit rester 4 s dans son cercle pour le relever`}`, '#e2792f');
+    this.toast(`${this.pName(q)} est à terre`, '#e2792f');
   }
   newCoop() {
     const L = this.input.padList(), cpads = this.coopPads; this.newGame(); this.coop = true; this.coopPads = cpads; this.p2 = this.makeP2(140, 660);
@@ -3774,7 +3774,7 @@ class Game {
   onPlayerDeath() {
     const p = this.player; if (p.dead) return;
     if (this.p2 && !this.p2.dead) {
-      p.dead = true; p.hp = 0; p.carry = null; this.p1Down = 1; p.downX = p.x; p.downY = p.y; p.revT = 0; this.audio.death(); this.bleed(p.x, p.y, 0, 0, 20); this.toast(`${this.pName(p)} est à terre : ${this.reviveUsed ? 'retour en fin de manche' : `${this.pName(this.p2)} doit rester 4 s dans son cercle pour le relever`}`, '#e2792f');
+      p.dead = true; p.hp = 0; p.carry = null; this.p1Down = 1; p.downX = p.x; p.downY = p.y; p.revT = 0; this.audio.death(); this.bleed(p.x, p.y, 0, 0, 20); this.toast(`${this.pName(p)} est à terre`, '#e2792f');
       return;
     }
     p.dead = true; p.hp = 0; this.lives--; this.stats.deaths++; this.mult = 1; this.deathT = 3.4; this.audio.death(); this.audio.flame(false); this.shake(0.6);
@@ -4259,8 +4259,8 @@ class Game {
     if (this.p2 && !this.p2.dead && inView(this.p2.x, this.p2.y)) { this.p2._sy = this.p2.y; list.push(this.p2); }
     list.sort((a, b) => a._sy - b._sy);
     for (const e of list) {
-      if (e === p) { if (!p.dead) this.drawPlayer(p); }
-      else if (e === this.p2) this.drawPlayer(e);
+      if (e === p) { if (!p.dead) this.drawPlayerVis(p); }
+      else if (e === this.p2) { if (!e.dead) this.drawPlayerVis(e); }
       else if (e instanceof Zombie) this.drawZombie(e);
       else if (e._lamp) this.drawLamp(e);
       else if (e instanceof Survivor) this.drawSurvivor(e);
@@ -4271,6 +4271,7 @@ class Game {
         if (fade) c.globalAlpha = 0.42; this.drawObstacle(e); c.globalAlpha = 1;
       }
     }
+    this.drawPlayerMarkers();
     for (const t of this.throwables) { c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(t.x, t.y, 5, 2.5, 0, 0, TAU); c.fill(); c.fillStyle = t.kind === 'grenade' ? '#3d4a32' : '#8a2a22'; c.beginPath(); c.arc(t.x, t.y - t.z - 4, 4.5, 0, TAU); c.fill(); }
     for (const a of this.acids) { c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(a.x, a.y, 6, 3, 0, 0, TAU); c.fill(); }
     for (const pt of this.particles) if (!pt.emissive && inView(pt.x, pt.y)) this.drawParticle(pt);
@@ -4338,7 +4339,7 @@ class Game {
         L.closePath(); if (any) L.fill();
       };
       cone(0.63, 0.42 * flick); cone(0.4, 0.55 * flick); cone(0.2, 0.35 * flick);
-      glow(p.x, p.y, 135, !this.p2 ? '190,200,235' : p.isP2 ? '120,170,255' : '255,120,100', 0.32);
+      glow(p.x, p.y, Settings.vis === 'renforcee' ? 190 : 135, !this.p2 ? '190,200,235' : p.isP2 ? '120,170,255' : '255,120,100', Settings.vis === 'renforcee' ? 0.5 : 0.32);
     } else glow(p.x, p.y, 90, '160,20,10', 0.4);
     if (this.state === 'title') glow(640, 660, 160, '190,200,235', 0.25);
     for (const l of this.level.lamps) {
@@ -4541,6 +4542,22 @@ class Game {
       case 'key': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 12, 5, 0, 0, TAU); c.fill(); c.strokeStyle = '#b0231c'; c.lineWidth = 3; c.beginPath(); c.moveTo(pk.x - 10, pk.y - 14 + b); c.lineTo(pk.x + 10, pk.y - 4 + b); c.moveTo(pk.x - 10, pk.y - 4 + b); c.lineTo(pk.x + 10, pk.y - 14 + b); c.stroke(); break;
       case 'fuel': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 12, 5, 0, 0, TAU); c.fill(); c.fillStyle = '#a3261d'; c.fillRect(pk.x - 9, pk.y - 22 + b, 18, 22); c.fillStyle = '#5a140f'; c.fillRect(pk.x - 3, pk.y - 26 + b, 8, 5); break;
     }
+  }
+  // couleur propre à chaque joueur (solo : blanc chaud ; duo : J1 rouge, J2 bleu)
+  playerCol(p) { return !this.p2 ? '255,236,200' : p.isP2 ? '110,180,255' : '255,110,90'; }
+  // visibilité renforcée : anneau au sol + liseré lumineux autour du perso
+  drawPlayerVis(p) {
+    if (Settings.vis !== 'renforcee') { this.drawPlayer(p); return; }
+    const c = ctx, col = this.playerCol(p), pu = 0.75 + Math.sin(this.time * 4) * 0.2;
+    c.save(); c.translate(p.x, p.y); c.scale(1, 0.5); c.fillStyle = `rgba(${col},.18)`; c.beginPath(); c.arc(0, 4, 26, 0, TAU); c.fill(); c.strokeStyle = `rgba(${col},${pu})`; c.lineWidth = 4.5; c.stroke(); c.restore();
+    c.save(); c.shadowColor = `rgba(${col},1)`; c.shadowBlur = 14 * DPR; this.drawPlayer(p); c.restore();
+  }
+  // par-dessus le décor : repère du perso quand il passe derrière une voiture ou un mur
+  drawPlayerMarkers() {
+    if (Settings.vis !== 'renforcee') return; const c = ctx;
+    for (const q of this.players()) { if (!q || q.dead || q.hidden) continue; const col = this.playerCol(q), hidden = this.level.queryRect(q.x - 20, q.y - 10, 40, 60).some(o => o.kind !== 'building' && o.z > 20 && q.y < o.y + o.h && q.y > o.y - o.z - 10 && q.x > o.x - 8 && q.x < o.x + o.w + 8);
+      c.save(); c.translate(q.x, q.y); if (hidden) { c.globalAlpha = 0.85; c.strokeStyle = `rgb(${col})`; c.lineWidth = 2.5; c.setLineDash([5, 4]); c.beginPath(); c.ellipse(0, -16, 11, 18, 0, 0, TAU); c.stroke(); c.setLineDash([]); c.beginPath(); c.arc(Math.cos(q.aim) * 2, -36, 6, 0, TAU); c.stroke(); }
+      c.globalAlpha = 1; c.fillStyle = `rgb(${col})`; c.strokeStyle = INK; c.lineWidth = 2; const by = -58 + Math.sin(this.time * 5) * 2.5; c.beginPath(); c.moveTo(0, by + 11); c.lineTo(-8, by); c.lineTo(8, by); c.closePath(); c.fill(); c.stroke(); c.restore(); }
   }
   drawPlayer(p) {
     const c = ctx; c.save(); c.translate(p.x, p.y);
@@ -5128,9 +5145,9 @@ class Game {
     }
     // fil de messages : en bas au centre sur PC, en haut au centre au tactile
     {
-      const touchUI = this.input.touchMode, fw = Math.min(touchUI ? 290 : 460, cw * (touchUI ? 0.32 : 0.4)), fx = touchUI ? 12 : cw / 2 - fw / 2;
-      c.font = `${touchUI ? 12 : small ? 12 : 14}px ${FT}`; c.textAlign = 'left';
-      const lh = touchUI ? 15 : small ? 15 : 18, cards = (touchUI ? this.toasts.slice(0, 2) : this.toasts).map(to => { const lines = wrapLines(c, to.msg + (to.n > 1 ? `  ×${to.n}` : ''), fw - 24).slice(0, 3); return { to, lines, h: lines.length * lh + 12 }; });
+      const touchUI = this.input.touchMode, duo = !!this.p2, fw = Math.min(duo ? (touchUI ? 230 : 340) : touchUI ? 290 : 460, cw * (touchUI ? 0.32 : 0.4)), fx = touchUI ? 12 : cw / 2 - fw / 2;
+      c.font = `${duo ? 11 : touchUI ? 12 : small ? 12 : 14}px ${FT}`; c.textAlign = 'left';
+      const lh = duo ? 13 : touchUI ? 15 : small ? 15 : 18, cards = (duo ? this.toasts.slice(0, 1) : touchUI ? this.toasts.slice(0, 2) : this.toasts).map(to => { const lines = wrapLines(c, to.msg + (to.n > 1 ? `  ×${to.n}` : ''), fw - 24).slice(0, duo ? 2 : 3); return { to, lines, h: lines.length * lh + (duo ? 8 : 12) }; });
       let fy = touchUI ? 92 : ch - 112;
       for (const cd of cards) {
         const { to, lines, h } = cd, k = Math.min(1, to.age * 5), a = Math.min(1, to.t * 1.5, k);
@@ -5168,9 +5185,8 @@ class Game {
     if (this.hint && !p.dead) { const s = this.w2h(p.x, p.y); c.font = `14px ${FT}`; const tw = c.measureText(this.hint).width + 20; c.fillStyle = 'rgba(0,0,0,.7)'; c.fillRect(s.x - tw / 2, s.y + 22, tw, 24); c.fillStyle = '#f0b25a'; c.fillText(this.hint, s.x, s.y + 39); }
     // mort
     const downs = this.downPlayers();
-    if (downs.length) { const [d, a] = downs[0], meDown = d === p; c.textAlign = 'center'; c.font = `${small ? 20 : 28}px ${FD}`; c.fillStyle = '#ff6a52'; c.fillText(meDown ? (this.p2 && !this.net ? 'J1 À TERRE' : 'TU ES À TERRE') : `${this.pName(d).toUpperCase()} EST À TERRE`, cw / 2, ch * 0.24); c.font = `13px ${FT}`; c.fillStyle = '#c6c0b2';
-      c.fillText(this.reviveUsed ? 'Réanimation déjà utilisée cette manche · retour en fin d\'acte ou de vague' : meDown ? `${this.pName(a)} doit rester 4 s dans ton cercle pour te relever` : 'Reste 4 s dans son cercle vert pour le relever (une fois par manche)', cw / 2, ch * 0.24 + 22);
-      c.fillText('Si vous tombez tous les deux, vous perdez une vie', cw / 2, ch * 0.24 + 40); }
+    if (downs.length) { const [d, a] = downs[0], meDown = d === p; c.textAlign = 'center'; c.font = `${small ? 15 : 19}px ${FD}`; c.fillStyle = '#ff6a52'; c.fillText(meDown ? (this.p2 && !this.net ? 'J1 À TERRE' : 'TU ES À TERRE') : `${this.pName(d).toUpperCase()} EST À TERRE`, cw / 2, ch * 0.24); c.font = `13px ${FT}`; c.fillStyle = '#c6c0b2';
+      c.font = `11px ${FT}`; c.fillText(this.reviveUsed ? 'Retour en fin d\'acte ou de vague' : meDown ? `${this.pName(a)} doit rester 4 s dans ton cercle` : 'Reste 4 s dans son cercle vert', cw / 2, ch * 0.24 + 16); }
     else if (p.dead && !this.netGuest) {
       const a = Math.min(1, (3.4 - this.deathT) * 0.8); c.globalAlpha = a * 0.65; c.fillStyle = '#1a0202'; c.fillRect(0, 0, cw, ch); c.globalAlpha = a;
       c.font = `${small ? 40 : 66}px ${FD}`; c.fillStyle = '#b0231c'; c.fillText(CHARS[this.charKey].fallen, cw / 2, ch / 2);
@@ -6513,7 +6529,6 @@ Object.assign(Game.prototype, {
     this.newSurvival(false); this.net = 'host'; this.coop = true; this.netEv = []; this.netH = { t: 0, cnt: {}, prevF: false, pend: {} }; this.netIn = null; this.netWrapAudio();
     const p = this.player, c1 = this.charKey; this.charKey = CHARS[gc] ? gc : 'zeus'; const q = new Player(this, PLAZA + 50, 820); this.charKey = c1; q.isP2 = true; q.inv = 1.5;
     q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = o.owned; w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
-    this.later(0.6, () => this.toast(`Duo en ligne avec ${Net.peer ? Net.peer.name : 'ton ami'} · ${Net.relay ? 'relais' : 'connexion directe'}`, '#9fd6e6'));
   },
   netStartHost() { const pr = Net.peer; if (!pr) return; Net.send({ t: 'start', mode: 'survival', diff: this.diffKey, hc: this.charKey, gc: pr.char, hn: Settings.name || 'Hôte' }, true); this.newOnlineSurvival(pr.char); },
   netRemoteInput() {
@@ -6521,13 +6536,14 @@ Object.assign(Game.prototype, {
     for (const k of ['fire', 'firePressed', 'sprint', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'wheelHeld']) a[k] = false;
     a.cycle = 0; a.slot = -1; a.wheelDir = null; a.gpAim = true; a.pause = false;
     a.moveX = clamp(+m.mx || 0, -1, 1); a.moveY = clamp(+m.my || 0, -1, 1); const ang = isFinite(m.a) ? +m.a : q.aim; a.aimX = q.x + Math.cos(ang) * 240; a.aimY = q.y + Math.sin(ang) * 240;
+    if (H.pos && !q.dead) { const [px, py] = H.pos; H.pos = null; if (dist2(px, py, q.x, q.y) < 320 * 320) { q.x = px; q.y = py; this.collideWorld(q); } }
     a.fire = !!m.f; const P = H.pend; for (const k of NET_EDGES) if (P[k] > 0) { P[k]--; if (k === 'cycleUp') a.cycle = 1; else if (k === 'cycleDown') a.cycle = -1; else a[k] = true; }
     if (m.sl >= 0 && m.sl !== H.lastSl) { H.lastSl = m.sl; a.slot = m.sl; }
     return a;
   },
   netHostMsg(d) {
     if (!d || this.net !== 'host') return;
-    if (d.t === 'I') { const H = this.netH; for (const k of NET_EDGES) { const c = (d.c && d.c[k]) | 0, o = H.cnt[k] | 0; if (c > o) H.pend[k] = Math.min(3, (H.pend[k] | 0) + c - o); H.cnt[k] = c; } this.netIn = d; }
+    if (d.t === 'I') { const H = this.netH; if ((d.n | 0) <= (H.lastIn | 0) && d.n) return; H.lastIn = d.n | 0; if (isFinite(d.px)) H.pos = [d.px, d.py]; for (const k of NET_EDGES) { const c = (d.c && d.c[k]) | 0, o = H.cnt[k] | 0; if (c > o) H.pend[k] = Math.min(3, (H.pend[k] | 0) + c - o); H.cnt[k] = c; } this.netIn = d; }
     else if (d.t === 'need') { const out = []; for (const z of this.zombies) if (d.ids.includes(z.nid)) out.push([z.nid, z instanceof UltimateBoss ? 'u' : z instanceof MiniBoss ? 'm' : z instanceof Boss ? 'b' : 'z', NET_ZS.map(k => z[k])]); if (out.length) Net.send({ t: 'ZS', z: out }, true); }
     else if (d.t === 'pause') { this._netQuiet = true; this.pause(); this._netQuiet = false; }
     else if (d.t === 'resume') { this._netQuiet = true; this.resume(); this._netQuiet = false; }
@@ -6536,9 +6552,10 @@ Object.assign(Game.prototype, {
     if (this.net !== 'host' || !Net.peer) return; const H = this.netH;
     if (this.netEv.length) { Net.send({ t: 'E', e: this.netEv }, true); this.netEv = []; }
     if ((H.t -= dt) > 0) return; H.t = Net.relay ? 1 / 10 : 1 / 20; H.seq = (H.seq | 0) + 1;
-    const q = this.p2, R = 1150, near = o => Math.abs(o.x - q.x) < R && Math.abs(o.y - q.y) < R * 0.85, pl = p => NET_PK.map(k => netR(p[k]));
+    const q = this.p2, near = o => Math.abs(o.x - q.x) < 950 && Math.abs(o.y - q.y) < 700, pl = p => NET_PK.map(k => netR(p[k]));
+    if (!Net.relay && Net.fast && Net.fast.bufferedAmount > 48000) return; // le réseau sature : on saute un envoi plutôt que d'empiler du retard
     const Z = [], B = [];
-    for (const z of this.zombies) { if (z.dead || !near(z)) continue; Z.push([z.nid, Math.round(z.x), Math.round(z.y), Math.round(z.dir * 100), Math.round(z.walkT * 10), Math.round(z.hp), (z.hitFlash > 0 ? 1 : 0) | (z.burn > 0 ? 2 : 0) | (z.stun > 0 ? 4 : 0) | (z.lunge > 0 ? 8 : 0), Math.round((z.spawnT || 0) * 100), NET_BSTATE.indexOf(z.bState), Math.round((z.spitWind || 0) * 100), netR(z.bT || 0), netR(z.cdx || 0), netR(z.cdy || 0)]);
+    for (const z of this.zombies) { if (z.dead || !near(z)) continue; const row = [z.nid, Math.round(z.x), Math.round(z.y), Math.round(z.dir * 100), Math.round(z.walkT * 10), Math.round(z.hp), (z.hitFlash > 0 ? 1 : 0) | (z.burn > 0 ? 2 : 0) | (z.stun > 0 ? 4 : 0) | (z.lunge > 0 ? 8 : 0), Math.round((z.spawnT || 0) * 100), NET_BSTATE.indexOf(z.bState)]; if (z.type === 'dog' || z.type === 'spitter' || z.type === 'brute') row.push(Math.round((z.spitWind || 0) * 100), netR(z.bT || 0), netR(z.cdx || 0), netR(z.cdy || 0)); Z.push(row);
       if (z.type === 'boss') { const o = {}; for (const k of NET_BOSS) if (z[k] !== undefined) o[k] = typeof z[k] === 'number' ? netR(z[k]) : z[k]; B.push([z.nid, o]); } }
     const flat = (arr, f) => arr.filter(o => !o.dead && near(o)).map(o => f ? f(o) : netFlat(o));
     const S = { t: 'S', n: H.seq, P: [pl(this.player), pl(q)], W: q.weapons.map(w => [w.owned ? 1 : 0, w.ammo, w.reserve, w.lvl ? netFlat(w.lvl) : 0]), Z, B,
@@ -6562,7 +6579,7 @@ Object.assign(Game.prototype, {
     if (!d) return;
     if (d.t === 'start') { closeHubModals(); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); this.netStartGuest(d); return; }
     if (!this.netGuest) return; this.netG.last = performance.now();
-    if (d.t === 'S') this.netApply(d);
+    if (d.t === 'S') { const N = this.netG; if (d.n <= (N.lastN | 0)) return; N.lastN = d.n; const now = performance.now(); if (N.lastS) N.iv = clamp(lerp(N.iv || 50, now - N.lastS, 0.2), 30, 250); N.lastS = now; this.netApply(d); }
     else if (d.t === 'E') for (const e of d.e) this.netFx(e);
     else if (d.t === 'ZS') for (const [nid, cls, vals] of d.z) { if (this.zmap.has(nid)) continue; const C = cls === 'u' ? UltimateBoss : cls === 'm' ? MiniBoss : cls === 'b' ? Boss : Zombie, z = Object.create(C.prototype);
       Object.assign(z, { g: this, nid, x: 0, y: 0, dir: 0, walkT: 0, hp: 1, spawnT: 0, hitFlash: 0, burn: 0, stun: 0, lunge: 0, bState: 'walk', dead: false, kx: 0, ky: 0 }); NET_ZS.forEach((k, i) => { if (vals[i] !== undefined && vals[i] !== null) z[k] = vals[i]; }); if (z.mini) z.cfg = MINI_BOSSES[z.mk]; z._new = true; this.zmap.set(nid, z); this.netNeed.delete(nid); }
@@ -6571,14 +6588,16 @@ Object.assign(Game.prototype, {
   },
   netApply(S) {
     const me = this.player, h = this.p2, set = (p, row, skipPos) => NET_PK.forEach((k, i) => { if (skipPos && (k === 'x' || k === 'y' || k === 'aim' || k === 'walkT')) return; if (row[i] !== undefined && row[i] !== null && !NET_RO.has(k)) p[k] = row[i]; });
-    set(h, S.P[0], true); h._tx = S.P[0][0]; h._ty = S.P[0][1]; h._ta = S.P[0][2]; if (h._snap !== true) { h.x = h._tx; h.y = h._ty; h._snap = true; } h.walkT = S.P[0][12];
+    const now = performance.now();
+    set(h, S.P[0], true); h._fx = h.x; h._fy = h.y; h._tx = S.P[0][0]; h._ty = S.P[0][1]; h._ta = S.P[0][2]; h._t0 = now; if (h._snap !== true || Math.hypot(h._tx - h.x, h._ty - h.y) > 300) { h.x = h._fx = h._tx; h.y = h._fy = h._ty; h._snap = true; } h.walkT = S.P[0][12];
     const hp0 = me.hp; set(me, S.P[1], true); if (me.hp < hp0 - 0.5) this.hurtFlash = Math.min(1, (this.hurtFlash || 0) + 0.6);
-    const tx = S.P[1][0], ty = S.P[1][1], err = Math.hypot(tx - me.x, ty - me.y); if (err > 150 || me.rollT > 0 || me.dead || !this._meSync) { me.x = tx; me.y = ty; this._meSync = true; } else { me.x += (tx - me.x) * 0.22; me.y += (ty - me.y) * 0.22; }
+    // sa position fait foi : on ne recale que s'il y a un vrai écart (réanimation, téléportation, mort)
+    const tx = S.P[1][0], ty = S.P[1][1], err = Math.hypot(tx - me.x, ty - me.y); if (err > 300 || me.dead || !this._meSync || (this._wasDead && !me.dead)) { me.x = tx; me.y = ty; this._meSync = true; } this._wasDead = me.dead;
     S.W.forEach((w, i) => { const o = me.weapons[i]; if (!o) return; o.owned = !!w[0]; o.ammo = w[1]; o.reserve = w[2]; if (w[3]) Object.assign(o.lvl || (o.lvl = {}), w[3]); });
     const seen = new Set(), need = [];
     for (const r of S.Z) { const nid = r[0], z = this.zmap.get(nid); seen.add(nid); if (!z) { if (!this.netNeed.has(nid)) { this.netNeed.add(nid); need.push(nid); } continue; }
-      z._tx = r[1]; z._ty = r[2]; if (z._new) { z.x = r[1]; z.y = r[2]; z._new = false; } z.dir = r[3] / 100; z.walkT = r[4] / 10; z.hp = r[5]; const f = r[6]; z.hitFlash = f & 1 ? 0.06 : 0; z.burn = f & 2 ? 1 : 0; z.stun = f & 4 ? 1 : 0; z.lunge = f & 8 ? 0.1 : 0;
-      z.spawnT = r[7] / 100; z.bState = NET_BSTATE[r[8]] || 'walk'; z.spitWind = r[9] / 100; z.bT = r[10]; z.cdx = r[11]; z.cdy = r[12]; this.zage.set(nid, 0); }
+      z._fx = z.x; z._fy = z.y; z._tx = r[1]; z._ty = r[2]; z._t0 = now; if (z._new || Math.hypot(r[1] - z.x, r[2] - z.y) > 260) { z.x = z._fx = r[1]; z.y = z._fy = r[2]; z._new = false; } z.dir = r[3] / 100; z.walkT = r[4] / 10; z.hp = r[5]; const f = r[6]; z.hitFlash = f & 1 ? 0.06 : 0; z.burn = f & 2 ? 1 : 0; z.stun = f & 4 ? 1 : 0; z.lunge = f & 8 ? 0.1 : 0;
+      z.spawnT = r[7] / 100; z.bState = NET_BSTATE[r[8]] || 'walk'; z.spitWind = (r[9] || 0) / 100; z.bT = r[10] || 0; z.cdx = r[11] || 0; z.cdy = r[12] || 0; this.zage.set(nid, 0); }
     for (const [nid, o] of S.B) { const z = this.zmap.get(nid); if (z) Object.assign(z, o); }
     if (need.length) Net.send({ t: 'need', ids: need }, true);
     for (const [nid, z] of this.zmap) if (!seen.has(nid)) { const a = (this.zage.get(nid) || 0) + 1; this.zage.set(nid, a); if (a > 3) { this.zmap.delete(nid); this.zage.delete(nid); } }
@@ -6606,7 +6625,7 @@ Object.assign(Game.prototype, {
       case 'scorch': this.scorch(...a); break;
       case 'light': this.addLight(...a); break;
       case 'shake': this.shake(a[0]); break;
-      case 'toast': this.toast(a[0], a[1]); break;
+      case 'toast': if (!/marché noir|Distributeur|trousse|Santé déjà|munitions|en recharge|^Plus de /.test(a[0])) this.toast(a[0], a[1]); break;
       case 'banner': this.banner(a[0], a[1]); break;
       case 'text': this.floatText(...a); break;
       case 'slow': this.slowT = a[0]; this.slowMax = a[0]; this.slowLabel = a[1]; break;
@@ -6615,6 +6634,7 @@ Object.assign(Game.prototype, {
       case 'rmob': { const o = this.oidMap.get(a[0]); if (o) { if (o.light) o.light.i = 0; this.level.removeObstacle(o); } break; }
       case 'gate': this.level.setGate(a[0], a[1]); break;
       case 'cine': break;
+      case 'kb': { const N = this.netG; if (N) { N.kx = (N.kx || 0) + a[0]; N.ky = (N.ky || 0) + a[1]; } break; }
     }
   },
   updateGuest(dt, inp) {
@@ -6625,12 +6645,20 @@ Object.assign(Game.prototype, {
     const C = N.cnt; for (const k of NET_EDGES) if (k !== 'cycleUp' && k !== 'cycleDown' && inp[k]) C[k] = (C[k] | 0) + 1; if (inp.cycle > 0) C.cycleUp = (C.cycleUp | 0) + 1; if (inp.cycle < 0) C.cycleDown = (C.cycleDown | 0) + 1;
     if (inp.slot >= 0) N.sl = inp.slot;
     me.aim = Math.atan2(inp.aimY - me.y, inp.aimX - me.x) || me.aim;
-    if ((N.inT -= dt) <= 0) { N.inT = Net.relay ? 1 / 15 : 1 / 30; Net.send({ t: 'I', mx: netR(inp.moveX || 0), my: netR(inp.moveY || 0), a: Math.round(me.aim * 1000) / 1000, f: inp.fire ? 1 : 0, c: C, sl: N.sl == null ? -1 : N.sl }, false); }
+    if ((N.inT -= dt) <= 0) { N.inT = Net.relay ? 1 / 15 : 1 / 30; N.inN = (N.inN | 0) + 1; Net.send({ t: 'I', n: N.inN, px: Math.round(me.x), py: Math.round(me.y), mx: netR(inp.moveX || 0), my: netR(inp.moveY || 0), a: Math.round(me.aim * 1000) / 1000, f: inp.fire ? 1 : 0, c: C, sl: N.sl == null ? -1 : N.sl }, false); }
     // prédiction locale de son perso, lissage du reste
-    if (!me.dead && !(me.rollT > 0) && !this.cine && this.surv) { const sp = (me.char === 'dobby' ? 222 : 195) * (me.slowT > 0 ? 0.5 : 1); me.x += (inp.moveX || 0) * sp * dt; me.y += (inp.moveY || 0) * sp * dt; this.collideWorld(me); const mv = Math.hypot(inp.moveX || 0, inp.moveY || 0); me.walkT += dt * mv * 11; }
-    const k = 1 - Math.exp(-14 * dt);
-    if (h._tx != null) { h.x += (h._tx - h.x) * k; h.y += (h._ty - h.y) * k; h.aim += angDiff(h.aim, h._ta) * k; }
-    for (const z of this.zombies) if (z._tx != null) { z.x += (z._tx - z.x) * k; z.y += (z._ty - z.y) * k; }
+    if (!me.dead && !this.cine) {
+      if (inp.roll && !(N.rollT > 0) && (N.rollCd || 0) <= 0 && me.stamina >= 18) { N.rollT = ROLL_T; N.rollCd = 0.55; N.rollDir = Math.hypot(inp.moveX || 0, inp.moveY || 0) > 0.1 ? Math.atan2(inp.moveY, inp.moveX) : me.aim; }
+      N.rollCd = (N.rollCd || 0) - dt; let vx, vy;
+      if (N.rollT > 0) { N.rollT -= dt; const rs = 560 * (0.45 + 0.75 * Math.max(0, N.rollT) / ROLL_T); vx = Math.cos(N.rollDir) * rs; vy = Math.sin(N.rollDir) * rs; }
+      else { const sp = (me.char === 'dobby' ? 222 : 195) * (me.slowT > 0 ? 0.5 : 1) * (me.dazeT > 0 ? 0.12 : 1); vx = (inp.moveX || 0) * sp; vy = (inp.moveY || 0) * sp; }
+      const kd = Math.exp(-7 * dt); N.kx = (N.kx || 0) * kd; N.ky = (N.ky || 0) * kd;
+      me.x += (vx + N.kx) * dt; me.y += (vy + N.ky) * dt; this.collideWorld(me); me.walkT += dt * Math.hypot(inp.moveX || 0, inp.moveY || 0) * 11;
+    }
+    // interpolation linéaire entre deux états, au rythme mesuré des envois (légère extrapolation si un paquet tarde)
+    const now = performance.now(), iv = N.iv || 50, k = 1 - Math.exp(-14 * dt), lerpTo = o => { if (o._tx == null) return; const u = clamp((now - o._t0) / iv, 0, 1.25); o.x = o._fx + (o._tx - o._fx) * u; o.y = o._fy + (o._ty - o._fy) * u; };
+    if (h._tx != null) { lerpTo(h); h.aim += angDiff(h.aim, h._ta) * k; }
+    for (const z of this.zombies) lerpTo(z);
     for (const b of this.bullets) { b.px = b.x; b.py = b.y; b.x += b.vx * dt; b.y += b.vy * dt; }
     for (const f of this.fires) if (Math.random() < dt * f.r * 0.5) { const a = rand(0, TAU), d = Math.sqrt(Math.random()) * f.r; this.spawnP({ x: f.x + Math.cos(a) * d, y: f.y + Math.sin(a) * d, z: 2, vz: rand(40, 90), vx: rand(-10, 10), vy: rand(-10, 10), life: rand(0.4, 0.8), type: 'fire', size: rand(5, 9), emissive: true }); }
     if (this.slowT > 0) this.slowT -= dt; if (this.flashFx > 0) this.flashFx -= dt; if (this.hurtFlash > 0) this.hurtFlash -= dt * 2;
@@ -6693,6 +6721,7 @@ window.__cf = game;
 function optionsHTML(pre) {
   return `<label><input type="checkbox" id="${pre}-rain" ${Settings.rain ? 'checked' : ''}> Pluie</label>
   <label><input type="checkbox" id="${pre}-fog" ${Settings.fog ? 'checked' : ''}> Brouillard</label>
+  <span class="ui-size" role="group" aria-label="Visibilité du perso"><span class="lbl">Visibilité du perso</span>${[['normale', 'Normale'], ['renforcee', 'Renforcée']].map(([k, v]) => `<button type="button" class="btn sm" data-opt="vis" data-val="${k}" aria-pressed="${(Settings.vis || 'normale') === k}">${v}</button>`).join('')}</span>
   <label title="Zones de danger en orange, gaz et acide en bleu"><input type="checkbox" data-optc="cb" ${Settings.cb ? 'checked' : ''}> Mode daltonien</label>
   <label title="Moins de tremblements d'écran, de flashs et de lumières qui clignotent"><input type="checkbox" data-optc="calm" ${Settings.calm ? 'checked' : ''}> Effets réduits</label>
   ${ONLINE.url ? `<label title="Ton nom et ton score sont envoyés au classement partagé avec tes amis"><input type="checkbox" data-optc="online" ${Settings.online !== false ? 'checked' : ''}> Classement en ligne</label>` : ''}
