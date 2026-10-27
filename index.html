@@ -790,6 +790,8 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .fs-wrap p{margin:0;color:#c6c0b2;font-size:14px;line-height:1.45}
 .fs-ico{width:58px;height:58px;color:var(--sodium)}.fs-ico svg{width:100%;height:100%}
 .net-wrap{width:min(480px,100%)}
+.net-wait{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:40;display:flex;align-items:center;gap:10px;padding:12px 18px;background:rgba(10,10,14,.88);border:1px solid rgba(159,214,230,.5);border-radius:4px;color:#d8eef4;font:14px var(--type);max-width:86vw;text-align:center}
+.net-dot{width:10px;height:10px;border-radius:50%;background:#9fd6e6;flex:none;animation:netDot 1s ease-in-out infinite alternate}@keyframes netDot{from{opacity:.25}to{opacity:1}}
 .net-code{font:64px/1 var(--comic-title);letter-spacing:.2em;color:#ffd23a;-webkit-text-stroke:1.5px #151213;text-align:center;margin:4px 0 6px;user-select:all}
 .net-input{font:44px/1 var(--comic-title);letter-spacing:.3em;text-align:center;text-transform:uppercase;width:220px;padding:6px 10px;background:#0e0d10;color:#ffd23a;border:2px solid var(--line);border-radius:4px;align-self:center}
 .net-st{min-height:1.4em;color:#9fd6e6!important;text-align:center}.net-note{font-size:12px!important;text-align:center}
@@ -1006,7 +1008,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
         <div class="folder-pane" data-f="campagne" hidden><p class="eyebrow">Campagne</p>
           <button type="button" class="mode big" id="mode-story"><b>Solo</b><small>Un survivant · une histoire par personnage</small></button>
           <button type="button" class="mode big" id="mode-coop"><b>Duo</b><small>Deux manettes sur le même écran</small></button>
-          <button type="button" class="mode big online" id="mode-online"><b>Duo en ligne</b><small>Chacun son téléphone ou son PC · Survie (bêta)</small></button>
+          <button type="button" class="mode big online" id="mode-online"><b>Duo en ligne</b><small>Chacun son téléphone ou son PC · Campagne ou Survie (bêta)</small></button>
           <button type="button" class="mode back folder-back"><b>‹ Retour</b></button></div>
         <div class="folder-pane" data-f="arcade" hidden><p class="eyebrow">Arcade</p>
           <button type="button" class="mode big" id="btn-survival-title"><b>Mode Survie</b><small id="surv-sub">Vagues sans fin sur la Place de la Mairie</small></button>
@@ -1227,9 +1229,10 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 <div class="row center"><button type="button" class="btn" id="inst-later">Plus tard</button><button type="button" class="btn primary big" id="inst-now" hidden>Installer maintenant</button><button type="button" class="btn primary big" id="inst-ok">Compris</button></div></div></div>
 <div id="net-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="net-h"><div class="fs-wrap net-wrap"><p class="eyebrow">Duo en ligne · bêta</p><h2 id="net-h">Jouer à deux, chacun son appareil</h2>
 <div id="net-choose"><div class="row center"><button type="button" class="btn primary big" id="net-host">Créer une partie</button><button type="button" class="btn big" id="net-join">Rejoindre</button></div></div>
-<div id="net-hostv" hidden><p>Donne ce code à ton ami :</p><div class="net-code" id="net-code">····</div><p class="net-st" id="net-st-h"></p><div class="row center"><button type="button" class="btn" id="net-cancel-h">Annuler</button><button type="button" class="btn primary big" id="net-go" disabled>Lancer la Survie</button></div></div>
+<div id="net-hostv" hidden><p>Donne ce code à ton ami :</p><div class="net-code" id="net-code">····</div><p class="net-st" id="net-st-h"></p><div class="row center net-modes"><button type="button" class="btn" id="net-cancel-h">Annuler</button><button type="button" class="btn big" id="net-go" disabled>Survie</button><button type="button" class="btn primary big" id="net-go-story" disabled>Campagne</button></div></div>
 <div id="net-joinv" hidden><p>Tape le code de ton ami :</p><input id="net-in" class="net-input" maxlength="4" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABCD" aria-label="Code de la partie"><p class="net-st" id="net-st-j"></p><div class="row center"><button type="button" class="btn" id="net-cancel-j">Annuler</button><button type="button" class="btn primary big" id="net-ok">Rejoindre</button></div></div>
 <p class="hint net-note" id="net-note"></p><button type="button" class="btn sm" id="net-close">Fermer</button></div></div>
+<div id="net-wait" class="net-wait" hidden role="status"><span class="net-dot"></span><span id="net-wait-t"></span></div>
 <div id="mut-modal" class="photo-modal mut-modal" hidden role="dialog" aria-labelledby="mut-h"><div class="mut-wrap"><p class="eyebrow" id="mut-night"></p><h2 id="mut-h">Choisis une mutation</h2><div class="mut-list" id="mut-list"></div></div></div>
 <footer id="prompt-bar" class="prompt-bar" hidden aria-hidden="true"></footer>
 <div id="pad-cursor" hidden aria-hidden="true"><span class="ring"></span><svg viewBox="0 0 32 32"><g stroke="#120c09" stroke-width="1.6" stroke-linejoin="round"><path d="M16 2C9 2 4 7 4 14c0 4 2 6.5 4 8v2h16v-2c2-1.5 4-4 4-8C28 7 23 2 16 2z" fill="#b7c29c"/><path d="M13 3l1.5 3.5-2 2.5 1 2.5" fill="none" stroke-width="1.1"/><path d="M24 9c-1 1-2.5 1-3 2.5" fill="none" stroke="#7d8a5f" stroke-width="1.4"/><ellipse cx="11" cy="14" rx="3.4" ry="3.9" fill="#1a0f0c"/><ellipse cx="21" cy="14" rx="3.4" ry="3.9" fill="#1a0f0c"/><circle cx="11.6" cy="14.6" r="1.3" fill="#ff3b2a" stroke="none"/><circle cx="20.4" cy="14.6" r="1.3" fill="#ff3b2a" stroke="none"/><path d="M16 17.4l-1.7 3h3.4z" fill="#1a0f0c"/><path d="M10 22.5h12" fill="none" stroke-width="1.2"/><g class="jaw"><path d="M9 24h14v3.3c0 1.6-1.4 2.7-3 2.7h-8c-1.6 0-3-1.1-3-2.7z" fill="#a3ae86"/><path d="M12.5 24v3.4M16 24v3.6M19.5 24v3.4" fill="none" stroke-width="1.1"/></g></g></svg></div>
@@ -3006,7 +3009,7 @@ class Shop {
 // ============================================================ directeur de hordes
 const SAVE_KEY = 'couvrefeu.save'; let memSave = null;
 function writeSave(g, s) {
-  if (g.mode !== 'story' || !g.checkpoint) return;
+  if (g.mode !== 'story' || !g.checkpoint || g.net) return;
   const cp = g.checkpoint;
   const data = { v: 1, char: g.charKey, diff: g.diffKey, safe: s, shibaSeed: g.shibaSeed || 0, cp: { ...cp, weapons: cp.weapons.map(w => ({ ...w, reserve: w.reserve === Infinity ? -1 : w.reserve })) }, lives: g.lives, maxMult: g.maxMult, runTime: g.runTime, stats: g.stats, run: g.run, date: Date.now() };
   memSave = JSON.parse(JSON.stringify(data)); try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { }
@@ -3874,7 +3877,7 @@ class Game {
   }
   resume() { if (this.state !== 'paused') return; this.state = 'playing'; this.showScreen(null); this.input.mdown = false; if (this.net && !this._netQuiet) Net.send(this.net === 'host' ? { t: 'pz', on: 0 } : { t: 'resume' }, true); }
   showEnd(victory) {
-    if (this.net === 'host') Net.send({ t: 'end', sc: Math.floor(this.score), ki: this.kills, wv: this.surv ? this.surv.wave : 0, rt: Math.floor(this.runTime) }, true);
+    if (this.net === 'host') Net.send({ t: 'end', sc: Math.floor(this.score), ki: this.kills, wv: this.surv ? this.surv.wave : 0, rt: Math.floor(this.runTime), vi: victory === true ? 1 : 0 }, true);
     this.state = 'end'; this.audio.flame(false);
     for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
     const secret = victory === 'secret' || this.mode === 'secret', hosp = this.mode === 'hospital';
@@ -6398,6 +6401,7 @@ class Comic {
     this.strip.addEventListener('click', () => this.next());
   }
   show(key, onDone) {
+    if (this.g.netEmit) this.g.netEmit(['comic', key]); this.key = key;
     const g = this.g, act = ACTS[key], panels = act.panels(g.charKey); this.done = onDone; this.panels = panels;
     g.state = 'comic'; g.audio.flame(false); g.input.mdown = false; g.input.sticks.move = g.input.sticks.aim = null;
     $('comic-act').textContent = act.label; $('comic-title').textContent = act.title;
@@ -6505,7 +6509,7 @@ const Net = {
 // ---------- synchronisation de la partie (hôte → invité, invité → hôte)
 const NET_EDGES = ['firePressed', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'cycleUp', 'cycleDown'];
 const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap'];
-const NET_PK = ['x', 'y', 'aim', 'hp', 'maxHp', 'dead', 'rollT', 'rollDir', 'cur', 'vx', 'vy', 'inv', 'walkT', 'muzzleT', 'meleeT', 'recoil', 'playDead', 'hidden', 'battery', 'stamina', 'armor', 'grenades', 'mines', 'decoys', 'money', 'reloadT', 'charging', 'charge', 'spCd', 'spMax', 'flashCd', 'exhausted', 'hpTrail', 'char', 'downX', 'downY', 'revT', 'slowT', 'dazeT'];
+const NET_PK = ['x', 'y', 'aim', 'hp', 'maxHp', 'dead', 'rollT', 'rollDir', 'cur', 'vx', 'vy', 'inv', 'walkT', 'muzzleT', 'meleeT', 'recoil', 'playDead', 'hidden', 'battery', 'stamina', 'armor', 'grenades', 'mines', 'decoys', 'money', 'reloadT', 'charging', 'charge', 'spCd', 'spMax', 'flashCd', 'exhausted', 'hpTrail', 'char', 'downX', 'downY', 'revT', 'slowT', 'dazeT', 'carry'];
 const NET_ZS = ['type', 'r', 'skin', 'cloth', 'pants', 'costume', 'spawnMax', 'spawnKind', 'seed', 'mini', 'mk', 'bkind', 'ultimate', 'title', 'maxHp', 'target'];
 const NET_BOSS = ['state', 'st', 'phase', 'weakT', 'rageT', 'jumpZ', 'echoA', 'ramA', 'bladeA', 'entry', 'dir', 'hp', 'maxHp', 'r'];
 // propriétés calculées du joueur (accesseurs) : on ne les écrit pas
@@ -6525,12 +6529,21 @@ Object.assign(Game.prototype, {
     }
   },
   // ----- hôte
+  netAttachP2(gc, x, y) {
+    const p = this.player, c1 = this.charKey; this.charKey = CHARS[gc] ? gc : 'zeus'; const q = new Player(this, x, y); this.charKey = c1; q.isP2 = true; q.inv = 1.5;
+    q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = o.owned; w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
+  },
+  newOnlineStory(gc) {
+    this.newGame(); this.net = 'host'; this.coop = true; this.netEv = []; this.netH = { t: 0, cnt: {}, prevF: false, pend: {} }; this.netIn = null; this.netWrapAudio();
+    this.netAttachP2(gc, 190, 640);
+    if (this.state === 'comic' && this.comic.key) this.netEmit(['comic', this.comic.key]); // le prologue s'est ouvert avant la connexion
+  },
   newOnlineSurvival(gc) {
     this.newSurvival(false); this.net = 'host'; this.coop = true; this.netEv = []; this.netH = { t: 0, cnt: {}, prevF: false, pend: {} }; this.netIn = null; this.netWrapAudio();
     const p = this.player, c1 = this.charKey; this.charKey = CHARS[gc] ? gc : 'zeus'; const q = new Player(this, PLAZA + 50, 820); this.charKey = c1; q.isP2 = true; q.inv = 1.5;
     q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = o.owned; w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
   },
-  netStartHost() { const pr = Net.peer; if (!pr) return; Net.send({ t: 'start', mode: 'survival', diff: this.diffKey, hc: this.charKey, gc: pr.char, hn: Settings.name || 'Hôte' }, true); this.newOnlineSurvival(pr.char); },
+  netStartHost(mode) { const pr = Net.peer; if (!pr) return; mode = mode || this.netMode || 'survival'; this.netMode = mode; Net.send({ t: 'start', mode, diff: this.diffKey, hc: this.charKey, gc: pr.char, hn: Settings.name || 'Hôte' }, true); if (mode === 'story') this.newOnlineStory(pr.char); else this.newOnlineSurvival(pr.char); },
   netRemoteInput() {
     const a = this.act2n || (this.act2n = {}), q = this.p2, m = this.netIn || {}, H = this.netH;
     for (const k of ['fire', 'firePressed', 'sprint', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'wheelHeld']) a[k] = false;
@@ -6564,16 +6577,18 @@ Object.assign(Game.prototype, {
       hz: this.hazards.filter(h => !h.dead).map(h => { const o = netFlat(h); o.hid = h.hid; if (h.boss) o.bn = h.boss.nid; if (h.ob) o.ob = netFlat(h.ob); if (h.hooked) o.hk = h.hooked === this.p2 ? 2 : 1; return o; }),
       pk: flat(this.pickups), ca: this.level.obstacles.filter(o => (o.kind === 'car' || o.kind === 'machine') && near(o)).map(o => [o.oid, Math.round(o.hp), o.wreck ? 1 : 0, netR(o.burning || 0), netR(o.alarm || 0), o.broken ? 1 : 0, o.charges | 0]),
       G: { sc: Math.floor(this.score), mu: netR(this.mult), ki: this.kills, li: this.lives, bo: this.bossRef && !this.bossRef.dead ? this.bossRef.nid : 0, bk: netR(this.blackoutT || 0), ff: netR(this.flashFx || 0), tf: netR(this.torchFlicker || 0), th: this.audio.themeName, mi: this.bossRef && !this.bossRef.dead ? 1 : 0.5,
-        ci: this.cine ? [this.cine.b.nid, netR(this.cine.t)] : 0, ob: this.objective().text, st: this.state, p1d: netR(this.p1Down || 0), rv: this.reviveUsed ? 1 : 0, sv: this.surv ? [this.surv.wave, this.surv.state, netR(this.surv.t)] : 0 } };
+        ci: this.cine ? [this.cine.b.nid, netR(this.cine.t)] : 0, ob: this.objective().text, st: this.state, md: this.mode, az: this.activeZone, sn: this.safeName || '', sf: this.shibaFound ? this.shibaFound.size : 0, mo: Math.floor(this.player.money || 0),
+        oj: this.mode === 'story' ? this.level.obj.map(o => o ? netFlat(o) : 0) : 0, svv: this.survivors.filter(v => !v.dead).map(v => netFlat(v)), lp: this.level.lamps.map(l => l.on ? 1 : 0).join(''), ev: this.event ? netFlat(this.event) : 0, bu: this.buddy ? netFlat(this.buddy) : 0, p1d: netR(this.p1Down || 0), rv: this.reviveUsed ? 1 : 0, sv: this.surv ? [this.surv.wave, this.surv.state, netR(this.surv.t)] : 0 } };
     Net.send(S, false);
   },
   // ----- invité
   netStartGuest(m) {
-    const mine = this.charKey; this.diffKey = DIFFS[m.diff] ? m.diff : 'normal'; this.newSurvival(false); this.netGuest = true; this.net = 'guest'; this.coop = true;
+    const mine = this.charKey; this.diffKey = DIFFS[m.diff] ? m.diff : 'normal'; if (m.mode === 'story') { this.newGameCore(); this.prologueSeen = true; } else this.newSurvival(false); this.netGuest = true; this.net = 'guest'; this.coop = true; this.netMode = m.mode;
     this.zombies = []; this.pickups = []; this.zmap = new Map(); this.zage = new Map(); this.netNeed = new Set(); this.director.queue = 0; this.savedScore = false;
-    const me = this.player; me.isP2 = true; this.charKey = CHARS[m.hc] ? m.hc : 'pedro'; const h = new Player(this, PLAZA, 780); this.charKey = mine; this.p2 = h;
+    const me = this.player; me.isP2 = true; if (m.mode === 'story') { me.x = 190; me.y = 640; } this.charKey = CHARS[m.hc] ? m.hc : 'pedro'; const h = new Player(this, m.mode === 'story' ? 140 : PLAZA, m.mode === 'story' ? 600 : 780); this.charKey = mine; this.p2 = h;
+    this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.survivors = [];
     this.oidMap = new Map(this.level.obstacles.map(o => [o.oid, o])); this.netG = { inT: 0, cnt: {}, objv: { text: '', tx: null }, hz: new Map(), last: performance.now() };
-    this.banner('Duo en ligne', `Avec ${Net.peer ? Net.peer.name : 'ton ami'} · Place de la Mairie`);
+    this.banner('Duo en ligne', `Avec ${Net.peer ? Net.peer.name : 'ton ami'} · ${m.mode === 'story' ? 'Opération Couvre-Feu' : 'Place de la Mairie'}`);
   },
   netGuestMsg(d) {
     if (!d) return;
@@ -6584,7 +6599,7 @@ Object.assign(Game.prototype, {
     else if (d.t === 'ZS') for (const [nid, cls, vals] of d.z) { if (this.zmap.has(nid)) continue; const C = cls === 'u' ? UltimateBoss : cls === 'm' ? MiniBoss : cls === 'b' ? Boss : Zombie, z = Object.create(C.prototype);
       Object.assign(z, { g: this, nid, x: 0, y: 0, dir: 0, walkT: 0, hp: 1, spawnT: 0, hitFlash: 0, burn: 0, stun: 0, lunge: 0, bState: 'walk', dead: false, kx: 0, ky: 0 }); NET_ZS.forEach((k, i) => { if (vals[i] !== undefined && vals[i] !== null) z[k] = vals[i]; }); if (z.mini) z.cfg = MINI_BOSSES[z.mk]; z._new = true; this.zmap.set(nid, z); this.netNeed.delete(nid); }
     else if (d.t === 'pz') { this._netQuiet = true; if (d.on) this.pause(); else this.resume(); this._netQuiet = false; }
-    else if (d.t === 'end') { this.score = d.sc; this.kills = d.ki; this.surv.wave = d.wv; this.runTime = d.rt; this.lastVictory = false; this.state = 'playing'; this.netGuestEnd = true; this.showEnd(false); }
+    else if (d.t === 'end') { this.score = d.sc; this.kills = d.ki; if (this.surv) this.surv.wave = d.wv; this.runTime = d.rt; this.lastVictory = !!d.vi; netWait(null); this.state = 'playing'; this.netGuestEnd = true; this.showEnd(!!d.vi); }
   },
   netApply(S) {
     const me = this.player, h = this.p2, set = (p, row, skipPos) => NET_PK.forEach((k, i) => { if (skipPos && (k === 'x' || k === 'y' || k === 'aim' || k === 'walkT')) return; if (row[i] !== undefined && row[i] !== null && !NET_RO.has(k)) p[k] = row[i]; });
@@ -6615,7 +6630,19 @@ Object.assign(Game.prototype, {
     if (G.th && G.th !== this.audio.themeName) this.audio.setTheme(G.th);
     this.bossRef = G.bo ? this.zmap.get(G.bo) || null : null; this.p1Down = G.p1d; this.reviveUsed = !!G.rv; if (G.sv && this.surv) { this.surv.wave = G.sv[0]; this.surv.state = G.sv[1]; this.surv.t = G.sv[2]; }
     if (G.ci) { const b = this.zmap.get(G.ci[0]); if (b) { this.cine = this.cine && this.cine.b === b ? this.cine : { b, t: G.ci[1], t0: performance.now() }; } } else if (this.cine) { this.cine = null; this.bannerObj = null; }
-    if (G.st === 'end' && this.state === 'playing' && !this.netGuestEnd) { /* l'écran de fin arrive par le message 'end' */ }
+    // campagne : objectifs, survivants, éclairage, événement, shiba compagnon
+    if (G.md === 'story') {
+      this.activeZone = G.az; this.safeName = G.sn || null; if (!this.shibaFound || this.shibaFound.size !== G.sf) this.shibaFound = new Set(Array.from({ length: G.sf }, (_, i) => 'n' + i));
+      if (G.oj) G.oj.forEach((o, k) => { if (o && this.level.obj[k]) Object.assign(this.level.obj[k], o); });
+      this.survivors = (G.svv || []).map(o => Object.assign(Object.create(Survivor.prototype), o, { g: this }));
+      if (G.lp) this.level.lamps.forEach((l, i) => { l.on = G.lp[i] === '1'; });
+      this.event = G.ev ? Object.assign({}, G.ev) : null; this.buddy = G.bu ? Object.assign({}, G.bu) : null;
+    }
+    me.money = G.mo;
+    // l'hôte lit une BD, regarde la carte ou fait ses achats : l'invité patiente
+    const N = this.netG; N.hostSt = G.st;
+    if (G.st === 'playing' || G.st === 'paused' || G.st === 'end') { netWait(null); if (this.state === 'comic' && G.st === 'playing') this.comic.finish(); }
+    else if (this.state !== 'comic') netWait(G.st === 'comic' ? 'Ton ami lit la BD…' : G.st === 'map' ? 'Ton ami regarde la carte et prépare la prochaine mission…' : G.st === 'shop' ? 'Ton ami fait ses achats au marché noir…' : 'En attente de ton ami…');
   },
   netFx(e) {
     const [k, ...a] = e;
@@ -6634,12 +6661,14 @@ Object.assign(Game.prototype, {
       case 'rmob': { const o = this.oidMap.get(a[0]); if (o) { if (o.light) o.light.i = 0; this.level.removeObstacle(o); } break; }
       case 'gate': this.level.setGate(a[0], a[1]); break;
       case 'cine': break;
+      case 'comic': if (ACTS[a[0]]) { netWait(null); this.comic.show(a[0], null); } break;
       case 'kb': { const N = this.netG; if (N) { N.kx = (N.kx || 0) + a[0]; N.ky = (N.ky || 0) + a[1]; } break; }
     }
   },
   updateGuest(dt, inp) {
     const N = this.netG, me = this.player, h = this.p2;
     if (this.portrait) return;
+    if (N.hostSt && N.hostSt !== 'playing' && N.hostSt !== 'paused') { this.updateCommon(dt); return; }
     if (inp.pause) { this.pause(); return; }
     // commandes envoyées à l'hôte (les appuis sont comptés pour ne jamais se perdre)
     const C = N.cnt; for (const k of NET_EDGES) if (k !== 'cycleUp' && k !== 'cycleDown' && inp[k]) C[k] = (C[k] | 0) + 1; if (inp.cycle > 0) C.cycleUp = (C.cycleUp | 0) + 1; if (inp.cycle < 0) C.cycleDown = (C.cycleDown | 0) + 1;
@@ -6678,17 +6707,18 @@ Object.assign(Game.prototype, {
     if (lag > 15000) { this.netLeave('La connexion avec l\'hôte est perdue.'); }
   },
   netLeave(msg) {
-    const was = this.net; Net.close(); this.net = null; this.netGuest = false; this.netGuestEnd = false; this.coop = false; this.p2 = null; this.cine = null;
+    netWait(null); const was = this.net; Net.close(); this.net = null; this.netGuest = false; this.netGuestEnd = false; this.coop = false; this.p2 = null; this.cine = null;
     if (msg) setTimeout(() => netNotice(msg), 50);
     if (was && this.state !== 'title') { this.audio.flame(false); this.setupDemo(); this.showScreen('scr-title'); refreshContinue(); }
   }
 });
 // ---------- écran « Duo en ligne »
+function netWait(msg) { const el = $('net-wait'); if (!el) return; if (!msg) { el.hidden = true; return; } $('net-wait-t').textContent = msg; el.hidden = false; }
 function netView(v) { for (const id of ['net-choose', 'net-hostv', 'net-joinv']) $(id).hidden = id !== v; }
 function netNotice(msg) { $('net-modal').hidden = false; netView(null); $('net-note').textContent = msg; $('net-close').focus(); }
 function openNet() {
   game.audio.init(); game.audio.ui(); $('net-modal').hidden = false; netView('net-choose'); $('net-st-h').textContent = ''; $('net-st-j').textContent = '';
-  $('net-note').textContent = Net.local() && !/[?&]netlocal\b/.test(location.search) ? 'Le jeu à distance s\'active dès que le compte Supabase est branché. En attendant, ça marche entre deux onglets du même navigateur.' : 'Survie sur la Place de la Mairie. Ton ami peut être sur téléphone ou sur PC.';
+  $('net-note').textContent = Net.local() && !/[?&]netlocal\b/.test(location.search) ? 'Le jeu à distance s\'active dès que le compte Supabase est branché. En attendant, ça marche entre deux onglets du même navigateur.' : 'Campagne ou Survie à deux. Ton ami peut être sur téléphone ou sur PC.';
   requestAnimationFrame(() => { $('net-host').focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo($('net-host')); });
 }
 Net.onState = (s, x) => {
@@ -6697,12 +6727,12 @@ Net.onState = (s, x) => {
   else if (s === 'waiting') st.textContent = 'En attente de ton ami…';
   else if (s === 'joining') st.textContent = 'Recherche de la partie…';
   else if (s === 'peer') { st.textContent = host ? `${x.name} (${CHARS[x.char].name}) a rejoint ! Connexion en cours…` : `Connecté à la partie de ${x.name}. Connexion en cours…`; game.audio.objective(); }
-  else if (s === 'ready') { st.textContent = host ? `${Net.peer.name} est prêt (${x === 'direct' ? 'connexion directe' : 'via le relais'}). Lance quand tu veux !` : `Prêt ! (${x === 'direct' ? 'connexion directe' : 'via le relais'}) · ${Net.peer.name} va lancer la partie…`; if (host) { $('net-go').disabled = false; $('net-go').focus(); } }
+  else if (s === 'ready') { st.textContent = host ? `${Net.peer.name} est prêt (${x === 'direct' ? 'connexion directe' : 'via le relais'}). Lance quand tu veux !` : `Prêt ! (${x === 'direct' ? 'connexion directe' : 'via le relais'}) · ${Net.peer.name} choisit le mode et lance la partie…`; if (host) { $('net-go').disabled = false; $('net-go-story').disabled = false; $('net-go-story').focus(); } }
   else if (s === 'error') { st.textContent = x || 'Erreur de connexion.'; if (!host) $('net-ok').disabled = false; }
   else if (s === 'left' || s === 'lost') {
     if (game.net === 'host') { game.toast(`${Net.peer ? Net.peer.name : 'Ton ami'} a quitté la partie`, '#ff8a5a'); game.p2 = null; game.coop = false; game.net = null; }
     else if (game.netGuest) game.netLeave('L\'hôte a quitté la partie.');
-    else { st.textContent = 'Ton ami est parti.'; if (host) $('net-go').disabled = true; }
+    else { st.textContent = 'Ton ami est parti.'; if (host) $('net-go').disabled = $('net-go-story').disabled = true; }
   }
 };
 Net.onData = d => { if (game.net === 'host') game.netHostMsg(d); else game.netGuestMsg(d); };
@@ -6711,7 +6741,7 @@ $('net-join').addEventListener('click', () => { game.audio.ui(); netView('net-jo
 $('net-in').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4); });
 $('net-in').addEventListener('keydown', e => { if (e.key === 'Enter') $('net-ok').click(); });
 $('net-ok').addEventListener('click', async () => { const code = $('net-in').value.trim(); if (code.length !== 4) { $('net-st-j').textContent = 'Le code fait 4 lettres.'; return; } game.audio.ui(); $('net-ok').disabled = true; await Net.open('guest', code); });
-$('net-go').addEventListener('click', () => { if (!Net.ok()) return; game.audio.ui(); $('net-modal').hidden = true; if (TOUCH && !fsEl()) enterFullscreen(); game.netStartHost(); });
+for (const [id, mode] of [['net-go', 'survival'], ['net-go-story', 'story']]) $(id).addEventListener('click', () => { if (!Net.ok()) return; game.audio.ui(); $('net-modal').hidden = true; if (TOUCH && !fsEl()) enterFullscreen(); game.netStartHost(mode); });
 for (const id of ['net-cancel-h', 'net-cancel-j']) $(id).addEventListener('click', () => { game.audio.ui(); Net.close(); netView('net-choose'); });
 $('net-close').addEventListener('click', () => { game.audio.ui(); $('net-modal').hidden = true; if (!game.net && !game.netGuest) Net.close(); });
 $('mode-online').addEventListener('click', openNet);
@@ -7482,7 +7512,7 @@ window.__drawBestiary = drawBestiary; window.__v42 = { HALLOWEEN, Zombie, Settin
 $('btn-quit').addEventListener('click', () => { if (game.net || game.netGuest) { game.netLeave(); return; } game.audio.flame(false); game.setupDemo(); game.showScreen('scr-title'); refreshSurvivalBtn(); });
 $('btn-save').addEventListener('click', () => game.saveScore());
 $('end-name').addEventListener('keydown', e => { if (e.key === 'Enter') game.saveScore(); });
-$('btn-again').addEventListener('click', () => { if (game.net === 'host' && Net.ok()) { game.netStartHost(); return; } if (game.netGuest) { game.toast('C\'est l\'hôte qui relance la partie', '#9fd6e6'); return; } if (game.coop) game.newCoop(); else if (game.endless) game.newEndless(); else if (game.dailyMod) game.newDaily(); else if (game.mode === 'survival') game.newSurvival(false); else if (game.mode === 'secret') game.newSecret(false); else if (game.mode === 'hospital') game.newHospital(); else game.newGame(); });
+$('btn-again').addEventListener('click', () => { if (game.net === 'host' && Net.ok()) { game.netStartHost(game.netMode); return; } if (game.netGuest) { game.toast('C\'est l\'hôte qui relance la partie', '#9fd6e6'); return; } if (game.coop) game.newCoop(); else if (game.endless) game.newEndless(); else if (game.dailyMod) game.newDaily(); else if (game.mode === 'survival') game.newSurvival(false); else if (game.mode === 'secret') game.newSecret(false); else if (game.mode === 'hospital') game.newHospital(); else game.newGame(); });
 $('btn-photo').addEventListener('click', openSouvenir);
 $('photo-close').addEventListener('click', () => { $('photo-modal').hidden = true; $('btn-photo').focus(); });
 $('btn-menu').addEventListener('click', () => { if (game.net || game.netGuest) { game.netLeave(); return; } game.setupDemo(); game.showScreen('scr-title'); refreshSurvivalBtn(); });
