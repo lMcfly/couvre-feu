@@ -143,6 +143,60 @@ table.scores tr.me td{color:var(--sodium)}
 @media (max-width:520px){.credit-list{grid-template-columns:1fr}}
 .credit{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:center;background:var(--panel-2);border:1px solid var(--line);padding:8px}
 .credit canvas{width:96px;height:72px;display:block;border:2px solid var(--ink)}
+/* ---------- Nouveautés */
+.wn{display:flex;flex-direction:column;gap:14px}
+.wn-intro{margin:0;font-family:var(--type);font-size:13px;color:#a9a293}
+.wn-intro b{color:var(--sodium,#f0b25a)}
+.wn-card{position:relative;background:var(--panel-2);border:1px solid var(--line);border-left:4px solid #6b5a4a;overflow:hidden;animation:wnIn .5s cubic-bezier(.2,.8,.3,1.15) both;animation-delay:calc(var(--i,0) * 70ms)}
+.wn-card.unread{border-left-color:var(--ember)}
+.wn-card.top{border:2px solid #151213;border-left:6px solid var(--blood);background:radial-gradient(circle at 1px 1px,rgba(255,210,58,.07) 1px,transparent 1.7px) 0 0/7px 7px,linear-gradient(155deg,#2c1a14,#141113 65%);box-shadow:4px 4px 0 #000}
+.wn-card summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 16px}
+.wn-card summary::-webkit-details-marker{display:none}
+.wn-card summary:focus-visible{outline:2px solid var(--sodium,#f0b25a);outline-offset:-4px}
+.wn-stamp{width:62px;height:62px;border-radius:50%;border:3px double var(--ember);color:var(--ember);display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-9deg);font-family:var(--comic-title);line-height:1;flex:none;background:rgba(0,0,0,.25)}
+.wn-card:not(.unread):not(.top) .wn-stamp{border-color:#6b5a4a;color:#8b7d6c}
+.wn-stamp b{font-size:24px;font-weight:400}.wn-stamp small{font-family:var(--type);font-size:8px;letter-spacing:.1em;text-transform:uppercase}
+#news-body .wn-h,.wn-h{margin:0;font-family:var(--comic-title);font-weight:400;font-size:30px;letter-spacing:.03em;line-height:1;color:#f3d34a;-webkit-text-stroke:1px #151213;text-shadow:2px 2px 0 #000}
+#news-body .wn-card:not(.top) .wn-h{font-size:24px;color:#e8dcc0}
+.wn-s{margin:5px 0 0;font-family:var(--type);font-size:13px;line-height:1.35;color:#d0c9ba}
+.wn-new{display:inline-block;margin-left:8px;vertical-align:4px;font-family:var(--type);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#151213;background:var(--ember);padding:2px 6px;border-radius:2px;-webkit-text-stroke:0;text-shadow:none}
+.wn-chev{color:#8b867b;font-size:24px;line-height:1;transition:transform .2s}
+.wn-card[open] .wn-chev{transform:rotate(90deg)}
+.wn-ribbon{position:absolute;top:12px;right:-38px;transform:rotate(35deg);background:var(--blood);color:#fff;font-family:var(--comic-title);font-size:14px;letter-spacing:.12em;padding:3px 44px;box-shadow:0 2px 0 #000;pointer-events:none}
+.wn-card.top summary{padding-right:48px}
+.wn-body{padding:0 16px 16px;display:flex;flex-direction:column;gap:7px}
+.wn-it{display:grid;grid-template-columns:84px minmax(0,1fr);gap:12px;align-items:start;padding:8px 10px;background:rgba(0,0,0,.3);border-radius:3px;animation:wnIt .35s ease both;animation-delay:calc(var(--j,0) * 45ms + 120ms)}
+.wn-tag{font-family:var(--type);font-size:10px;font-weight:700;letter-spacing:.1em;text-align:center;padding:3px 0;border-radius:2px;color:#151213;margin-top:1px}
+.wn-tag.new{background:#e2604a}.wn-tag.up{background:#f0b25a}.wn-tag.fix{background:#86c9d6}
+.wn-it div b{display:block;color:var(--bone);font-family:var(--type);font-size:14px;letter-spacing:.02em}
+.wn-it div span{display:block;color:#b8b1a3;font-size:13px;line-height:1.4;margin-top:2px}
+.wn-q{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;align-items:center;margin-top:6px}
+.wn-q canvas{width:76px;height:57px;border:2px solid #151213;display:block;border-radius:3px;box-shadow:2px 2px 0 #000}
+.wn-bub{position:relative;background:var(--paper);color:var(--ink);font-family:var(--comic);font-weight:700;font-size:14px;line-height:1.3;padding:8px 12px;border:2px solid #151213;border-radius:14px;box-shadow:3px 3px 0 #000}
+.wn-bub::before{content:'';position:absolute;left:-11px;top:50%;margin-top:-7px;border-style:solid;border-width:7px 11px 7px 0;border-color:transparent #151213 transparent transparent}
+.wn-bub i{display:block;font-style:normal;font-family:var(--type);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8a2b1c;margin-bottom:2px}
+.wn-legend{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11px;color:#8b867b}
+.wn-legend .wn-tag{display:inline-block;padding:2px 6px;margin-right:4px}
+html:not(.touch) #btn-news .t-lbl{display:none}html:not(.touch) #btn-news .t-ico{display:block;width:18px;height:18px}html:not(.touch) #btn-news{padding-left:10px;padding-right:10px}
+.wn-dot{position:absolute;top:5px;right:6px;width:9px;height:9px;border-radius:50%;background:#e0321f;box-shadow:0 0 0 2px #0a0a0c,0 0 8px #e0321f;animation:livePulse 1.2s ease-in-out infinite;pointer-events:none}
+.wn-pop{width:min(470px,100%);max-height:calc(100vh - 32px);overflow:auto;position:relative;padding:20px 20px 16px;border:2px solid #151213;border-left:6px solid var(--blood);background:radial-gradient(circle at 1px 1px,rgba(255,210,58,.07) 1px,transparent 1.7px) 0 0/7px 7px,linear-gradient(155deg,#2c1a14,#121012 65%);box-shadow:5px 5px 0 #000;display:flex;flex-direction:column;gap:10px;animation:wnPop .5s cubic-bezier(.2,.9,.3,1.3) both}
+.wn-pop .eyebrow{margin:0}
+.wn-pop h2{margin:0;font-family:var(--comic-title);font-weight:400;font-size:36px;letter-spacing:.03em;line-height:1;color:#f3d34a;-webkit-text-stroke:1.2px #151213;text-shadow:3px 3px 0 #000}
+.wn-pop .wn-s{margin:0}
+.wn-pop .wn-it{grid-template-columns:78px minmax(0,1fr)}
+.wn-pop .wn-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.wn-burst{position:absolute;top:-6px;right:14px;width:70px;height:70px;display:flex;align-items:center;justify-content:center;font-family:var(--comic-title);font-size:18px;color:#151213;transform:rotate(12deg);animation:wnBurst 1.6s ease-in-out infinite}
+.wn-burst::before{content:'';position:absolute;inset:0;background:#ffd23a;clip-path:polygon(50% 0,61% 22%,85% 12%,78% 37%,100% 50%,78% 63%,85% 88%,61% 78%,50% 100%,39% 78%,15% 88%,22% 63%,0 50%,22% 37%,15% 12%,39% 22%);filter:drop-shadow(2px 2px 0 #000)}
+.wn-burst span{position:relative}
+@keyframes wnIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes wnIt{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+@keyframes wnPop{from{opacity:0;transform:scale(.85) rotate(-2deg)}to{opacity:1;transform:none}}
+@keyframes wnBurst{0%,100%{transform:rotate(12deg) scale(1)}50%{transform:rotate(6deg) scale(1.08)}}
+.wn-still .wn-card,.wn-still .wn-it,.wn-still.wn-pop,.wn-still .wn-burst,.wn-still .wn-dot{animation:none}
+@media (prefers-reduced-motion:reduce){.wn-card,.wn-it,.wn-pop,.wn-burst,.wn-dot{animation:none}}
+@media (max-height:520px){.wn-pop{padding:10px 14px;gap:5px;max-height:calc(100vh - 16px)}.wn-pop h2{font-size:24px}.wn-pop .wn-s{font-size:12px}.wn-burst{width:50px;height:50px;font-size:13px;top:-4px}.wn-pop .wn-it{padding:4px 8px;align-items:center}.wn-pop .wn-it div span{display:none}.wn-pop .wn-q{grid-template-columns:52px minmax(0,1fr);gap:10px;margin-top:2px}.wn-pop .wn-q canvas{width:52px;height:39px}.wn-pop .wn-bub{font-size:12px;padding:5px 10px}.wn-pop .wn-acts .btn{padding:7px 12px}}
+@media (max-width:640px){.wn-h{font-size:24px}.wn-card:not(.top) .wn-h{font-size:20px}.wn-stamp{width:50px;height:50px}.wn-stamp b{font-size:19px}.wn-it{grid-template-columns:70px minmax(0,1fr);gap:8px}.wn-card summary{gap:10px;padding:10px 12px}.wn-body{padding:0 10px 12px}}
+
 .credit b{display:block;font-family:var(--display);font-weight:400;font-size:20px;color:var(--bone)}
 .credit span{color:var(--sodium);font-size:14px}
 .route{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;position:relative}
@@ -431,6 +485,8 @@ input[type=range],input[type=checkbox]{accent-color:var(--ember)}
 .hub-tabs .tab #ach-count{color:var(--ash);letter-spacing:.04em}
 @media (max-width:1560px){.hub-tabs .tab{letter-spacing:.08em;padding:10px 10px}.hub-tabs .tab::after{left:10px;right:10px}}
 @media (max-width:1360px){.hub-tabs .tab{font-size:12px;letter-spacing:.04em;padding:10px 7px}.hub-tabs .tab::after{left:7px;right:7px}.hub-top{gap:12px}}
+@media (max-width:1600px){.hub-tabs .tab{letter-spacing:.05em;padding:10px 8px}.hub-tabs .tab::after{left:8px;right:8px}}
+@media (max-width:1460px){.hub-tabs .tab{font-size:12px;letter-spacing:.03em;padding:10px 6px}.hub-tabs .tab::after{left:6px;right:6px}.hub-top{gap:10px}.hub-brand small{display:none}}
 .kb-hint{display:none;font-family:var(--type);font-size:10px;font-weight:700;letter-spacing:.04em;color:#111;background:#d8d2c4;border-radius:4px;padding:2px 5px;line-height:1.2}
 html[data-dev="pad"] .kb-hint{display:inline-block}
 .hub-status{display:flex;align-items:center;gap:8px;white-space:nowrap}
@@ -958,6 +1014,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
       <button type="button" class="tab" data-tab="lobby" aria-selected="true">Accueil</button>
       <button type="button" class="tab" data-tab="perso" aria-selected="false">Personnage</button>
       <button type="button" class="tab" data-tab="arsenal" aria-selected="false">Arsenal</button>
+      <button type="button" class="tab" id="btn-news" aria-expanded="false" title="Nouveautés">Nouveautés</button>
       <button type="button" class="tab" id="btn-ach" aria-expanded="false">Succès <span id="ach-count"></span></button>
       <button type="button" class="tab" id="btn-best" aria-expanded="false">Bestiaire</button>
       <button type="button" class="tab" id="btn-scores" aria-expanded="false">Scores</button>
@@ -1130,6 +1187,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
   <div class="sheet" id="panel-scores" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Meilleurs scores</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
   <div class="sheet" id="panel-best" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Bestiaire</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
   <div class="sheet" id="panel-ach" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Succès</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
+  <div class="sheet" id="panel-news" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Nouveautés</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body" id="news-body"></div></div></div>
   <div class="sheet" id="panel-credits" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Crédits</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body" id="credits-body"></div></div></div>
 </section>
 
@@ -1219,6 +1277,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 <div id="secret-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="secret-h"><div class="secret-wrap"><canvas id="secret-cv" width="480" height="240" aria-hidden="true"></canvas><p class="eyebrow">Niveau secret</p><h2 id="secret-h">Le Paradis des Shibas</h2><p>Les 12 shibas sont sauvés. Le Shibanophile t'attend sur la Place de la Mairie : protège les 9 shibas du paradis.</p><div class="row center"><button type="button" class="btn" id="secret-close">Retour</button><button type="button" class="btn primary big" id="btn-paradise-title">Entrer au Paradis</button></div></div></div>
 <div class="rotate-overlay" id="rotate-overlay" role="alert"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="20" y="6" width="24" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="32" cy="43" r="2.5" fill="currentColor"/><path d="M50 52a18 18 0 0 1-30 6" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M18 52l2 7 7-2" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Tourne ton téléphone</b><p>Couvre-Feu se joue en mode paysage.</p></div>
 <div id="fs-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="fs-h"><div class="fs-wrap"><div class="fs-ico" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p class="eyebrow">Couvre-Feu</p><h2 id="fs-h">Jouer en plein écran ?</h2><p id="fs-txt">Pour une meilleure immersion, le jeu passe en plein écran.</p><div class="row center"><button type="button" class="btn" id="fs-no">Non merci</button><button type="button" class="btn primary big" id="fs-yes">Plein écran</button></div><label class="fs-never"><input type="checkbox" id="fs-never"> Ne plus me demander</label></div></div>
+<div id="wn-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="wn-ph"><div class="wn-pop" id="wn-pop"></div></div>
 <div id="install-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="inst-h"><div class="fs-wrap inst-wrap"><div class="inst-ico" aria-hidden="true">💀</div><p class="eyebrow">Couvre-Feu</p><h2 id="inst-h">Installer le jeu</h2><p>Mets Couvre-Feu sur ton écran d'accueil : il s'ouvre en plein écran, comme une appli.</p>
 <ol class="inst-steps">
 <li class="done"><span>1</span><div>Ouvre ton navigateur internet : <b>Safari</b> sur iPhone, <b>Chrome</b> sur Android.<em>✓ C'est fait</em></div></li>
@@ -1311,7 +1370,7 @@ const Settings = {
   quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -7318,7 +7377,7 @@ $('btn-start').addEventListener('click', () => {
   if (launchMode === 'coop') openJoin(); else if (launchMode === 'survival') game.newSurvival(false); else if (launchMode === 'endless') game.newEndless(); else if (launchMode === 'daily') game.newDaily(); else if (launchMode === 'hospital') game.newHospital(); else game.newGame();
 });
 // panneaux de l'écran titre : un seul ouvert à la fois, et on défile jusqu'à lui
-const TITLE_PANELS = [['panel-settings', 'btn-settings'], ['panel-scores', 'btn-scores'], ['panel-ach', 'btn-ach'], ['panel-best', 'btn-best'], ['panel-credits', 'btn-credits']];
+const TITLE_PANELS = [['panel-settings', 'btn-settings'], ['panel-scores', 'btn-scores'], ['panel-ach', 'btn-ach'], ['panel-best', 'btn-best'], ['panel-news', 'btn-news'], ['panel-credits', 'btn-credits']];
 const CREDITS = [['Zeus', 'Plante', 'zeus'], ['Dobby', 'Lor\'hi', 'dobby'], ['Chewie', 'Kiffeur', 'chewie'], ['Dragon', 'Maléfique', 'dragon']];
 function fillCredits(el) {
   el.innerHTML = `<h3>Crédits</h3><div class="credits"><p class="eyebrow">Un jeu Nadrax Prod</p><div class="credit-list">${CREDITS.map(([n, r, k]) => `<div class="credit"><canvas width="480" height="360" data-portrait="${k}" aria-hidden="true"></canvas><div><b>${n}</b><span>${r}</span></div></div>`).join('')}</div></div>`;
@@ -7440,7 +7499,7 @@ function openLaunch(mode) {
   game.audio.init(); game.audio.ui(); launchMode = mode; $('btn-start').dataset.confirm = ''; $('btn-start').classList.remove('danger'); refreshContinue(); launchText();
   $('launch-modal').hidden = false; requestAnimationFrame(() => { const b = !$('btn-continue').hidden ? $('btn-continue') : $('btn-start'); b.focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo(b); });
 }
-function closeHubModals() { let any = closeFsModal(); if (closeInstall()) any = true; if (!$('net-modal').hidden) { $('net-modal').hidden = true; any = true; if (!game.net && !game.netGuest && Net.role && !Net.peer) Net.close(); } for (const id of ['launch-modal', 'secret-modal']) if (!$(id).hidden) { $(id).hidden = true; any = true; } if (!$('join-modal').hidden) { closeJoin(); any = true; } return any; }
+function closeHubModals() { let any = closeFsModal(); if (closeInstall()) any = true; if (!$('net-modal').hidden) { $('net-modal').hidden = true; any = true; if (!game.net && !game.netGuest && Net.role && !Net.peer) Net.close(); } for (const id of ['launch-modal', 'secret-modal', 'wn-modal']) if (!$(id).hidden) { $(id).hidden = true; any = true; } if (!$('join-modal').hidden) { closeJoin(); any = true; } return any; }
 $('launch-close').addEventListener('click', () => { closeHubModals(); game.audio.ui(); });
 $('launch-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeHubModals(); });
 $('secret-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeHubModals(); });
@@ -7691,9 +7750,98 @@ addEventListener('pagehide', () => { if (game.state === 'playing') game.pause();
 // ---------- hors ligne : le site garde une copie du jeu (uniquement sur le site en ligne)
 if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => { });
 // ---------- icônes et noms courts des onglets (utilisés par la barre verticale sur téléphone)
-{ const ICO = { 'btn-best': '<path d="M12 3c-4.4 0-8 3.1-8 7.4 0 2.4 1.1 4.1 2.6 5.1V19h10.8v-3.5c1.5-1 2.6-2.7 2.6-5.1C20 6.1 16.4 3 12 3z"/><path d="M9 11h.01M15 11h.01M10 19v-2M14 19v-2"/>', lobby: '<path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/>', perso: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>', arsenal: '<circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/>', 'btn-ach': '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>', 'btn-scores': '<path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8"/>', 'btn-credits': '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>', 'btn-settings': '<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>' };
-  const SHORT = { lobby: 'Accueil', perso: 'Perso', arsenal: 'Arsenal', 'btn-ach': 'Succès', 'btn-best': 'Bestiaire', 'btn-scores': 'Scores', 'btn-credits': 'Crédits', 'btn-settings': 'Réglages' };
+{ const ICO = { 'btn-best': '<path d="M12 3c-4.4 0-8 3.1-8 7.4 0 2.4 1.1 4.1 2.6 5.1V19h10.8v-3.5c1.5-1 2.6-2.7 2.6-5.1C20 6.1 16.4 3 12 3z"/><path d="M9 11h.01M15 11h.01M10 19v-2M14 19v-2"/>', lobby: '<path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/>', perso: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>', arsenal: '<circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/>', 'btn-ach': '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>', 'btn-scores': '<path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8"/>', 'btn-credits': '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>', 'btn-news': '<rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 13h18M12 9v12M12 9c-1.5-4-6-5-6-2s4 2 6 2c2 0 6 1 6-2s-4.5-2-6 2"/>', 'btn-settings': '<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>' };
+  const SHORT = { lobby: 'Accueil', perso: 'Perso', arsenal: 'Arsenal', 'btn-ach': 'Succès', 'btn-best': 'Bestiaire', 'btn-scores': 'Scores', 'btn-news': 'Nouveau', 'btn-credits': 'Crédits', 'btn-settings': 'Réglages' };
   for (const t of document.querySelectorAll('.hub-tabs .tab:not(.fs-tab)')) { const k = t.dataset.tab || t.id; if (!ICO[k]) continue; const lbl = document.createElement('span'); lbl.className = 't-lbl'; while (t.firstChild) lbl.appendChild(t.firstChild); t.insertAdjacentHTML('afterbegin', `<svg class="t-ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICO[k]}</svg>`); t.appendChild(lbl); t.insertAdjacentHTML('beforeend', `<span class="t-short" aria-hidden="true">${SHORT[k]}</span>`); } }
+// ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
+const WN = [
+  { v: 62, d: '28 oct.', t: 'Le journal des mises à jour', s: 'Tu ne rateras plus rien : chaque ajout est raconté ici.', it: [
+    ['new', 'Onglet Nouveautés', 'Tu es dessus. Les versions s\'empilent du plus récent au plus ancien, avec ce qui a changé.'],
+    ['new', 'Pastille rouge', 'Elle s\'allume sur l\'onglet quand une mise à jour arrive, et s\'éteint une fois lue.'],
+    ['new', 'Résumé au lancement', 'Après une mise à jour, une petite fenêtre te montre l\'essentiel. Une seule fois, promis.']],
+    q: ['chewie', 'Chewie', 'Un journal ? Moi qui croyais que les zombies savaient pas lire.'] },
+  { v: 61, d: '28 oct.', t: 'Zéro lag, zéro excuse', s: 'Le duo en ligne répond au quart de tour, et les iPhone récents ont enfin un écran bien calé.', it: [
+    ['up', 'Tirs instantanés en duo', 'L\'invité voit ses balles partir dès qu\'il appuie, sans attendre l\'hôte.'],
+    ['new', 'Indicateur de connexion', 'En haut de l\'écran : connexion directe ou relais, et la latence en millisecondes.'],
+    ['up', 'Duo plus léger', 'Moins de messages envoyés : la partie tient bien mieux en 4G.'],
+    ['fix', 'iPhone 15, 16, 17 et plus', 'La Dynamic Island ne mange plus la place des boutons, et l\'écran se recale après une rotation ou le clavier.'],
+    ['fix', 'Boss en duo', 'L\'invité voit toujours l\'entrée du boss, même à l\'autre bout de la carte.']],
+    q: ['pedro', 'Pedro', 'Mes balles partent quand j\'appuie. C\'est beau, je vais pleurer.'] },
+  { v: 58, d: '27 oct.', t: 'Le duo passe en ligne', s: 'Chacun son téléphone, chacun son canapé. Même ville ou pas.', it: [
+    ['new', 'Duo en ligne', 'Un code à 4 lettres et ton ami te rejoint, sur téléphone ou sur PC.'],
+    ['new', 'Campagne à deux', 'BD, carte, objectifs, survivants, lampadaires : tout est partagé.'],
+    ['new', 'Survie à deux', 'Tenez la place de la Mairie ensemble, vague après vague.'],
+    ['new', 'Relever son allié', 'Reste quelques secondes dans son cercle pour le remettre debout. Une fois par manche.'],
+    ['new', 'Classement en ligne', 'Compare tes meilleurs scores avec ceux des copains.'],
+    ['up', 'Visibilité du perso', 'Le réglage « Renforcée » pour ne plus perdre ton perso dans la mêlée.'],
+    ['fix', 'Mêlée sur mobile', 'Le bouton de corps à corps est de retour.']],
+    q: ['fiona', 'Fiona', 'Enfin quelqu\'un pour porter le jerrican à ma place.'] },
+  { v: 52, d: '27 oct.', t: 'Pour tous les yeux', s: 'Des réglages pour jouer confortablement, quoi qu\'il arrive.', it: [
+    ['new', 'Mode daltonien', 'Couleurs revues pour bien distinguer dangers, soins et objectifs.'],
+    ['new', 'Effets réduits', 'Moins de tremblements d\'écran et de flashs.'],
+    ['up', 'Polices intégrées', 'Le jeu s\'affiche plus vite, et pareil même hors ligne.']],
+    q: ['zeus', 'Zeus', 'Je vois tout. Même les zombies que je préférais ne pas voir.'] },
+  { v: 50, d: '26 oct.', t: 'Les boss sortent le grand jeu', s: 'Six boss redessinés, chacun avec sa technique et son entrée fracassante.', it: [
+    ['new', 'Une technique par boss', 'Chaque boss a sa propre attaque spéciale, à apprendre pour survivre.'],
+    ['new', 'Rage et point faible', 'À mi-vie, il s\'énerve. S\'il rate une attaque, vise son point faible.'],
+    ['new', 'Des entrées mémorables', 'Le Contrôleur te tape sur l\'épaule, la Speakerine sort de la télé, le Gardien pousse une voiture…'],
+    ['new', 'Cinématiques', 'Zoom, bandes noires et action figée à chaque arrivée de boss.'],
+    ['up', 'Bestiaire en fin d\'acte', 'Les créatures découvertes s\'affichent à la fin de l\'acte, plus en plein combat.']],
+    q: ['dobby', 'Dobby', 'Le Shibanophile dans un costume de shiba géant. J\'ai pas les mots.'] },
+  { v: 45, d: '26 oct.', t: 'Visée laser', s: 'Viser au doigt n\'a jamais été aussi précis.', it: [
+    ['new', 'Ligne de visée laser', 'Elle remplace le viseur, sur mobile comme sur PC.'],
+    ['up', 'Visée qui tient', 'Ta visée ne bouge plus quand tu te déplaces.'],
+    ['new', 'Recharger d\'un geste', 'Touche le compteur de munitions pour recharger.'],
+    ['up', 'Sticks transparents', 'Ils suivent ton pouce, et la caméra regarde devant toi.'],
+    ['new', 'Installer le jeu', 'Un petit tuto pour l\'avoir sur l\'écran d\'accueil, comme une vraie appli.']],
+    q: ['dragon', 'Dragon', 'Un laser. Sur un pistolet. En pleine apocalypse. Logique.'] },
+  { v: 42, d: '25 oct.', t: 'Halloween débarque', s: 'Citrouilles, déguisements et un hôpital qui ne soigne personne.', it: [
+    ['new', 'Événement Halloween', 'Citrouilles à trouver, zombies déguisés et une tête de citrouille à gagner.'],
+    ['new', 'Bestiaire en BD', 'Toutes les créatures croisées, dessinées et décrites.'],
+    ['new', 'Chien zombie', 'Rapide, nerveux, et il ne rapporte pas la balle.'],
+    ['new', 'Hôpital Saint-Lazare', 'Un secteur bonus et son boss : Le Chirurgien.']],
+    q: ['fiona', 'Fiona', 'Le Chirurgien m\'a proposé un rendez-vous. J\'ai décliné.'] },
+  { v: 41, d: '25 oct.', t: 'Le jeu dans ta poche', s: 'Couvre-Feu se joue partout, même sans réseau.', it: [
+    ['new', 'Version mobile', 'Commandes tactiles, paysage et boutons réglables.'],
+    ['new', 'Hors ligne', 'Une fois chargé, le jeu marche sans internet.'],
+    ['new', 'Comme une appli', 'Icône sur l\'écran d\'accueil et plein écran.'],
+    ['up', 'Pause automatique', 'Le jeu se met en pause si tu quittes l\'appli.']],
+    q: ['pedro', 'Pedro', 'Je peux tuer des zombies dans le bus maintenant. Ma vie a changé.'] }
+];
+const WN_CUR = WN[0].v, WN_TAG = { new: 'NOUVEAU', up: 'AMÉLIORÉ', fix: 'CORRIGÉ' };
+const wnSeen = () => +Settings.wnSeen || 0, WN_PREV = wnSeen();
+const wnItems = (it, n) => it.slice(0, n || it.length).map(([k, b, t], j) => `<div class="wn-it" style="--j:${j}"><span class="wn-tag ${k}">${WN_TAG[k]}</span><div><b>${b}</b><span>${t}</span></div></div>`).join('');
+const wnQuote = q => q ? `<div class="wn-q"><canvas width="240" height="180" data-portrait="${q[0]}" aria-hidden="true"></canvas><p class="wn-bub"><i>${q[1]}</i>« ${q[2]} »</p></div>` : '';
+function wnPortraits(el) { for (const cv of el.querySelectorAll('canvas[data-portrait]')) { try { renderPortrait(cv, cv.dataset.portrait); } catch (e) { } fontsReady.then(() => { try { renderPortrait(cv, cv.dataset.portrait); } catch (e) { } }); } }
+function wnHTML() {
+  const seen = WN_PREV, unread = seen ? WN.filter(u => u.v > seen).length : 0;
+  const intro = unread > 1 ? `<b>${unread} mises à jour</b> depuis ta dernière visite. Touche une version pour l'ouvrir ou la refermer.` : 'Touche une version pour l\'ouvrir ou la refermer.';
+  return `<div class="wn${Settings.calm ? ' wn-still' : ''}"><p class="wn-intro">${intro}</p><div class="wn-legend"><span><i class="wn-tag new">NOUVEAU</i>ajout</span><span><i class="wn-tag up">AMÉLIORÉ</i>mieux qu'avant</span><span><i class="wn-tag fix">CORRIGÉ</i>bug réglé</span></div>` +
+    WN.map((u, i) => { const isNew = seen && u.v > seen; return `<details class="wn-card${i === 0 ? ' top' : ''}${isNew || i === 0 ? ' unread' : ''}"${i === 0 || isNew ? ' open' : ''} style="--i:${i}"><summary>${i === 0 ? '<span class="wn-ribbon">À la une</span>' : ''}<span class="wn-stamp"><small>Version</small><b>${u.v}</b><small>${u.d}</small></span><div><h4 class="wn-h">${u.t}${isNew && i > 0 ? '<span class="wn-new">Pas encore lu</span>' : ''}</h4><p class="wn-s">${u.s}</p></div><span class="wn-chev" aria-hidden="true">›</span></summary><div class="wn-body">${wnItems(u.it)}${wnQuote(u.q)}</div></details>`; }).join('') + '</div>';
+}
+function wnMarkRead() { if (wnSeen() < WN_CUR) { Settings.wnSeen = WN_CUR; Settings.save(); } const d = $('wn-dot'); if (d) d.hidden = true; }
+function openNews() { closeHubModals(); togglePanel('panel-news', $('btn-news'), wnHTML); wnPortraits($('panel-news')); wnMarkRead(); }
+$('btn-news').addEventListener('click', openNews);
+{ const d = document.createElement('span'); d.className = 'wn-dot'; d.id = 'wn-dot'; d.setAttribute('aria-hidden', 'true'); d.hidden = wnSeen() >= WN_CUR; $('btn-news').appendChild(d); if (!d.hidden) $('btn-news').setAttribute('aria-label', 'Nouveautés (mise à jour non lue)'); }
+function showWhatsNew() {
+  const u = WN[0], el = $('wn-pop'); el.classList.toggle('wn-still', !!Settings.calm);
+  el.innerHTML = `<div class="wn-burst" aria-hidden="true"><span>NEW!</span></div><p class="eyebrow">Mise à jour · version ${u.v}</p><h2 id="wn-ph">${u.t}</h2><p class="wn-s">${u.s}</p>${wnItems(u.it, 3)}${wnQuote(u.q)}<div class="wn-acts"><button type="button" class="btn primary" id="wn-all">Voir toutes les nouveautés</button><button type="button" class="btn" id="wn-ok">C'est parti</button></div>`;
+  wnPortraits(el); $('wn-modal').hidden = false; wnMarkRead();
+  $('wn-all').addEventListener('click', () => { game.audio.init(); game.audio.ui(); $('wn-modal').hidden = true; openNews(); });
+  $('wn-ok').addEventListener('click', () => { game.audio.init(); game.audio.ui(); $('wn-modal').hidden = true; });
+  requestAnimationFrame(() => { $('wn-all').focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo($('wn-all')); });
+}
+$('wn-modal').addEventListener('click', e => { if (e.target === e.currentTarget) $('wn-modal').hidden = true; });
+// au lancement, une seule fois par mise à jour, quand rien d'autre n'est ouvert (pas pour un tout nouveau joueur)
+function maybeWhatsNew(tries) {
+  if (navigator.webdriver && !/[?&]wn\b/.test(location.search)) return;
+  if (wnSeen() >= WN_CUR) return;
+  if (!wnSeen() && !Settings.xp && !Settings.lastRun) { wnMarkRead(); return; }
+  if (game.state !== 'title' || (tries | 0) > 40) return;
+  if (document.querySelector('.hub-modal:not([hidden]), .sheet:not([hidden])') || ($('splash') && !$('splash').hidden)) { setTimeout(() => maybeWhatsNew((tries | 0) + 1), 1500); return; }
+  showWhatsNew();
+}
+window.__wn = { show: showWhatsNew, open: openNews, WN };
 // ---------- pas de zoom, sur aucun appareil : pincement, double-tap, Ctrl + molette, Ctrl + / -
 for (const ev of ['gesturestart', 'gesturechange', 'gestureend']) document.addEventListener(ev, e => e.preventDefault(), { passive: false });
 document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
@@ -7755,7 +7903,7 @@ if (!fsOK()) { $('btn-fs').hidden = true; $('btn-fs-pause').hidden = true; }
 window.__offerFs = () => offerFullscreen(true); window.__showInstall = showInstall;
 (() => {
   const sp = $('splash'); let done = false;
-  const end = () => { if (done) return; done = true; sp.hidden = true; splashDoneAt = performance.now(); setTimeout(offerFullscreen, 250); };
+  const end = () => { if (done) return; done = true; sp.hidden = true; splashDoneAt = performance.now(); setTimeout(offerFullscreen, 250); setTimeout(maybeWhatsNew, 1400); };
   let reduce = false; try { reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { }
   setTimeout(end, reduce ? 1500 : 3900);
   sp.addEventListener('pointerdown', end); addEventListener('keydown', end, { once: true });
