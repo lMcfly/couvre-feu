@@ -1,3 +1,9 @@
+// ---------- choix de la difficulté
+for (const b of document.querySelectorAll('#diff button')) b.addEventListener('click', () => {
+  game.audio.init(); game.audio.ui(); game.diffKey = b.dataset.diff;
+  for (const x of document.querySelectorAll('#diff button')) x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+  game.diff = DIFFS[game.diffKey];
+});
 // ---------- dossiers de modes : on ouvre un dossier, le reste de l'accueil passe au flou
 function openFolder(f) {
   game.audio.init(); game.audio.ui(); $('folders').hidden = true; for (const fp of document.querySelectorAll('.folder-pane')) fp.hidden = fp.dataset.f !== f;
@@ -120,5 +126,5 @@ $('join-go').addEventListener('click', joinGo);
 $('btn-paradise').addEventListener('click', () => game.newSecret(true));
 $('btn-survival').addEventListener('click', () => game.newSurvival(game.mode === 'story' && game.lastVictory));
 function achHTML() { const u = Ach.get(); return `<p class="hint">${ACH.filter(a => u[a[0]]).length} / ${ACH.length} succès débloqués sur cet appareil</p><div class="achs">${ACH.map(([id, n, d]) => `<div class="ach ${u[id] ? 'on' : ''}"><b>${n}</b><span>${u[id] ? d : d + ' · verrouillé'}</span></div>`).join('')}</div>`; }
-$('btn-credits').addEventListener('click', e => togglePanel('panel-credits', e.currentTarget));
+$('btn-credits').addEventListener('click', e => { fillCreditsOnce($('credits-body')); togglePanel('panel-credits', e.currentTarget); });
 $('btn-ach').addEventListener('click', e => togglePanel('panel-ach', e.currentTarget, achHTML));

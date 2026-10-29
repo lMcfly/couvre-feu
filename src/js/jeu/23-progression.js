@@ -72,7 +72,7 @@ function accThumb(ch, acc) {
   cv = document.createElement('canvas'); cv.width = cv.height = 128; renderHead(cv, ch, null, acc); accThumbs.set(key, cv); return cv;
 }
 function renderAccPicker() {
-  const el = $('acc-pick'); if (!el) return; const ch = ficheKey || game.charKey, lv = playerLevel(), cur = currentAcc(ch);
+  const el = $('acc-pick'); if (!el || !ficheKey) return; const ch = ficheKey, lv = playerLevel(), cur = currentAcc(ch);
   el.className = 'acc-tiles';
   const lockTxt = a => a.ev ? `Halloween : abats ${HW_GOAL} zombies déguisés (${hwCount()} / ${HW_GOAL})` : 'se débloque au niveau ' + a.lv;
   el.innerHTML = ACCS.filter(a => !a.ev || HALLOWEEN || Settings.pumpkin).map(a => { const ok = accOk(a); return `<button type="button" class="acc-tile ${ok ? '' : 'locked'} ${accPreview === a.id ? 'preview' : ''} ${a.ev ? 'ev' : ''}" data-acc="${a.id}" aria-pressed="${a.id === cur}" title="${ok ? 'Équiper' : 'Aperçu · ' + lockTxt(a)}"><canvas width="128" height="128" aria-hidden="true"></canvas><span>${a.name}</span><small>${ok ? (a.id === cur ? 'équipé' : 'équiper') : a.ev ? `🎃 ${hwCount()} / ${HW_GOAL}` : '🔒 niv. ' + a.lv}</small></button>`; }).join('') + `<p class="fiche-preview" id="acc-prev-msg">${accPreview ? `Aperçu : ${ACCS.find(a => a.id === accPreview).name} · ${lockTxt(ACCS.find(a => a.id === accPreview))}` : ''}</p>`;

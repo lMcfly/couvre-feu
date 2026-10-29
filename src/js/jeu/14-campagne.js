@@ -200,7 +200,7 @@ mixin(Game, {
     $('btn-paradise').hidden = !(this.mode === 'story' && victory && this.shibaFound.size >= SHIBAS_TOTAL);
     $('end-stamp').style.color = $('end-stamp').style.borderColor = victory ? '#7fd18b' : '';
     if (hosp) { $('end-eyebrow').textContent = 'Rapport médical · Hôpital Saint-Lazare'; $('end-title').textContent = victory ? 'Le Chirurgien est tombé' : 'Admis aux urgences'; $('end-stamp').textContent = victory ? 'Sorti guéri' : 'Porté disparu'; }
-    $('btn-survival').hidden = !(victory || surv) || hosp; $('end-credits').hidden = !victory || hosp; $('btn-survival').textContent = surv ? 'Relancer la Survie' : 'Mode Survie';
+    $('btn-survival').hidden = !(victory || surv) || hosp; $('end-credits').hidden = !victory || hosp; if (victory && !hosp) fillCreditsOnce($('end-credits')); $('btn-survival').textContent = surv ? 'Relancer la Survie' : 'Mode Survie';
     const stats = [['Personnage', CHARS[this.charKey].name], ['Score', fmt(this.score)], ['Zombies abattus', fmt(this.kills)], ['Multiplicateur max', '×' + this.maxMult.toFixed(1)], ['Temps', fmtTime(this.runTime)], ['Difficulté', this.diff.name]];
     if (bonus) stats.splice(1, 0, ['Bonus évacuation', '+' + fmt(bonus)]);
     if (surv) stats.splice(1, 0, ['Vagues tenues', String(Math.max(0, wave - 1))]);

@@ -29,11 +29,15 @@
   "src/js/bd/27-scenario.js",
   "src/js/menus/28-curseur-manette.js",
   "src/js/reseau/29-duo-en-ligne.js",
-  "src/js/menus/30-accueil-perso.js",
-  "src/js/menus/31-hub-arsenal.js",
-  "src/js/menus/32-actus-defis-photo.js",
-  "src/js/menus/33-modes-lancement.js",
-  "src/js/menus/34-bestiaire-touches.js",
-  "src/js/demarrage/35-demarrage.js"
+  "src/js/demarrage/30-creation-du-jeu.js",
+  "src/js/menus/31-reglages.js",
+  "src/js/menus/32-accueil-perso.js",
+  "src/js/menus/33-hub-arsenal.js",
+  "src/js/menus/34-actus-defis-photo.js",
+  "src/js/menus/35-hub-panneaux.js",
+  "src/js/menus/36-modes-lancement.js",
+  "src/js/menus/37-bestiaire-touches.js",
+  "src/js/menus/38-nouveautes.js",
+  "src/js/demarrage/39-demarrage.js"
  ]
 }

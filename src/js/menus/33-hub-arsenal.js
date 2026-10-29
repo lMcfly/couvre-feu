@@ -2,6 +2,7 @@
 const HUB_TABS = ['lobby', 'perso', 'arsenal'];
 let hubTab = 'lobby';
 function setTab(t) {
+  if (t === 'perso') paintRoster();
   hubTab = t; if ($('scr-title').classList.contains('page-open')) { for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden = true; $(bid).setAttribute('aria-expanded', 'false'); } $('scr-title').classList.remove('page-open'); } for (const k of HUB_TABS) $('pane-' + k).hidden = k !== t;
   for (const b of document.querySelectorAll('.hub-tabs .tab')) b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false');
   if (t === 'arsenal') renderArsenal();
@@ -90,10 +91,7 @@ function drawWeaponTeaser(cv, wi, t) {
   // ---- rendu (décor de rue de nuit, comme les capacités)
   T.shake = Math.max(0, T.shake - 0.02); const sx = (Math.random() - 0.5) * T.shake * 10, sy = (Math.random() - 0.5) * T.shake * 10;
   g.setTransform(k, 0, 0, k, sx * k, sy * k);
-  g.fillStyle = '#26252a'; g.fillRect(-10, -10, 340, 200);
-  g.fillStyle = '#2d2c31'; for (let i = 0; i < 40; i++) g.fillRect((i * 83) % 320, (i * 47) % 180, 14, 9);
-  g.fillStyle = 'rgba(230,220,190,.35)'; for (let x = -20; x < 340; x += 60) g.fillRect(x, 98, 34, 4);
-  g.fillStyle = '#1a191d'; g.fillRect(-10, -10, 340, 36); g.fillRect(-10, 168, 340, 22); g.fillStyle = '#3a3238'; g.fillRect(-10, 26, 340, 4);
+  teaserStreet(g);
   for (const bl of T.blood) { g.fillStyle = 'rgba(110,8,6,.8)'; g.beginPath(); g.ellipse(bl.x, bl.y + 2, bl.r * 1.5, bl.r, 0, 0, TAU); g.fill(); }
   for (const f of T.fx) if (f.k === 'rk' && f.boom) { g.fillStyle = 'rgba(20,16,14,.6)'; g.beginPath(); g.ellipse(f.tx, f.ty + 2, 34, 22, 0, 0, TAU); g.fill(); }
   const saved = ctx; ctx = g;
@@ -103,11 +101,7 @@ function drawWeaponTeaser(cv, wi, t) {
     game.drawPlayer(p);
   } catch (er) { } ctx = saved;
   // obscurité + lampe torche
-  const lc = weaponScene.lc || (weaponScene.lc = document.createElement('canvas')); lc.width = cv.width; lc.height = cv.height; const l = lc.getContext('2d'); l.setTransform(k, 0, 0, k, 0, 0);
-  l.fillStyle = 'rgba(6,6,12,.78)'; l.fillRect(0, 0, 320, 180); l.globalCompositeOperation = 'destination-out';
-  const halo = l.createRadialGradient(p.x, p.y, 4, p.x, p.y, 60); halo.addColorStop(0, 'rgba(0,0,0,.9)'); halo.addColorStop(1, 'rgba(0,0,0,0)'); l.fillStyle = halo; l.fillRect(0, 0, 320, 180);
-  const cone = l.createRadialGradient(p.x, p.y, 10, p.x, p.y, 280); cone.addColorStop(0, 'rgba(0,0,0,.95)'); cone.addColorStop(1, 'rgba(0,0,0,0)'); l.fillStyle = cone; l.beginPath(); l.moveTo(p.x, p.y); l.arc(p.x, p.y, 280, p.aim - 0.55, p.aim + 0.55); l.closePath(); l.fill();
-  g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(lc, 0, 0); g.setTransform(k, 0, 0, k, sx * k, sy * k);
+  teaserNight(weaponScene, cv, g, k, p, { dark: 0.78, reach: 280, half: 0.55 });
   // effets lumineux
   g.save(); g.globalCompositeOperation = 'lighter';
   for (const tr of T.tracer) { if (tr.t <= 0) continue; tr.t -= 0.016; const a = Math.min(1, tr.t * (tr.w > 3 ? 3 : 8)); if (tr.glow) { g.shadowColor = `rgb(${tr.c})`; g.shadowBlur = 14; } g.strokeStyle = `rgba(${tr.c},${a})`; g.lineWidth = tr.w; g.beginPath(); g.moveTo(tr.x0, tr.y0); g.lineTo(tr.x, tr.y); g.stroke(); g.shadowBlur = 0; }
@@ -122,9 +116,8 @@ function drawWeaponTeaser(cv, wi, t) {
   for (const z of T.z) if (z.burn && (z.alive || u - z.deadT < 0.5)) for (let f = 0; f < 5; f++) { const fx = z.x + Math.sin(u * 30 + f * 2) * 6, fy = z.y - 4 - f * 3; g.fillStyle = f % 2 ? 'rgba(255,170,40,.6)' : 'rgba(255,80,20,.6)'; g.beginPath(); g.arc(fx, fy, 4 - f * 0.5, 0, TAU); g.fill(); }
   g.restore();
   g.setTransform(k, 0, 0, k, 0, 0);
-  if (shout) { g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 140, 320, 26); g.fillStyle = '#ffd23a'; g.font = `15px ${FD}`; g.textAlign = 'center'; g.fillText(shout, 160, 158); }
-  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(0, 0, 320, 18); g.fillStyle = '#e0321f'; g.beginPath(); g.arc(10, 9, 4, 0, TAU); g.fill(); g.fillStyle = '#d8d2c4'; g.font = `10px ${FT}`; g.textAlign = 'left'; g.fillText('EN JEU · ' + d.name.toUpperCase(), 19, 13);
-  g.textAlign = 'right'; g.fillStyle = '#8b867b'; g.fillText(`chargeur ${d.mag} · ${d.infinite ? 'munitions infinies' : 'réserve ' + d.ammoPack}`, 312, 13);
+  if (shout) teaserShout(g, shout);
+  teaserHeader(g, d.name, `chargeur ${d.mag} · ${d.infinite ? 'munitions infinies' : 'réserve ' + d.ammoPack}`);
 }
 let wteaserRaf = 0;
 function wteaserLoop(now) { wteaserRaf = 0; if (game.state !== 'title' || $('pane-arsenal').hidden || document.hidden || $('scr-title').classList.contains('page-open')) return; if (now - (weaponScene.last || 0) > 15) { weaponScene.last = now; drawWeaponTeaser($('wteaser-cv'), arsenalSel, now / 1000); } wteaserRaf = requestAnimationFrame(wteaserLoop); }

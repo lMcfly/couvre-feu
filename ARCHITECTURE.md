@@ -16,9 +16,10 @@ src/
                 combat et boss, effets, deux joueurs, progression (mutations, accessoires, effets de fin)
     rendu/      dessin du monde, des personnages, des boss et de l'interface en jeu
     bd/         les cases de BD : moteur, décors, personnages, scénario
-    menus/      curseur manette, accueil et perso, hub et arsenal, actus, lancement des modes, bestiaire et touches
     reseau/     Duo en ligne (mise en relation, WebRTC, synchronisation hôte → invité)
-    demarrage/  ouverture, hors ligne, Nouveautés, plein écran, boucle d'images
+    demarrage/  30 : création de l'objet game ; 39 : ouverture, hors ligne, plein écran, boucle d'images
+    menus/      curseur manette, réglages, accueil et perso, hub et arsenal, actus et photo,
+                boutons et panneaux de l'accueil, lancement des modes, bestiaire et touches, Nouveautés
 tools/
   build.js      assemble src/ → index.html
   check.js      vérifications sans dépendance (voir plus bas)
@@ -30,10 +31,14 @@ tools/
 
 - **Un fichier = un rôle.** Les fichiers sont numérotés dans l'ordre où ils se chargent (`src/ordre.json`) :
   un fichier ne peut utiliser au chargement que ce qui est défini avant lui (les fonctions appelées plus tard, elles, peuvent être n'importe où).
+- **Avant / après `demarrage/30-creation-du-jeu.js`.** Les fichiers d'avant ne font que définir (classes, données, fonctions) ;
+  c'est là qu'est créé `game`. Les fichiers d'après (menus, démarrage) peuvent s'en servir dès leur chargement.
 - **La classe `Game` est découpée en modules.** Le noyau (`jeu/12-jeu.js`) contient l'état et la boucle ;
   chaque autre fichier ajoute ses méthodes avec `mixin(Game, { … })`.
   `mixin` refuse d'écraser une méthode qui existe déjà : un doublon arrête le jeu au chargement au lieu de casser une fonction en silence.
 - **Tout est dessiné par le code** (canvas 2D), sons compris (Web Audio) : aucune image ni aucun son externe, à part les polices.
+- **Rien n'est dessiné avant d'être utile.** Les portraits de la galerie, des accessoires et des crédits sont dessinés
+  à la première ouverture de leur écran (ou quand le navigateur est libre, avec `whenIdle`) : le jeu démarre ~4× plus vite.
 - **Pas de dépendance à l'exécution.** Les outils n'utilisent que Node ; Playwright sert seulement au test rapide.
 
 ## Travailler sur le jeu

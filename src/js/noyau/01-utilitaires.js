@@ -3,6 +3,8 @@
 // ============================================================ utilitaires
 const TAU = Math.PI * 2;
 // ajoute des méthodes à une classe depuis un autre fichier (comme si elles étaient écrites dans la classe) ; refuse d'en écraser une existante
+// exécute fn quand le navigateur a un moment libre (sans bloquer l'affichage)
+const whenIdle = fn => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 3000 }) : setTimeout(fn, 300));
 function mixin(C, methods) {
   for (const k of Object.keys(methods)) {
     if (Object.prototype.hasOwnProperty.call(C.prototype, k)) throw new Error(`mixin : ${C.name}.${k} est défini deux fois`);

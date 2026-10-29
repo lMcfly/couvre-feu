@@ -10,23 +10,6 @@ mixin(Game, {
     if (z.weakT > 0) glow(0, -r * 1.25, r * 0.7, '255,210,58', 0.25 + Math.sin(t * 22) * 0.15);
     c.restore();
   },
-  drawUltimate(z, ca, sa) {
-    const c = ctx, r = z.r, t = this.time, pulse = Math.sin(t * 5) * 2;
-    if (z.state === 'windCharge' || z.state === 'windSlam' || z.state === 'spiral') c.translate(rand(-2.5, 2.5), rand(-1, 1));
-    c.fillStyle = '#26202e'; c.fillRect(-r * 0.6, -r * 0.6, r * 0.45, r * 0.7); c.fillRect(r * 0.15, -r * 0.6, r * 0.45, r * 0.7);
-    c.fillStyle = z.hitFlash > 0 ? '#eee0f0' : '#4a3a5a'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 1.05 + pulse, r * 1.05, 0, 0, TAU); c.fill();
-    c.fillStyle = '#d8d0e0'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 0.55, r * 0.6, 0, 0, TAU); c.fill();
-    drawShibaSprite(c, -4, -r * 1.0, 1.3, 0); c.strokeStyle = '#c0201a'; c.lineWidth = 4; c.beginPath(); c.moveTo(-r * 0.4, -r * 1.6); c.lineTo(r * 0.4, -r * 0.8); c.moveTo(r * 0.4, -r * 1.6); c.lineTo(-r * 0.4, -r * 0.8); c.stroke();
-    c.strokeStyle = '#6a5a7a'; c.lineCap = 'round'; c.lineWidth = r * 0.42;
-    c.beginPath(); for (const s2 of [-1, 1]) { const bx = -sa * s2 * r, by = -r * 1.4; c.moveTo(bx, by); c.lineTo(bx + ca * r * 1.5 - sa * s2 * r * 0.4, by + sa * r * 0.9 + Math.sin(t * 3 + s2) * 4); } c.stroke();
-    const nx = ca * r * 1.9 + sa * r, ny = -r * 1.5 + sa * r * 0.9;
-    c.strokeStyle = '#8a7a5a'; c.lineWidth = 4; c.beginPath(); c.moveTo(ca * r * 1.2, -r * 1.3); c.lineTo(nx, ny - r * 0.9); c.stroke();
-    c.strokeStyle = 'rgba(220,220,230,.8)'; c.lineWidth = 2; c.beginPath(); c.arc(nx, ny - r * 1.2, r * 0.45, 0, TAU); c.moveTo(nx - r * 0.45, ny - r * 1.2); c.lineTo(nx + r * 0.45, ny - r * 1.2); c.moveTo(nx, ny - r * 1.65); c.lineTo(nx, ny - r * 0.75); c.stroke();
-    c.fillStyle = '#3a2a46'; c.beginPath(); c.arc(ca * r * 0.3, -r * 2.25, r * 0.55, 0, TAU); c.fill();
-    c.fillStyle = '#1e1a26'; c.fillRect(ca * r * 0.3 - r * 0.7, -r * 2.6, r * 1.4, r * 0.18); c.fillRect(ca * r * 0.3 - r * 0.42, -r * 3.0, r * 0.84, r * 0.45);
-    c.fillStyle = '#1a0806'; c.fillRect(ca * r * 0.3 - 9, -r * 2.05, 18, 5);
-    if (z.state === 'stunned') { c.fillStyle = '#f0b25a'; for (let i = 0; i < 3; i++) { const a = t * 4 + i * 2.1; c.fillRect(Math.cos(a) * 24 - 2, -r * 3.2 + Math.sin(a) * 6, 4, 4); } }
-  },
   // ---------- boss : une silhouette par boss, plus la rage et le point faible communs
   drawBossKind(z, ca, sa) {
     const c = ctx, r = z.r, t = this.time;

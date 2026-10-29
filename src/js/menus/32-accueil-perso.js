@@ -1,17 +1,4 @@
 // ---------- garde-robe : le personnage au centre
-function drawWardrobeBg(g, ch) {
-  const W2 = 440, H2 = 520;
-  g.fillStyle = '#24160e'; g.fillRect(0, 0, W2, H2);
-  g.fillStyle = 'rgba(0,0,0,.25)'; for (let x = 0; x < W2; x += 44) g.fillRect(x, 0, 3, H2);
-  const lg = g.createRadialGradient(220, 40, 10, 220, 260, 330); lg.addColorStop(0, 'rgba(255,214,150,.55)'); lg.addColorStop(1, 'rgba(255,214,150,0)'); g.fillStyle = lg; g.fillRect(0, 0, W2, H2);
-  g.lineWidth = 6; g.strokeStyle = '#8a8a90'; g.beginPath(); g.moveTo(30, 64); g.lineTo(410, 64); g.stroke();
-  const outfits = [['#c0392b', 60], ['#e8bf2e', 110], ['#f2efe6', 330], ['#d9c9a0', 380]];
-  for (const [col, x] of outfits) { g.lineWidth = 3; g.strokeStyle = '#6a6a70'; g.beginPath(); g.moveTo(x, 64); g.lineTo(x, 80); g.moveTo(x - 22, 92); g.lineTo(x, 80); g.lineTo(x + 22, 92); g.stroke(); S(g, col, () => { g.moveTo(x - 24, 92); g.lineTo(x + 24, 92); g.lineTo(x + 32, 190); g.lineTo(x - 32, 190); g.closePath(); }, 3); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x - 32, 92, 64, 98); }
-  g.fillStyle = '#3a2416'; g.fillRect(0, 470, W2, 50); g.strokeStyle = '#120c09'; g.lineWidth = 4; g.beginPath(); g.moveTo(0, 470); g.lineTo(W2, 470); g.stroke();
-  const sp = g.createRadialGradient(220, 480, 10, 220, 480, 150); sp.addColorStop(0, 'rgba(255,220,160,.35)'); sp.addColorStop(1, 'rgba(255,220,160,0)'); g.fillStyle = sp; g.fillRect(60, 420, 320, 100);
-  S(g, '#5a3a22', () => { g.moveTo(0, 0); g.lineTo(40, 20); g.lineTo(40, 500); g.lineTo(0, 520); g.closePath(); g.moveTo(440, 0); g.lineTo(400, 20); g.lineTo(400, 500); g.lineTo(440, 520); g.closePath(); }, 4);
-  S(g, '#c9963a', () => { E(g, 30, 270, 5, 5); E(g, 410, 270, 5, 5); }, 2);
-}
 let wardIdx = Math.max(0, CHAR_KEYS.indexOf(Settings.char));
 // accueil : le perso est dessiné une fois (cache), puis la scène vit : respiration, projecteur, poussières, répliques
 const WARD_QUIPS = {
@@ -25,6 +12,8 @@ const WARD_QUIPS = {
 const wardAnim = { cache: null, key: null, t0: 0, raf: 0, q: 0, nextQ: 4 }; window.__ward = wardAnim;
 function renderWardrobe() {
   const ch = CHARS[CHAR_KEYS[wardIdx]], key = CHAR_KEYS[wardIdx], cv = $('ward-cv');
+  // résolution calée sur la taille affichée (inutile de dessiner 880 × 1040 pixels sur un petit écran)
+  { const r = cv.getBoundingClientRect(); if (r.height > 0) { const h = Math.min(1040, Math.max(312, Math.round(r.height * Math.min(2, window.devicePixelRatio || 1) / 4) * 4)); if (cv.height !== h) { cv.height = h; cv.width = Math.round(h * 440 / 520); } } }
   const c = wardAnim.cache || (wardAnim.cache = document.createElement('canvas')); c.width = cv.width; c.height = cv.height; const g = c.getContext('2d');
   g.setTransform(cv.width / 440, 0, 0, cv.width / 440, 0, 0); g.clearRect(0, 0, 440, 520);
   const sc = key === 'dobby' ? 1.32 : key === 'chewie' ? 1.04 : 1.14;
@@ -39,6 +28,7 @@ const wardVisible = () => game.state === 'title' && !document.hidden && !$('pane
 function wardPlay() { if (!wardAnim.raf && wardVisible()) wardAnim.raf = requestAnimationFrame(wardLoop); }
 function wardLoop(now) { wardAnim.raf = 0; if (!wardVisible()) return; if (now - (wardAnim.last || 0) > 32) { wardAnim.last = now; wardFrame(now); } wardAnim.raf = requestAnimationFrame(wardLoop); }
 setInterval(wardPlay, 600);
+let wardResizeT = 0; addEventListener('resize', () => { clearTimeout(wardResizeT); wardResizeT = setTimeout(() => { if (game.state === 'title') renderWardrobe(); }, 250); });
 function wardFrame(now) {
   const cv = $('ward-cv'), g = cv.getContext('2d'), k = cv.width / 440, A = wardAnim, t = now / 1000, e = (now - A.t0) / 1000, calm = !!Settings.calm;
   g.setTransform(k, 0, 0, k, 0, 0); g.clearRect(0, 0, 440, 520);
@@ -80,6 +70,26 @@ function drawCharStage(cv, key) {
   shadedFigure(g, c => { hero(key, c, 220, 482, sc, { mood: key === 'fiona' ? 'deadpan' : key === 'dragon' ? 'determined' : 'happy', hand: PROP[key] }); drawAccessory(c, key, (cv.id === 'fiche-cv' && accPreview) || currentAcc(key), 220, 482, sc); });
 }
 const TEASER_CAP = { pedro: 'Salsa picante : une flaque de sauce qui enflamme la horde', fiona: 'La morte : les zombies passent à côté sans la voir', zeus: 'Foudre : l\'éclair saute de zombie en zombie', dobby: 'Transplanage : il disparaît et réapparaît derrière eux', chewie: 'Rugissement : une onde qui renverse tout le monde', dragon: 'Souffle : un cône de flammes droit devant' };
+// ---------- aperçus « EN JEU » (capacités et armes) : décor, nuit et bandeau communs
+function teaserStreet(g) {
+  g.fillStyle = '#26252a'; g.fillRect(-10, -10, 340, 200);
+  g.fillStyle = '#2d2c31'; for (let i = 0; i < 40; i++) g.fillRect((i * 83) % 320, (i * 47) % 180, 14, 9);
+  g.fillStyle = 'rgba(230,220,190,.35)'; for (let x = -20; x < 340; x += 60) g.fillRect(x, 98, 34, 4);
+  g.fillStyle = '#1a191d'; g.fillRect(-10, -10, 340, 36); g.fillRect(-10, 168, 340, 22); g.fillStyle = '#3a3238'; g.fillRect(-10, 26, 340, 4);
+}
+// obscurité percée par le halo du joueur et le cône de sa lampe (calque réutilisé d'une image à l'autre)
+function teaserNight(scene, cv, g, k, p, o = {}) {
+  const lc = scene.lc || (scene.lc = document.createElement('canvas')); lc.width = cv.width; lc.height = cv.height; const l = lc.getContext('2d'); l.setTransform(k, 0, 0, k, 0, 0);
+  l.fillStyle = `rgba(6,6,12,${o.dark || 0.82})`; l.fillRect(0, 0, 320, 180); l.globalCompositeOperation = 'destination-out';
+  const halo = l.createRadialGradient(p.x, p.y, 4, p.x, p.y, 60); halo.addColorStop(0, 'rgba(0,0,0,.9)'); halo.addColorStop(1, 'rgba(0,0,0,0)'); l.fillStyle = halo; l.fillRect(0, 0, 320, 180);
+  if (o.lamp !== false) { const R = o.reach || 260, w = o.half || 0.5, cone = l.createRadialGradient(p.x, p.y, 10, p.x, p.y, R); cone.addColorStop(0, 'rgba(0,0,0,.95)'); cone.addColorStop(1, 'rgba(0,0,0,0)'); l.fillStyle = cone; l.beginPath(); l.moveTo(p.x, p.y); l.arc(p.x, p.y, R, p.aim - w, p.aim + w); l.closePath(); l.fill(); }
+  const t = g.getTransform(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(lc, 0, 0); g.setTransform(t);
+}
+function teaserHeader(g, left, right) {
+  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(0, 0, 320, 18); g.fillStyle = '#e0321f'; g.beginPath(); g.arc(10, 9, 4, 0, TAU); g.fill(); g.fillStyle = '#d8d2c4'; g.font = `10px ${FT}`; g.textAlign = 'left'; g.fillText('EN JEU · ' + left.toUpperCase(), 19, 13);
+  g.textAlign = 'right'; g.fillStyle = '#8b867b'; g.fillText(right, 312, 13);
+}
+function teaserShout(g, text) { g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 140, 320, 26); g.fillStyle = '#ffd23a'; g.font = `15px ${FD}`; g.textAlign = 'center'; g.fillText(text, 160, 158); }
 // teaser filmé avec le moteur du jeu : vue de dessus, vrais sprites, lampe torche, et la capacité en situation
 const teaserScene = { key: null };
 function teaserReset(key) {
@@ -111,10 +121,7 @@ function drawTeaser(cv, key, t) {
   } else { T.blinked = 0; p.playDead = 0; }
   // ---- rendu
   g.setTransform(k, 0, 0, k, 0, 0);
-  g.fillStyle = '#26252a'; g.fillRect(0, 0, 320, 180);
-  g.fillStyle = '#2d2c31'; for (let i = 0; i < 40; i++) g.fillRect((i * 83) % 320, (i * 47) % 180, 14, 9);
-  g.fillStyle = 'rgba(230,220,190,.35)'; for (let x = -20; x < 340; x += 60) g.fillRect(x, 98, 34, 4);
-  g.fillStyle = '#1a191d'; g.fillRect(0, 0, 320, 26); g.fillRect(0, 168, 320, 12); g.fillStyle = '#3a3238'; g.fillRect(0, 26, 320, 4);
+  teaserStreet(g);
   for (const bl of T.blood) { g.fillStyle = 'rgba(110,8,6,.8)'; g.beginPath(); g.ellipse(bl.x, bl.y + 2, bl.r * 1.5, bl.r, 0, 0, TAU); g.fill(); }
   if (key === 'pedro' && e > 0) { const r = Math.min(100, 20 + e * 90); const gr = g.createRadialGradient(p.x + 40, p.y, 4, p.x + 40, p.y, r); gr.addColorStop(0, 'rgba(210,40,15,.85)'); gr.addColorStop(1, 'rgba(160,20,10,.2)'); g.fillStyle = gr; g.beginPath(); g.ellipse(p.x + 40, p.y, r, r * 0.75, 0, 0, TAU); g.fill(); }
   // sprites du jeu, dessinés par le moteur
@@ -125,11 +132,7 @@ function drawTeaser(cv, key, t) {
     game.drawPlayer(p);
   } catch (er) { } ctx = saved;
   // obscurité + lampe torche
-  const lc = teaserScene.lc || (teaserScene.lc = document.createElement('canvas')); lc.width = cv.width; lc.height = cv.height; const l = lc.getContext('2d'); l.setTransform(k, 0, 0, k, 0, 0);
-  l.fillStyle = 'rgba(6,6,12,.82)'; l.fillRect(0, 0, 320, 180); l.globalCompositeOperation = 'destination-out';
-  const halo = l.createRadialGradient(p.x, p.y, 4, p.x, p.y, 60); halo.addColorStop(0, 'rgba(0,0,0,.9)'); halo.addColorStop(1, 'rgba(0,0,0,0)'); l.fillStyle = halo; l.fillRect(0, 0, 320, 180);
-  if (!(p.playDead > 0)) { const cone = l.createRadialGradient(p.x, p.y, 10, p.x, p.y, 260); cone.addColorStop(0, 'rgba(0,0,0,.95)'); cone.addColorStop(1, 'rgba(0,0,0,0)'); l.fillStyle = cone; l.beginPath(); l.moveTo(p.x, p.y); l.arc(p.x, p.y, 260, p.aim - 0.5, p.aim + 0.5); l.closePath(); l.fill(); }
-  g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(lc, 0, 0); g.setTransform(k, 0, 0, k, 0, 0);
+  teaserNight(teaserScene, cv, g, k, p, { lamp: !(p.playDead > 0) });
   // effets lumineux par-dessus
   g.save(); g.globalCompositeOperation = 'lighter';
   for (const tr of T.tracer) { if (tr.t <= 0) continue; tr.t -= 0.016; g.strokeStyle = `rgba(255,220,150,${tr.t * 6})`; g.lineWidth = 1.5; g.beginPath(); g.moveTo(p.x + Math.cos(p.aim) * 18, p.y + Math.sin(p.aim) * 18); g.lineTo(tr.x, tr.y); g.stroke(); }
@@ -143,9 +146,8 @@ function drawTeaser(cv, key, t) {
   for (const z of T.z) if (z.stun && z.alive) { g.fillStyle = '#ffd23a'; g.font = `10px ${FD}`; g.textAlign = 'center'; g.fillText('✦', z.x + Math.cos(u * 8) * 8, z.y - 26); }
   if (key === 'fiona' && e > 0) for (const z of T.z) { g.fillStyle = '#f4ead2'; g.font = `12px ${FD}`; g.textAlign = 'center'; g.fillText('?', z.x, z.y - 28); }
   // incrustations façon jeu
-  if (e > 0 && e < 1.2) { const a = Math.min(1, (1.2 - e) * 3); g.globalAlpha = a; g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 140, 320, 26); g.fillStyle = '#ffd23a'; g.font = `15px ${FD}`; g.textAlign = 'center'; g.fillText(`${CHARS[key].spLong.toUpperCase()} !`, 160, 158); g.globalAlpha = 1; }
-  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(0, 0, 320, 18); g.fillStyle = '#e0321f'; g.beginPath(); g.arc(10, 9, 4, 0, TAU); g.fill(); g.fillStyle = '#d8d2c4'; g.font = `10px ${FT}`; g.textAlign = 'left'; g.fillText('EN JEU · ' + CHARS[key].spLong.toUpperCase(), 19, 13);
-  g.textAlign = 'right'; g.fillStyle = '#8b867b'; g.fillText(`touche ${KL('special')}`, 312, 13);
+  if (e > 0 && e < 1.2) { g.globalAlpha = Math.min(1, (1.2 - e) * 3); teaserShout(g, `${CHARS[key].spLong.toUpperCase()} !`); g.globalAlpha = 1; }
+  teaserHeader(g, CHARS[key].spLong, `touche ${KL('special')}`);
 }
 window.__teaser = { draw: (cv, k, t) => drawTeaser(cv, k, t), reset: () => { teaserScene.key = null; } };
 let teaserRaf = 0;
@@ -176,7 +178,10 @@ $('fiche-pick').addEventListener('click', () => { game.audio.ui(); setWard(CHAR_
 function setWard(i) { wardIdx = (i + CHAR_KEYS.length) % CHAR_KEYS.length; const ch = CHAR_KEYS[wardIdx]; Settings.char = game.charKey = ch; Settings.save(); renderWardrobe(); }
 $('chars').innerHTML = CHAR_KEYS.map((k, i) => `<button type="button" class="char wcard" data-char="${k}" aria-pressed="false" aria-label="${CHARS[k].name}"><span class="wc-kind">${CHAR_ROLE[k].split(' · ')[0]}</span><span class="wc-pips" aria-hidden="true"><i></i><i></i><i></i></span><canvas width="240" height="240" aria-hidden="true"></canvas><b>${CHARS[k].name}</b><span class="wc-foot">${CHARS[k].spLong}</span><span class="wc-lv"></span><span class="wc-sel"></span></button>`).join('');
 for (const b of document.querySelectorAll('#chars .char')) {
-  const cv = b.querySelector('canvas'); renderHead(cv, b.dataset.char); fontsReady.then(() => renderHead(cv, b.dataset.char));
   b.addEventListener('click', () => { game.audio.init(); game.audio.ui(); openFiche(b.dataset.char); });
 }
 refreshRoster();
+// les têtes de la galerie sont dessinées à la première ouverture de l'onglet, ou dès que le navigateur est libre
+let rosterPainted = false;
+function paintRoster() { if (rosterPainted) return; rosterPainted = true; for (const b of document.querySelectorAll('#chars .char')) renderHead(b.querySelector('canvas'), b.dataset.char); }
+setTimeout(() => whenIdle(paintRoster), 2500);
