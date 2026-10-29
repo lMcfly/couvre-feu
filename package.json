@@ -1,0 +1,11 @@
+{
+  "name": "couvre-feu",
+  "private": true,
+  "description": "Couvre-Feu : jeu de survie zombie en HTML5, un seul fichier jouable hors ligne",
+  "scripts": {
+    "build": "node tools/build.js",
+    "check": "node tools/check.js",
+    "smoke": "node tools/smoke.js --require",
+    "verif": "node tools/build.js && node tools/check.js && node tools/smoke.js"
+  }
+}

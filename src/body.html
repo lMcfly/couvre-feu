@@ -1,0 +1,341 @@
+
+<canvas id="game" aria-label="Couvre-Feu, zone de jeu"></canvas>
+
+<div id="splash" role="img" aria-label="Nadrax Prod présente">
+  <div class="studio">
+    <span class="mark">NADRAX</span>
+    <span class="rule"></span>
+    <span class="prod">PROD</span>
+    <span class="pres">présente</span>
+  </div>
+</div>
+
+<section id="scr-title" class="screen title-screen hub">
+  <header class="hub-top">
+    <div class="hub-brand"><span class="hub-chev" aria-hidden="true">‹</span><b>COUVRE<span>-</span>FEU</b><small>Nadrax Prod</small></div>
+    <nav class="hub-tabs" aria-label="Menu principal">
+      <span class="kb-hint" data-hint="prev">LB</span>
+      <button type="button" class="tab" data-tab="lobby" aria-selected="true">Accueil</button>
+      <button type="button" class="tab" data-tab="perso" aria-selected="false">Personnage</button>
+      <button type="button" class="tab" data-tab="arsenal" aria-selected="false">Arsenal</button>
+      <button type="button" class="tab" id="btn-ach" aria-expanded="false">Succès <span id="ach-count"></span></button>
+      <button type="button" class="tab" id="btn-best" aria-expanded="false">Bestiaire</button>
+      <button type="button" class="tab" id="btn-scores" aria-expanded="false">Scores</button>
+      <button type="button" class="tab" id="btn-credits" aria-expanded="false">Crédits</button>
+      <button type="button" class="tab" id="btn-settings" aria-expanded="false">Paramètres</button>
+      <button type="button" class="tab fs-tab" id="btn-fs" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></button>
+      <span class="kb-hint" data-hint="next">RB</span>
+    </nav>
+    <div class="hub-status">
+      <span class="chip lvl" id="hub-level"></span>
+      <button type="button" class="chip shiba-chip" id="hub-shibas" title="Shibas sauvés"></button>
+      <span class="chip" id="hub-achchip" title="Succès"></span>
+    </div>
+  </header>
+
+    <div class="hub-pane" id="pane-lobby">
+    <div class="hub-left">
+      <section class="hub-card news" id="news-card" aria-label="KE-DLA-D TV, flash info" aria-live="polite">
+        
+        <div class="news-view">
+          <div class="news-slide cur"><div class="news-panel"><canvas width="480" height="270" aria-hidden="true"></canvas><div class="lt"><span class="lt-show">KE-DLA-D<br>Soir</span><p class="news-h"></p></div></div><div class="news-txt"><p class="news-t"></p></div></div>
+          <div class="news-slide nxt" aria-hidden="true"><div class="news-panel"><canvas width="480" height="270" aria-hidden="true"></canvas><div class="lt"><span class="lt-show">KE-DLA-D<br>Soir</span><p class="news-h"></p></div></div><div class="news-txt"><p class="news-t"></p></div></div>
+          <button type="button" class="news-nav prev" id="news-prev" aria-label="Actu précédente">‹</button><button type="button" class="news-nav next" id="news-next" aria-label="Actu suivante">›</button>
+        </div>
+        <div class="news-ticker" aria-hidden="true"><span class="tk-lbl">Urgent</span><div class="tk-run"><span class="tk-txt" id="news-ticker"></span></div><span class="tk-clock" id="news-clock"></span></div>
+      </section>
+      <button type="button" class="hub-card wn-hub" id="btn-news" data-news aria-expanded="false"><span class="wn-hub-top"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 13h18M12 9v12M12 9c-1.5-4-6-5-6-2s4 2 6 2c2 0 6 1 6-2s-4.5-2-6 2"/></svg><b>Nouveautés</b><span class="wn-hub-v" data-wn="v"></span></span><span class="wn-hub-h" data-wn="h"></span><ul class="wn-hub-l" data-wn="l"></ul><span class="wn-hub-more">Tout voir ›</span></button>
+    </div>
+
+    <div class="hub-center">
+      <div class="wardrobe">
+        <div class="ward-stage"><canvas id="ward-cv" width="880" height="1040" aria-hidden="true"></canvas><p class="ward-bubble" id="ward-bubble" aria-hidden="true"></p></div>
+      </div>
+      <div class="ward-sel">
+        <button type="button" class="ward-arrow" id="ward-prev" aria-label="Personnage précédent">‹</button>
+        <div class="op-tag" aria-live="polite"><span class="op-name" id="ward-name">Pedro</span><span class="op-role"><span id="ward-role"></span><span class="op-dev" id="op-dev"></span></span></div>
+        <button type="button" class="ward-arrow" id="ward-next" aria-label="Personnage suivant">›</button>
+      </div>
+      <p class="ward-tagline" id="ward-tag"></p>
+      <button type="button" class="hub-card wn-fab" id="btn-news-m" data-news aria-label="Nouveautés"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 13h18M12 9v12M12 9c-1.5-4-6-5-6-2s4 2 6 2c2 0 6 1 6-2s-4.5-2-6 2"/></svg><span class="wn-fab-t"><b>Nouveautés</b><small data-wn="v2"></small></span></button>
+    </div>
+
+    <div class="hub-right">
+      <nav class="mode-list" aria-label="Modes de jeu">
+        <p class="hw-chip" id="hw-chip" hidden></p>
+        <div class="folders" id="folders">
+          <p class="eyebrow">Jouer</p>
+          <button type="button" class="mode big folder" data-folder="campagne"><b>Campagne</b><small>Solo ou duo · 4 missions dans la ville</small></button>
+          <button type="button" class="mode big folder" data-folder="arcade"><b>Arcade</b><small>Survie · Nuit sans fin · Défi · Hôpital</small></button>
+          <button type="button" class="mode big folder" data-folder="entrainement"><b>Entraînement</b><small>Camp de tir · didacticiel</small></button>
+        </div>
+        <div class="folder-pane" data-f="campagne" hidden><p class="eyebrow">Campagne</p>
+          <button type="button" class="mode big" id="mode-story"><b>Solo</b><small>Un survivant · une histoire par personnage</small></button>
+          <button type="button" class="mode big" id="mode-coop"><b>Duo</b><small>Deux manettes sur le même écran</small></button>
+          <button type="button" class="mode big online" id="mode-online"><b>Duo en ligne</b><small>Chacun son téléphone ou son PC · Campagne ou Survie (bêta)</small></button>
+          <button type="button" class="mode back folder-back"><b>‹ Retour</b></button></div>
+        <div class="folder-pane" data-f="arcade" hidden><p class="eyebrow">Arcade</p>
+          <button type="button" class="mode big" id="btn-survival-title"><b>Mode Survie</b><small id="surv-sub">Vagues sans fin sur la Place de la Mairie</small></button>
+          <button type="button" class="mode big" id="mode-endless"><b>Nuit sans fin</b><small>Ville tirée au hasard, mutations entre les secteurs</small></button>
+          <button type="button" class="mode big daily" id="mode-daily"><b>Défi du jour</b><small id="daily-sub"></small></button>
+          <button type="button" class="mode big hosp" id="mode-hospital"><b>Hôpital</b><small>Bonus · secteur 5 · néons qui grésillent, Le Chirurgien</small></button>
+          <button type="button" class="mode back folder-back"><b>‹ Retour</b></button></div>
+        <div class="folder-pane" data-f="entrainement" hidden><p class="eyebrow">Entraînement</p>
+          <button type="button" class="mode big" id="mode-training"><b>Camp d'entraînement</b><small>Zone sûre, cibles mobiles, tir libre</small></button>
+          <button type="button" class="mode big" id="mode-tutorial"><b>Didacticiel</b><small>Cortana t'apprend toutes les touches</small></button>
+          <button type="button" class="mode back folder-back"><b>‹ Retour</b></button></div>
+      </nav>
+      <section class="hub-card story-card" id="story-card">
+        <div class="story-txt"><p class="story-kicker">Histoire</p><b id="story-act">Acte 1</b><small id="story-zone">Avenue de la Gare</small></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="hub-pane perso-pane" id="pane-perso" hidden>
+    <div class="roster" id="roster">
+      <p class="eyebrow">Survivants <span class="muted">· ouvre une fiche pour voir le niveau, les stats et changer de style</span></p>
+      <div class="chars cards" id="chars" role="group" aria-label="Choix du personnage"></div>
+    </div>
+    <div class="fiche" id="fiche" hidden>
+      <div class="fiche-art"><div class="fiche-nav"><button type="button" class="btn sm fiche-back" id="fiche-back">‹ Survivants</button><span class="fiche-switch"><button type="button" class="ward-arrow sm" id="fiche-prev" aria-label="Survivant précédent">‹</button><button type="button" class="ward-arrow sm" id="fiche-next" aria-label="Survivant suivant">›</button></span></div><canvas id="fiche-cv" width="880" height="1040" aria-hidden="true"></canvas><div class="fiche-lv" id="fiche-lv"></div></div>
+      <div class="fiche-info">
+        <p class="preview-kicker">// Fiche du survivant</p>
+        <div class="preview-tag"><span class="tag-ico" aria-hidden="true">☠</span><span id="pv-role">Survivant</span></div>
+        <h2 id="pv-name">Pedro</h2>
+        <p class="preview-desc" id="pv-desc"></p>
+        <div class="fiche-grid">
+          <section><p class="label">Statistiques</p><ul class="statbars" id="pv-stats"></ul></section>
+          <section><p class="label">Carnet de route</p><dl class="record" id="pv-record"></dl></section>
+        </div>
+        <div class="pv-ability"><div class="pv-perk"><p class="label">Capacité · <span id="pv-sp"></span></p><p id="ward-perk"></p><p class="label">Fétiche</p><p id="pv-fetish"></p></div><figure class="teaser"><canvas id="teaser-cv" width="640" height="360" aria-hidden="true"></canvas><figcaption id="teaser-cap"></figcaption></figure></div>
+        <div class="fiche-style"><p class="label">Effet « secteur nettoyé » · propre à ce survivant</p><div class="acc-pick fin-row" id="fin-pick"></div><p class="label">Accessoire · touche une case pour voir le rendu</p><div class="acc-pick" id="acc-pick"></div><p class="hint" id="pv-reward"></p></div>
+        <div class="row"><button type="button" class="btn primary" id="fiche-pick">Choisir ce survivant</button></div>
+        <canvas id="pv-head" width="160" height="160" hidden aria-hidden="true"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="hub-pane split" id="pane-arsenal" hidden>
+    <aside class="preview ars-fiche" aria-live="polite">
+      <div class="ars-head"><div><div class="preview-tag"><span class="tag-ico" aria-hidden="true">✚</span><span id="av-type">Arme de poing</span></div><h2 id="av-name">Pistolet</h2></div><span class="ars-price" id="av-price"></span></div>
+      <figure class="teaser ars-teaser"><canvas id="wteaser-cv" width="640" height="360" aria-hidden="true"></canvas><figcaption id="wteaser-cap"></figcaption></figure>
+      <p class="preview-desc" id="av-desc"></p>
+      <p class="ars-up" id="av-up"></p>
+      <div class="ars-body"><ul class="statbars ars-stats" id="av-stats"></ul><div class="ars-rounds"><span><b id="av-mag">12</b><i>Chargeur</i></span><span><b id="av-res">∞</b><i>Réserve</i></span></div></div>
+    </aside>
+    <div class="cards-area">
+      <p class="eyebrow">Arsenal <span class="muted">· trouvé dans les rues ou acheté au marché noir</span></p>
+      <div class="cards" id="arsenal-cards"></div>
+      <p class="eyebrow">Équipement</p>
+      <div class="cards small" id="gear-cards"></div>
+    </div>
+  </div>
+
+
+  <div class="sheet" id="panel-settings" hidden><div class="sheet-card" role="region" aria-labelledby="set-h">
+    <header class="sheet-head"><h3 id="set-h">Paramètres</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header>
+    <div class="sheet-body"><div class="set-wrap" id="opts-title" data-cats="son affichage commandes access online save"></div>
+    <div id="set-stash" hidden>
+      <div class="row" data-to="affichage"><button type="button" class="btn" id="btn-install">📲 Installer sur l'écran d'accueil</button></div>
+      <div class="row" data-to="commandes"><button type="button" class="btn" id="btn-keys">Personnaliser les touches et la manette</button></div>
+      <div data-to="commandes"><details class="controls"><summary>Voir les contrôles par défaut</summary><div class="cols">
+        <dl class="keys">
+          <dt>ZQSD / WASD</dt><dd>Se déplacer</dd>
+          <dt>Souris</dt><dd>Viser (la lampe suit)</dd>
+          <dt>Clic gauche</dt><dd>Tirer · maintenir au pistolet pour un tir chargé</dd>
+          <dt>Maj / Espace</dt><dd>Roulade : esquive rapide, invulnérable pendant le roulé (coûte de l'endurance)</dd>
+          <dt>E</dt><dd>Coup de mêlée · interagir (magasin, distributeur)</dd>
+          <dt>R</dt><dd>Recharger</dd>
+          <dt>1 à 6 / molette</dt><dd>Changer d'arme</dd>
+          <dt>Tab (maintenir)</dt><dd>Roue des armes : vise une arme, relâche pour l'équiper. Le temps ralentit.</dd>
+          <dt>G · F · V</dt><dd>Grenade · mine · fusée-leurre</dd>
+          <dt>Q (A en AZERTY)</dt><dd>Capacité spéciale du personnage</dd>
+          <dt>Échap / P</dt><dd>Pause</dd>
+        </dl>
+        <dl class="keys">
+          <dt>Stick gauche</dt><dd>Se déplacer</dd>
+          <dt>Dans les menus</dt><dd>Stick gauche : curseur · A : cliquer · B : retour · stick droit : faire défiler · croix : passer d'un bouton à l'autre</dd>
+          <dt>Stick droit</dt><dd>Viser</dd>
+          <dt>Gâchette droite</dt><dd>Tirer</dd>
+          <dt>Gâchette gauche · B</dt><dd>Roulade</dd>
+          <dt>A</dt><dd>Mêlée · interagir</dd>
+          <dt>X</dt><dd>Recharger</dd>
+          <dt>LB · Croix ↓ · Y</dt><dd>Grenade · mine · leurre</dd>
+          <dt>RB / croix</dt><dd>Changer d'arme</dd>
+          <dt>Clic stick droit</dt><dd>Capacité spéciale</dd>
+          <dt>Select (maintenir)</dt><dd>Roue des armes, au stick</dd>
+          <dt>Start</dt><dd>Pause</dd>
+          <dt>Personnaliser</dt><dd>Tous les boutons se changent dans « Touches »</dd>
+        </dl>
+      </div>
+      <dl class="keys">
+        <dt>Pouce gauche</dt><dd>Stick de déplacement, où tu poses le doigt. Bouton ROULADE pour esquiver.</dd>
+        <dt>Pouce droit</dt><dd>Stick de visée : pousse au-delà de la moitié pour tirer.</dd>
+        <dt>ARME</dt><dd>Appui court : arme suivante. Appui long : roue des armes, glisse le doigt puis relâche.</dd>
+        <dt>Boutons</dt><dd>E (mêlée, magasin, soins) · G · MINE · LEURRE · capacité · II pause</dd>
+      </dl>
+      <p class="hint long-hint">Ce sont les touches par défaut : le bouton « Touches » permet de toutes les changer. Sur téléphone, les commandes tactiles s'activent toutes seules. Joue en mode paysage. Tire sur une voiture pour déclencher son alarme : la horde converge vers elle. Les voitures marquées d'une fuite d'essence explosent.</p>
+    </details></div>
+      <div data-to="save" class="set-save">
+      <p class="hint long-hint">La partie se sauvegarde toute seule à chaque point de sauvegarde, dans ce navigateur. Pour la reprendre sur un autre appareil ou un autre navigateur, copie le code ci-dessous puis colle-le là-bas.</p>
+      <p id="save-info"></p>
+      <div class="row"><button type="button" class="btn" id="btn-save-copy">Copier le code de sauvegarde</button><button type="button" class="btn" id="btn-save-delete">Supprimer la sauvegarde</button><button type="button" class="btn" id="btn-wipe">Tout remettre à zéro</button></div>
+      <textarea id="save-code" rows="3" readonly hidden aria-label="Code de sauvegarde"></textarea>
+      <label class="label" for="save-import">Charger un code</label>
+      <textarea id="save-import" rows="3" placeholder="Colle ici un code de sauvegarde"></textarea>
+      <div class="row"><button type="button" class="btn" id="btn-save-import">Charger ce code</button></div>
+      <p class="hint" id="save-msg" aria-live="polite"></p></div>
+    </div></div>
+  </div></div>
+  <div class="sheet" id="panel-scores" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Meilleurs scores</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
+  <div class="sheet" id="panel-best" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Bestiaire</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
+  <div class="sheet" id="panel-ach" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Succès</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
+  <div class="sheet" id="panel-news" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Nouveautés</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body" id="news-body"></div></div></div>
+  <div class="sheet" id="panel-credits" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Crédits</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body" id="credits-body"></div></div></div>
+</section>
+
+<section id="scr-pause" class="screen" hidden>
+  <div class="notice">
+    <p class="eyebrow">Transmission suspendue</p>
+    <h2>Pause</h2>
+    <div class="pause-main" id="pause-main">
+      <p class="pause-where" id="pause-where"></p>
+      <div class="pause-stats" id="pause-stats"></div>
+      <div class="row">
+        <button type="button" class="btn primary" id="btn-resume">Reprendre</button>
+        <button type="button" class="btn" id="btn-pause-settings">Paramètres</button>
+        <button type="button" class="btn" id="btn-quit">Retour à l'accueil</button>
+      </div>
+      <p class="hint">En retournant à l'accueil, tu reprendras depuis le dernier point de sauvegarde avec « Continuer ».</p>
+    </div>
+    <div class="pause-settings" id="pause-settings" hidden>
+      <p class="eyebrow">Paramètres</p>
+      <div class="set-wrap" id="opts-pause" data-cats="son affichage commandes access online"></div>
+      <div class="row">
+        <button type="button" class="btn" id="btn-keys-pause">Touches et manette</button>
+        <button type="button" class="btn" id="btn-fs-pause">Plein écran</button>
+        <button type="button" class="btn primary" id="btn-pause-back">‹ Retour</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="scr-shop" class="screen solid" hidden>
+  <div class="notice wide" id="shop-body"></div>
+</section>
+
+<section id="scr-keys" class="screen solid" hidden>
+  <div class="notice">
+    <p class="eyebrow">Réglages</p>
+    <h2>Touches</h2>
+    <p class="hint long-hint">Clique sur une case (ou sélectionne-la à la manette et appuie sur A), puis appuie sur la touche ou le bouton voulu. Échap annule. Chaque action accepte deux touches. Les touches 1 à 6 et la molette changent toujours d'arme, et Échap met toujours en pause.</p>
+    <div class="row kview" role="group" aria-label="Affichage"><button type="button" class="btn sm" data-kview="kb">Clavier et souris</button><button type="button" class="btn sm" data-kview="pad">Manette</button></div>
+    <div id="keys-kb"><div class="tablewrap"><table class="binds" id="binds"></table></div></div>
+    <div id="keys-pad" hidden>
+      <p class="hint" id="pad-status">Aucune manette détectée : branche-la puis appuie sur un de ses boutons.</p>
+      <div class="pad-svg" id="pad-svg"></div>
+      <p class="hint long-hint">Les sticks servent toujours à se déplacer et à viser. Dans les menus, la croix, A et B restent fixes.</p>
+      <div class="tablewrap"><table class="binds" id="padbinds"></table></div>
+    </div>
+    <p class="hint" id="bind-msg" aria-live="polite"></p>
+    <div class="row end">
+      <button type="button" class="btn" id="btn-binds-reset">Rétablir par défaut</button>
+      <button type="button" class="btn primary" id="btn-binds-back">Retour</button>
+    </div>
+  </div>
+</section>
+
+<section id="scr-comic" class="screen comic" hidden>
+  <div class="comic-wrap">
+    <header class="comic-head"><p class="eyebrow" id="comic-act">Acte I</p><h2 id="comic-title">La nuit tombe</h2></header>
+    <div class="strip" id="comic-strip"></div>
+    <div class="row end">
+      <button type="button" class="btn" id="comic-skip">Passer</button>
+      <button type="button" class="btn primary" id="comic-next">Case suivante</button>
+    </div>
+  </div>
+</section>
+
+<div id="photo-modal" class="photo-modal" hidden role="dialog" aria-label="Photo souvenir"><div class="photo-card"><img id="photo-img" alt="Une de KE-DLA-D TV avec ta partie"><div class="row center"><a class="btn primary" id="photo-dl">Télécharger</a><button type="button" class="btn" id="photo-share">Partager</button><button type="button" class="btn" id="photo-close">Fermer</button></div></div></div>
+<div id="launch-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="launch-h"><div class="launch-wrap"><div class="launch-head"><p class="eyebrow" id="launch-mode">Campagne</p><button type="button" class="btn sm launch-x" id="launch-close" aria-label="Fermer">Retour</button></div><h2 id="launch-h" class="sr-only">Lancer une partie</h2>
+      <section class="hub-card start-card">
+        <div class="start-art"><canvas id="start-cv" width="360" height="150" aria-hidden="true"></canvas><div class="start-badge" aria-hidden="true">☠</div></div>
+        <div class="start-body">
+          <p class="start-kicker" id="start-kicker">Opération</p>
+          <h3 class="start-title" id="start-title">Couvre-Feu</h3>
+          <div class="diffs" id="diff" role="group" aria-label="Difficulté">
+            <button type="button" data-diff="facile" aria-pressed="false"><b>Facile</b><span class="hearts" aria-label="3 vies"><i class="on"><svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 2.6 11.6A5.6 5.6 0 0 1 12 3.8a5.6 5.6 0 0 1 9.4 7.8z"/></svg></i><i class="on"><svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 2.6 11.6A5.6 5.6 0 0 1 12 3.8a5.6 5.6 0 0 1 9.4 7.8z"/></svg></i><i class="on"><svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 2.6 11.6A5.6 5.6 0 0 1 12 3.8a5.6 5.6 0 0 1 9.4 7.8z"/></svg></i></span></button>
+            <button type="button" data-diff="normal" aria-pressed="true"><b>Normal</b><span class="hearts" aria-label="2 vies"><i class="on"><svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 2.6 11.6A5.6 5.6 0 0 1 12 3.8a5.6 5.6 0 0 1 9.4 7.8z"/></svg></i><i class="on"><svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 2.6 11.6A5.6 5.6 0 0 1 12 3.8a5.6 5.6 0 0 1 9.4 7.8z"/></svg></i><i class="off"><svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 2.6 11.6A5.6 5.6 0 0 1 12 3.8a5.6 5.6 0 0 1 9.4 7.8z"/></svg></i></span></button>
+            <button type="button" data-diff="cauchemar" aria-pressed="false"><b>Cauchemar</b><span class="hearts" aria-label="1 vie"><i class="on"><svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 2.6 11.6A5.6 5.6 0 0 1 12 3.8a5.6 5.6 0 0 1 9.4 7.8z"/></svg></i><i class="off"><svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 2.6 11.6A5.6 5.6 0 0 1 12 3.8a5.6 5.6 0 0 1 9.4 7.8z"/></svg></i><i class="off"><svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 2.6 11.6A5.6 5.6 0 0 1 12 3.8a5.6 5.6 0 0 1 9.4 7.8z"/></svg></i></span></button>
+          </div>
+          <div class="start-actions">
+            <button type="button" class="btn primary big" id="btn-continue" hidden>Continuer</button>
+            <button type="button" class="btn primary big" id="btn-start">Prendre la route</button>
+          </div>
+          <p class="hint" id="save-summary" hidden></p>
+        </div>
+      </section>
+</div></div>
+<div id="join-modal" class="photo-modal hub-modal join-modal" hidden role="dialog" aria-labelledby="join-h"><div class="join-wrap"><p class="eyebrow">Campagne à deux</p><h2 id="join-h">Connexion des manettes</h2><p class="join-hint" id="join-hint"></p><div class="join-slots" id="join-slots"></div><div class="row center"><button type="button" class="btn" id="join-back">Retour</button><button type="button" class="btn primary big" id="join-go" disabled>Lancer la partie</button></div></div></div>
+<div id="secret-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="secret-h"><div class="secret-wrap"><canvas id="secret-cv" width="480" height="240" aria-hidden="true"></canvas><p class="eyebrow">Niveau secret</p><h2 id="secret-h">Le Paradis des Shibas</h2><p>Les 12 shibas sont sauvés. Le Shibanophile t'attend sur la Place de la Mairie : protège les 9 shibas du paradis.</p><div class="row center"><button type="button" class="btn" id="secret-close">Retour</button><button type="button" class="btn primary big" id="btn-paradise-title">Entrer au Paradis</button></div></div></div>
+<div class="rotate-overlay" id="rotate-overlay" role="alert"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="20" y="6" width="24" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="32" cy="43" r="2.5" fill="currentColor"/><path d="M50 52a18 18 0 0 1-30 6" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M18 52l2 7 7-2" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Tourne ton téléphone</b><p>Couvre-Feu se joue en mode paysage.</p></div>
+<div id="fs-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="fs-h"><div class="fs-wrap"><div class="fs-ico" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p class="eyebrow">Couvre-Feu</p><h2 id="fs-h">Jouer en plein écran ?</h2><p id="fs-txt">Pour une meilleure immersion, le jeu passe en plein écran.</p><div class="row center"><button type="button" class="btn" id="fs-no">Non merci</button><button type="button" class="btn primary big" id="fs-yes">Plein écran</button></div><label class="fs-never"><input type="checkbox" id="fs-never"> Ne plus me demander</label></div></div>
+<div id="wn-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="wn-ph"><div class="wn-pop" id="wn-pop"></div></div>
+<div id="install-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="inst-h"><div class="fs-wrap inst-wrap"><div class="inst-ico" aria-hidden="true">💀</div><p class="eyebrow">Couvre-Feu</p><h2 id="inst-h">Installer le jeu</h2><p>Mets Couvre-Feu sur ton écran d'accueil : il s'ouvre en plein écran, comme une appli.</p>
+<ol class="inst-steps">
+<li class="done"><span>1</span><div>Ouvre ton navigateur internet : <b>Safari</b> sur iPhone, <b>Chrome</b> sur Android.<em>✓ C'est fait</em></div></li>
+<li class="done"><span>2</span><div>Va sur <b>lmcfly.github.io/couvre-feu</b><em>✓ Tu y es</em></div></li>
+<li><span>3</span><div>Ajoute le jeu à ton écran d'accueil :<p class="inst-os" data-os="ios"><b>iPhone</b> : touche <b>Partager</b> <i class="inst-share" aria-hidden="true"></i> (carré avec flèche), puis <b>Sur l'écran d'accueil</b>, puis <b>Ajouter</b>.</p><p class="inst-os" data-os="android"><b>Android</b> : touche <b>⋮</b>, puis <b>Ajouter à l'écran d'accueil</b>.</p></div></li>
+</ol>
+<p class="inst-end">C'est fait : lance le jeu depuis l'icône tête de mort 💀</p>
+<div class="row center"><button type="button" class="btn" id="inst-later">Plus tard</button><button type="button" class="btn primary big" id="inst-now" hidden>Installer maintenant</button><button type="button" class="btn primary big" id="inst-ok">Compris</button></div></div></div>
+<div id="net-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="net-h"><div class="fs-wrap net-wrap"><p class="eyebrow">Duo en ligne · bêta</p><h2 id="net-h">Jouer à deux, chacun son appareil</h2>
+<div id="net-choose"><div class="row center"><button type="button" class="btn primary big" id="net-host">Créer une partie</button><button type="button" class="btn big" id="net-join">Rejoindre</button></div></div>
+<div id="net-hostv" hidden><p>Donne ce code à ton ami :</p><div class="net-code" id="net-code">····</div><p class="net-st" id="net-st-h"></p><div class="row center net-modes"><button type="button" class="btn" id="net-cancel-h">Annuler</button><button type="button" class="btn big" id="net-go" disabled>Survie</button><button type="button" class="btn primary big" id="net-go-story" disabled>Campagne</button></div></div>
+<div id="net-joinv" hidden><p>Tape le code de ton ami :</p><input id="net-in" class="net-input" maxlength="4" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABCD" aria-label="Code de la partie"><p class="net-st" id="net-st-j"></p><div class="row center"><button type="button" class="btn" id="net-cancel-j">Annuler</button><button type="button" class="btn primary big" id="net-ok">Rejoindre</button></div></div>
+<p class="hint net-note" id="net-note"></p><button type="button" class="btn sm" id="net-close">Fermer</button></div></div>
+<div id="net-wait" class="net-wait" hidden role="status"><span class="net-dot"></span><span id="net-wait-t"></span></div>
+<div id="mut-modal" class="photo-modal mut-modal" hidden role="dialog" aria-labelledby="mut-h"><div class="mut-wrap"><p class="eyebrow" id="mut-night"></p><h2 id="mut-h">Choisis une mutation</h2><div class="mut-list" id="mut-list"></div></div></div>
+<footer id="prompt-bar" class="prompt-bar" hidden aria-hidden="true"></footer>
+<div id="pad-cursor" hidden aria-hidden="true"><span class="ring"></span><svg viewBox="0 0 32 32"><g stroke="#120c09" stroke-width="1.6" stroke-linejoin="round"><path d="M16 2C9 2 4 7 4 14c0 4 2 6.5 4 8v2h16v-2c2-1.5 4-4 4-8C28 7 23 2 16 2z" fill="#b7c29c"/><path d="M13 3l1.5 3.5-2 2.5 1 2.5" fill="none" stroke-width="1.1"/><path d="M24 9c-1 1-2.5 1-3 2.5" fill="none" stroke="#7d8a5f" stroke-width="1.4"/><ellipse cx="11" cy="14" rx="3.4" ry="3.9" fill="#1a0f0c"/><ellipse cx="21" cy="14" rx="3.4" ry="3.9" fill="#1a0f0c"/><circle cx="11.6" cy="14.6" r="1.3" fill="#ff3b2a" stroke="none"/><circle cx="20.4" cy="14.6" r="1.3" fill="#ff3b2a" stroke="none"/><path d="M16 17.4l-1.7 3h3.4z" fill="#1a0f0c"/><path d="M10 22.5h12" fill="none" stroke-width="1.2"/><g class="jaw"><path d="M9 24h14v3.3c0 1.6-1.4 2.7-3 2.7h-8c-1.6 0-3-1.1-3-2.7z" fill="#a3ae86"/><path d="M12.5 24v3.4M16 24v3.6M19.5 24v3.4" fill="none" stroke-width="1.1"/></g></g></svg></div>
+<section id="scr-map" class="screen solid map-screen" hidden>
+  <div class="map-wrap">
+    <div class="map-top"><p class="eyebrow" id="map-eyebrow">Carte de l'aventure</p><div class="map-counters"><span id="map-shibas"></span><span id="map-score"></span></div></div>
+    <div class="map-body">
+      <div class="map-main"><div class="map-frame"><canvas id="map-cv" width="1000" height="560" aria-label="Carte des missions"></canvas><div class="map-tip" id="map-tip" role="tooltip"></div></div>
+      <p class="map-info" id="map-info" aria-live="polite"></p></div>
+      <aside class="map-side">
+        <div id="map-report"></div>
+        <div class="map-actions">
+          <button type="button" class="btn primary big" id="btn-map-go">Entrer</button>
+          <button type="button" class="btn" id="btn-map-home">Retour à l'accueil</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section id="scr-end" class="screen solid" hidden>
+  <div class="notice">
+    <p class="eyebrow" id="end-eyebrow">Rapport de fin de nuit</p>
+    <h2 id="end-title">Fin de la nuit</h2>
+    <span class="stamp" id="end-stamp">Disparu</span>
+    <div class="stats" id="end-stats"></div>
+    <div id="end-beasts" hidden></div>
+    <div class="namebox" id="end-namebox">
+      <label class="label" for="end-name">Nom pour le classement</label>
+      <input id="end-name" maxlength="16" autocomplete="off" spellcheck="false">
+      <button type="button" class="btn" id="btn-save">Enregistrer le score</button>
+    </div>
+    <div id="end-scores"></div>
+    <div class="panel" id="end-credits" hidden><h3>Crédits</h3><div class="credits"><p class="eyebrow">Un jeu Nadrax Prod</p><dl class="keys"><dt>Zeus</dt><dd>Plante</dd><dt>Dobby</dt><dd>Lor'hi</dd><dt>Chewie</dt><dd>Kiffeur</dd><dt>Dragon</dt><dd>Maléfique</dd></dl></div></div>
+    <div class="row">
+      <button type="button" class="btn primary" id="btn-again">Rejouer</button>
+      <button type="button" class="btn" id="btn-survival" hidden>Mode Survie</button>
+      <button type="button" class="btn primary" id="btn-paradise" hidden>Le Paradis des Shibas</button>
+      <button type="button" class="btn" id="btn-photo">📸 Photo souvenir</button>
+      <button type="button" class="btn" id="btn-menu">Menu principal</button>
+    </div>
+  </div>
+</section>
+

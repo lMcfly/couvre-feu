@@ -1,0 +1,6 @@
+#!/bin/bash
+# Avant chaque commit : index.html doit correspondre à src/, et les vérifications doivent passer.
+cd "$(git rev-parse --show-toplevel)"
+node tools/build.js --out /tmp/couvre-feu-verif.html >/dev/null || exit 1
+if ! cmp -s /tmp/couvre-feu-verif.html index.html; then echo "✗ index.html n'est pas à jour : lancer « node tools/build.js »"; exit 1; fi
+node tools/check.js || exit 1
