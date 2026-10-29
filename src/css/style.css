@@ -675,6 +675,14 @@ input.sw:focus-visible{outline:2px solid var(--sodium,#f0b25a);outline-offset:2p
 @media (max-height:560px){.wn-fab{flex-direction:column;gap:3px;padding:7px 9px 6px;max-width:none;border-left-width:2px}.wn-fab svg{width:22px;height:22px}.wn-fab-t small{display:none}.wn-fab-t b{font-size:8.5px;letter-spacing:.06em}}
 /* réglages : la grille d'icônes occupe toute la hauteur disponible */
 #panel-settings .set-home{grid-auto-rows:1fr;min-height:min(460px,calc((100vh - 48px) / var(--ui,1) - 150px))}
+/* crédits : une barre fine sous les six thèmes, pour ne pas surcharger la grille */
+#panel-settings .set-home{grid-template-rows:1fr 1fr auto;grid-auto-rows:auto}
+#panel-settings .set-tile[data-setcat="credits"]{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;min-height:0;padding:10px 16px}
+#panel-settings .set-tile[data-setcat="credits"] svg{width:22px;height:22px}
+#panel-settings .set-tile[data-setcat="credits"] b{font-size:15px}
+#panel-settings .set-tile[data-setcat="credits"] small{margin-left:auto}
+#panel-settings [data-page="credits"] .credit-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-height:520px){#panel-settings .set-tile[data-setcat="credits"]{padding:6px 12px}}
 #panel-settings .set-tile{justify-content:center;gap:clamp(4px,1.4vh,12px);padding-left:clamp(14px,2vw,26px)}
 #panel-settings .set-tile svg{width:clamp(30px,9vh,52px);height:clamp(30px,9vh,52px)}
 #panel-settings .set-tile b{font-size:clamp(16px,4.2vh,24px)}

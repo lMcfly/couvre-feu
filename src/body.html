@@ -21,7 +21,6 @@
       <button type="button" class="tab" id="btn-ach" aria-expanded="false">Succès <span id="ach-count"></span></button>
       <button type="button" class="tab" id="btn-best" aria-expanded="false">Bestiaire</button>
       <button type="button" class="tab" id="btn-scores" aria-expanded="false">Scores</button>
-      <button type="button" class="tab" id="btn-credits" aria-expanded="false">Crédits</button>
       <button type="button" class="tab" id="btn-settings" aria-expanded="false">Paramètres</button>
       <button type="button" class="tab fs-tab" id="btn-fs" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></button>
       <span class="kb-hint" data-hint="next">RB</span>
@@ -134,7 +133,7 @@
 
   <div class="sheet" id="panel-settings" hidden><div class="sheet-card" role="region" aria-labelledby="set-h">
     <header class="sheet-head"><h3 id="set-h">Paramètres</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header>
-    <div class="sheet-body"><div class="set-wrap" id="opts-title" data-cats="son affichage commandes access online save"></div>
+    <div class="sheet-body"><div class="set-wrap" id="opts-title" data-cats="son affichage commandes access online save credits"></div>
     <div id="set-stash" hidden>
       <div class="row" data-to="affichage"><button type="button" class="btn" id="btn-install">📲 Installer sur l'écran d'accueil</button></div>
       <div class="row" data-to="commandes"><button type="button" class="btn" id="btn-keys">Personnaliser les touches et la manette</button></div>
@@ -191,7 +190,6 @@
   <div class="sheet" id="panel-best" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Bestiaire</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
   <div class="sheet" id="panel-ach" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Succès</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
   <div class="sheet" id="panel-news" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Nouveautés</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body" id="news-body"></div></div></div>
-  <div class="sheet" id="panel-credits" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Crédits</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body" id="credits-body"></div></div></div>
 </section>
 
 <section id="scr-pause" class="screen" hidden>

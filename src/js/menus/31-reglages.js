@@ -6,6 +6,7 @@ const SET_CATS = {
   commandes: ['Commandes', '<path d="M6.5 8h11a4.5 4.5 0 0 1 4.4 5.4l-.4 1.8a2.6 2.6 0 0 1-4.6 1L15.5 14h-7l-1.4 2.2a2.6 2.6 0 0 1-4.6-1l-.4-1.8A4.5 4.5 0 0 1 6.5 8z"/><path d="M8 10.2v3.2M6.4 11.8h3.2M15.6 11h.01M17.6 13h.01"/>'],
   access: ['Accessibilité', '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'],
   online: ['En ligne', '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3.4 3.2 14.6 0 18M12 3c-3.2 3.4-3.2 14.6 0 18"/>'],
+  credits: ['Crédits', '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>'],
   save: ['Sauvegarde', '<path d="M5 3h11.5L20 6.5V21H5z"/><path d="M8.5 3v5h7V3M8.5 21v-7h8v7"/>']
 };
 const pct = v => Math.round(v * 100) + ' %';
@@ -16,6 +17,7 @@ function setSummary(cat) {
   if (cat === 'commandes') return TOUCH ? `Boutons ${B[Settings.btnSize] || 'normaux'}${Settings.lefty ? ' · gaucher' : ''}${Settings.fixedSticks ? ' · sticks fixes' : ''}` : 'Clavier, souris et manette';
   if (cat === 'access') { const on = [Settings.cb && 'daltonien', Settings.calm && 'effets réduits', Settings.vis === 'renforcee' && 'perso renforcé'].filter(Boolean); return on.length ? on.join(' · ').replace(/^./, c => c.toUpperCase()) : 'Rien d\'activé'; }
   if (cat === 'online') return !ONLINE.url ? 'Pas encore branché' : Settings.online !== false ? 'Classement activé' : 'Classement désactivé';
+  if (cat === 'credits') return 'Un jeu Nadrax Prod · l\'équipe';
   if (cat === 'save') { const d = typeof readSave === 'function' ? readSave() : null; return d ? 'Partie en cours sauvegardée' : 'Code de transfert, remise à zéro'; }
   return '';
 }
@@ -53,7 +55,8 @@ function setShell(el) {
   el.addEventListener('input', e => { const r = e.target; if (r.type !== 'range') return; const v = r.parentNode.querySelector('.set-val'); if (v && r.dataset.fmt === 'pct') v.textContent = pct(+r.value); setSums(el); });
 }
 function setSums(el) { for (const s of el.querySelectorAll('[data-sum]')) s.textContent = setSummary(s.dataset.sum); }
-function setOpen(el, k) { el.querySelector('.set-home').hidden = true; for (const p of el.querySelectorAll('.set-page')) p.hidden = p.dataset.page !== k; const card = el.closest('.sheet-card'); if (card) card.scrollTop = 0; requestAnimationFrame(() => { const f = el.querySelector(`.set-page[data-page="${k}"] .set-list input, .set-page[data-page="${k}"] .set-list button, .set-page[data-page="${k}"] .set-extra button`); (f || el.querySelector(`.set-page[data-page="${k}"] [data-setback]`)).focus({ preventScroll: true }); }); }
+function setOpen(el, k) {
+  if (k === 'credits') { const x = el.querySelector('[data-extra="credits"]'); if (x && !x.dataset.filled) { fillCredits(x); const h = x.querySelector('h3'); if (h) h.remove(); } } el.querySelector('.set-home').hidden = true; for (const p of el.querySelectorAll('.set-page')) p.hidden = p.dataset.page !== k; const card = el.closest('.sheet-card'); if (card) card.scrollTop = 0; requestAnimationFrame(() => { const f = el.querySelector(`.set-page[data-page="${k}"] .set-list input, .set-page[data-page="${k}"] .set-list button, .set-page[data-page="${k}"] .set-extra button`); (f || el.querySelector(`.set-page[data-page="${k}"] [data-setback]`)).focus({ preventScroll: true }); }); }
 function setHome(el, quiet) { if (typeof el === 'string') el = $(el); if (!el || !el.querySelector('.set-home')) return; const open = el.querySelector('.set-page:not([hidden])'); for (const p of el.querySelectorAll('.set-page')) p.hidden = true; el.querySelector('.set-home').hidden = false; setSums(el); if (!quiet) requestAnimationFrame(() => { const t = open && el.querySelector(`[data-setcat="${open.dataset.page}"]`); if (t) t.focus({ preventScroll: true }); }); }
 // Échap / B : une page de réglages ouverte revient d'abord à la grille d'icônes
 function setBack() { for (const el of document.querySelectorAll('.set-wrap')) if (el.offsetParent && el.querySelector('.set-page:not([hidden])')) { setHome(el); return true; } return false; }

@@ -704,6 +704,14 @@ input.sw:focus-visible{outline:2px solid var(--sodium,#f0b25a);outline-offset:2p
 @media (max-height:560px){.wn-fab{flex-direction:column;gap:3px;padding:7px 9px 6px;max-width:none;border-left-width:2px}.wn-fab svg{width:22px;height:22px}.wn-fab-t small{display:none}.wn-fab-t b{font-size:8.5px;letter-spacing:.06em}}
 /* réglages : la grille d'icônes occupe toute la hauteur disponible */
 #panel-settings .set-home{grid-auto-rows:1fr;min-height:min(460px,calc((100vh - 48px) / var(--ui,1) - 150px))}
+/* crédits : une barre fine sous les six thèmes, pour ne pas surcharger la grille */
+#panel-settings .set-home{grid-template-rows:1fr 1fr auto;grid-auto-rows:auto}
+#panel-settings .set-tile[data-setcat="credits"]{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;min-height:0;padding:10px 16px}
+#panel-settings .set-tile[data-setcat="credits"] svg{width:22px;height:22px}
+#panel-settings .set-tile[data-setcat="credits"] b{font-size:15px}
+#panel-settings .set-tile[data-setcat="credits"] small{margin-left:auto}
+#panel-settings [data-page="credits"] .credit-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-height:520px){#panel-settings .set-tile[data-setcat="credits"]{padding:6px 12px}}
 #panel-settings .set-tile{justify-content:center;gap:clamp(4px,1.4vh,12px);padding-left:clamp(14px,2vw,26px)}
 #panel-settings .set-tile svg{width:clamp(30px,9vh,52px);height:clamp(30px,9vh,52px)}
 #panel-settings .set-tile b{font-size:clamp(16px,4.2vh,24px)}
@@ -1062,7 +1070,6 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
       <button type="button" class="tab" id="btn-ach" aria-expanded="false">Succès <span id="ach-count"></span></button>
       <button type="button" class="tab" id="btn-best" aria-expanded="false">Bestiaire</button>
       <button type="button" class="tab" id="btn-scores" aria-expanded="false">Scores</button>
-      <button type="button" class="tab" id="btn-credits" aria-expanded="false">Crédits</button>
       <button type="button" class="tab" id="btn-settings" aria-expanded="false">Paramètres</button>
       <button type="button" class="tab fs-tab" id="btn-fs" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></button>
       <span class="kb-hint" data-hint="next">RB</span>
@@ -1175,7 +1182,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 
   <div class="sheet" id="panel-settings" hidden><div class="sheet-card" role="region" aria-labelledby="set-h">
     <header class="sheet-head"><h3 id="set-h">Paramètres</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header>
-    <div class="sheet-body"><div class="set-wrap" id="opts-title" data-cats="son affichage commandes access online save"></div>
+    <div class="sheet-body"><div class="set-wrap" id="opts-title" data-cats="son affichage commandes access online save credits"></div>
     <div id="set-stash" hidden>
       <div class="row" data-to="affichage"><button type="button" class="btn" id="btn-install">📲 Installer sur l'écran d'accueil</button></div>
       <div class="row" data-to="commandes"><button type="button" class="btn" id="btn-keys">Personnaliser les touches et la manette</button></div>
@@ -1232,7 +1239,6 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
   <div class="sheet" id="panel-best" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Bestiaire</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
   <div class="sheet" id="panel-ach" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Succès</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
   <div class="sheet" id="panel-news" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Nouveautés</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body" id="news-body"></div></div></div>
-  <div class="sheet" id="panel-credits" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Crédits</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body" id="credits-body"></div></div></div>
 </section>
 
 <section id="scr-pause" class="screen" hidden>
@@ -4219,7 +4225,11 @@ mixin(Game, {
 mixin(Game, {
   addLight(x, y, r, c, i, life) { this.netEmit(['light', Math.round(x), Math.round(y), Math.round(r), c, netR(i), netR(life)]); this.lights.push({ x, y, r, c, i, life, max: life, dead: false }); },
   spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
-  floatText(x, y, text, color) { this.netEmit(['text', Math.round(x), Math.round(y), text, color]); this.texts.push({ x, y, text, color, life: 1, dead: false }); },
+  floatText(x, y, text, color) {
+    this.netEmit(['text', Math.round(x), Math.round(y), text, color]);
+    for (let k = 0; k < 6 && this.texts.some(t => Math.abs(t.x - x) < 56 && Math.abs(t.y - y) < 16); k++) y -= 17; // pas de texte posé sur un autre
+    this.texts.push({ x, y, text, color, life: 1, dead: false });
+  },
   bleed(x, y, dx, dy, n) {
     this.netEmit && this.netEmit(['bleed', Math.round(x), Math.round(y), netR(dx), netR(dy), Math.round(n)]);
     for (let i = 0; i < n; i++) this.spawnP({ x, y, z: rand(8, 20), vx: dx * rand(40, 180) + rand(-60, 60), vy: dy * rand(40, 180) + rand(-60, 60), vz: rand(20, 140), grav: 700, drag: 1.5, life: 2, type: 'blood', size: rand(2, 4), bake: true, color: Math.random() < 0.5 ? '#6b0d0b' : '#4f0907' });
@@ -4387,7 +4397,9 @@ mixin(Game, {
     c.setTransform(S, 0, 0, S, ox, oy); c.globalCompositeOperation = 'lighter';
     this.renderEmissive(inView);
     c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
-    for (const t of this.texts) { c.globalAlpha = Math.min(1, t.life * 2); c.font = `15px ${FD}`; c.textAlign = 'center'; c.fillStyle = t.color; c.fillText(t.text, t.x, t.y); } c.globalAlpha = 1;
+    // points qui montent ; estompés quand ils passent sous la bannière, pour ne pas se mélanger à son texte
+    { const bn = this.bannerObj && !this.cine ? (H / DPR / HUDK) * 0.3 : null;
+      for (const t of this.texts) { let a = Math.min(1, t.life * 2); if (bn != null) { const sy = this.w2h(t.x, t.y).y; if (sy > bn - 62 && sy < bn + 42) a *= 0.12; } c.globalAlpha = a; c.font = `15px ${FD}`; c.textAlign = 'center'; c.fillStyle = t.color; c.fillText(t.text, t.x, t.y); } c.globalAlpha = 1; }
     // écran
     c.setTransform(1, 0, 0, 1, 0, 0);
     this.drawScreenFx(c);
@@ -5231,7 +5243,7 @@ mixin(Game, {
     for (let i = 0; i < 3; i++) { c.fillStyle = i < p.armor ? '#9aa4ae' : 'rgba(255,255,255,.08)'; c.fillRect(16 + bw + 6, 56 + i * 6, 10, 4); }
     c.fillStyle = 'rgba(255,255,255,.08)'; c.fillRect(16, 76, bw, 3); c.fillStyle = p.battery < 20 ? '#e0321f' : '#efe3a2'; c.fillRect(16, 76, bw * p.battery / 100, 3);
     const ob = this.objective();
-    if (ob.text && !(this.wheel && this.wheel.k > 0) && !(this.train && this.train.tut)) { c.font = `12px ${FT}`; c.fillStyle = '#d8d2c4'; wrapText(c, ob.text, 16, 98, Math.min(300, cw * 0.38), 16); if (ob.progress != null) { c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(16, 128, 160, 4); c.fillStyle = '#7fd18b'; c.fillRect(16, 128, 160 * ob.progress, 4); } }
+    this._objB = 0; if (ob.text && !(this.wheel && this.wheel.k > 0) && !(this.train && this.train.tut)) { c.font = `12px ${FT}`; c.fillStyle = '#d8d2c4'; wrapText(c, ob.text, 16, 98, Math.min(300, cw * 0.38), 16); this._objB = 98 + wrapLines(c, ob.text, Math.min(300, cw * 0.38)).length * 16 + (ob.progress != null ? 14 : 0) + SAFE.t / HUDK * 0.5; if (ob.progress != null) { c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(16, 128, 160, 4); c.fillStyle = '#7fd18b'; c.fillRect(16, 128, 160 * ob.progress, 4); } }
     if (ob.tx != null && !p.dead) {
       const s = this.w2h(ob.tx, ob.ty);
       if (s.x < 30 || s.x > cw - 30 || s.y < 30 || s.y > ch - 30) {
@@ -5297,7 +5309,7 @@ mixin(Game, {
       const touchUI = this.input.touchMode, duo = !!this.p2, fw = Math.min(duo ? (touchUI ? 230 : 340) : touchUI ? 290 : 460, cw * (touchUI ? 0.32 : 0.4)), fx = touchUI ? 12 : cw / 2 - fw / 2;
       c.font = `${duo ? 11 : touchUI ? 12 : small ? 12 : 14}px ${FT}`; c.textAlign = 'left';
       const lh = duo ? 13 : touchUI ? 15 : small ? 15 : 18, cards = (duo ? this.toasts.slice(0, 1) : touchUI ? this.toasts.slice(0, 2) : this.toasts).map(to => { const lines = wrapLines(c, to.msg + (to.n > 1 ? `  ×${to.n}` : ''), fw - 24).slice(0, duo ? 2 : 3); return { to, lines, h: lines.length * lh + (duo ? 8 : 12) }; });
-      let fy = touchUI ? 92 : ch - 112;
+      let fy = touchUI ? Math.max(92, (this._objB || 0) + 6) : ch - 112; /* au tactile : sous l'objectif */
       for (const cd of cards) {
         const { to, lines, h } = cd, k = Math.min(1, to.age * 5), a = Math.min(1, to.t * 1.5, k);
         const y = touchUI ? fy + (1 - k) * -14 : fy - h + (1 - k) * 14;
@@ -5316,18 +5328,29 @@ mixin(Game, {
       const tx = x + r0 * 2 + 18; c.textAlign = 'left'; c.font = `${tu ? 9 : 11}px ${FT}`; c.fillStyle = '#c9b46a'; c.fillText('SUCCÈS DÉBLOQUÉ', tx, y + (tu ? 15 : 22));
       c.font = `${tu ? 13 : small ? 15 : 17}px ${FD}`; c.fillStyle = '#f4ead2'; c.fillText(fitText(c, a.name, x + w - tx - 8), tx, y + (tu ? 32 : 43)); c.globalAlpha = 1;
     }
-    // autour du joueur : bulle de réplique, butin qui monte, refus en dessous
+    // autour du joueur : bulle de réplique et butin au-dessus de la tête, ou en dessous s'ils toucheraient la bannière ; refus en dessous
     if (!p.dead && this.state === 'playing') {
-      const sp = this.w2h(p.x, p.y); let top = sp.y - 44 / HUDK;
-      c.textAlign = 'center';
-      if (this.speech) {
-        const sb = this.speech; c.font = `${small ? 12 : 14}px ${FT}`; const lines = wrapLines(c, sb.msg, small ? 190 : 240), lh = small ? 15 : 17, w = Math.max(...lines.map(l => c.measureText(l).width)) + 20, h = lines.length * lh + 12;
-        const bx = clamp(sp.x - w / 2, 8, cw - w - 8), by = top - h - 10; c.globalAlpha = Math.min(1, sb.t * 2, (3 - sb.t) * 6);
-        c.fillStyle = 'rgba(244,234,210,.95)'; c.beginPath(); RR(c, bx, by, w, h, 8); c.fill(); c.beginPath(); c.moveTo(sp.x - 6, by + h); c.lineTo(sp.x + 6, by + h); c.lineTo(sp.x, by + h + 9); c.fill();
-        c.fillStyle = '#1a120c'; lines.forEach((l, k) => c.fillText(l, bx + w / 2, by + 6 + lh * (k + 0.78))); top = by - 4; c.globalAlpha = 1;
+      const sp = this.w2h(p.x, p.y); c.textAlign = 'center';
+      let sb = null;
+      if (this.speech) { const s = this.speech; c.font = `${small ? 12 : 14}px ${FT}`; const lines = wrapLines(c, s.msg, small ? 190 : 240), lh = small ? 15 : 17; sb = { s, lines, lh, w: Math.max(...lines.map(l => c.measureText(l).width)) + 20, h: lines.length * lh + 12 }; }
+      const PH = 21, stackH = (sb ? sb.h + 14 : 0) + this.pops.length * PH + 8, headY = sp.y - 44 / HUDK;
+      const bnr = this.bannerObj && !this.cine && !(this.wheel && this.wheel.k > 0) ? [ch * 0.3 - 58, ch * 0.3 + 38] : null;
+      const below = (bnr && headY - stackH < bnr[1] && headY > bnr[0]) || headY - stackH < 8;
+      let cur = below ? sp.y + 34 / HUDK + (this.hint ? 30 : 0) + (this.denyMsg ? 26 : 0) : headY;
+      if (sb) {
+        const { s, lines, lh, w, h } = sb; c.font = `${small ? 12 : 14}px ${FT}`; const bx = clamp(sp.x - w / 2, 8, cw - w - 8), by = below ? cur + 10 : cur - h - 10;
+        c.globalAlpha = Math.min(1, s.t * 2, (3 - s.t) * 6); c.fillStyle = 'rgba(244,234,210,.95)'; c.beginPath(); RR(c, bx, by, w, h, 8); c.fill();
+        c.beginPath(); if (below) { c.moveTo(sp.x - 6, by); c.lineTo(sp.x + 6, by); c.lineTo(sp.x, by - 9); } else { c.moveTo(sp.x - 6, by + h); c.lineTo(sp.x + 6, by + h); c.lineTo(sp.x, by + h + 9); } c.fill();
+        c.fillStyle = '#1a120c'; lines.forEach((l, k) => c.fillText(l, bx + w / 2, by + 6 + lh * (k + 0.78))); cur = below ? by + h + 4 : by - 4; c.globalAlpha = 1;
       }
+      // le butin : chaque ligne a sa place (plus de lettres les unes sur les autres) et un fond pour rester lisible
       c.font = `bold ${small ? 13 : 15}px ${FT}`;
-      this.pops.forEach((po, i) => { const k = 1.6 - po.t, y = top - 6 - (this.pops.length - 1 - i) * 18 - k * 10; c.globalAlpha = Math.min(1, po.t * 2.5); c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,0,.85)'; const tx = po.msg + (po.n > 1 ? ` ×${po.n}` : ''), hw = c.measureText(tx).width / 2 + 8, px = clamp(sp.x, hw, cw - hw); c.strokeText(tx, px, y); c.fillStyle = po.color; c.fillText(tx, px, y); });
+      this.pops.forEach((po, i) => {
+        const k = 1.6 - po.t, j = this.pops.length - 1 - i, y = below ? cur + 18 + j * PH + k * 4 : cur - 8 - j * PH - k * 6;
+        const tx = po.msg + (po.n > 1 ? ` ×${po.n}` : ''), hw = c.measureText(tx).width / 2 + 8, px = clamp(sp.x, hw, cw - hw);
+        c.globalAlpha = Math.min(1, po.t * 2.5); c.fillStyle = 'rgba(0,0,0,.55)'; c.beginPath(); RR(c, px - hw, y - 15, hw * 2, 20, 5); c.fill();
+        c.fillStyle = po.color; c.fillText(tx, px, y);
+      });
       c.globalAlpha = 1;
       if (this.denyMsg) { const d = this.denyMsg; c.font = `${small ? 12 : 13}px ${FT}`; const y = sp.y + (this.hint ? 66 : 40), tw = c.measureText(d.msg).width + 16, dx = clamp(sp.x, tw / 2 + 6, cw - tw / 2 - 6); c.globalAlpha = Math.min(1, d.t * 3); c.fillStyle = 'rgba(0,0,0,.6)'; c.beginPath(); RR(c, dx - tw / 2, y - 14, tw, 20, 4); c.fill(); c.fillStyle = d.color; c.fillText(d.msg, dx, y); c.globalAlpha = 1; }
     }
@@ -6934,6 +6957,7 @@ const SET_CATS = {
   commandes: ['Commandes', '<path d="M6.5 8h11a4.5 4.5 0 0 1 4.4 5.4l-.4 1.8a2.6 2.6 0 0 1-4.6 1L15.5 14h-7l-1.4 2.2a2.6 2.6 0 0 1-4.6-1l-.4-1.8A4.5 4.5 0 0 1 6.5 8z"/><path d="M8 10.2v3.2M6.4 11.8h3.2M15.6 11h.01M17.6 13h.01"/>'],
   access: ['Accessibilité', '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'],
   online: ['En ligne', '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3.4 3.2 14.6 0 18M12 3c-3.2 3.4-3.2 14.6 0 18"/>'],
+  credits: ['Crédits', '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>'],
   save: ['Sauvegarde', '<path d="M5 3h11.5L20 6.5V21H5z"/><path d="M8.5 3v5h7V3M8.5 21v-7h8v7"/>']
 };
 const pct = v => Math.round(v * 100) + ' %';
@@ -6944,6 +6968,7 @@ function setSummary(cat) {
   if (cat === 'commandes') return TOUCH ? `Boutons ${B[Settings.btnSize] || 'normaux'}${Settings.lefty ? ' · gaucher' : ''}${Settings.fixedSticks ? ' · sticks fixes' : ''}` : 'Clavier, souris et manette';
   if (cat === 'access') { const on = [Settings.cb && 'daltonien', Settings.calm && 'effets réduits', Settings.vis === 'renforcee' && 'perso renforcé'].filter(Boolean); return on.length ? on.join(' · ').replace(/^./, c => c.toUpperCase()) : 'Rien d\'activé'; }
   if (cat === 'online') return !ONLINE.url ? 'Pas encore branché' : Settings.online !== false ? 'Classement activé' : 'Classement désactivé';
+  if (cat === 'credits') return 'Un jeu Nadrax Prod · l\'équipe';
   if (cat === 'save') { const d = typeof readSave === 'function' ? readSave() : null; return d ? 'Partie en cours sauvegardée' : 'Code de transfert, remise à zéro'; }
   return '';
 }
@@ -6981,7 +7006,8 @@ function setShell(el) {
   el.addEventListener('input', e => { const r = e.target; if (r.type !== 'range') return; const v = r.parentNode.querySelector('.set-val'); if (v && r.dataset.fmt === 'pct') v.textContent = pct(+r.value); setSums(el); });
 }
 function setSums(el) { for (const s of el.querySelectorAll('[data-sum]')) s.textContent = setSummary(s.dataset.sum); }
-function setOpen(el, k) { el.querySelector('.set-home').hidden = true; for (const p of el.querySelectorAll('.set-page')) p.hidden = p.dataset.page !== k; const card = el.closest('.sheet-card'); if (card) card.scrollTop = 0; requestAnimationFrame(() => { const f = el.querySelector(`.set-page[data-page="${k}"] .set-list input, .set-page[data-page="${k}"] .set-list button, .set-page[data-page="${k}"] .set-extra button`); (f || el.querySelector(`.set-page[data-page="${k}"] [data-setback]`)).focus({ preventScroll: true }); }); }
+function setOpen(el, k) {
+  if (k === 'credits') { const x = el.querySelector('[data-extra="credits"]'); if (x && !x.dataset.filled) { fillCredits(x); const h = x.querySelector('h3'); if (h) h.remove(); } } el.querySelector('.set-home').hidden = true; for (const p of el.querySelectorAll('.set-page')) p.hidden = p.dataset.page !== k; const card = el.closest('.sheet-card'); if (card) card.scrollTop = 0; requestAnimationFrame(() => { const f = el.querySelector(`.set-page[data-page="${k}"] .set-list input, .set-page[data-page="${k}"] .set-list button, .set-page[data-page="${k}"] .set-extra button`); (f || el.querySelector(`.set-page[data-page="${k}"] [data-setback]`)).focus({ preventScroll: true }); }); }
 function setHome(el, quiet) { if (typeof el === 'string') el = $(el); if (!el || !el.querySelector('.set-home')) return; const open = el.querySelector('.set-page:not([hidden])'); for (const p of el.querySelectorAll('.set-page')) p.hidden = true; el.querySelector('.set-home').hidden = false; setSums(el); if (!quiet) requestAnimationFrame(() => { const t = open && el.querySelector(`[data-setcat="${open.dataset.page}"]`); if (t) t.focus({ preventScroll: true }); }); }
 // Échap / B : une page de réglages ouverte revient d'abord à la grille d'icônes
 function setBack() { for (const el of document.querySelectorAll('.set-wrap')) if (el.offsetParent && el.querySelector('.set-page:not([hidden])')) { setHome(el); return true; } return false; }
@@ -7593,7 +7619,7 @@ $('btn-start').addEventListener('click', () => {
   if (launchMode === 'coop') openJoin(); else if (launchMode === 'survival') game.newSurvival(false); else if (launchMode === 'endless') game.newEndless(); else if (launchMode === 'daily') game.newDaily(); else if (launchMode === 'hospital') game.newHospital(); else game.newGame();
 });
 // panneaux de l'écran titre : un seul ouvert à la fois, et on défile jusqu'à lui
-const TITLE_PANELS = [['panel-settings', 'btn-settings'], ['panel-scores', 'btn-scores'], ['panel-ach', 'btn-ach'], ['panel-best', 'btn-best'], ['panel-news', 'btn-news'], ['panel-credits', 'btn-credits']];
+const TITLE_PANELS = [['panel-settings', 'btn-settings'], ['panel-scores', 'btn-scores'], ['panel-ach', 'btn-ach'], ['panel-best', 'btn-best'], ['panel-news', 'btn-news']];
 const CREDITS = [['Zeus', 'Plante', 'zeus'], ['Dobby', 'Lor\'hi', 'dobby'], ['Chewie', 'Kiffeur', 'chewie'], ['Dragon', 'Maléfique', 'dragon']];
 function fillCredits(el) {
   el.innerHTML = `<h3>Crédits</h3><div class="credits"><p class="eyebrow">Un jeu Nadrax Prod</p><div class="credit-list">${CREDITS.map(([n, r, k]) => `<div class="credit"><canvas width="480" height="360" data-portrait="${k}" aria-hidden="true"></canvas><div><b>${n}</b><span>${r}</span></div></div>`).join('')}</div></div>`;
@@ -7808,7 +7834,6 @@ $('join-go').addEventListener('click', joinGo);
 $('btn-paradise').addEventListener('click', () => game.newSecret(true));
 $('btn-survival').addEventListener('click', () => game.newSurvival(game.mode === 'story' && game.lastVictory));
 function achHTML() { const u = Ach.get(); return `<p class="hint">${ACH.filter(a => u[a[0]]).length} / ${ACH.length} succès débloqués sur cet appareil</p><div class="achs">${ACH.map(([id, n, d]) => `<div class="ach ${u[id] ? 'on' : ''}"><b>${n}</b><span>${u[id] ? d : d + ' · verrouillé'}</span></div>`).join('')}</div>`; }
-$('btn-credits').addEventListener('click', e => { fillCreditsOnce($('credits-body')); togglePanel('panel-credits', e.currentTarget); });
 $('btn-ach').addEventListener('click', e => togglePanel('panel-ach', e.currentTarget, achHTML));
 // ---------- bestiaire : fiches BD dessinées par le moteur du jeu
 function newBeastsHTML(keys) {
@@ -7963,6 +7988,12 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 68, d: '29 oct.', t: 'Chaque mot à sa place', s: 'Fini les textes qui se marchent dessus quand tu ramasses ou sauves quelqu\'un.', it: [
+    ['fix', 'Butin lisible', 'Les « +25 santé », « +1 grenade »… ont chacun leur ligne et un fond ; ils passent sous ton perso quand une bannière s\'affiche.'],
+    ['fix', 'Points des zombies', 'Les « +150 » ne s\'empilent plus au même endroit et s\'effacent sous la bannière.'],
+    ['fix', 'Messages sur téléphone', 'Ils se rangent sous l\'objectif au lieu de le recouvrir.'],
+    ['up', 'Crédits dans les Paramètres', 'L\'onglet quitte le menu : les crédits sont en bas des Paramètres de l\'accueil.']],
+    q: ['fiona', 'Fiona', 'Enfin je peux lire ce que je ramasse. Pas que ça change grand-chose.'] },
   { v: 67, d: '29 oct.', t: 'Grand ménage sous le capot', s: 'Rien ne change à l\'écran… sauf que tout va plus vite.', it: [
     ['up', 'Démarrage 4× plus rapide', 'Les portraits ne sont plus dessinés tant que tu n\'ouvres pas leur écran : le jeu est prêt en un clin d\'œil, même sur un vieux téléphone.'],
     ['up', 'Code rangé', 'Le jeu est maintenant découpé en 39 fichiers par thème, avec des vérifications automatiques avant chaque mise en ligne.'],

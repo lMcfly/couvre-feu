@@ -126,5 +126,4 @@ $('join-go').addEventListener('click', joinGo);
 $('btn-paradise').addEventListener('click', () => game.newSecret(true));
 $('btn-survival').addEventListener('click', () => game.newSurvival(game.mode === 'story' && game.lastVictory));
 function achHTML() { const u = Ach.get(); return `<p class="hint">${ACH.filter(a => u[a[0]]).length} / ${ACH.length} succès débloqués sur cet appareil</p><div class="achs">${ACH.map(([id, n, d]) => `<div class="ach ${u[id] ? 'on' : ''}"><b>${n}</b><span>${u[id] ? d : d + ' · verrouillé'}</span></div>`).join('')}</div>`; }
-$('btn-credits').addEventListener('click', e => { fillCreditsOnce($('credits-body')); togglePanel('panel-credits', e.currentTarget); });
 $('btn-ach').addEventListener('click', e => togglePanel('panel-ach', e.currentTarget, achHTML));

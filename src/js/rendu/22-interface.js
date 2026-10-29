@@ -206,7 +206,7 @@ mixin(Game, {
     for (let i = 0; i < 3; i++) { c.fillStyle = i < p.armor ? '#9aa4ae' : 'rgba(255,255,255,.08)'; c.fillRect(16 + bw + 6, 56 + i * 6, 10, 4); }
     c.fillStyle = 'rgba(255,255,255,.08)'; c.fillRect(16, 76, bw, 3); c.fillStyle = p.battery < 20 ? '#e0321f' : '#efe3a2'; c.fillRect(16, 76, bw * p.battery / 100, 3);
     const ob = this.objective();
-    if (ob.text && !(this.wheel && this.wheel.k > 0) && !(this.train && this.train.tut)) { c.font = `12px ${FT}`; c.fillStyle = '#d8d2c4'; wrapText(c, ob.text, 16, 98, Math.min(300, cw * 0.38), 16); if (ob.progress != null) { c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(16, 128, 160, 4); c.fillStyle = '#7fd18b'; c.fillRect(16, 128, 160 * ob.progress, 4); } }
+    this._objB = 0; if (ob.text && !(this.wheel && this.wheel.k > 0) && !(this.train && this.train.tut)) { c.font = `12px ${FT}`; c.fillStyle = '#d8d2c4'; wrapText(c, ob.text, 16, 98, Math.min(300, cw * 0.38), 16); this._objB = 98 + wrapLines(c, ob.text, Math.min(300, cw * 0.38)).length * 16 + (ob.progress != null ? 14 : 0) + SAFE.t / HUDK * 0.5; if (ob.progress != null) { c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(16, 128, 160, 4); c.fillStyle = '#7fd18b'; c.fillRect(16, 128, 160 * ob.progress, 4); } }
     if (ob.tx != null && !p.dead) {
       const s = this.w2h(ob.tx, ob.ty);
       if (s.x < 30 || s.x > cw - 30 || s.y < 30 || s.y > ch - 30) {
@@ -272,7 +272,7 @@ mixin(Game, {
       const touchUI = this.input.touchMode, duo = !!this.p2, fw = Math.min(duo ? (touchUI ? 230 : 340) : touchUI ? 290 : 460, cw * (touchUI ? 0.32 : 0.4)), fx = touchUI ? 12 : cw / 2 - fw / 2;
       c.font = `${duo ? 11 : touchUI ? 12 : small ? 12 : 14}px ${FT}`; c.textAlign = 'left';
       const lh = duo ? 13 : touchUI ? 15 : small ? 15 : 18, cards = (duo ? this.toasts.slice(0, 1) : touchUI ? this.toasts.slice(0, 2) : this.toasts).map(to => { const lines = wrapLines(c, to.msg + (to.n > 1 ? `  ×${to.n}` : ''), fw - 24).slice(0, duo ? 2 : 3); return { to, lines, h: lines.length * lh + (duo ? 8 : 12) }; });
-      let fy = touchUI ? 92 : ch - 112;
+      let fy = touchUI ? Math.max(92, (this._objB || 0) + 6) : ch - 112; /* au tactile : sous l'objectif */
       for (const cd of cards) {
         const { to, lines, h } = cd, k = Math.min(1, to.age * 5), a = Math.min(1, to.t * 1.5, k);
         const y = touchUI ? fy + (1 - k) * -14 : fy - h + (1 - k) * 14;
@@ -291,18 +291,29 @@ mixin(Game, {
       const tx = x + r0 * 2 + 18; c.textAlign = 'left'; c.font = `${tu ? 9 : 11}px ${FT}`; c.fillStyle = '#c9b46a'; c.fillText('SUCCÈS DÉBLOQUÉ', tx, y + (tu ? 15 : 22));
       c.font = `${tu ? 13 : small ? 15 : 17}px ${FD}`; c.fillStyle = '#f4ead2'; c.fillText(fitText(c, a.name, x + w - tx - 8), tx, y + (tu ? 32 : 43)); c.globalAlpha = 1;
     }
-    // autour du joueur : bulle de réplique, butin qui monte, refus en dessous
+    // autour du joueur : bulle de réplique et butin au-dessus de la tête, ou en dessous s'ils toucheraient la bannière ; refus en dessous
     if (!p.dead && this.state === 'playing') {
-      const sp = this.w2h(p.x, p.y); let top = sp.y - 44 / HUDK;
-      c.textAlign = 'center';
-      if (this.speech) {
-        const sb = this.speech; c.font = `${small ? 12 : 14}px ${FT}`; const lines = wrapLines(c, sb.msg, small ? 190 : 240), lh = small ? 15 : 17, w = Math.max(...lines.map(l => c.measureText(l).width)) + 20, h = lines.length * lh + 12;
-        const bx = clamp(sp.x - w / 2, 8, cw - w - 8), by = top - h - 10; c.globalAlpha = Math.min(1, sb.t * 2, (3 - sb.t) * 6);
-        c.fillStyle = 'rgba(244,234,210,.95)'; c.beginPath(); RR(c, bx, by, w, h, 8); c.fill(); c.beginPath(); c.moveTo(sp.x - 6, by + h); c.lineTo(sp.x + 6, by + h); c.lineTo(sp.x, by + h + 9); c.fill();
-        c.fillStyle = '#1a120c'; lines.forEach((l, k) => c.fillText(l, bx + w / 2, by + 6 + lh * (k + 0.78))); top = by - 4; c.globalAlpha = 1;
+      const sp = this.w2h(p.x, p.y); c.textAlign = 'center';
+      let sb = null;
+      if (this.speech) { const s = this.speech; c.font = `${small ? 12 : 14}px ${FT}`; const lines = wrapLines(c, s.msg, small ? 190 : 240), lh = small ? 15 : 17; sb = { s, lines, lh, w: Math.max(...lines.map(l => c.measureText(l).width)) + 20, h: lines.length * lh + 12 }; }
+      const PH = 21, stackH = (sb ? sb.h + 14 : 0) + this.pops.length * PH + 8, headY = sp.y - 44 / HUDK;
+      const bnr = this.bannerObj && !this.cine && !(this.wheel && this.wheel.k > 0) ? [ch * 0.3 - 58, ch * 0.3 + 38] : null;
+      const below = (bnr && headY - stackH < bnr[1] && headY > bnr[0]) || headY - stackH < 8;
+      let cur = below ? sp.y + 34 / HUDK + (this.hint ? 30 : 0) + (this.denyMsg ? 26 : 0) : headY;
+      if (sb) {
+        const { s, lines, lh, w, h } = sb; c.font = `${small ? 12 : 14}px ${FT}`; const bx = clamp(sp.x - w / 2, 8, cw - w - 8), by = below ? cur + 10 : cur - h - 10;
+        c.globalAlpha = Math.min(1, s.t * 2, (3 - s.t) * 6); c.fillStyle = 'rgba(244,234,210,.95)'; c.beginPath(); RR(c, bx, by, w, h, 8); c.fill();
+        c.beginPath(); if (below) { c.moveTo(sp.x - 6, by); c.lineTo(sp.x + 6, by); c.lineTo(sp.x, by - 9); } else { c.moveTo(sp.x - 6, by + h); c.lineTo(sp.x + 6, by + h); c.lineTo(sp.x, by + h + 9); } c.fill();
+        c.fillStyle = '#1a120c'; lines.forEach((l, k) => c.fillText(l, bx + w / 2, by + 6 + lh * (k + 0.78))); cur = below ? by + h + 4 : by - 4; c.globalAlpha = 1;
       }
+      // le butin : chaque ligne a sa place (plus de lettres les unes sur les autres) et un fond pour rester lisible
       c.font = `bold ${small ? 13 : 15}px ${FT}`;
-      this.pops.forEach((po, i) => { const k = 1.6 - po.t, y = top - 6 - (this.pops.length - 1 - i) * 18 - k * 10; c.globalAlpha = Math.min(1, po.t * 2.5); c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,0,.85)'; const tx = po.msg + (po.n > 1 ? ` ×${po.n}` : ''), hw = c.measureText(tx).width / 2 + 8, px = clamp(sp.x, hw, cw - hw); c.strokeText(tx, px, y); c.fillStyle = po.color; c.fillText(tx, px, y); });
+      this.pops.forEach((po, i) => {
+        const k = 1.6 - po.t, j = this.pops.length - 1 - i, y = below ? cur + 18 + j * PH + k * 4 : cur - 8 - j * PH - k * 6;
+        const tx = po.msg + (po.n > 1 ? ` ×${po.n}` : ''), hw = c.measureText(tx).width / 2 + 8, px = clamp(sp.x, hw, cw - hw);
+        c.globalAlpha = Math.min(1, po.t * 2.5); c.fillStyle = 'rgba(0,0,0,.55)'; c.beginPath(); RR(c, px - hw, y - 15, hw * 2, 20, 5); c.fill();
+        c.fillStyle = po.color; c.fillText(tx, px, y);
+      });
       c.globalAlpha = 1;
       if (this.denyMsg) { const d = this.denyMsg; c.font = `${small ? 12 : 13}px ${FT}`; const y = sp.y + (this.hint ? 66 : 40), tw = c.measureText(d.msg).width + 16, dx = clamp(sp.x, tw / 2 + 6, cw - tw / 2 - 6); c.globalAlpha = Math.min(1, d.t * 3); c.fillStyle = 'rgba(0,0,0,.6)'; c.beginPath(); RR(c, dx - tw / 2, y - 14, tw, 20, 4); c.fill(); c.fillStyle = d.color; c.fillText(d.msg, dx, y); c.globalAlpha = 1; }
     }

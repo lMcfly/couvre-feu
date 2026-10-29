@@ -81,7 +81,9 @@ mixin(Game, {
     c.setTransform(S, 0, 0, S, ox, oy); c.globalCompositeOperation = 'lighter';
     this.renderEmissive(inView);
     c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
-    for (const t of this.texts) { c.globalAlpha = Math.min(1, t.life * 2); c.font = `15px ${FD}`; c.textAlign = 'center'; c.fillStyle = t.color; c.fillText(t.text, t.x, t.y); } c.globalAlpha = 1;
+    // points qui montent ; estompés quand ils passent sous la bannière, pour ne pas se mélanger à son texte
+    { const bn = this.bannerObj && !this.cine ? (H / DPR / HUDK) * 0.3 : null;
+      for (const t of this.texts) { let a = Math.min(1, t.life * 2); if (bn != null) { const sy = this.w2h(t.x, t.y).y; if (sy > bn - 62 && sy < bn + 42) a *= 0.12; } c.globalAlpha = a; c.font = `15px ${FD}`; c.textAlign = 'center'; c.fillStyle = t.color; c.fillText(t.text, t.x, t.y); } c.globalAlpha = 1; }
     // écran
     c.setTransform(1, 0, 0, 1, 0, 0);
     this.drawScreenFx(c);

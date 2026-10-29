@@ -1,5 +1,11 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 68, d: '29 oct.', t: 'Chaque mot à sa place', s: 'Fini les textes qui se marchent dessus quand tu ramasses ou sauves quelqu\'un.', it: [
+    ['fix', 'Butin lisible', 'Les « +25 santé », « +1 grenade »… ont chacun leur ligne et un fond ; ils passent sous ton perso quand une bannière s\'affiche.'],
+    ['fix', 'Points des zombies', 'Les « +150 » ne s\'empilent plus au même endroit et s\'effacent sous la bannière.'],
+    ['fix', 'Messages sur téléphone', 'Ils se rangent sous l\'objectif au lieu de le recouvrir.'],
+    ['up', 'Crédits dans les Paramètres', 'L\'onglet quitte le menu : les crédits sont en bas des Paramètres de l\'accueil.']],
+    q: ['fiona', 'Fiona', 'Enfin je peux lire ce que je ramasse. Pas que ça change grand-chose.'] },
   { v: 67, d: '29 oct.', t: 'Grand ménage sous le capot', s: 'Rien ne change à l\'écran… sauf que tout va plus vite.', it: [
     ['up', 'Démarrage 4× plus rapide', 'Les portraits ne sont plus dessinés tant que tu n\'ouvres pas leur écran : le jeu est prêt en un clin d\'œil, même sur un vieux téléphone.'],
     ['up', 'Code rangé', 'Le jeu est maintenant découpé en 39 fichiers par thème, avec des vérifications automatiques avant chaque mise en ligne.'],
