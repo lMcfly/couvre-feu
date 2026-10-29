@@ -723,6 +723,64 @@ html.touch .news-nav{opacity:.8}
 html.pad-on,html.pad-on *{cursor:none!important}
 
 /* mise en page sans défilement */
+/* ---------- réglages : grille d'icônes puis une page par thème */
+.set-wrap{display:flex;flex-direction:column;gap:10px;width:100%}
+.set-home{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.set-tile{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:16px 16px 14px;min-height:116px;text-align:left;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;color:var(--bone);cursor:pointer;font-family:var(--type);transition:border-color .15s,transform .15s,background .15s}
+.set-tile:hover,.set-tile:focus-visible,.set-tile.pad-hover{border-color:var(--ember);background:#211c1a;transform:translateY(-2px);outline:none}
+.set-tile svg{width:30px;height:30px;color:var(--ember);flex:none}
+.set-tile b{font-family:var(--display);font-weight:400;font-size:18px;letter-spacing:.05em;text-transform:uppercase}
+.set-tile small{font-size:11.5px;line-height:1.3;color:#9a9385}
+.set-page{display:flex;flex-direction:column;animation:setIn .22s ease both}
+.set-page[hidden],.set-home[hidden]{display:none}
+.set-page header{display:flex;align-items:center;gap:12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.set-page header .btn{min-width:38px;font-size:18px;line-height:1;padding:5px 10px}
+.set-page header h4{margin:0;display:flex;align-items:center;gap:8px;font-size:20px}
+.set-page header svg{width:22px;height:22px;color:var(--ember)}
+.set-list{display:flex;flex-direction:column}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:46px;padding:8px 2px;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px;color:#ddd6c8;cursor:pointer}
+.set-row:last-child{border-bottom:0}
+.set-l{display:flex;flex-direction:column;gap:2px;min-width:0}.set-l small{font-size:11px;line-height:1.3;color:#8b867b}
+.set-r{display:flex;align-items:center;gap:10px;flex:none}
+.set-r input[type=range]{width:min(200px,26vw);accent-color:var(--ember);margin:0}
+.set-val{min-width:48px;text-align:right;font-family:var(--display);font-weight:400;font-size:15px;color:var(--sodium,#f0b25a);font-variant-numeric:tabular-nums}
+.sseg{display:inline-flex;flex:none;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.sseg .btn{display:inline-flex;align-items:center;justify-content:center;min-height:32px;line-height:1.1;border:0;border-left:1px solid var(--line);border-radius:0;margin:0;padding:6px 12px;box-shadow:none;background:transparent}
+.sseg .btn:first-child{border-left:0}
+.sseg .btn[aria-pressed="true"]{background:var(--ember);color:#151213;box-shadow:none}
+input.sw{-webkit-appearance:none;appearance:none;flex:none;width:44px;height:24px;margin:0;border-radius:12px;background:#3b3532;position:relative;cursor:pointer;transition:background .15s}
+input.sw::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#cfc8ba;transition:transform .15s,background .15s}
+input.sw:checked{background:var(--ember)}input.sw:checked::after{transform:translateX(20px);background:#fff}
+input.sw:focus-visible{outline:2px solid var(--sodium,#f0b25a);outline-offset:2px}
+.set-extra{display:flex;flex-direction:column;gap:10px}
+.set-extra:not(:empty){margin-top:10px}
+.set-extra .row{margin:0}
+.set-save{display:flex;flex-direction:column;gap:8px}.set-save .row{flex-wrap:wrap}
+@keyframes setIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.set-page{animation:none}.set-tile{transition:none}}
+#pause-settings .set-home{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:560px){.set-home{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-height:520px){.set-home{gap:8px}.set-tile{min-height:0;padding:10px 12px;gap:3px}.set-tile svg{width:24px;height:24px}.set-tile b{font-size:15px}.set-tile small{font-size:10.5px}.set-row{min-height:40px;padding:5px 2px;font-size:13px}.set-l small{font-size:10px}.set-page header{padding-bottom:4px}.set-page header h4{font-size:17px}}
+/* ---------- marché noir sur téléphone : onglets Armes / Équipement, bouton de sortie toujours visible */
+html:not(.touch) #scr-shop .shop-tabs{display:none}
+html.touch #scr-shop .shop-head{flex-wrap:nowrap;align-items:center}
+html.touch #scr-shop .shop-head .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}
+html.touch #scr-shop .shop-tabs{margin-left:auto}
+html.touch #scr-shop .shop-tabs .btn{padding:7px 14px;font-size:12px}
+html.touch #scr-shop .shop-cols{grid-template-columns:1fr}
+html.touch #scr-shop .shop-cols .sec{display:none}
+html.touch #scr-shop .shop-cols[data-tab="arms"] .sec-gear,html.touch #scr-shop .shop-cols[data-tab="gear"] .sec-arms{display:none}
+html.touch #scr-shop .shop-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+html.touch #scr-shop .shop-grid .card{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:8px;row-gap:4px;align-content:start;padding:8px 9px}
+html.touch #scr-shop .shop-grid .card>*{grid-column:1/-1}
+html.touch #scr-shop .shop-grid .card>.ico{grid-column:1;width:44px;height:29px}
+html.touch #scr-shop .shop-grid .card>.card-head{grid-column:2;align-self:center}
+html.touch #scr-shop .card-head h3{font-size:14px}
+html.touch #scr-shop .desc{display:none}
+html.touch #scr-shop .gear{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+html.touch #scr-shop .gear .card{padding:8px 10px}
+html.touch #scr-shop .shop-foot{position:sticky;bottom:0;z-index:2;margin:0 -8px -4px;padding:10px 8px 4px;background:linear-gradient(180deg,rgba(18,16,17,0),rgba(18,16,17,.96) 40%)}
+html.touch #mode-coop{display:none}
 .set-cols{display:grid;grid-template-columns:1fr 1fr;gap:6px 28px;align-items:start}
 .set-col{display:flex;flex-direction:column;gap:10px;min-width:0}
 .set-col h4:first-child{margin-top:0}
@@ -1128,13 +1186,11 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 
   <div class="sheet" id="panel-settings" hidden><div class="sheet-card" role="region" aria-labelledby="set-h">
     <header class="sheet-head"><h3 id="set-h">Paramètres</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header>
-    <div class="sheet-body set-cols"><div class="set-col">
-      <h4>Son et affichage</h4>
-      <div class="opts" id="opts-title"></div>
-      <div class="row"><button type="button" class="btn" id="btn-install">📲 Installer sur l'écran d'accueil</button></div>
-      <h4>Commandes</h4>
-      <div class="row"><button type="button" class="btn" id="btn-keys">Personnaliser les touches et la manette</button></div>
-      <details class="controls"><summary>Voir les contrôles par défaut</summary><div class="cols">
+    <div class="sheet-body"><div class="set-wrap" id="opts-title" data-cats="son affichage commandes access online save"></div>
+    <div id="set-stash" hidden>
+      <div class="row" data-to="affichage"><button type="button" class="btn" id="btn-install">📲 Installer sur l'écran d'accueil</button></div>
+      <div class="row" data-to="commandes"><button type="button" class="btn" id="btn-keys">Personnaliser les touches et la manette</button></div>
+      <div data-to="commandes"><details class="controls"><summary>Voir les contrôles par défaut</summary><div class="cols">
         <dl class="keys">
           <dt>ZQSD / WASD</dt><dd>Se déplacer</dd>
           <dt>Souris</dt><dd>Viser (la lampe suit)</dd>
@@ -1171,9 +1227,8 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
         <dt>Boutons</dt><dd>E (mêlée, magasin, soins) · G · MINE · LEURRE · capacité · II pause</dd>
       </dl>
       <p class="hint long-hint">Ce sont les touches par défaut : le bouton « Touches » permet de toutes les changer. Sur téléphone, les commandes tactiles s'activent toutes seules. Joue en mode paysage. Tire sur une voiture pour déclencher son alarme : la horde converge vers elle. Les voitures marquées d'une fuite d'essence explosent.</p>
-    </details>
-      </div><div class="set-col">
-      <h4>Sauvegarde</h4>
+    </details></div>
+      <div data-to="save" class="set-save">
       <p class="hint long-hint">La partie se sauvegarde toute seule à chaque point de sauvegarde, dans ce navigateur. Pour la reprendre sur un autre appareil ou un autre navigateur, copie le code ci-dessous puis colle-le là-bas.</p>
       <p id="save-info"></p>
       <div class="row"><button type="button" class="btn" id="btn-save-copy">Copier le code de sauvegarde</button><button type="button" class="btn" id="btn-save-delete">Supprimer la sauvegarde</button><button type="button" class="btn" id="btn-wipe">Tout remettre à zéro</button></div>
@@ -1181,7 +1236,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
       <label class="label" for="save-import">Charger un code</label>
       <textarea id="save-import" rows="3" placeholder="Colle ici un code de sauvegarde"></textarea>
       <div class="row"><button type="button" class="btn" id="btn-save-import">Charger ce code</button></div>
-      <p class="hint" id="save-msg" aria-live="polite"></p>
+      <p class="hint" id="save-msg" aria-live="polite"></p></div>
     </div></div>
   </div></div>
   <div class="sheet" id="panel-scores" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Meilleurs scores</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
@@ -1207,7 +1262,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
     </div>
     <div class="pause-settings" id="pause-settings" hidden>
       <p class="eyebrow">Paramètres</p>
-      <div class="opts" id="opts-pause"></div>
+      <div class="set-wrap" id="opts-pause" data-cats="son affichage commandes access online"></div>
       <div class="row">
         <button type="button" class="btn" id="btn-keys-pause">Touches et manette</button>
         <button type="button" class="btn" id="btn-fs-pause">Plein écran</button>
@@ -3031,8 +3086,9 @@ class Shop {
     const g = this.g, p = g.player, money = p.money;
     const btn = (act, label, ok, cls = 'sm') => `<button type="button" class="btn ${cls}" data-act="${act}" ${ok ? '' : 'disabled'}>${label}</button>`;
     const pips = (l, m) => `<span class="pips" aria-label="niveau ${l} sur ${m}">${'■'.repeat(l)}<i>${'■'.repeat(m - l)}</i></span>`;
-    let h = `<header class="shop-head"><div><p class="eyebrow">${g.safeName || 'Point de sauvegarde'} · progression sauvegardée</p><h2>Marché noir</h2></div><div class="purse" aria-label="Argent disponible">$ ${fmt(money)}</div></header>`;
-    h += '<div class="shop-cols"><section><h3 class="sec">Armes</h3><div class="shop-grid">';
+    const tab = this.tab || 'arms', tb = (k, l) => `<button type="button" class="btn sm" data-act="tab:${k}" aria-pressed="${tab === k}">${l}</button>`;
+    let h = `<header class="shop-head"><div><p class="eyebrow">${g.safeName || 'Point de sauvegarde'} · progression sauvegardée</p><h2>Marché noir</h2></div><span class="sseg shop-tabs" role="group" aria-label="Rayon">${tb('arms', 'Armes')}${tb('gear', 'Équipement')}</span><div class="purse" aria-label="Argent disponible">$ ${fmt(money)}</div></header>`;
+    h += `<div class="shop-cols" data-tab="${tab}"><section class="sec-arms"><h3 class="sec">Armes</h3><div class="shop-grid">`;
     p.weapons.forEach((w, i) => {
       const d = w.def;
       h += `<article class="card ${w.owned ? '' : 'locked'}"><img class="ico" src="${iconURL(d.id, true)}" alt=""><div class="card-head"><h3>${d.name}</h3><span class="slot">${i + 1}</span></div><p class="desc">${d.desc}</p>`;
@@ -3044,19 +3100,20 @@ class Shop {
       }
       h += '</article>';
     });
-    h += '</div></section><section><h3 class="sec">Équipement</h3><div class="gear">';
+    h += '</div></section><section class="sec-gear"><h3 class="sec">Équipement</h3><div class="gear">';
     const armP = 300 * (p.armor + 1);
     h += `<article class="card"><img class="ico" src="${iconURL('armor')}" alt=""><div class="card-head"><h3>Armure</h3>${pips(p.armor, 3)}</div><p class="desc">Chaque niveau réduit les dégâts de 15 %.</p>${p.armor >= 3 ? '<span class="maxed">MAX</span>' : btn('armor', `Renforcer · $${armP}`, money >= armP)}</article>`;
-    h += `<article class="card"><img class="ico" src="${iconURL('med')}" alt=""><div class="card-head"><h3>Soins complets</h3><span class="slot">${Math.ceil(p.hp)}/${p.maxHp}</span></div><p class="desc">Remet la santé au maximum.</p>${btn('heal', 'Se soigner · $150', money >= 150 && p.hp < p.maxHp)}</article>`;
+    h += `<article class="card"><img class="ico" src="${iconURL('med')}" alt=""><div class="card-head"><h3>Soins complets</h3><span class="slot">${Math.ceil(p.hp)}/${p.maxHp}</span></div><p class="desc">Remet la santé au maximum.</p>${btn('heal', 'Soigner · $150', money >= 150 && p.hp < p.maxHp)}</article>`;
     h += `<article class="card"><img class="ico" src="${iconURL('battery')}" alt=""><div class="card-head"><h3>Piles de lampe</h3><span class="slot">${Math.round(p.battery)} %</span></div><p class="desc">La lampe s'use. +50 % d'autonomie.</p>${btn('battery', 'Recharger · $40', money >= 40 && p.battery < 100)}</article>`;
     const ICO = { grenades: 'grenade', mines: 'mine', decoys: 'decoy' };
     for (const [k, name, price, max, desc] of [['grenades', 'Grenade', 60, 9, `${keyPhrase('grenade')}. Explose après 1,7 s.`], ['mines', 'Mine', 80, 5, `${keyPhrase('mine')}. Posée à tes pieds, s'arme en 1 s.`], ['decoys', 'Fusée-leurre', 70, 5, `${keyPhrase('decoy')}. Attire la horde 8 s puis explose.`]])
       h += `<article class="card"><img class="ico" src="${iconURL(ICO[k])}" alt=""><div class="card-head"><h3>${name}</h3><span class="slot">${p[k]}/${max}</span></div><p class="desc">${desc}</p>${btn('item:' + k + ':' + price + ':' + max, `+1 · $${price}`, money >= price && p[k] < max)}</article>`;
-    h += `</div></section></div><div class="row end"><button type="button" class="btn primary" data-act="close">Reprendre la route</button></div>`;
+    h += `</div></section></div><div class="row end shop-foot"><button type="button" class="btn primary" data-act="close">Reprendre la route</button></div>`;
     this.body.innerHTML = h;
   }
   act(a) {
     const g = this.g, p = g.player, parts = a.split(':'); let ok = false;
+    if (parts[0] === 'tab') { this.tab = parts[1]; g.audio.ui(); this.render(); $('scr-shop').scrollTop = 0; const t = this.body.querySelector(`[data-act="tab:${parts[1]}"]`); if (t) t.focus({ preventScroll: true }); return; }
     const pay = n => { if (p.money < n) return false; p.money -= n; return true; };
     switch (parts[0]) {
       case 'close': g.audio.ui(); this.close(); return;
@@ -4010,7 +4067,7 @@ class Game {
       if (capture && a.menuBack) { capture = null; renderBinds(); return; }
       if (!capture && (a.menuBack || a.pause)) { closeKeys(); return; }
     } else {
-      if (this.state === 'paused' && (a.pause || a.menuBack)) { if (!$('pause-settings').hidden) $('btn-pause-back').click(); else this.resume(); return; }
+      if (this.state === 'paused' && (a.pause || a.menuBack)) { if (!$('pause-settings').hidden) { if (!setBack()) $('btn-pause-back').click(); } else this.resume(); return; }
       if (this.state === 'shop' && (a.pause || a.menuBack)) { this.shop.close(); return; }
       if (this.state === 'comic' && (a.pause || a.menuBack)) { this.comic.finish(); return; }
       if (this.state === 'map' && a.pause && !this.input.pc.has('Escape')) { this.mapContinue(); return; }
@@ -4018,7 +4075,7 @@ class Game {
     if (this.state === 'title' && !this.keysOpen) {
       const sheet = document.querySelector('.sheet:not([hidden])');
       if (a.menuBack && (closeHubModals() || (!sheet && (closeFiche() || closeFolder())))) return;
-      if (sheet && a.menuBack) { closeSheets(); return; }
+      if (sheet && a.menuBack) { if (!setBack()) closeSheets(); return; }
       const td = a.menuTab || a.cycle, hm = document.querySelector('.hub-modal:not([hidden])'); if (hm) { /* menu modal ouvert : pas d'onglets */ } else if (td) { const tabs = [...document.querySelectorAll('.hub-tabs .tab')], cur = tabs.findIndex(b => b.getAttribute('aria-selected') === 'true'); tabs[(cur + td + tabs.length) % tabs.length].click(); this.audio.ui(); return; }
       if (!sheet && !hm && a.menuY) { $('btn-ach').click(); return; }
     }
@@ -6853,25 +6910,66 @@ $('mode-online').addEventListener('click', openNet);
 window.__Net = Net;
 const game = new Game();
 window.__cf = game;
-function optionsHTML(pre) {
-  return `<label><input type="checkbox" id="${pre}-rain" ${Settings.rain ? 'checked' : ''}> Pluie</label>
-  <label><input type="checkbox" id="${pre}-fog" ${Settings.fog ? 'checked' : ''}> Brouillard</label>
-  <span class="ui-size" role="group" aria-label="Visibilité du perso"><span class="lbl">Visibilité du perso</span>${[['normale', 'Normale'], ['renforcee', 'Renforcée']].map(([k, v]) => `<button type="button" class="btn sm" data-opt="vis" data-val="${k}" aria-pressed="${(Settings.vis || 'normale') === k}">${v}</button>`).join('')}</span>
-  <label title="Zones de danger en orange, gaz et acide en bleu"><input type="checkbox" data-optc="cb" ${Settings.cb ? 'checked' : ''}> Mode daltonien</label>
-  <label title="Moins de tremblements d'écran, de flashs et de lumières qui clignotent"><input type="checkbox" data-optc="calm" ${Settings.calm ? 'checked' : ''}> Effets réduits</label>
-  ${ONLINE.url ? `<label title="Ton nom et ton score sont envoyés au classement partagé avec tes amis"><input type="checkbox" data-optc="online" ${Settings.online !== false ? 'checked' : ''}> Classement en ligne</label>` : ''}
-  <label for="${pre}-vol">Volume <input type="range" id="${pre}-vol" min="0" max="1" step="0.05" value="${Settings.vol}"></label>
-  <label for="${pre}-music">Musique <input type="range" id="${pre}-music" min="0" max="1" step="0.05" value="${Settings.music}"></label>
-  <span class="ui-size" role="group" aria-label="Qualité"><span class="lbl">Qualité</span>${[['auto', 'Auto'], ['high', 'Haute'], ['eco', 'Économie de batterie']].map(([k, v]) => `<button type="button" class="btn sm" data-opt="quality" data-val="${k}" aria-pressed="${Settings.quality === k}">${v}</button>`).join('')}</span>
-  ${TOUCH ? `<span class="ui-size" role="group" aria-label="Taille des boutons"><span class="lbl">Boutons</span>${[['petit', 'Petits'], ['normal', 'Normaux'], ['grand', 'Grands']].map(([k, v]) => `<button type="button" class="btn sm" data-opt="btnSize" data-val="${k}" aria-pressed="${Settings.btnSize === k}">${v}</button>`).join('')}</span>
-  <label for="${pre}-alpha">Opacité des boutons <input type="range" id="${pre}-alpha" data-optr="btnAlpha" min="0.3" max="1" step="0.05" value="${Settings.btnAlpha}"></label>
-  <label><input type="checkbox" data-optc="lefty" ${Settings.lefty ? 'checked' : ''}> Mode gaucher</label>
-  <label><input type="checkbox" data-optc="fixedSticks" ${Settings.fixedSticks ? 'checked' : ''}> Sticks fixes</label>
-  <label for="${pre}-fireat">Le stick droit tire à partir de <b id="${pre}-fireat-v">${Math.round((+Settings.fireAt || 0.6) * 100)} %</b> <input type="range" id="${pre}-fireat" data-optr="fireAt" min="0.3" max="0.9" step="0.05" value="${+Settings.fireAt || 0.6}"></label>` : ''}
-  <span class="ui-size" role="group" aria-label="Taille de l'interface"><span class="lbl">Taille de l'interface</span>${Object.entries(UI_SIZES).map(([k, v]) => `<button type="button" class="btn sm" data-ui="${k}" aria-pressed="${Settings.ui === k}">${v[0]}</button>`).join('')}</span>`;
+// réglages rangés par thème : une grille d'icônes, puis une page par thème
+const SET_CATS = {
+  son: ['Son', '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>'],
+  affichage: ['Affichage', '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/>'],
+  commandes: ['Commandes', '<path d="M6.5 8h11a4.5 4.5 0 0 1 4.4 5.4l-.4 1.8a2.6 2.6 0 0 1-4.6 1L15.5 14h-7l-1.4 2.2a2.6 2.6 0 0 1-4.6-1l-.4-1.8A4.5 4.5 0 0 1 6.5 8z"/><path d="M8 10.2v3.2M6.4 11.8h3.2M15.6 11h.01M17.6 13h.01"/>'],
+  access: ['Accessibilité', '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'],
+  online: ['En ligne', '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3.4 3.2 14.6 0 18M12 3c-3.2 3.4-3.2 14.6 0 18"/>'],
+  save: ['Sauvegarde', '<path d="M5 3h11.5L20 6.5V21H5z"/><path d="M8.5 3v5h7V3M8.5 21v-7h8v7"/>']
+};
+const pct = v => Math.round(v * 100) + ' %';
+function setSummary(cat) {
+  const Q = { auto: 'auto', high: 'haute', eco: 'économie' }, B = { petit: 'petits', normal: 'normaux', grand: 'grands' };
+  if (cat === 'son') return `Volume ${pct(Settings.vol)} · musique ${pct(Settings.music)}`;
+  if (cat === 'affichage') return `Qualité ${Q[Settings.quality] || 'auto'} · interface ${(UI_SIZES[Settings.ui] || UI_SIZES.normale)[0].toLowerCase()}`;
+  if (cat === 'commandes') return TOUCH ? `Boutons ${B[Settings.btnSize] || 'normaux'}${Settings.lefty ? ' · gaucher' : ''}${Settings.fixedSticks ? ' · sticks fixes' : ''}` : 'Clavier, souris et manette';
+  if (cat === 'access') { const on = [Settings.cb && 'daltonien', Settings.calm && 'effets réduits', Settings.vis === 'renforcee' && 'perso renforcé'].filter(Boolean); return on.length ? on.join(' · ').replace(/^./, c => c.toUpperCase()) : 'Rien d\'activé'; }
+  if (cat === 'online') return !ONLINE.url ? 'Pas encore branché' : Settings.online !== false ? 'Classement activé' : 'Classement désactivé';
+  if (cat === 'save') { const d = typeof readSave === 'function' ? readSave() : null; return d ? 'Partie en cours sauvegardée' : 'Code de transfert, remise à zéro'; }
+  return '';
 }
+function optionsHTML(pre, cat) {
+  const sw = (label, attrs, on, hint) => `<label class="set-row"><span class="set-l">${label}${hint ? `<small>${hint}</small>` : ''}</span><input type="checkbox" class="sw" ${attrs} ${on ? 'checked' : ''}></label>`;
+  const rg = (label, id, attrs, val, txt, vid) => `<label class="set-row" for="${id}"><span class="set-l">${label}</span><span class="set-r"><input type="range" id="${id}" ${attrs} value="${val}"><b class="set-val"${vid ? ` id="${vid}"` : ''}>${txt}</b></span></label>`;
+  const seg = (label, list, attr) => `<div class="set-row" role="group" aria-label="${label}"><span class="set-l">${label}</span><span class="sseg">${list.map(([k, v, on]) => `<button type="button" class="btn sm" ${attr}="${k}" aria-pressed="${on}">${v}</button>`).join('')}</span></div>`;
+  const opt = (key, list, cur) => seg(list.label, list.v.map(([k, v]) => [k, v, cur === k]), `data-opt="${key}" data-val`);
+  if (cat === 'son') return rg('Volume', `${pre}-vol`, 'min="0" max="1" step="0.05" data-fmt="pct"', Settings.vol, pct(Settings.vol)) + rg('Musique', `${pre}-music`, 'min="0" max="1" step="0.05" data-fmt="pct"', Settings.music, pct(Settings.music));
+  if (cat === 'affichage') return sw('Pluie', `id="${pre}-rain"`, Settings.rain) + sw('Brouillard', `id="${pre}-fog"`, Settings.fog)
+    + opt('quality', { label: 'Qualité', v: [['auto', 'Auto'], ['high', 'Haute'], ['eco', 'Éco']] }, Settings.quality)
+    + seg('Taille de l\'interface', Object.entries(UI_SIZES).map(([k, v]) => [k, v[0], Settings.ui === k]), 'data-ui');
+  if (cat === 'commandes') return TOUCH ? opt('btnSize', { label: 'Taille des boutons', v: [['petit', 'Petits'], ['normal', 'Normaux'], ['grand', 'Grands']] }, Settings.btnSize)
+    + rg('Opacité des boutons', `${pre}-alpha`, 'data-optr="btnAlpha" min="0.3" max="1" step="0.05" data-fmt="pct"', Settings.btnAlpha, pct(Settings.btnAlpha))
+    + rg('Le stick droit tire à partir de', `${pre}-fireat`, 'data-optr="fireAt" min="0.3" max="0.9" step="0.05"', +Settings.fireAt || 0.6, pct(+Settings.fireAt || 0.6), `${pre}-fireat-v`)
+    + sw('Mode gaucher', 'data-optc="lefty"', Settings.lefty, 'Les sticks et les boutons changent de côté')
+    + sw('Sticks fixes', 'data-optc="fixedSticks"', Settings.fixedSticks, 'Ils restent en place au lieu de suivre le pouce') : '';
+  if (cat === 'access') return sw('Mode daltonien', 'data-optc="cb"', Settings.cb, 'Zones de danger en orange, gaz et acide en bleu')
+    + sw('Effets réduits', 'data-optc="calm"', Settings.calm, 'Moins de tremblements, de flashs et de clignotements')
+    + opt('vis', { label: 'Visibilité du perso', v: [['normale', 'Normale'], ['renforcee', 'Renforcée']] }, Settings.vis || 'normale');
+  if (cat === 'online') return ONLINE.url ? sw('Classement en ligne', 'data-optc="online"', Settings.online !== false, 'Ton nom et ton score rejoignent le classement partagé') : '<p class="hint">Le classement en ligne n\'est pas encore branché.</p>';
+  return '';
+}
+function setShell(el) {
+  if (el.dataset.built) return; el.dataset.built = '1'; const cats = el.dataset.cats.split(' ').filter(k => TOUCH || k !== 'commandes' || el.id !== 'opts-pause'), ico = k => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${SET_CATS[k][1]}</svg>`;
+  el.innerHTML = `<div class="set-home">${cats.map(k => `<button type="button" class="set-tile" data-setcat="${k}">${ico(k)}<b>${SET_CATS[k][0]}</b><small data-sum="${k}"></small></button>`).join('')}</div>`
+    + cats.map(k => `<section class="set-page" data-page="${k}" hidden><header><button type="button" class="btn sm" data-setback aria-label="Retour aux réglages">‹</button><h4>${ico(k)}${SET_CATS[k][0]}</h4></header><div class="set-list" data-opts="${k}"></div><div class="set-extra" data-extra="${k}"></div></section>`).join('');
+  if (el.id === 'opts-title') for (const n of [...$('set-stash').children]) { const x = el.querySelector(`[data-extra="${n.dataset.to}"]`); if (x) x.appendChild(n); }
+  if (!TOUCH) { const c = el.querySelector('[data-opts="commandes"]'); if (c) c.innerHTML = ''; }
+  el.addEventListener('click', e => {
+    const t = e.target.closest('[data-setcat]'), bk = e.target.closest('[data-setback]');
+    if (t) { game.audio.init(); game.audio.ui(); setOpen(el, t.dataset.setcat); }
+    else if (bk) { game.audio.ui(); setHome(el); }
+  });
+  el.addEventListener('input', e => { const r = e.target; if (r.type !== 'range') return; const v = r.parentNode.querySelector('.set-val'); if (v && r.dataset.fmt === 'pct') v.textContent = pct(+r.value); setSums(el); });
+}
+function setSums(el) { for (const s of el.querySelectorAll('[data-sum]')) s.textContent = setSummary(s.dataset.sum); }
+function setOpen(el, k) { el.querySelector('.set-home').hidden = true; for (const p of el.querySelectorAll('.set-page')) p.hidden = p.dataset.page !== k; const card = el.closest('.sheet-card'); if (card) card.scrollTop = 0; requestAnimationFrame(() => { const f = el.querySelector(`.set-page[data-page="${k}"] .set-list input, .set-page[data-page="${k}"] .set-list button, .set-page[data-page="${k}"] .set-extra button`); (f || el.querySelector(`.set-page[data-page="${k}"] [data-setback]`)).focus({ preventScroll: true }); }); }
+function setHome(el, quiet) { if (typeof el === 'string') el = $(el); if (!el || !el.querySelector('.set-home')) return; const open = el.querySelector('.set-page:not([hidden])'); for (const p of el.querySelectorAll('.set-page')) p.hidden = true; el.querySelector('.set-home').hidden = false; setSums(el); if (!quiet) requestAnimationFrame(() => { const t = open && el.querySelector(`[data-setcat="${open.dataset.page}"]`); if (t) t.focus({ preventScroll: true }); }); }
+// Échap / B : une page de réglages ouverte revient d'abord à la grille d'icônes
+function setBack() { for (const el of document.querySelectorAll('.set-wrap')) if (el.offsetParent && el.querySelector('.set-page:not([hidden])')) { setHome(el); return true; } return false; }
 function bindOptions(pre) {
-  const el = $('opts-' + pre); el.innerHTML = optionsHTML(pre);
+  const el = $('opts-' + pre); setShell(el); for (const c of el.querySelectorAll('[data-opts]')) if (TOUCH || c.dataset.opts !== 'commandes') c.innerHTML = optionsHTML(pre, c.dataset.opts); setSums(el);
   const sync = () => { for (const p of ['title', 'pause']) { const e = $(p + '-rain'); if (!e) continue; e.checked = Settings.rain; $(p + '-fog').checked = Settings.fog; $(p + '-vol').value = Settings.vol; $(p + '-music').value = Settings.music; } };
   $(pre + '-rain').addEventListener('change', e => { Settings.rain = e.target.checked; Settings.save(); game.audio.applyVolume(); sync(); });
   $(pre + '-fog').addEventListener('change', e => { Settings.fog = e.target.checked; Settings.save(); sync(); });
@@ -7393,10 +7491,10 @@ function togglePanel(id, btn, fill) {
   requestAnimationFrame(() => { const f = p.querySelector('.sheet-close'); if (f) f.focus({ preventScroll: true }); });
 }
 function markTabs(sel) { for (const b of document.querySelectorAll('.hub-tabs .tab')) b.setAttribute('aria-selected', b === sel ? 'true' : 'false'); }
-$('btn-settings').addEventListener('click', e => { refreshContinue(); togglePanel('panel-settings', e.currentTarget); });
+$('btn-settings').addEventListener('click', e => { refreshContinue(); setHome('opts-title', true); togglePanel('panel-settings', e.currentTarget); });
 function closeSheets() { for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden = true; $(bid).setAttribute('aria-expanded', 'false'); } $('scr-title').classList.remove('page-open'); if (typeof setTab === 'function') setTab(hubTab); }
 for (const sh of document.querySelectorAll('.sheet')) sh.addEventListener('click', e => { if (e.target === sh || e.target.closest('.sheet-close')) { closeSheets(); game.audio.ui(); } });
-addEventListener('keydown', e => { if (e.key === 'Escape' && !game.keysOpen && document.querySelector('.sheet:not([hidden])')) { e.preventDefault(); closeSheets(); } });
+addEventListener('keydown', e => { if (e.key === 'Escape' && !game.keysOpen && document.querySelector('.sheet:not([hidden])')) { e.preventDefault(); if (!setBack()) closeSheets(); } });
 const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
 function scoresHTML() {
   if (!Online.on()) return scoreTable(Scores.list()) + (ONLINE.url ? '<p class="hint">Classement en ligne désactivé dans les Paramètres.</p>' : '');
@@ -7415,7 +7513,7 @@ $('btn-scores').addEventListener('click', e => {
   for (const b of body.querySelectorAll('[data-sct]')) b.addEventListener('click', () => { game.audio.ui(); sel('data-sct', b.dataset.sct); const loc = b.dataset.sct === 'local'; body.querySelector('.sc-modes').hidden = loc; if (loc) $('sc-body').innerHTML = scoreTable(Scores.list()); else loadOnline((body.querySelector('[data-scm][aria-pressed="true"]') || {}).dataset?.scm || 'all'); });
 });
 $('btn-resume').addEventListener('click', () => game.resume());
-$('btn-pause-settings').addEventListener('click', () => { game.audio.ui(); $('pause-main').hidden = true; $('pause-settings').hidden = false; requestAnimationFrame(() => { $('btn-pause-back').focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo($('btn-pause-back')); }); });
+$('btn-pause-settings').addEventListener('click', () => { game.audio.ui(); setHome('opts-pause', true); $('pause-main').hidden = true; $('pause-settings').hidden = false; requestAnimationFrame(() => { $('btn-pause-back').focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo($('btn-pause-back')); }); });
 $('btn-pause-back').addEventListener('click', () => { game.audio.ui(); $('pause-settings').hidden = true; $('pause-main').hidden = false; requestAnimationFrame(() => { $('btn-resume').focus({ preventScroll: true }); if (padCursor.on) padCursor.snapTo($('btn-resume')); }); });
 $('btn-map-go').addEventListener('click', () => game.mapContinue());
 $('btn-map-home').addEventListener('click', () => { game.audio.flame(false); game.setupDemo(); game.showScreen('scr-title'); refreshContinue(); });
@@ -7755,6 +7853,12 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.i
   for (const t of document.querySelectorAll('.hub-tabs .tab:not(.fs-tab)')) { const k = t.dataset.tab || t.id; if (!ICO[k]) continue; const lbl = document.createElement('span'); lbl.className = 't-lbl'; while (t.firstChild) lbl.appendChild(t.firstChild); t.insertAdjacentHTML('afterbegin', `<svg class="t-ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICO[k]}</svg>`); t.appendChild(lbl); t.insertAdjacentHTML('beforeend', `<span class="t-short" aria-hidden="true">${SHORT[k]}</span>`); } }
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 63, d: '29 oct.', t: 'Réglages rangés, boutique au carré', s: 'Tout est trié par thème, et le marché noir tient enfin sur un téléphone.', it: [
+    ['up', 'Réglages par icônes', 'Son, Affichage, Commandes, Accessibilité, En ligne, Sauvegarde : touche une icône, tu n\'as que ses réglages.'],
+    ['up', 'Interrupteurs et curseurs', 'Chaque réglage sur sa ligne, avec sa valeur affichée. Plus de fouillis.'],
+    ['fix', 'Marché noir sur téléphone', 'Onglets Armes et Équipement, et « Reprendre la route » toujours visible en bas.'],
+    ['up', 'Modes sur téléphone', 'Le Duo sur le même écran disparaît du téléphone : place au Duo en ligne.']],
+    q: ['zeus', 'Zeus', 'Six icônes. Même moi, je trouve le bouton du volume.'] },
   { v: 62, d: '28 oct.', t: 'Le journal des mises à jour', s: 'Tu ne rateras plus rien : chaque ajout est raconté ici.', it: [
     ['new', 'Onglet Nouveautés', 'Tu es dessus. Les versions s\'empilent du plus récent au plus ancien, avec ce qui a changé.'],
     ['new', 'Pastille rouge', 'Elle s\'allume sur l\'onglet quand une mise à jour arrive, et s\'éteint une fois lue.'],
