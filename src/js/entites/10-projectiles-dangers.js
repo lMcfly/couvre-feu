@@ -191,14 +191,14 @@ class Pickup {
       case 'grenade': p.grenades++; g.toast('+1 grenade', '#d8d2c4'); g.audio.pickup(); break;
       case 'weapon': {
         const w = p.weapons[this.val];
-        if (!w.owned) { w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack; p.switchTo(this.val); g.banner(w.def.name, `Arme trouvée · touche ${this.val + 1}`); }
+        if (!w.owned) { w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack; p.switchTo(this.val); g.notice('Arme trouvée', `${w.def.name} · touche ${this.val + 1}`, '#f0b25a'); }
         else { w.reserve += w.def.ammoPack; g.toast(`+${w.def.ammoPack} munitions · ${w.def.name}`, '#d8d2c4'); }
         g.audio.pickup(); break;
       }
       case 'key': case 'fuel': g.onObjectivePickup(this, p); g.audio.pickup(); break;
       case 'shiba': {
         g.shibaFound.add(this.zone + '-' + this.val); const n = g.shibaFound.size;
-        g.toast(`Shiba sauvé ! ${n} / ${SHIBAS_TOTAL}${n === SHIBAS_TOTAL ? ' · le Paradis des Shibas t\'attend…' : ''}`, '#ffb46a'); g.audio.bark(this.x, this.y, true); g.audio.pickup();
+        g.notice('Shiba sauvé', `${n} / ${SHIBAS_TOTAL}${n === SHIBAS_TOTAL ? ' · le Paradis t\'attend' : ''}`, '#ffb46a'); g.audio.bark(this.x, this.y, true); g.audio.pickup();
         for (let i = 0; i < 16; i++) g.spawnP({ x: this.x, y: this.y, z: 10, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(80, 200), grav: 400, life: 0.9, type: 'spark', size: 2, emissive: true, color: '#ffd27a' });
         if (n === SHIBAS_TOTAL) g.unlock('shibas'); if (g.mode === 'story') g.adoptBuddy(this.x, this.y); break;
       }

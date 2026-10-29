@@ -1,7 +1,12 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 69, d: '29 oct.', t: 'Le centre de l\'écran respire', s: 'Les petits événements passent en haut, dans une bande fine, et tout le texte s\'affiche en entier.', it: [
+    ['new', 'Bandes fines en haut', 'Arme trouvée, shiba ou survivant sauvé, sauvegarde : une bande discrète sous le bouton pause. La grande bannière reste pour les boss, les vagues et les nouveaux secteurs.'],
+    ['fix', 'Plus de texte coupé', 'Messages, succès et descriptions du marché noir s\'affichent en entier, sans points de suspension.'],
+    ['fix', 'Rien ne se chevauche', 'La bande et la carte de succès évitent les barres de vie, l\'objectif et le score, du petit iPhone au grand écran.']],
+    q: ['pedro', 'Pedro', 'Enfin je vois les zombies arriver. Et ce n\'est pas une bonne nouvelle.'] },
   { v: 68, d: '29 oct.', t: 'Chaque mot à sa place', s: 'Fini les textes qui se marchent dessus quand tu ramasses ou sauves quelqu\'un.', it: [
-    ['fix', 'Butin lisible', 'Les « +25 santé », « +1 grenade »… ont chacun leur ligne et un fond ; ils passent sous ton perso quand une bannière s\'affiche.'],
+    ['fix', 'Butin lisible', 'Les « +25 santé », « +1 grenade » et les autres ont chacun leur ligne et un fond ; ils passent sous ton perso quand une bannière s\'affiche.'],
     ['fix', 'Points des zombies', 'Les « +150 » ne s\'empilent plus au même endroit et s\'effacent sous la bannière.'],
     ['fix', 'Messages sur téléphone', 'Ils se rangent sous l\'objectif au lieu de le recouvrir.'],
     ['up', 'Crédits dans les Paramètres', 'L\'onglet quitte le menu : les crédits sont en bas des Paramètres de l\'accueil.']],

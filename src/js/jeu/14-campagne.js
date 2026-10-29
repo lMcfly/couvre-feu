@@ -112,13 +112,13 @@ mixin(Game, {
       this.banner('La horde arrive', 'La grille Est est ouverte : cours'); this.audio.siren();
     } else if (pk.kind === 'fuel') {
       const o = this.level.obj[2]; o.picked = true; (by || this.player).carry = 'fuel'; this.director.queue += Math.round(44 * this.diff.pop); this.later(3, () => this.spawnMiniBoss(2));
-      this.banner('Jerrican récupéré', 'Apporte-le au groupe électrogène, près de la sortie'); this.audio.siren(); this.later(1.5, () => this.quip('fuel'));
+      this.notice('Jerrican récupéré', 'Vers le groupe électrogène', '#f0b25a'); this.audio.siren(); this.later(1.5, () => this.quip('fuel'));
     }
   },
   completeZone(k) {
     if (k < 3) this.level.setGate(ZONES[k].x1, false);
     this.score += Math.round(2500 * this.diff.score); this.audio.objective();
-    if (k !== 0) this.banner('Grille ouverte', 'Rejoins le point de sauvegarde à l\'est');
+    if (k !== 0) this.notice('Grille ouverte', 'Cap sur le point de sauvegarde', '#9fd6e6');
   },
   enterZone(k) {
     if (this.missionFor !== k) { this.missionFor = k; this.missionStart = this.snapStats(); }
@@ -145,12 +145,12 @@ mixin(Game, {
       sv.dead = true;
       if (dist2(sv.x, sv.y, p.x, p.y) < 320 * 320) {
         const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; if (this.run.sv) this.run.sv[sv.zone] = 2;
-        this.later(1.2, () => this.toast(`${sv.name} est sauvé (+${fmt(pts)}, +$200) : « ${sv.line} »`, '#7fd18b'));
+        this.later(1.2, () => { this.notice(`${sv.name} est sauvé`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); });
         if (this.run.saved >= 3) this.unlock('samaritan');
       } else { if (this.run.sv) this.run.sv[sv.zone] = 3; this.later(1.2, () => this.toast(`${sv.name} est resté dehors…`, '#a39e93')); }
     }
     this.checkpoint = this.makeCheckpoint(SAFES[s].x0 + 200, 600); this.checkpoint.safe = s;
-    this.banner('Point de sauvegarde', SAFES[s].name); this.toast('Progression sauvegardée · santé restaurée', '#7fd18b');
+    this.notice('Sauvegardé', SAFES[s].name);
     if (this.endless) { this.later(0.8, () => this.openMutations()); return; }
     const report = this.missionReport(s); writeSave(this, s);
     this.comic.show(['act2', 'act3', 'act4'][s], () => this.showMap({ current: s + 1, report }));

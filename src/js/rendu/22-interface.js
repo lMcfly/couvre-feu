@@ -206,7 +206,7 @@ mixin(Game, {
     for (let i = 0; i < 3; i++) { c.fillStyle = i < p.armor ? '#9aa4ae' : 'rgba(255,255,255,.08)'; c.fillRect(16 + bw + 6, 56 + i * 6, 10, 4); }
     c.fillStyle = 'rgba(255,255,255,.08)'; c.fillRect(16, 76, bw, 3); c.fillStyle = p.battery < 20 ? '#e0321f' : '#efe3a2'; c.fillRect(16, 76, bw * p.battery / 100, 3);
     const ob = this.objective();
-    this._objB = 0; if (ob.text && !(this.wheel && this.wheel.k > 0) && !(this.train && this.train.tut)) { c.font = `12px ${FT}`; c.fillStyle = '#d8d2c4'; wrapText(c, ob.text, 16, 98, Math.min(300, cw * 0.38), 16); this._objB = 98 + wrapLines(c, ob.text, Math.min(300, cw * 0.38)).length * 16 + (ob.progress != null ? 14 : 0) + SAFE.t / HUDK * 0.5; if (ob.progress != null) { c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(16, 128, 160, 4); c.fillStyle = '#7fd18b'; c.fillRect(16, 128, 160 * ob.progress, 4); } }
+    this._objB = 0; this._objR = 0; if (ob.text && !(this.wheel && this.wheel.k > 0) && !(this.train && this.train.tut)) { c.font = `12px ${FT}`; c.fillStyle = '#d8d2c4'; wrapText(c, ob.text, 16, 98, Math.min(300, cw * 0.38), 16); const ol = wrapLines(c, ob.text, Math.min(300, cw * 0.38)); this._objB = 98 + ol.length * 16 + (ob.progress != null ? 14 : 0) + SAFE.t / HUDK * 0.5; this._objR = SAFE.l / HUDK + 16 + Math.max(ob.progress != null ? 160 : 0, ...ol.map(l => c.measureText(l).width)); if (ob.progress != null) { c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(16, 128, 160, 4); c.fillStyle = '#7fd18b'; c.fillRect(16, 128, 160 * ob.progress, 4); } }
     if (ob.tx != null && !p.dead) {
       const s = this.w2h(ob.tx, ob.ty);
       if (s.x < 30 || s.x > cw - 30 || s.y < 30 || s.y > ch - 30) {
@@ -258,7 +258,7 @@ mixin(Game, {
   drawHUDShared(cw, ch, small) {
     const c = ctx, p = this.player, t = this.time;
     // qualité de la connexion en duo en ligne
-    if (this.net && Net.peer && !this.cine) { const r = Math.round(Net.rtt || 0), col = !r ? '#8b867b' : r < 90 ? '#7fd18b' : r < 180 ? '#f0b25a' : '#ff6a52'; c.textAlign = 'center'; c.font = `10px ${FT}`; c.fillStyle = 'rgba(0,0,0,.5)'; const y = small ? 58 : 60, tx = `${Net.relay ? 'relais' : 'direct'} · ${r ? r + ' ms' : '…'}`, tw = c.measureText(tx).width + 18; c.fillRect(cw / 2 - tw / 2, y - 10, tw, 14); c.fillStyle = col; c.beginPath(); c.arc(cw / 2 - tw / 2 + 7, y - 3, 2.5, 0, TAU); c.fill(); c.fillStyle = '#c6c0b2'; c.fillText(tx, cw / 2 + 4, y + 1); }
+    if (this.net && Net.peer && !this.cine && !(this.input.touchMode && this.notices.length)) { const r = Math.round(Net.rtt || 0), col = !r ? '#8b867b' : r < 90 ? '#7fd18b' : r < 180 ? '#f0b25a' : '#ff6a52'; c.textAlign = 'center'; c.font = `10px ${FT}`; c.fillStyle = 'rgba(0,0,0,.5)'; const y = small ? 58 : 60, tx = `${Net.relay ? 'relais' : 'direct'} · ${r ? r + ' ms' : '…'}`, tw = c.measureText(tx).width + 18; c.fillRect(cw / 2 - tw / 2, y - 10, tw, 14); c.fillStyle = col; c.beginPath(); c.arc(cw / 2 - tw / 2 + 7, y - 3, 2.5, 0, TAU); c.fill(); c.fillStyle = '#c6c0b2'; c.fillText(tx, cw / 2 + 4, y + 1); }
     // bannière
     if (this.bannerObj && !this.cine && !(this.wheel && this.wheel.k > 0)) {
       const b = this.bannerObj, a = Math.min(1, b.t * 2, (3.6 - b.t) * 3); c.globalAlpha = a; c.textAlign = 'center';
@@ -267,11 +267,36 @@ mixin(Game, {
       c.font = `${small ? 30 : 44}px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(b.title.toUpperCase(), cw / 2, y);
       c.font = `${small ? 13 : 16}px ${FT}`; c.fillStyle = '#c6c0b2'; c.fillText(b.sub, cw / 2, y + 24); c.globalAlpha = 1;
     }
+    // bande fine en haut pour les petits événements : au tactile sous le bouton pause, entre les barres de vie et le score et au-dessus de l'objectif ; sur PC sous le score
+    if (this.notices.length && !this.cine && !(this.wheel && this.wheel.k > 0) && !(this._achB > 50)) { /* au tactile, attend qu'une carte de succès sur deux lignes soit partie */
+      const n = this.notices[0], tu = this.input.touchMode, k = Math.min(1, n.age * 5), pad = tu ? 14 : 18, gap = tu ? 10 : 14;
+      const fT = `${tu ? 15 : 20}px ${FD}`, fS = `${tu ? 12 : 14}px ${FT}`, lhT = tu ? 17 : 23, lhS = tu ? 15 : 18;
+      const maxW = tu ? cw - 2 * (SAFE.l / HUDK + 228) : Math.min(720, cw - 80), title = n.title.toUpperCase();
+      c.font = fT; const tw = c.measureText(title).width; c.font = fS; const sw = n.sub ? c.measureText(n.sub).width + gap : 0;
+      const one = tw + sw + pad * 2 <= maxW; /* tout le texte s'affiche : sur une ligne si ça tient, sinon sur plusieurs */
+      const mw = tu ? Math.min(maxW, cw - 2 * ((this._objR || 0) + 14)) : maxW; /* sur plusieurs lignes, la bande descend à hauteur de l'objectif : plus étroite */
+      c.font = fT; const tl = one ? [title] : wrapLines(c, title, mw - pad * 2); c.font = fS; const sl = one || !n.sub ? [] : wrapLines(c, n.sub, mw - pad * 2);
+      const w = one ? tw + sw + pad * 2 : mw, hh = one ? (tu ? 26 : 34) : 10 + tl.length * lhT + sl.length * lhS, x = cw / 2 - w / 2;
+      let y = tu ? 54 : small ? 64 : 82; /* PC : sous le score */ if (!tu && this._achH) y += this._achH + 8;
+      y -= (1 - k) * 10;
+      c.globalAlpha = Math.max(0, Math.min(1, n.t * 3, k)); c.fillStyle = 'rgba(8,8,10,.74)'; c.beginPath(); RR(c, x, y, w, hh, 4); c.fill();
+      c.fillStyle = n.color; c.fillRect(x, y, w, 2);
+      if (one) {
+        const by = y + hh / 2 + (tu ? 5 : 7), x0 = cw / 2 - (tw + sw) / 2; c.textAlign = 'left';
+        c.font = fT; c.fillStyle = n.color; c.fillText(title, x0, by);
+        if (n.sub) { c.font = fS; c.fillStyle = '#d8d2c4'; c.fillText(n.sub, x0 + tw + gap, by - 1); }
+      } else {
+        c.textAlign = 'center'; let ly = y + 4;
+        c.font = fT; c.fillStyle = n.color; for (const l of tl) c.fillText(l, cw / 2, ly += lhT);
+        c.font = fS; c.fillStyle = '#d8d2c4'; for (const l of sl) c.fillText(l, cw / 2, (ly += lhS) - 2);
+      }
+      c.globalAlpha = 1;
+    }
     // fil de messages : en bas au centre sur PC, en haut au centre au tactile
     {
       const touchUI = this.input.touchMode, duo = !!this.p2, fw = Math.min(duo ? (touchUI ? 230 : 340) : touchUI ? 290 : 460, cw * (touchUI ? 0.32 : 0.4)), fx = touchUI ? 12 : cw / 2 - fw / 2;
       c.font = `${duo ? 11 : touchUI ? 12 : small ? 12 : 14}px ${FT}`; c.textAlign = 'left';
-      const lh = duo ? 13 : touchUI ? 15 : small ? 15 : 18, cards = (duo ? this.toasts.slice(0, 1) : touchUI ? this.toasts.slice(0, 2) : this.toasts).map(to => { const lines = wrapLines(c, to.msg + (to.n > 1 ? `  ×${to.n}` : ''), fw - 24).slice(0, duo ? 2 : 3); return { to, lines, h: lines.length * lh + (duo ? 8 : 12) }; });
+      const lh = duo ? 13 : touchUI ? 15 : small ? 15 : 18, cards = (duo ? this.toasts.slice(0, 1) : touchUI ? this.toasts.slice(0, 2) : this.toasts).map(to => { const lines = wrapLines(c, to.msg + (to.n > 1 ? `  ×${to.n}` : ''), fw - 24); /* message entier, jamais coupé */ return { to, lines, h: lines.length * lh + (duo ? 8 : 12) }; });
       let fy = touchUI ? Math.max(92, (this._objB || 0) + 6) : ch - 112; /* au tactile : sous l'objectif */
       for (const cd of cards) {
         const { to, lines, h } = cd, k = Math.min(1, to.age * 5), a = Math.min(1, to.t * 1.5, k);
@@ -283,13 +308,20 @@ mixin(Game, {
       }
       c.globalAlpha = 1;
     }
-    // carte de succès en haut (à gauche du bouton pause au tactile)
+    // carte de succès en haut : au tactile à gauche du bouton pause, ou à droite si le nom n'y tient pas ; sur PC sous le score
+    this._achH = 0; this._achB = 0;
     if (this.achCards.length) {
-      const tu = this.input.touchMode, a = this.achCards[0], k = Math.min(1, (3.8 - a.t) * 4, a.t * 3), w = tu ? Math.min(200, cw / 2 - 250) : Math.min(340, cw - 40), hh = tu ? 40 : 56, x = tu ? cw / 2 - 36 - w : cw / 2 - w / 2, y = -hh - 8 + k * (hh + (tu ? 16 : 28)), r0 = tu ? 11 : 15;
+      const tu = this.input.touchMode, a = this.achCards[0], k = Math.min(1, (3.8 - a.t) * 4, a.t * 3), r0 = tu ? 11 : 15, fN = `${tu ? 13 : small ? 15 : 17}px ${FD}`, lhN = tu ? 16 : 20, inner = r0 * 2 + 18;
+      c.font = fN; const nw = c.measureText(a.name).width; c.font = `${tu ? 9 : 11}px ${FT}`; const need = inner + 10 + Math.max(nw, c.measureText('SUCCÈS DÉBLOQUÉ').width);
+      const roomL = cw / 2 - 36 - (SAFE.l / HUDK + 228), roomR = cw / 2 - 36 - (SAFE.r / HUDK + 130), left = need <= roomL;
+      const w = tu ? Math.min(need, left ? roomL : roomR) : Math.min(Math.max(340, need), cw - 40);
+      c.font = fN; const nl = wrapLines(c, a.name, w - inner - 10), hh = (tu ? 40 : 56) + (nl.length - 1) * lhN; /* le nom entier, sur deux lignes s'il le faut */
+      const x = !tu ? cw / 2 - w / 2 : left ? cw / 2 - 36 - w : cw / 2 + 36, y0 = tu ? 8 : small ? 64 : 82, y = -hh - 8 + k * (hh + 8 + y0);
+      if (tu) this._achB = y + hh; else this._achH = hh * Math.max(0, k);
       c.globalAlpha = Math.max(0, k); c.fillStyle = 'rgba(16,12,6,.92)'; c.beginPath(); RR(c, x, y, w, hh, 6); c.fill(); c.strokeStyle = '#ffd23a'; c.lineWidth = 1.5; c.stroke();
       c.fillStyle = '#ffd23a'; c.beginPath(); c.arc(x + r0 + 10, y + hh / 2, r0, 0, TAU); c.fill(); c.fillStyle = '#1a1206'; c.font = `${tu ? 13 : 18}px ${FD}`; c.textAlign = 'center'; c.fillText('★', x + r0 + 10, y + hh / 2 + (tu ? 5 : 6));
-      const tx = x + r0 * 2 + 18; c.textAlign = 'left'; c.font = `${tu ? 9 : 11}px ${FT}`; c.fillStyle = '#c9b46a'; c.fillText('SUCCÈS DÉBLOQUÉ', tx, y + (tu ? 15 : 22));
-      c.font = `${tu ? 13 : small ? 15 : 17}px ${FD}`; c.fillStyle = '#f4ead2'; c.fillText(fitText(c, a.name, x + w - tx - 8), tx, y + (tu ? 32 : 43)); c.globalAlpha = 1;
+      const tx = x + inner; c.textAlign = 'left'; c.font = `${tu ? 9 : 11}px ${FT}`; c.fillStyle = '#c9b46a'; c.fillText('SUCCÈS DÉBLOQUÉ', tx, y + (tu ? 15 : 22));
+      c.font = fN; c.fillStyle = '#f4ead2'; nl.forEach((l, j) => c.fillText(l, tx, y + (tu ? 32 : 43) + j * lhN)); c.globalAlpha = 1;
     }
     // autour du joueur : bulle de réplique et butin au-dessus de la tête, ou en dessous s'ils toucheraient la bannière ; refus en dessous
     if (!p.dead && this.state === 'playing') {

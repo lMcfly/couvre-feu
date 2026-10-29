@@ -5,7 +5,7 @@ class Game {
     this.hash = new SpatialHash(64); this._q = []; this._qs = [];
     this.state = 'title'; this.diffKey = 'normal'; this.diff = DIFFS.normal; this.time = 0;
     this.cam = { x: 760, y: 600 }; this.trauma = 0; this.shakeX = 0; this.shakeY = 0;
-    this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.hurtFlash = 0; this.weaponFlash = 0; this.multPulse = 0; this.hint = null;
+    this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.hurtFlash = 0; this.weaponFlash = 0; this.multPulse = 0; this.hint = null;
     this.charKey = Settings.char; this.comic = new Comic(this);
     this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.mode = 'story'; this.stats = newStats(); this.shibaFound = new Set();
     this.torchFlicker = 0; this.score = 0; this.mult = 1; this.lives = 2; this.kills = 0; this.maxMult = 1; this.runTime = 0;
@@ -13,7 +13,7 @@ class Game {
   }
   resetWorld() {
     this.cleared = []; this.finFx = null; this.buddy = null; this.event = null; this.slowT = 0; this.recentKills = []; this.slowCd = 0; this.dailyMod = null;
-    this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.mapHover = null;
+    this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.mapHover = null;
     this.zombies = []; this.bullets = []; this.flames = []; this.rockets = []; this.throwables = []; this.mines = []; this.acids = [];
     this.puddles = []; this.fires = []; this.shockwaves = []; this.beams = []; this.particles = []; this.pickups = []; this.lights = []; this.survivors = [];
     this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
@@ -45,6 +45,12 @@ class Game {
   }
   say(msg) { this.speech = { msg, t: 3 }; }
   banner(title, sub) { this.netEmit(['banner', title, sub]); this.bannerObj = { title, sub, t: 3.6 }; }
+  // petit événement : bande fine en haut, la grande bannière reste pour les vrais moments
+  notice(title, sub, color = '#7fd18b') {
+    this.netEmit(['notice', title, sub, color]);
+    if (this.notices.some(n => n.title === title && n.sub === sub)) return;
+    this.notices.push({ title, sub, color, t: 3, age: 0 }); if (this.notices.length > 3) this.notices.splice(1, 1);
+  }
   unlock(id) {
     if (this.mode === 'training') return;
     const u = Ach.get(); if (u[id]) return; u[id] = Date.now(); Ach.set(u);
@@ -237,6 +243,7 @@ class Game {
     if (this.denyMsg && (this.denyMsg.t -= dt) <= 0) this.denyMsg = null; if (this.speech && (this.speech.t -= dt) <= 0) this.speech = null;
     if (this.achCards.length && (this.achCards[0].t -= dt) <= 0) this.achCards.shift();
     if (this.bannerObj) { this.bannerObj.t -= dt; if (this.bannerObj.t <= 0) this.bannerObj = null; }
+    if (this.notices.length && !(this._achB > 50)) { const n = this.notices[0]; n.age += dt; n.t -= dt * (this.notices.length > 1 ? 1.8 : 1); if (n.t <= 0) this.notices.shift(); }
     this.hurtFlash = Math.max(0, this.hurtFlash - dt * 1.6); this.weaponFlash = Math.max(0, this.weaponFlash - dt); this.multPulse = Math.max(0, this.multPulse - dt * 4);
     this.trauma = Math.max(0, this.trauma - dt * 1.5); const sh = this.trauma * this.trauma * 16; this.shakeX = rand(-sh, sh); this.shakeY = rand(-sh, sh);
     this.torchFlicker = Math.max(0, this.torchFlicker - dt);
