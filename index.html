@@ -177,7 +177,6 @@ table.scores tr.me td{color:var(--sodium)}
 .wn-bub i{display:block;font-style:normal;font-family:var(--type);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8a2b1c;margin-bottom:2px}
 .wn-legend{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11px;color:#8b867b}
 .wn-legend .wn-tag{display:inline-block;padding:2px 6px;margin-right:4px}
-html:not(.touch) #btn-news .t-lbl{display:none}html:not(.touch) #btn-news .t-ico{display:block;width:18px;height:18px}html:not(.touch) #btn-news{padding-left:10px;padding-right:10px}
 .wn-dot{position:absolute;top:5px;right:6px;width:9px;height:9px;border-radius:50%;background:#e0321f;box-shadow:0 0 0 2px #0a0a0c,0 0 8px #e0321f;animation:livePulse 1.2s ease-in-out infinite;pointer-events:none}
 .wn-pop{width:min(470px,100%);max-height:calc(100vh - 32px);overflow:auto;position:relative;padding:20px 20px 16px;border:2px solid #151213;border-left:6px solid var(--blood);background:radial-gradient(circle at 1px 1px,rgba(255,210,58,.07) 1px,transparent 1.7px) 0 0/7px 7px,linear-gradient(155deg,#2c1a14,#121012 65%);box-shadow:5px 5px 0 #000;display:flex;flex-direction:column;gap:10px;animation:wnPop .5s cubic-bezier(.2,.9,.3,1.3) both}
 .wn-pop .eyebrow{margin:0}
@@ -761,6 +760,35 @@ input.sw:focus-visible{outline:2px solid var(--sodium,#f0b25a);outline-offset:2p
 #pause-settings .set-home{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:560px){.set-home{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-height:520px){.set-home{gap:8px}.set-tile{min-height:0;padding:10px 12px;gap:3px}.set-tile svg{width:24px;height:24px}.set-tile b{font-size:15px}.set-tile small{font-size:10.5px}.set-row{min-height:40px;padding:5px 2px;font-size:13px}.set-l small{font-size:10px}.set-page header{padding-bottom:4px}.set-page header h4{font-size:17px}}
+/* Nouveautés sur l'accueil : carte sous le journal (PC), bouton compact en bas à gauche (téléphone) */
+.wn-hub{margin-top:auto;position:relative;display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:12px 14px 11px;text-align:left;cursor:pointer;color:var(--bone);font-family:var(--type);border-left:3px solid var(--blood);transition:border-color .15s,transform .15s}
+.wn-hub:hover,.wn-hub:focus-visible,.wn-hub.pad-hover{border-color:var(--ember);transform:translateY(-2px);outline:none}
+.wn-hub-top{display:flex;align-items:center;gap:8px}
+.wn-hub-top svg{width:18px;height:18px;color:var(--ember);flex:none}
+.wn-hub-top b{font-size:12px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;color:#d8d2c4}
+.wn-hub-v{margin-left:auto;margin-right:12px;font-size:10px;letter-spacing:.1em;color:var(--ember);border:1px solid rgba(226,121,47,.5);padding:1px 6px;border-radius:2px}
+.wn-hub-h{font-family:var(--comic-title);font-size:24px;line-height:1;letter-spacing:.02em;color:#f3d34a;text-shadow:2px 2px 0 #000}
+.wn-hub-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:12px;line-height:1.25;color:#c6c0b2}
+.wn-hub-l li{display:flex;align-items:baseline;gap:7px}.wn-hub-l li::before{content:'';width:7px;height:7px;border-radius:2px;flex:none;background:#e2604a;transform:translateY(-1px)}
+.wn-hub-l li[data-k="up"]::before{background:#f0b25a}.wn-hub-l li[data-k="fix"]::before{background:#86c9d6}
+.wn-hub-more{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ember)}
+.wn-hub .wn-dot,.wn-fab .wn-dot{top:8px;right:8px}
+.wn-fab{display:none;position:absolute;z-index:6;left:0;bottom:6px;align-items:center;gap:9px;max-width:230px;padding:8px 16px 8px 11px;color:var(--bone);font-family:var(--type);text-align:left;cursor:pointer;border-left:3px solid var(--blood)}
+.wn-fab svg{width:22px;height:22px;color:var(--ember);flex:none}
+.wn-fab-t{display:flex;flex-direction:column;min-width:0}
+.wn-fab-t b{font-size:11px;font-weight:400;letter-spacing:.14em;text-transform:uppercase}
+.wn-fab-t small{font-size:10.5px;color:#a9a293;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wn-fab:hover,.wn-fab:focus-visible,.wn-fab.pad-hover{border-color:var(--ember);outline:none}
+#pane-lobby .hub-center{position:relative}
+@media (max-height:560px){.wn-hub{display:none}.wn-fab{display:flex}}
+@media (max-height:560px) and (max-width:720px){.wn-fab{max-width:150px;padding:7px 12px 7px 9px}.wn-fab-t small{display:none}}
+/* réglages : la grille d'icônes occupe toute la hauteur disponible */
+#panel-settings .set-home{grid-auto-rows:1fr;min-height:min(460px,calc((100vh - 48px) / var(--ui,1) - 150px))}
+#panel-settings .set-tile{justify-content:center;gap:clamp(4px,1.4vh,12px);padding-left:clamp(14px,2vw,26px)}
+#panel-settings .set-tile svg{width:clamp(30px,9vh,52px);height:clamp(30px,9vh,52px)}
+#panel-settings .set-tile b{font-size:clamp(16px,4.2vh,24px)}
+#panel-settings .set-tile small{font-size:clamp(11px,2.8vh,13.5px)}
+@media (max-height:520px){#panel-settings .set-home{min-height:calc((100vh - 24px) / var(--ui,1) - 112px)}}
 /* ---------- marché noir sur téléphone : onglets Armes / Équipement, bouton de sortie toujours visible */
 html:not(.touch) #scr-shop .shop-tabs{display:none}
 html.touch #scr-shop .shop-head{flex-wrap:nowrap;align-items:center}
@@ -1072,7 +1100,6 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
       <button type="button" class="tab" data-tab="lobby" aria-selected="true">Accueil</button>
       <button type="button" class="tab" data-tab="perso" aria-selected="false">Personnage</button>
       <button type="button" class="tab" data-tab="arsenal" aria-selected="false">Arsenal</button>
-      <button type="button" class="tab" id="btn-news" aria-expanded="false" title="Nouveautés">Nouveautés</button>
       <button type="button" class="tab" id="btn-ach" aria-expanded="false">Succès <span id="ach-count"></span></button>
       <button type="button" class="tab" id="btn-best" aria-expanded="false">Bestiaire</button>
       <button type="button" class="tab" id="btn-scores" aria-expanded="false">Scores</button>
@@ -1088,7 +1115,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
     </div>
   </header>
 
-  <div class="hub-pane" id="pane-lobby">
+    <div class="hub-pane" id="pane-lobby">
     <div class="hub-left">
       <section class="hub-card news" id="news-card" aria-label="KE-DLA-D TV, flash info" aria-live="polite">
         
@@ -1099,6 +1126,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
         </div>
         <div class="news-ticker" aria-hidden="true"><span class="tk-lbl">Urgent</span><div class="tk-run"><span class="tk-txt" id="news-ticker"></span></div><span class="tk-clock" id="news-clock"></span></div>
       </section>
+      <button type="button" class="hub-card wn-hub" id="btn-news" data-news aria-expanded="false"><span class="wn-hub-top"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 13h18M12 9v12M12 9c-1.5-4-6-5-6-2s4 2 6 2c2 0 6 1 6-2s-4.5-2-6 2"/></svg><b>Nouveautés</b><span class="wn-hub-v" data-wn="v"></span></span><span class="wn-hub-h" data-wn="h"></span><ul class="wn-hub-l" data-wn="l"></ul><span class="wn-hub-more">Tout voir ›</span></button>
     </div>
 
     <div class="hub-center">
@@ -1109,6 +1137,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
         <button type="button" class="ward-arrow" id="ward-next" aria-label="Personnage suivant">›</button>
       </div>
       <p class="ward-tagline" id="ward-tag"></p>
+      <button type="button" class="hub-card wn-fab" id="btn-news-m" data-news aria-label="Nouveautés"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 13h18M12 9v12M12 9c-1.5-4-6-5-6-2s4 2 6 2c2 0 6 1 6-2s-4.5-2-6 2"/></svg><span class="wn-fab-t"><b>Nouveautés</b><small data-wn="v2"></small></span></button>
     </div>
 
     <div class="hub-right">
@@ -7853,6 +7882,11 @@ if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.i
   for (const t of document.querySelectorAll('.hub-tabs .tab:not(.fs-tab)')) { const k = t.dataset.tab || t.id; if (!ICO[k]) continue; const lbl = document.createElement('span'); lbl.className = 't-lbl'; while (t.firstChild) lbl.appendChild(t.firstChild); t.insertAdjacentHTML('afterbegin', `<svg class="t-ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICO[k]}</svg>`); t.appendChild(lbl); t.insertAdjacentHTML('beforeend', `<span class="t-short" aria-hidden="true">${SHORT[k]}</span>`); } }
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 64, d: '29 oct.', t: 'Les nouveautés à portée de main', s: 'Elles quittent le menu et s\'installent sur l\'écran d\'accueil.', it: [
+    ['up', 'Carte Nouveautés', 'Sur PC, sous le journal télé : le titre de la dernière mise à jour et ses ajouts, d\'un coup d\'œil.'],
+    ['up', 'Bouton en bas à gauche', 'Sur téléphone, un bouton compact au pied de l\'écran d\'accueil, avec sa pastille rouge.'],
+    ['up', 'Réglages plus aérés', 'Les six icônes remplissent l\'écran, avec des pictos et des titres plus grands.']],
+    q: ['dobby', 'Dobby', 'Avant je cherchais les nouveautés. Maintenant ce sont elles qui me trouvent.'] },
   { v: 63, d: '29 oct.', t: 'Réglages rangés, boutique au carré', s: 'Tout est trié par thème, et le marché noir tient enfin sur un téléphone.', it: [
     ['up', 'Réglages par icônes', 'Son, Affichage, Commandes, Accessibilité, En ligne, Sauvegarde : touche une icône, tu n\'as que ses réglages.'],
     ['up', 'Interrupteurs et curseurs', 'Chaque réglage sur sa ligne, avec sa valeur affichée. Plus de fouillis.'],
@@ -7923,10 +7957,10 @@ function wnHTML() {
   return `<div class="wn${Settings.calm ? ' wn-still' : ''}"><p class="wn-intro">${intro}</p><div class="wn-legend"><span><i class="wn-tag new">NOUVEAU</i>ajout</span><span><i class="wn-tag up">AMÉLIORÉ</i>mieux qu'avant</span><span><i class="wn-tag fix">CORRIGÉ</i>bug réglé</span></div>` +
     WN.map((u, i) => { const isNew = seen && u.v > seen; return `<details class="wn-card${i === 0 ? ' top' : ''}${isNew || i === 0 ? ' unread' : ''}"${i === 0 || isNew ? ' open' : ''} style="--i:${i}"><summary>${i === 0 ? '<span class="wn-ribbon">À la une</span>' : ''}<span class="wn-stamp"><small>Version</small><b>${u.v}</b><small>${u.d}</small></span><div><h4 class="wn-h">${u.t}${isNew && i > 0 ? '<span class="wn-new">Pas encore lu</span>' : ''}</h4><p class="wn-s">${u.s}</p></div><span class="wn-chev" aria-hidden="true">›</span></summary><div class="wn-body">${wnItems(u.it)}${wnQuote(u.q)}</div></details>`; }).join('') + '</div>';
 }
-function wnMarkRead() { if (wnSeen() < WN_CUR) { Settings.wnSeen = WN_CUR; Settings.save(); } const d = $('wn-dot'); if (d) d.hidden = true; }
+function wnMarkRead() { if (wnSeen() < WN_CUR) { Settings.wnSeen = WN_CUR; Settings.save(); } for (const d of document.querySelectorAll('.wn-dot')) d.hidden = true; }
 function openNews() { closeHubModals(); togglePanel('panel-news', $('btn-news'), wnHTML); wnPortraits($('panel-news')); wnMarkRead(); }
-$('btn-news').addEventListener('click', openNews);
-{ const d = document.createElement('span'); d.className = 'wn-dot'; d.id = 'wn-dot'; d.setAttribute('aria-hidden', 'true'); d.hidden = wnSeen() >= WN_CUR; $('btn-news').appendChild(d); if (!d.hidden) $('btn-news').setAttribute('aria-label', 'Nouveautés (mise à jour non lue)'); }
+for (const b of document.querySelectorAll('[data-news]')) { b.addEventListener('click', () => { game.audio.init(); game.audio.ui(); openNews(); }); const d = document.createElement('span'); d.className = 'wn-dot'; d.setAttribute('aria-hidden', 'true'); d.hidden = wnSeen() >= WN_CUR; b.appendChild(d); }
+{ const u = WN[0], q = k => document.querySelectorAll(`[data-wn="${k}"]`); for (const e of q('v')) e.textContent = 'v' + u.v; for (const e of q('v2')) e.textContent = `v${u.v} · ${u.t}`; for (const e of q('h')) e.textContent = u.t; for (const e of q('l')) e.innerHTML = u.it.slice(0, 3).map(([k, b]) => `<li data-k="${k}">${b}</li>`).join(''); }
 function showWhatsNew() {
   const u = WN[0], el = $('wn-pop'); el.classList.toggle('wn-still', !!Settings.calm);
   el.innerHTML = `<div class="wn-burst" aria-hidden="true"><span>NEW!</span></div><p class="eyebrow">Mise à jour · version ${u.v}</p><h2 id="wn-ph">${u.t}</h2><p class="wn-s">${u.s}</p>${wnItems(u.it, 3)}${wnQuote(u.q)}<div class="wn-acts"><button type="button" class="btn primary" id="wn-all">Voir toutes les nouveautés</button><button type="button" class="btn" id="wn-ok">C'est parti</button></div>`;
