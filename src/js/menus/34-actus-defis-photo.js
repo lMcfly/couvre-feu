@@ -13,13 +13,23 @@ const DAILY_MODS = [
 const dayKey = () => { const d = new Date(); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
 function todayMod() { const k = dayKey(); return DAILY_MODS[(Math.imul(k, 2654435761) >>> 0) % DAILY_MODS.length]; }
 function dailyBest() { const d = Settings.daily; return d && d.d === dayKey() ? d.best : 0; }
+// ---------- défi de la semaine : deux contraintes à la fois, la même pour tout le monde du lundi au dimanche, avec son propre classement
+const weekKey = () => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7); const y = d.getFullYear(), w1 = new Date(y, 0, 4); return y * 100 + 1 + Math.round(((d - w1) / 864e5 - 3 + (w1.getDay() + 6) % 7) / 7); };
+function weekMod() {
+  const k = weekKey(), n = DAILY_MODS.length, i = (Math.imul(k, 2246822519) >>> 0) % n; let j = (Math.imul(k + 7, 3266489917) >>> 0) % (n - 1); if (j >= i) j++;
+  const a = DAILY_MODS[i], b = DAILY_MODS[j];
+  return { id: 'week', week: true, ids: new Set([a.id, b.id]), name: `${a.name} + ${b.name}`, desc: `${a.desc} ${b.desc}`, weights: a.weights || b.weights };
+}
+function weeklyBest() { const d = Settings.weekly; return d && d.w === weekKey() ? d.best : 0; }
+const weekMode = () => 'semaine-' + weekKey(); // nom du classement en ligne de la semaine
+const modOn = (g, id) => !!g.dailyMod && (g.dailyMod.id === id || (!!g.dailyMod.ids && g.dailyMod.ids.has(id)));
 // ---------- actus KE-DLA-D sur ta dernière partie
 const FEM = { fiona: true, dragon: true };
 const ZONE_BG = [g => bgNight(g, 4), bgRadio, g => bgParking(g, false), bgPlaza];
 function personalNews() {
   const r = Settings.lastRun, out = []; if (!r || !CHARS[r.char]) return out;
   const N = CHARS[r.char].name, e = FEM[r.char] ? 'e' : '', z = Math.max(0, Math.min(3, r.zone | 0)), body = (g, mood) => hero(r.char, g, 250, 420, 1.0, { mood, hand: PROP[r.char] });
-  if (r.mode === 'daily') out.push({ h: `Défi du jour : ${fmt(r.score)} points pour ${N}`, t: `Épreuve « ${r.mod} ». ${r.kills} zombies abattus avant la fin.`, loc: 'la place de la Mairie', draw: g => { bgPlaza(g); body(g, 'determined'); sfx(g, 'DÉFI !', 380, 80, 46, 0.08); } });
+  if (r.mode === 'daily' || r.mode === 'weekly') out.push({ h: `${r.mode === 'weekly' ? 'Défi de la semaine' : 'Défi du jour'} : ${fmt(r.score)} points pour ${N}`, t: `Épreuve « ${r.mod} ». ${r.kills} zombies abattus avant la fin.`, loc: 'la place de la Mairie', draw: g => { bgPlaza(g); body(g, 'determined'); sfx(g, 'DÉFI !', 380, 80, 46, 0.08); } });
   else if (r.mode === 'survival') out.push({ h: `Survie : ${N} tient ${r.wave} vague${r.wave > 1 ? 's' : ''}`, t: `${r.kills} zombies abattus sur la Place de la Mairie. Les voisins n'ont pas fermé l'œil.`, loc: 'la place de la Mairie', draw: g => { bgPlaza(g); body(g, 'determined'); sfx(g, 'TENU !', 380, 80, 46, 0.08); } });
   else if (r.mode === 'secret') out.push({ h: r.win ? `Le Shibanophile vaincu par ${N}` : `${N} recule devant le Shibanophile`, t: r.win ? 'Les shibas du paradis organisent une fête. Croquettes à volonté.' : 'Les shibas attendent toujours leur héros.', loc: 'le Paradis des Shibas', draw: g => { bgParadise(g); body(g, r.win ? 'happy' : 'shock'); shibaC(g, 400, 330, 1.2, { flip: true }); } });
   else if (r.win) out.push({ h: `${N} évacué${e} du toit de l'hôpital Saint-Lazare !`, t: `${r.kills} zombies abattus et ${fmt(r.score)} points. La Mairie salue un${e} « survivant${e} têtu${e} ».`, loc: 'l\'hôpital Saint-Lazare', draw: g => { bgHeli(g); body(g, 'happy'); sfx(g, 'SAUVÉ' + (e ? 'E' : '') + ' !', 370, 80, 46, 0.08); } });

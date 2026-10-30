@@ -103,7 +103,7 @@ mixin(Game, {
       p.dead = true; p.hp = 0; p.carry = null; this.p1Down = 1; p.downX = p.x; p.downY = p.y; p.revT = 0; this.audio.death(); this.bleed(p.x, p.y, 0, 0, 20); this.toast(`${this.pName(p)} est à terre`, '#e2792f');
       return;
     }
-    p.dead = true; p.hp = 0; this.lives--; this.stats.deaths++; this.mult = 1; this.deathT = 3.4; this.deathLine = this.pickDeathLine(); this.bannerObj = null; this.notices = []; this.audio.death(); this.later(0.25, () => this.audio.heartbeat && this.audio.heartbeat()); this.audio.flame(false); this.shake(0.6);
+    p.dead = true; p.hp = 0; this.lives--; this.stats.deaths++; this.mult = 1; this.deathT = 3.4; this.deathLine = this.pickDeathLine(); this.deathSay = pick(DEATH_SAY[this.charKey] || DEATH_SAY.pedro); this.bannerObj = null; this.notices = []; this.audio.death(); this.later(0.25, () => this.audio.heartbeat && this.audio.heartbeat()); this.audio.flame(false); this.shake(0.6);
     this.bleed(p.x, p.y, 0, 0, 24); this.splat(p.x, p.y, 26);
   },
   onObjectivePickup(pk, by) {
@@ -153,11 +153,17 @@ mixin(Game, {
     this.notice('Sauvegardé', SAFES[s].name);
     if (this.endless) { this.later(0.8, () => this.openMutations()); return; }
     const report = this.missionReport(s); writeSave(this, s);
-    this.comic.show(['act2', 'act3', 'act4'][s], () => this.showMap({ current: s + 1, report }));
+    this.missionWin(s, () => this.comic.show(['act2', 'act3', 'act4'][s], () => this.showMap({ current: s + 1, report })));
   },
   pickDeathLine() {
     let i; do i = Math.floor(Math.random() * DEATH_LINES.length); while (i === this._lastDeath && DEATH_LINES.length > 1); this._lastDeath = i;
     const f = CHARS[this.charKey].fallen.endsWith('TOMBÉE'); return DEATH_LINES[i].replace(/\{e\}/g, f ? 'E' : '');
+  },
+  // fin de mission : un grand « SECTEUR NETTOYÉ » rongé, au ralenti, avant la BD
+  missionWin(k, then) {
+    const r = this.missionReport(k), sub = `${MISSION_NAMES[k]} · ${fmt(r.kills)} zombies abattus · ${fmtTime(r.time)}`;
+    this.winFx = { t: 0, title: k === 4 ? 'HÔPITAL NETTOYÉ' : 'SECTEUR NETTOYÉ', sub, then }; /* « then » part après 2,8 s de temps réel (le monde, lui, est au ralenti) */ this.netEmit(['win', this.winFx.title, sub]);
+    this.bannerObj = null; this.notices = []; this.audio.objective(); this.later(0.15, () => this.shake(0.35));
   },
   // la campagne continue à l'hôpital (mission 5)
   isCampaign() { return this.mode === 'story' || (this.mode === 'hospital' && !!this.hcamp); },
@@ -170,7 +176,7 @@ mixin(Game, {
     const p = this.player; p.hp = p.maxHp; p.battery = 100; this.activeZone = -1;
     this.checkpoint = this.makeCheckpoint(150, 600); this.checkpoint.safe = SAFES.length;
     const report = this.missionReport(3); writeSave(this, SAFES.length);
-    this.comic.show('act5', () => this.showMap({ current: 4, report, onGo: () => this.newHospitalMission() }));
+    this.missionWin(3, () => this.comic.show('act5', () => this.showMap({ current: 4, report, onGo: () => this.newHospitalMission() })));
   },
   // le Chirurgien est tombé : l'équipe s'envole du toit de l'hôpital
   finishCampaign() {
@@ -183,7 +189,7 @@ mixin(Game, {
     const xp = this.gainXP(200 + (this.kills - ((this.missionStart || {}).kills || 0)) * 2); this.toast(`+${xp} XP · mission 5 terminée`, '#9fd6e6');
     this.unlock(WIN_ACH[this.charKey]); if (this.diffKey === 'cauchemar') this.unlock('nightmare');
     Settings.survival = true; clearSave(); if (this.shibaFound.size >= SHIBAS_TOTAL) Settings.paradise = true; Settings.save(); refreshSurvivalBtn();
-    this.later(2.4, () => { if (this.state === 'playing') this.comic.show('epilogue', () => this.showEnd(true)); });
+    this.later(0.8, () => this.missionWin(4, () => { if (this.state === 'playing') this.comic.show('epilogue', () => this.showEnd(true)); }));
   },
   respawn() {
     const cp = this.checkpoint, kz = this.activeZone;
@@ -207,6 +213,7 @@ mixin(Game, {
   },
   tryInteract(by) {
     const p = by || this.player;
+    { const t = this.trapNear(p); if (t) { this.useTrap(t, p); return true; } }
     for (const o of this.level.obstacles) {
       if (o.kind === 'shop' && rectDist(p.x, p.y, o) < 46) { if (this.net && p.isP2) { this.toast('Le marché noir est réservé à l\'hôte en duo en ligne', '#8b867b'); return true; } this.shop.open(); return true; }
       if (o.kind === 'machine' && rectDist(p.x, p.y, o) < 34) {
@@ -238,14 +245,15 @@ mixin(Game, {
     const st = this.stats; stats.push(['Dégâts infligés', fmt(Math.round(st.dmg))], ['Tirs', fmt(st.shots)], ['Précision', st.shots ? Math.round(100 * st.hits / st.shots) + ' %' : '–'], ['Morts', String(st.deaths)]);
     if (camp) stats.push(['Shibas trouvés', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`]);
     if (this.achCards.length) { stats.push(['Succès débloqués', this.achCards.map(a => a.name).join(' · ')]); this.achCards = []; }
-    { const mode = this.dailyMod ? 'daily' : camp ? 'story' : this.mode; Settings.lastRun = { char: this.charKey, mode, win: !!victory, kills: this.kills, score: Math.floor(this.score), zone: Math.max(0, this.missionFor == null ? this.activeZone : this.missionFor), wave, shibas: this.shibaFound.size, diff: this.diffKey, mod: this.dailyMod ? this.dailyMod.name : '', date: Date.now() };
+    { const mode = this.dailyMod ? (this.dailyMod.week ? 'weekly' : 'daily') : camp ? 'story' : this.mode; Settings.lastRun = { char: this.charKey, mode, win: !!victory, kills: this.kills, score: Math.floor(this.score), zone: Math.max(0, this.missionFor == null ? this.activeZone : this.missionFor), wave, shibas: this.shibaFound.size, diff: this.diffKey, mod: this.dailyMod ? this.dailyMod.name : '', date: Date.now() };
       Settings.bestKills = Math.max(Settings.bestKills || 0, this.kills);
       if (this.mode !== 'training') for (const q of this.players()) { const cs = cstat(q.char); cs.games++; if (victory) cs.wins++; cs.kills += this.kills; cs.best = Math.max(cs.best, Math.floor(this.score)); cs.time += Math.floor(this.runTime || 0); }
       { this.levelUps = 0; const xp = this.gainXP(this.kills * 2 + this.score / 250 + (victory ? 600 : 0) + this.shibaFound.size * 40), L = levelInfo(Settings.xp); stats.push(['Expérience', `+${fmt(xp)} XP · niveau ${L.lv}${this.levelUps ? ' (niveau supérieur !)' : ''}`]); }
-      if (this.dailyMod && this.score > dailyBest()) { Settings.daily = { d: dayKey(), best: Math.floor(this.score) }; stats.unshift(['Nouveau record du jour', fmt(this.score)]); }
+      if (this.dailyMod && !this.dailyMod.week && this.score > dailyBest()) { Settings.daily = { d: dayKey(), best: Math.floor(this.score) }; stats.unshift(['Nouveau record du jour', fmt(this.score)]); }
+      if (this.dailyMod && this.dailyMod.week && this.score > weeklyBest()) { Settings.weekly = { w: weekKey(), best: Math.floor(this.score) }; stats.unshift(['Nouveau record de la semaine', fmt(this.score)]); }
       Settings.save(); }
     if (this.endless) { $('end-eyebrow').textContent = 'Nuit sans fin'; $('end-title').textContent = `Tombé pendant la nuit ${this.endless.night}`; $('end-stamp').textContent = `Nuit ${this.endless.night}`; stats.unshift(['Nuits survécues', String(this.endless.night - 1)], ['Mutations', String(Object.values(this.endless.m).reduce((a, b) => a + b, 0))]); }
-    if (this.dailyMod) { $('end-eyebrow').textContent = `Défi du jour · ${this.dailyMod.name}`; $('end-title').textContent = 'Défi terminé'; $('end-stamp').textContent = `Vague ${wave}`; }
+    if (this.dailyMod) { $('end-eyebrow').textContent = `${this.dailyMod.week ? 'Défi de la semaine' : 'Défi du jour'} · ${this.dailyMod.name}`; $('end-title').textContent = 'Défi terminé'; $('end-stamp').textContent = `Vague ${wave}`; }
     $('end-stats').innerHTML = stats.map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join('');
     { const h = newBeastsHTML(this.takeActBeasts()); $('end-beasts').innerHTML = h; $('end-beasts').hidden = !h; if (h) drawBestiary(); }
     $('end-name').value = Settings.name || 'Survivant'; $('btn-save').disabled = false; $('end-namebox').hidden = false;
@@ -255,13 +263,13 @@ mixin(Game, {
   saveScore() {
     if (this.savedScore) return; this.savedScore = true;
     const name = ($('end-name').value || 'Survivant').trim().slice(0, 16) || 'Survivant'; Settings.name = name; Settings.save();
-    const entry = { name, char: CHARS[this.charKey].name, score: Math.floor(this.score), diff: (this.endless ? `Nuit sans fin ${this.endless.night} · ` : this.dailyMod ? 'Défi · ' : this.mode === 'survival' ? 'Survie · ' : this.mode === 'secret' ? 'Paradis · ' : this.mode === 'hospital' && !this.hcamp ? 'Hôpital · ' : '') + this.diff.name, kills: this.kills, time: Math.floor(this.runTime), win: !!this.lastVictory, wave: this.mode === 'survival' ? this.surv.wave : 0, date: Date.now() };
+    const entry = { name, char: CHARS[this.charKey].name, score: Math.floor(this.score), diff: (this.endless ? `Nuit sans fin ${this.endless.night} · ` : this.dailyMod ? (this.dailyMod.week ? 'Semaine · ' : 'Défi · ') : this.mode === 'survival' ? 'Survie · ' : this.mode === 'secret' ? 'Paradis · ' : this.mode === 'hospital' && !this.hcamp ? 'Hôpital · ' : '') + this.diff.name, kills: this.kills, time: Math.floor(this.runTime), win: !!this.lastVictory, wave: this.mode === 'survival' ? this.surv.wave : 0, date: Date.now() };
     const top = Scores.add(entry); $('end-scores').innerHTML = scoreTable(top, entry.date); $('btn-save').disabled = true; $('btn-again').focus();
     { const best = top.find(r => nameKey(r.name) === nameKey(name)); if (best && best.date !== entry.date && best.score >= entry.score) this.toast(`Ton record tient toujours : ${fmt(Math.floor(best.score))} pts`, '#f0b25a'); }
-    if (Online.on() && this.mode !== 'training') { entry.mode = this.endless ? 'endless' : this.dailyMod ? 'daily' : this.coop ? 'coop' : this.mode; Online.send(entry).then(ok => this.toast(ok ? 'Score envoyé au classement en ligne' : 'Hors ligne : score envoyé à la prochaine connexion', ok ? '#7fd18b' : '#8b867b')); }
+    if (Online.on() && this.mode !== 'training') { entry.mode = this.endless ? 'endless' : this.dailyMod ? (this.dailyMod.week ? weekMode() : 'daily') : this.coop ? 'coop' : this.mode; Online.send(entry).then(ok => this.toast(ok ? 'Score envoyé au classement en ligne' : 'Hors ligne : score envoyé à la prochaine connexion', ok ? '#7fd18b' : '#8b867b')); }
   },
   // près d'une boutique ou d'un distributeur : le bouton E indique l'action possible
-  nearInteract() { const p = this.player; if (!p || p.dead || !this.level) return null; for (const o of this.level.obstacles) { if (o.kind === 'shop' && rectDist(p.x, p.y, o) < 46) return 'BOUTIQUE'; if (o.kind === 'machine' && rectDist(p.x, p.y, o) < 34 && !o.broken && o.charges > 0) return 'SOINS'; } return null; },
+  nearInteract() { const p = this.player; if (!p || p.dead || !this.level) return null; for (const o of this.level.obstacles) { if (o.kind === 'shop' && rectDist(p.x, p.y, o) < 46) return 'BOUTIQUE'; if (o.kind === 'machine' && rectDist(p.x, p.y, o) < 34 && !o.broken && o.charges > 0) return 'SOINS'; } { const t = this.trapNear(p); if (t && t.cd <= 0) return t.kind === 'fence' ? 'COURANT' : 'EAU'; } return null; },
   updateObjectives(dt) {
     const k = this.activeZone; if (k < 0) return; const o = this.level.obj[k], p = this.player;
     const alive = this.players().filter(q => !q.dead), near = (r) => alive.some(q => dist2(q.x, q.y, o.x, o.y) < r * r);

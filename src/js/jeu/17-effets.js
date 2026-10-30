@@ -2,6 +2,38 @@
 mixin(Game, {
   addLight(x, y, r, c, i, life) { this.netEmit(['light', Math.round(x), Math.round(y), Math.round(r), c, netR(i), netR(life)]); this.lights.push({ x, y, r, c, i, life, max: life, dead: false }); },
   spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
+  // ---------- pièges du décor : ils frappent tout le monde, zombies comme survivants
+  trapNear(p) { for (const t of this.level.traps || []) if (rectDist(p.x, p.y, t.ob) < 40) return t; return null; },
+  useTrap(t, by) {
+    if (t.cd > 0) { this.toast(`${t.kind === 'fence' ? 'La clôture' : 'La bouche d\'incendie'} se recharge (${Math.ceil(t.cd)} s)`, '#8b867b'); return; }
+    t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = by.aim || 0;
+    this.netEmit(['trap', t.ob.oid, netR(t.ang)]); this.trapFx(t);
+  },
+  trapFx(t) {
+    if (t.kind === 'fence') { this.audio.tone({ f: 60, f2: 120, dur: 0.5, type: 'sawtooth', g: 0.12 }); this.notice('Clôture électrifiée', 'Attention : elle grille tout le monde', '#9fd6ff'); }
+    else { this.audio.noise && this.audio.noise({ f: 1800, f2: 900, dur: 0.6, g: 0.2 }); this.notice('Bouche d\'incendie ouverte', 'Le jet repousse tout le monde', '#9fd6ff'); }
+  },
+  updateTraps(dt) {
+    for (const t of this.level.traps || []) {
+      if (t.cd > 0) t.cd -= dt; if (t.on <= 0) continue; t.on -= dt;
+      const host = !this.netGuest;
+      if (t.kind === 'fence') {
+        if (Math.random() < dt * 22) { const x = t.x + Math.random() * t.w; this.spawnP({ x, y: t.y + 8, z: 6 + Math.random() * 14, vx: rand(-60, 60), vy: rand(-40, 40), vz: rand(20, 80), life: 0.25, type: 'spark', size: 1.6, emissive: true, color: '#bfe6ff' }); }
+        if (!host) continue;
+        const inside = e => e.x > t.x - e.r && e.x < t.x + t.w + e.r && e.y > t.y - e.r && e.y < t.y + t.h + e.r;
+        for (const z of this.zombies) if (!z.dead && z.spawnT <= 0 && inside(z)) { z.damage(70 * dt, 0, 0, 'shock'); z.stun = Math.max(z.stun, 0.35); if (Math.random() < dt * 8) this.sparks(z.x, z.y - 14, 0, -1, 3); }
+        for (const p of this.players()) if (!p.dead && inside(p)) { p.hurtDot(22 * dt); p.ky += (p.y < t.y + 8 ? -1 : 1) * 900 * dt; /* la décharge rejette le survivant hors de la clôture */ }
+      } else {
+        const o = t.ob, hx = o.x + 8, hy = o.y + 8, ca = Math.cos(t.ang), sa = Math.sin(t.ang), R = 300;
+        for (let i = 0; i < 6; i++) { const a = t.ang + rand(-0.22, 0.22), sp = rand(420, 620); this.spawnP({ x: hx, y: hy, z: 14, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, vz: rand(10, 70), grav: 300, life: rand(0.4, 0.6), type: 'spark', size: 3, color: 'rgba(200,232,255,.95)', drag: 1 }); }
+        if (!host) continue;
+        const cone = (e, f) => { const dx = e.x - hx, dy = e.y - hy, d = Math.hypot(dx, dy) || 1; if (d > R || (dx * ca + dy * sa) / d < 0.85) return; const k = (1 - d / R) * f * dt; e.kx += ca * k; e.ky += sa * k; return true; };
+        for (const z of this.zombies) if (!z.dead && z.type !== 'boss' && cone(z, 5200 * z.kbMul)) { z.stun = Math.max(z.stun, 0.25); z.burn = 0; }
+        for (const p of this.players()) if (!p.dead) cone(p, 3600);
+        for (const f of this.fires) { const dx = f.x - hx, dy = f.y - hy, d = Math.hypot(dx, dy) || 1; if (d < R && (dx * ca + dy * sa) / d > 0.85) f.life = Math.min(f.life, 0.2); /* le jet éteint les flammes */ }
+      }
+    }
+  },
   // cri du Hurleur : la horde alentour s'excite et les lampes grésillent
   scream(z) {
     this.netEmit(['scream', Math.round(z.x), Math.round(z.y)]); this.screamFx(z.x, z.y);

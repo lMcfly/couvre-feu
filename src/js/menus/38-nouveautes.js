@@ -1,5 +1,13 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 77, d: '30 oct.', t: 'Pièges, défis et duo solide', s: 'Le décor se retourne contre tout le monde, et ton ami peut perdre le réseau sans tout casser.', it: [
+    ['new', 'Pièges du décor', 'Clôtures électriques et bouches d\'incendie dans les secteurs 1 à 3 : appuie sur E devant le boîtier. Le courant grille les zombies… et toi si tu traînes dessus. Le jet d\'eau repousse tout le monde et éteint les flammes.'],
+    ['new', 'Défi de la semaine', 'Deux contraintes à la fois, les mêmes pour tous du lundi au dimanche, avec leur propre record et leur classement en ligne (Scores › Semaine).'],
+    ['new', 'Secteur nettoyé', 'Fin de mission au ralenti, avec un grand « SECTEUR NETTOYÉ » et ton bilan.'],
+    ['up', 'Dernières pensées', 'À ta mort, ton perso a une dernière phrase bien à lui.'],
+    ['new', 'Duo en ligne : lien d\'invitation', 'Un bouton envoie le lien à ton ami : il l\'ouvre et arrive direct dans ta salle.'],
+    ['fix', 'Duo en ligne : coupure réseau', 'Si la connexion saute, la partie se fige et attend ton ami 20 secondes au lieu de s\'arrêter.']],
+    q: ['chewie', 'Chewie', 'La clôture m\'a grillé les poils. Je kiffe moyen.'] },
   { v: 75, d: '30 oct.', t: 'Tu es mort', s: 'Mourir fait enfin mal.', it: [
     ['new', 'Écran de mort', 'Le monde passe au ralenti, les couleurs se vident, le rouge envahit les bords, ton cœur bat de plus en plus lentement, et un grand titre rongé s\'écrase au centre : « Tu es mort », « Dévoré », « Plat du jour », « Bienvenue dans la horde »… vingt variantes, jamais deux fois de suite la même.']],
     q: ['fiona', 'Fiona', 'J\'ai vu l\'écran rouge. Franchement, ça m\'a changé de mon teint habituel.'] },

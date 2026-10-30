@@ -69,7 +69,7 @@ mixin(Game, {
     const L = this.level, H = HOSP;
     L.obstacles = L.obstacles.filter(o => o.zone !== 0); L.spawners = L.spawners.filter(s => s.zone !== 0); L.chests = (L.chests || []).filter(c => c.zone !== 0);
     for (const l of L.lamps) if (l.zone === 0) l.on = false;
-    this.pickups = []; this.survivors = []; /* rien de la ville ne reste dans l'hôpital */
+    this.pickups = []; this.survivors = []; L.traps = L.traps.filter(t => t.zone !== 0); /* rien de la ville ne reste dans l'hôpital */
     const A = o => { o.zone = 0; return L.add(o); }, wall = (x, y, w, h) => A({ x, y, w, h, z: 46, kind: 'hwall', blood: Math.random() < 0.3 ? Math.round(rand(4, Math.max(5, w - 14))) : 0 });
     for (const y of [H.top, H.bot]) { let x = H.x0; for (const d of H.doors) { wall(x, y, d - 42 - x, 18); x = d + 42; } wall(x, y, H.morgue - x, 18); }
     for (const x of H.cols) { wall(x, ST, 18, H.top - ST); wall(x, H.bot + 18, 18, SB - H.bot - 18); }
@@ -139,13 +139,14 @@ mixin(Game, {
       if ((sh.barkT -= dt) <= 0) { sh.barkT = rand(4, 9); this.audio.bark(sh.x, sh.y); }
     }
   },
-  newDaily() {
-    const m = todayMod(); this.newSurvival(false); this.dailyMod = m;
+  newDaily() { this.newChallenge(todayMod()); },
+  newWeekly() { this.newChallenge(weekMod()); },
+  newChallenge(m) {
+    this.newSurvival(false); this.dailyMod = m;
     const p = this.player;
-    if (m.id === 'pistol') { p.weapons.forEach((w, i) => { if (i) w.owned = false; }); p.cur = 0; }
-    if (m.id === 'glass') { p.maxHp = p.hp = 40; }
-    if (m.id === 'tanks') { }
-    this.banner('Défi du jour', m.name + ' · ' + m.desc);
+    if (modOn(this, 'pistol')) { p.weapons.forEach((w, i) => { if (i) w.owned = false; }); p.cur = 0; }
+    if (modOn(this, 'glass')) { p.maxHp = p.hp = 40; }
+    this.banner(m.week ? 'Défi de la semaine' : 'Défi du jour', m.name);
   },
   newSurvival(keep) {
     this.keysOpen = false; this.audio.init(); const prev = keep && this.player ? this.player : null; this.resetModes();

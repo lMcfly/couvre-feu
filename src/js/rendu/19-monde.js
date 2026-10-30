@@ -42,6 +42,14 @@ mixin(Game, {
     if (this.buddy && inView(this.buddy.x, this.buddy.y)) { const b = this.buddy; c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(b.x, b.y + 2, 10, 4, 0, 0, TAU); c.fill(); drawShibaSprite(c, b.x, b.y - b.hop, 1, this.time * 1.6); }
     if (this.event && this.event.id === 'icecream' && inView(this.event.x, this.event.y, 120)) drawIceTruck(c, this.event.x, this.event.y, this.time);
     for (const s of this.level.spawners) if (s.anim > 0 && s.kind === 'sewer' && inView(s.x, s.y)) { c.fillStyle = '#55565a'; c.beginPath(); c.ellipse(s.x + 22 * s.anim, s.y - 4, 17, 9, 0.4, 0, TAU); c.fill(); }
+    // clôtures électriques au sol (poteaux, fils, arcs quand le courant passe)
+    for (const t of this.level.traps || []) if (t.kind === 'fence' && inView(t.x + t.w / 2, t.y, t.w)) {
+      const on = t.on > 0; c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(t.x, t.y + 10, t.w, 5);
+      for (let x = t.x; x <= t.x + t.w; x += 40) { c.fillStyle = '#4a4a50'; c.fillRect(x - 2, t.y - 18, 4, 30); c.fillStyle = '#c8b030'; c.fillRect(x - 3, t.y - 20, 6, 3); }
+      c.lineWidth = 1.5; c.strokeStyle = on ? `rgba(170,225,255,${0.6 + Math.random() * 0.4})` : '#6a6a70';
+      for (const h of [-12, -2]) { c.beginPath(); c.moveTo(t.x, t.y + h); for (let x = t.x + 10; x <= t.x + t.w; x += 10) c.lineTo(x, t.y + h + (on ? rand(-2.5, 2.5) : Math.sin(x) * 0.6)); c.stroke(); }
+      if (on) { c.save(); c.globalCompositeOperation = 'lighter'; const gr = c.createLinearGradient(0, t.y - 30, 0, t.y + 20); gr.addColorStop(0, 'rgba(120,200,255,0)'); gr.addColorStop(0.5, 'rgba(120,200,255,.25)'); gr.addColorStop(1, 'rgba(120,200,255,0)'); c.fillStyle = gr; c.fillRect(t.x - 6, t.y - 30, t.w + 12, 50); c.restore(); }
+    }
     // tri en profondeur
     const list = [];
     for (const o of this.level.queryRect(vx0 - 100, vy0 - 40, vx1 - vx0 + 200, vy1 - vy0 + 200)) { o._sy = o.y + o.h; list.push(o); }
@@ -103,7 +111,7 @@ mixin(Game, {
   renderLights(S, ox, oy, inView) {
     const L = lctx, lw = lightCanvas.width, lh = lightCanvas.height, p = this.player, t = this.time;
     L.setTransform(1, 0, 0, 1, 0, 0); L.globalCompositeOperation = 'source-over';
-    const amb = this.mode === 'secret' ? [58, 34, 56] : this.dailyMod && this.dailyMod.id === 'night' ? [3, 3, 6] : this.diff.ambient, bossDark = (this.blackoutT > 0 ? 0.1 : 1) * (this.bossRef && this.bossRef.state === 'intro' ? 0.4 : 1) * (this.event && this.event.id === 'blackout' ? 0.25 : this.event && this.event.id === 'ash' ? 0.7 : 1);
+    const amb = this.mode === 'secret' ? [58, 34, 56] : modOn(this, 'night') ? [3, 3, 6] : this.diff.ambient, bossDark = (this.blackoutT > 0 ? 0.1 : 1) * (this.bossRef && this.bossRef.state === 'intro' ? 0.4 : 1) * (this.event && this.event.id === 'blackout' ? 0.25 : this.event && this.event.id === 'ash' ? 0.7 : 1);
     L.fillStyle = `rgb(${amb[0] * bossDark | 0},${amb[1] * bossDark | 0},${amb[2] * bossDark | 0})`; L.fillRect(0, 0, lw, lh);
     L.setTransform(S / LD, 0, 0, S / LD, ox / LD, oy / LD); L.globalCompositeOperation = 'lighter';
     const glow = (x, y, r, col, i) => {
@@ -258,6 +266,8 @@ mixin(Game, {
       case 'wall': this.box(o.x, o.y, o.w, o.h, o.z, '#2c2c2f', '#4a4845'); c.fillStyle = 'rgba(0,0,0,.25)'; for (let y = o.y; y < o.y + o.h; y += 40) c.fillRect(o.x, y - o.z, o.w, 2); break;
       case 'gate': { c.strokeStyle = '#6a6e72'; c.lineWidth = 3; c.beginPath(); for (let y = o.y + 4; y <= o.y + o.h; y += 11) { c.moveTo(o.x + o.w / 2, y); c.lineTo(o.x + o.w / 2, y - o.z); } c.stroke(); c.fillStyle = '#7a3a1c'; c.fillRect(o.x + 2, o.y - o.z - 4, o.w - 4, 6); c.fillRect(o.x + 2, o.y + o.h - o.z - 4, o.w - 4, 6); c.fillStyle = '#c49a2c'; c.fillRect(o.x + o.w / 2 - 5, o.y + o.h / 2 - o.z / 2, 10, 12); break; }
       case 'car': this.drawCar(o); break;
+      case 'fbox': { const t = (this.level.traps || []).find(x => x.ob === o), on = t && t.on > 0, ready = t && t.cd <= 0; this.box(o.x, o.y, o.w, o.h, o.z, '#5a5a3a', '#3a3a26'); const fy = o.y + o.h - o.z; c.fillStyle = '#e8d030'; c.beginPath(); c.moveTo(o.x + 11, fy + 4); c.lineTo(o.x + 6, fy + 14); c.lineTo(o.x + 12, fy + 13); c.lineTo(o.x + 9, fy + 22); c.lineTo(o.x + 17, fy + 10); c.lineTo(o.x + 11, fy + 11); c.closePath(); c.fill(); c.fillStyle = on ? '#9fe0ff' : ready ? '#7fd18b' : '#b0231c'; c.fillRect(o.x + 15, fy + 3, 4, 4); break; }
+      case 'hydrant': { const t = (this.level.traps || []).find(x => x.ob === o), ready = t && t.cd <= 0; c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(o.x + 8, o.y + 14, 10, 4, 0, 0, TAU); c.fill(); c.fillStyle = '#a8231a'; c.fillRect(o.x + 3, o.y - 12, 10, 24); c.fillRect(o.x - 1, o.y - 4, 18, 6); c.fillStyle = '#d0402e'; c.beginPath(); c.arc(o.x + 8, o.y - 12, 6, Math.PI, 0); c.fill(); c.fillStyle = ready ? '#7fd18b' : '#5a1410'; c.fillRect(o.x + 6, o.y - 17, 4, 3); break; }
       case 'barrel': { if (o.pumpkin) { drawPumpkin(c, o.x + 11, o.y + 12, 1, this.time + o.x); break; } c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(o.x + 11, o.y + 20, 13, 5, 0, 0, TAU); c.fill(); c.fillStyle = '#7d1f17'; c.fillRect(o.x + 1, o.y - 6, 20, 26); c.fillStyle = '#d0a425'; c.fillRect(o.x + 1, o.y + 4, 20, 4); c.fillStyle = '#9a2a1f'; c.beginPath(); c.ellipse(o.x + 11, o.y - 6, 10, 4, 0, 0, TAU); c.fill(); break; }
       case 'barrier': this.box(o.x, o.y, o.w, o.h, o.z, '#8f8c84', '#6e6b64'); c.fillStyle = '#8a2b22'; for (let x = o.x + 6; x < o.x + o.w - 10; x += 26) c.fillRect(x, o.y + o.h - o.z + 6, 12, 8); break;
       case 'dumpster': this.box(o.x, o.y, o.w, o.h, o.z, o.hue > 0.5 ? '#2d4a35' : '#4a3d26', o.hue > 0.5 ? '#223a29' : '#3a301e'); c.fillStyle = 'rgba(0,0,0,.3)'; c.fillRect(o.x, o.y - o.z + o.h / 2, o.w, 2); break;

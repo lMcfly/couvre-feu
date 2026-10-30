@@ -82,8 +82,17 @@ const QUIPS = {
 };
 // le grand titre de l'écran de mort, tiré au hasard (accordé au féminin pour Fiona) ; jamais deux fois de suite le même
 const DEATH_LINES = ['TU ES MORT{e}', 'DÉVORÉ{e}', 'MORDU{e}', 'DÉCHIQUETÉ{e}', 'C\'EST FINI', 'TROP TARD', 'ILS T\'ONT EU', 'REPOSE EN PIÈCES', 'PLAT DU JOUR', 'AU MENU CE SOIR', 'LA HORDE A FAIM', 'MANGÉ{e} TOUT{e} CRU{e}', 'UN DE PLUS', 'TU AS PERDU LA TÊTE', 'BIENVENUE DANS LA HORDE', 'ÇA SENT LE SAPIN', 'CHAIR FRAÎCHE', 'TU NE RENTRERAS PAS', 'TOUT LE MONDE A MANGÉ', 'RIP'];
+// la dernière pensée de chaque personnage, sous le titre de l'écran de mort
+const DEATH_SAY = {
+  pedro: ['Mon burrito… dites à mon burrito que je l\'aimais.', '¡Ay caramba! Même pas eu le temps de finir ma salsa.', 'Enterrez-moi avec du guacamole.', 'Maman avait raison : jamais de vacances dans le Nord.'],
+  fiona: ['Bon. Au moins, personne ne verra la différence.', 'J\'avais encore des frites dans la poche.', 'Ch\'est pas juste, j\'étais déjà à moitié morte.', 'Dites à Roubaix que je reviendrai. En grognant.'],
+  zeus: ['Qui va arroser le ficus, maintenant ?', 'Même les dieux ont des jours sans.', 'Mes 147 plantes vont faner de chagrin.', 'L\'Olympe n\'a pas de point de sauvegarde ?'],
+  dobby: ['Dobby est libre… de mourir, apparemment.', 'Dobby n\'a même pas retrouvé sa chaussette gauche.', 'Dobby aurait dû transplaner plus tôt.', 'Dobby a été un bon elfe. Presque.'],
+  chewie: ['Grrr… même pas fini mon kebab.', 'Franchement, j\'ai pas kiffé.', 'Sauce blanche pour tout le monde à mon enterrement.', 'Deux mètres de poils, et ça suffit pas.'],
+  dragon: ['Impossible. Le Maléfique ne meurt pas. Il… fait une pause.', 'Mwaha… ha… aïe.', 'Ce n\'est qu\'un contretemps dans mon plan diabolique.', 'Notez bien : je reviendrai. Plus maléfique encore.']
+};
 const SKINS = ['#7d8a6a', '#8b8f74', '#6f7b63', '#9a9178', '#7a8570', '#848a7a'];
 const CLOTHS = ['#3d4652', '#5a3b33', '#4a4a3c', '#2f3a35', '#5b5448', '#3b2f3f', '#6a5a3a', '#4b3a2c'];
 const CAR_COLORS = ['#5b2a26', '#2f3d4f', '#4f5254', '#6b6a5e', '#2e4436', '#6e5a35', '#3a3340', '#7a7c80'];
-const LOWK = new Set(['barrel', 'barrier', 'sandbags', 'parapet', 'radio', 'brazier', 'bed']);
+const LOWK = new Set(['barrel', 'barrier', 'sandbags', 'parapet', 'radio', 'brazier', 'bed', 'hydrant', 'fbox']);
 

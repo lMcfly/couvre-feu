@@ -77,6 +77,7 @@
           <button type="button" class="mode big" id="btn-survival-title"><b>Mode Survie</b><small id="surv-sub">Vagues sans fin sur la Place de la Mairie</small></button>
           <button type="button" class="mode big" id="mode-endless"><b>Nuit sans fin</b><small>Ville tirée au hasard, mutations entre les secteurs</small></button>
           <button type="button" class="mode big daily" id="mode-daily"><b>Défi du jour</b><small id="daily-sub"></small></button>
+          <button type="button" class="mode big daily" id="mode-weekly"><b>Défi de la semaine</b><small id="weekly-sub"></small></button>
           <button type="button" class="mode big hosp" id="mode-hospital"><b>Hôpital</b><small>Bonus · secteur 5 · néons qui grésillent, Le Chirurgien</small></button>
           <button type="button" class="mode back folder-back"><b>‹ Retour</b></button></div>
         <div class="folder-pane" data-f="entrainement" hidden><p class="eyebrow">Entraînement</p>
@@ -291,7 +292,7 @@
 <div class="row center"><button type="button" class="btn" id="inst-later">Plus tard</button><button type="button" class="btn primary big" id="inst-now" hidden>Installer maintenant</button><button type="button" class="btn primary big" id="inst-ok">Compris</button></div></div></div>
 <div id="net-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="net-h"><div class="fs-wrap net-wrap"><p class="eyebrow">Duo en ligne · bêta</p><h2 id="net-h">Jouer à deux, chacun son appareil</h2>
 <div id="net-choose"><div class="row center"><button type="button" class="btn primary big" id="net-host">Créer une partie</button><button type="button" class="btn big" id="net-join">Rejoindre</button></div></div>
-<div id="net-hostv" hidden><p>Donne ce code à ton ami :</p><div class="net-code" id="net-code">····</div><p class="net-st" id="net-st-h"></p><div class="row center net-modes"><button type="button" class="btn" id="net-cancel-h">Annuler</button><button type="button" class="btn big" id="net-go" disabled>Survie</button><button type="button" class="btn primary big" id="net-go-story" disabled>Campagne</button></div></div>
+<div id="net-hostv" hidden><p>Donne ce code à ton ami :</p><div class="net-code" id="net-code">····</div><div class="row center"><button type="button" class="btn sm" id="net-link">Envoyer le lien d'invitation</button></div><p class="net-st" id="net-st-h"></p><div class="row center net-modes"><button type="button" class="btn" id="net-cancel-h">Annuler</button><button type="button" class="btn big" id="net-go" disabled>Survie</button><button type="button" class="btn primary big" id="net-go-story" disabled>Campagne</button></div></div>
 <div id="net-joinv" hidden><p>Tape le code de ton ami :</p><input id="net-in" class="net-input" maxlength="4" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABCD" aria-label="Code de la partie"><p class="net-st" id="net-st-j"></p><div class="row center"><button type="button" class="btn" id="net-cancel-j">Annuler</button><button type="button" class="btn primary big" id="net-ok">Rejoindre</button></div></div>
 <p class="hint net-note" id="net-note"></p><button type="button" class="btn sm" id="net-close">Fermer</button></div></div>
 <div id="net-wait" class="net-wait" hidden role="status"><span class="net-dot"></span><span id="net-wait-t"></span></div>

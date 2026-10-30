@@ -1297,6 +1297,7 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
           <button type="button" class="mode big" id="btn-survival-title"><b>Mode Survie</b><small id="surv-sub">Vagues sans fin sur la Place de la Mairie</small></button>
           <button type="button" class="mode big" id="mode-endless"><b>Nuit sans fin</b><small>Ville tirée au hasard, mutations entre les secteurs</small></button>
           <button type="button" class="mode big daily" id="mode-daily"><b>Défi du jour</b><small id="daily-sub"></small></button>
+          <button type="button" class="mode big daily" id="mode-weekly"><b>Défi de la semaine</b><small id="weekly-sub"></small></button>
           <button type="button" class="mode big hosp" id="mode-hospital"><b>Hôpital</b><small>Bonus · secteur 5 · néons qui grésillent, Le Chirurgien</small></button>
           <button type="button" class="mode back folder-back"><b>‹ Retour</b></button></div>
         <div class="folder-pane" data-f="entrainement" hidden><p class="eyebrow">Entraînement</p>
@@ -1511,7 +1512,7 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
 <div class="row center"><button type="button" class="btn" id="inst-later">Plus tard</button><button type="button" class="btn primary big" id="inst-now" hidden>Installer maintenant</button><button type="button" class="btn primary big" id="inst-ok">Compris</button></div></div></div>
 <div id="net-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="net-h"><div class="fs-wrap net-wrap"><p class="eyebrow">Duo en ligne · bêta</p><h2 id="net-h">Jouer à deux, chacun son appareil</h2>
 <div id="net-choose"><div class="row center"><button type="button" class="btn primary big" id="net-host">Créer une partie</button><button type="button" class="btn big" id="net-join">Rejoindre</button></div></div>
-<div id="net-hostv" hidden><p>Donne ce code à ton ami :</p><div class="net-code" id="net-code">····</div><p class="net-st" id="net-st-h"></p><div class="row center net-modes"><button type="button" class="btn" id="net-cancel-h">Annuler</button><button type="button" class="btn big" id="net-go" disabled>Survie</button><button type="button" class="btn primary big" id="net-go-story" disabled>Campagne</button></div></div>
+<div id="net-hostv" hidden><p>Donne ce code à ton ami :</p><div class="net-code" id="net-code">····</div><div class="row center"><button type="button" class="btn sm" id="net-link">Envoyer le lien d'invitation</button></div><p class="net-st" id="net-st-h"></p><div class="row center net-modes"><button type="button" class="btn" id="net-cancel-h">Annuler</button><button type="button" class="btn big" id="net-go" disabled>Survie</button><button type="button" class="btn primary big" id="net-go-story" disabled>Campagne</button></div></div>
 <div id="net-joinv" hidden><p>Tape le code de ton ami :</p><input id="net-in" class="net-input" maxlength="4" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABCD" aria-label="Code de la partie"><p class="net-st" id="net-st-j"></p><div class="row center"><button type="button" class="btn" id="net-cancel-j">Annuler</button><button type="button" class="btn primary big" id="net-ok">Rejoindre</button></div></div>
 <p class="hint net-note" id="net-note"></p><button type="button" class="btn sm" id="net-close">Fermer</button></div></div>
 <div id="net-wait" class="net-wait" hidden role="status"><span class="net-dot"></span><span id="net-wait-t"></span></div>
@@ -1602,7 +1603,7 @@ const Settings = {
   quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -1793,10 +1794,19 @@ const QUIPS = {
 };
 // le grand titre de l'écran de mort, tiré au hasard (accordé au féminin pour Fiona) ; jamais deux fois de suite le même
 const DEATH_LINES = ['TU ES MORT{e}', 'DÉVORÉ{e}', 'MORDU{e}', 'DÉCHIQUETÉ{e}', 'C\'EST FINI', 'TROP TARD', 'ILS T\'ONT EU', 'REPOSE EN PIÈCES', 'PLAT DU JOUR', 'AU MENU CE SOIR', 'LA HORDE A FAIM', 'MANGÉ{e} TOUT{e} CRU{e}', 'UN DE PLUS', 'TU AS PERDU LA TÊTE', 'BIENVENUE DANS LA HORDE', 'ÇA SENT LE SAPIN', 'CHAIR FRAÎCHE', 'TU NE RENTRERAS PAS', 'TOUT LE MONDE A MANGÉ', 'RIP'];
+// la dernière pensée de chaque personnage, sous le titre de l'écran de mort
+const DEATH_SAY = {
+  pedro: ['Mon burrito… dites à mon burrito que je l\'aimais.', '¡Ay caramba! Même pas eu le temps de finir ma salsa.', 'Enterrez-moi avec du guacamole.', 'Maman avait raison : jamais de vacances dans le Nord.'],
+  fiona: ['Bon. Au moins, personne ne verra la différence.', 'J\'avais encore des frites dans la poche.', 'Ch\'est pas juste, j\'étais déjà à moitié morte.', 'Dites à Roubaix que je reviendrai. En grognant.'],
+  zeus: ['Qui va arroser le ficus, maintenant ?', 'Même les dieux ont des jours sans.', 'Mes 147 plantes vont faner de chagrin.', 'L\'Olympe n\'a pas de point de sauvegarde ?'],
+  dobby: ['Dobby est libre… de mourir, apparemment.', 'Dobby n\'a même pas retrouvé sa chaussette gauche.', 'Dobby aurait dû transplaner plus tôt.', 'Dobby a été un bon elfe. Presque.'],
+  chewie: ['Grrr… même pas fini mon kebab.', 'Franchement, j\'ai pas kiffé.', 'Sauce blanche pour tout le monde à mon enterrement.', 'Deux mètres de poils, et ça suffit pas.'],
+  dragon: ['Impossible. Le Maléfique ne meurt pas. Il… fait une pause.', 'Mwaha… ha… aïe.', 'Ce n\'est qu\'un contretemps dans mon plan diabolique.', 'Notez bien : je reviendrai. Plus maléfique encore.']
+};
 const SKINS = ['#7d8a6a', '#8b8f74', '#6f7b63', '#9a9178', '#7a8570', '#848a7a'];
 const CLOTHS = ['#3d4652', '#5a3b33', '#4a4a3c', '#2f3a35', '#5b5448', '#3b2f3f', '#6a5a3a', '#4b3a2c'];
 const CAR_COLORS = ['#5b2a26', '#2f3d4f', '#4f5254', '#6b6a5e', '#2e4436', '#6e5a35', '#3a3340', '#7a7c80'];
-const LOWK = new Set(['barrel', 'barrier', 'sandbags', 'parapet', 'radio', 'brazier', 'bed']);
+const LOWK = new Set(['barrel', 'barrier', 'sandbags', 'parapet', 'radio', 'brazier', 'bed', 'hydrant', 'fbox']);
 
 // ============================================================ canvas
 const $ = id => document.getElementById(id);
@@ -2233,7 +2243,7 @@ class Ground {
 // ============================================================ niveau
 class Level {
   constructor(g) {
-    this.g = g; this.obstacles = []; this.lamps = []; this.spawners = []; this.chests = []; this.fixedLights = []; this.obj = []; this.gates = {}; this.stamp = 0;
+    this.g = g; this.obstacles = []; this.lamps = []; this.spawners = []; this.chests = []; this.fixedLights = []; this.obj = []; this.gates = {}; this.stamp = 0; this.traps = [];
     this.buildStatic(); for (let k = 0; k < 4; k++) this.buildZone(k);
     if (HALLOWEEN) this.addPumpkins();
     this.rebuildGrid(); this.ground = new Ground(this);
@@ -2330,6 +2340,11 @@ class Level {
       for (const [bx, by] of [[PLAZA - 400, 380], [PLAZA + 400, 380], [PLAZA - 400, 820], [PLAZA + 400, 820]]) { add({ x: bx - 13, y: by - 13, w: 26, h: 26, z: 30, kind: 'brazier' }); this.fixedLights.push({ x: bx, y: by, r: 230, c: '255,130,50', i: 0.75, flick: 2, zone: 3 }); }
       for (let i = 0; i < 4; i++) { const hor = r() < 0.6; const w = hor ? 92 : 46, h = hor ? 46 : 92; place(w, h, 40, 260, 940, (x, y) => car(x, y, w, h, r() < 0.5), 80); }
     }
+    // pièges du décor (secteurs 1 à 3) : une clôture électrique avec son boîtier, deux bouches d'incendie
+    if (k < 3) {
+      place(200, 16, 60, 300, 880, (x, y) => { if (!free(x - 40, y - 20, 40, 40, 10)) return; const sw = add({ x: x - 34, y: y - 14, w: 22, h: 26, z: 34, kind: 'fbox' }); this.traps.push({ kind: 'fence', x, y, w: 200, h: 16, ob: sw, on: 0, cd: 0, zone: k }); reserved.push({ x: x - 40, y: y - 40, w: 260, h: 96 }); }, 50);
+      for (let i = 0; i < 2; i++) place(16, 16, 40, ST + 70, ST + 120 + (i ? 760 : 0), (x, y) => { const ob = add({ x, y, w: 16, h: 16, z: 24, kind: 'hydrant' }); this.traps.push({ kind: 'hydrant', ob, on: 0, cd: 0, ang: 0, zone: k }); }, 60);
+    }
     // barils explosifs
     for (let i = 0; i < (k === 3 ? 3 : 7); i++) place(22, 22, 30, 250, 950, (x, y) => { add({ x, y, w: 22, h: 22, z: 28, kind: 'barrel', hp: 30 }); if (r() < 0.5 && free(x + 26, y, 22, 22, 2)) add({ x: x + 26, y: y + 2, w: 22, h: 22, z: 28, kind: 'barrel', hp: 30 }); });
     // distributeurs de soins contre les façades
@@ -2371,7 +2386,7 @@ class Level {
     this.obstacles = this.obstacles.filter(o => o.zone !== k);
     this.lamps = this.lamps.filter(o => o.zone !== k);
     this.spawners = this.spawners.filter(o => o.zone !== k);
-    this.chests = this.chests.filter(o => o.zone !== k);
+    this.chests = this.chests.filter(o => o.zone !== k); this.traps = this.traps.filter(o => o.zone !== k);
     this.fixedLights = this.fixedLights.filter(o => o.zone !== k);
     for (const b of this.obstacles) if (b.kind === 'building') b.doors = b.doors.filter(d => d.zone !== k);
     this.g.pickups = this.g.pickups.filter(p => p.zone !== k);
@@ -2563,7 +2578,7 @@ class Player {
     this.recoil = Math.max(0, this.recoil - dt * 8);
     this.spCd = Math.max(0, this.spCd - dt); if (this.playDead > 0) this.playDead -= dt;
     if (g.state === 'playing') {
-      this.battery = Math.max(0, this.battery - g.diff.battery * (g.dailyMod && g.dailyMod.id === 'lamp' ? 2.5 : 1) * Math.pow(0.5, mutN('lamp')) * dt);
+      this.battery = Math.max(0, this.battery - g.diff.battery * (modOn(g, 'lamp') ? 2.5 : 1) * Math.pow(0.5, mutN('lamp')) * dt);
       if (this.battery < 20 && !this.lowBattery) { this.lowBattery = true; g.toast('Lampe faible : trouve des piles', '#f0b25a'); }
       if (this.battery > 40) this.lowBattery = false;
     }
@@ -3395,7 +3410,7 @@ class Shop {
     const pay = n => { if (p.money < n) return false; p.money -= n; return true; };
     switch (parts[0]) {
       case 'close': g.audio.ui(); this.close(); return;
-      case 'buy': { const w = p.weapons[+parts[1]]; if (g.dailyMod && g.dailyMod.id === 'pistol') { g.toast('Défi du jour : pistolet seulement', '#8b867b'); break; } if (!w.owned && pay(w.def.price)) { w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack; ok = true; } break; }
+      case 'buy': { const w = p.weapons[+parts[1]]; if (modOn(g, 'pistol')) { g.toast('Défi : pistolet seulement', '#8b867b'); break; } if (!w.owned && pay(w.def.price)) { w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack; ok = true; } break; }
       case 'ammo': { const w = p.weapons[+parts[1]]; if (pay(w.def.ammoPrice)) { w.reserve += w.def.ammoPack; ok = true; } break; }
       case 'up': { const i = +parts[1], u = parts[2], w = p.weapons[i]; if (w.lvl[u] < 3 && pay(this.upPrice(i, u))) { const before = w.magSize(); w.lvl[u]++; if (u === 'mag') w.ammo += w.magSize() - before; ok = true; } break; }
       case 'armor': if (p.armor < 3 && pay(300 * (p.armor + 1))) { p.armor++; ok = true; } break;
@@ -3427,7 +3442,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -3458,7 +3473,7 @@ function mergeProgress(a, b) {
 }
 function applyProfile(d) {
   const s = d.s || {};
-  for (const k of PROFILE_KEYS) { if (s[k] == null) continue; Settings[k] = k === 'daily' ? (!Settings.daily || s.daily.d > Settings.daily.d ? s.daily : s.daily.d === Settings.daily.d ? { d: s.daily.d, best: Math.max(s.daily.best || 0, Settings.daily.best || 0) } : Settings.daily) : mergeProgress(Settings[k], s[k]); }
+  for (const k of PROFILE_KEYS) { if (s[k] == null) continue; Settings[k] = k === 'weekly' ? (!Settings.weekly || s.weekly.w > Settings.weekly.w ? s.weekly : s.weekly.w === Settings.weekly.w ? { w: s.weekly.w, best: Math.max(s.weekly.best || 0, Settings.weekly.best || 0) } : Settings.weekly) : k === 'daily' ? (!Settings.daily || s.daily.d > Settings.daily.d ? s.daily : s.daily.d === Settings.daily.d ? { d: s.daily.d, best: Math.max(s.daily.best || 0, Settings.daily.best || 0) } : Settings.daily) : mergeProgress(Settings[k], s[k]); }
   Settings.save(); Ach.set(mergeProgress(Ach.get(), d.a || {}));
   for (const e of d.sc || []) if (e && e.name && typeof e.score === 'number') Scores.add(e);
   const sv = validSave(d.sv) ? d.sv : null, cur = readSave(); if (sv && (!cur || (sv.date || 0) >= (cur.date || 0))) { memSave = sv; try { localStorage.setItem(SAVE_KEY, JSON.stringify(sv)); } catch (e) { } } /* la partie la plus récente gagne */
@@ -3514,7 +3529,7 @@ class Game {
     this.hash = new SpatialHash(64); this._q = []; this._qs = [];
     this.state = 'title'; this.diffKey = 'normal'; this.diff = DIFFS.normal; this.time = 0;
     this.cam = { x: 760, y: 600 }; this.trauma = 0; this.shakeX = 0; this.shakeY = 0;
-    this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.hurtFlash = 0; this.weaponFlash = 0; this.multPulse = 0; this.hint = null;
+    this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.winFx = null; this.hurtFlash = 0; this.weaponFlash = 0; this.multPulse = 0; this.hint = null;
     this.charKey = Settings.char; this.comic = new Comic(this);
     this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.mode = 'story'; this.stats = newStats(); this.shibaFound = new Set();
     this.torchFlicker = 0; this.score = 0; this.mult = 1; this.lives = 2; this.kills = 0; this.maxMult = 1; this.runTime = 0;
@@ -3522,7 +3537,7 @@ class Game {
   }
   resetWorld() {
     this.cleared = []; this.finFx = null; this.buddy = null; this.event = null; this.slowT = 0; this.recentKills = []; this.slowCd = 0; this.dailyMod = null;
-    this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.mapHover = null;
+    this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.winFx = null; this.mapHover = null;
     this.zombies = []; this.bullets = []; this.flames = []; this.rockets = []; this.throwables = []; this.mines = []; this.acids = [];
     this.puddles = []; this.fires = []; this.shockwaves = []; this.beams = []; this.particles = []; this.pickups = []; this.lights = []; this.survivors = [];
     this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
@@ -3586,7 +3601,7 @@ class Game {
   fillPauseStats() {
     const st = this.stats || {}, t = Math.floor(this.runTime || 0), acc = st.shots ? Math.round(100 * st.hits / st.shots) : 0, p = this.player;
     const zn = this.activeZone >= 0 ? ZONES[this.activeZone] : null;
-    $('pause-where').textContent = this.mode === 'training' ? (this.train && this.train.tut ? 'Didacticiel' : "Camp d'entraînement") : this.endless ? `Nuit sans fin · nuit ${this.endless.night}` : this.dailyMod ? `Défi du jour · ${this.dailyMod.name}` : this.mode === 'survival' ? `Mode survie · vague ${this.surv ? this.surv.wave : 0}` : this.mode === 'secret' ? 'Le Paradis des Shibas' : this.mode === 'hospital' ? (this.hcamp ? 'Mission 5 · Hôpital Saint-Lazare' : 'Secteur 5 · Hôpital Saint-Lazare') : `${zn ? zn.sub + ' · ' + zn.name : this.safeName || 'Campagne'} · ${this.diff.name}${this.p2 ? ' · duo' : ''}`;
+    $('pause-where').textContent = this.mode === 'training' ? (this.train && this.train.tut ? 'Didacticiel' : "Camp d'entraînement") : this.endless ? `Nuit sans fin · nuit ${this.endless.night}` : this.dailyMod ? `${this.dailyMod.week ? 'Défi de la semaine' : 'Défi du jour'} · ${this.dailyMod.name}` : this.mode === 'survival' ? `Mode survie · vague ${this.surv ? this.surv.wave : 0}` : this.mode === 'secret' ? 'Le Paradis des Shibas' : this.mode === 'hospital' ? (this.hcamp ? 'Mission 5 · Hôpital Saint-Lazare' : 'Secteur 5 · Hôpital Saint-Lazare') : `${zn ? zn.sub + ' · ' + zn.name : this.safeName || 'Campagne'} · ${this.diff.name}${this.p2 ? ' · duo' : ''}`;
     const cells = [['Score', fmt(Math.floor(this.score))], ['Zombies abattus', fmt(this.kills)], ['Temps', `${Math.floor(t / 60)} min ${String(t % 60).padStart(2, '0')}`], ['Précision', acc + ' %'], ['Multiplicateur max', '×' + (this.maxMult || 1).toFixed(1)], ['Argent', '$ ' + fmt(p ? p.money : 0)]];
     if (this.isCampaign()) cells.push(['Shibas', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`], ['Vies', `${this.lives} / ${this.diff.lives}`], ['Survivants sauvés', String(this.run ? this.run.saved : 0)]);
     if (this.mode === 'training' && this.train) cells.push(['Cibles abattues', String(this.train.hits)]);
@@ -3600,7 +3615,8 @@ class Game {
     const inp = this.input.poll(this);
     pollPadCapture();
     const st0 = this.state;
-    if (st0 === 'playing') { if (this.netGuest) { this.portrait = this.input.touchMode && innerHeight > innerWidth * 1.05; this.updateGuest(dt, inp); } else this.updatePlaying(dt, inp); }
+    if (st0 === 'playing' && this.net && Net.cut) { /* duo en ligne coupé : tout est figé en attendant l'ami */ }
+    else if (st0 === 'playing') { if (this.netGuest) { this.portrait = this.input.touchMode && innerHeight > innerWidth * 1.05; this.updateGuest(dt, inp); } else this.updatePlaying(dt, inp); }
     else if (this.state === 'title') { this.updateTitle(dt); if (!padCursor.update(this, dt)) this.menuNav(inp); }
     else if (!padCursor.update(this, dt)) this.menuNav(inp);
     if (this.net === 'host') this.netHostTick(dt);
@@ -3668,6 +3684,7 @@ class Game {
     if (W8.open) { dt *= 0.2; pdt = realDt * 0.5; }
     if (this.slowT > 0) { this.slowT -= realDt; if (!W8.open) { dt *= 0.28; pdt = realDt * 0.45; } }
     if (p.dead && !(this.p1Down > 0) && this.deathT > 0) dt *= 0.3; /* mort : le monde passe au ralenti */
+    if (this.winFx) { const w = this.winFx; w.t += realDt; dt *= 0.45; if (w.t >= 2.8 && w.then) { this.winFx = null; w.then(); return; } }
     if (!p.dead) p.update(pdt, inp);
     else if (this.p1Down > 0) { /* à terre : attend d'être relevé par son allié ou la fin de la manche */ }
     else { this.deathT -= realDt; if (this.deathT <= 0) { if (this.lives > 0) { if (this.mode === 'secret' || this.mode === 'hospital') this.respawnSecret(); else this.respawn(); } else if (this.mode === 'survival' || this.mode === 'secret' || (this.mode === 'hospital' && !this.hcamp) || this.endless) { this.showEnd(false); return; } else { this.comic.show('gameover', () => this.showEnd(false)); return; } } }
@@ -3716,7 +3733,7 @@ class Game {
       else if (!c.wreck && c.hp < c.maxHp * 0.45 && Math.random() < dt * 4) this.spawnP({ x: c.x + c.w * 0.8, y: c.y + c.h / 2, z: c.z, vz: 30, life: 1.4, type: 'smoke', size: 5, grow: 10, drag: 0.5 });
     }
     for (const s of this.level.spawners) if (s.anim > 0) s.anim = Math.max(0, s.anim - dt);
-    this.updateObjectives(dt);
+    this.updateObjectives(dt); this.updateTraps(dt);
     this.updateCommon(dt);
     // indice d'interaction
     this.hint = null;
@@ -3827,7 +3844,7 @@ mixin(Game, {
     const L = this.level, H = HOSP;
     L.obstacles = L.obstacles.filter(o => o.zone !== 0); L.spawners = L.spawners.filter(s => s.zone !== 0); L.chests = (L.chests || []).filter(c => c.zone !== 0);
     for (const l of L.lamps) if (l.zone === 0) l.on = false;
-    this.pickups = []; this.survivors = []; /* rien de la ville ne reste dans l'hôpital */
+    this.pickups = []; this.survivors = []; L.traps = L.traps.filter(t => t.zone !== 0); /* rien de la ville ne reste dans l'hôpital */
     const A = o => { o.zone = 0; return L.add(o); }, wall = (x, y, w, h) => A({ x, y, w, h, z: 46, kind: 'hwall', blood: Math.random() < 0.3 ? Math.round(rand(4, Math.max(5, w - 14))) : 0 });
     for (const y of [H.top, H.bot]) { let x = H.x0; for (const d of H.doors) { wall(x, y, d - 42 - x, 18); x = d + 42; } wall(x, y, H.morgue - x, 18); }
     for (const x of H.cols) { wall(x, ST, 18, H.top - ST); wall(x, H.bot + 18, 18, SB - H.bot - 18); }
@@ -3897,13 +3914,14 @@ mixin(Game, {
       if ((sh.barkT -= dt) <= 0) { sh.barkT = rand(4, 9); this.audio.bark(sh.x, sh.y); }
     }
   },
-  newDaily() {
-    const m = todayMod(); this.newSurvival(false); this.dailyMod = m;
+  newDaily() { this.newChallenge(todayMod()); },
+  newWeekly() { this.newChallenge(weekMod()); },
+  newChallenge(m) {
+    this.newSurvival(false); this.dailyMod = m;
     const p = this.player;
-    if (m.id === 'pistol') { p.weapons.forEach((w, i) => { if (i) w.owned = false; }); p.cur = 0; }
-    if (m.id === 'glass') { p.maxHp = p.hp = 40; }
-    if (m.id === 'tanks') { }
-    this.banner('Défi du jour', m.name + ' · ' + m.desc);
+    if (modOn(this, 'pistol')) { p.weapons.forEach((w, i) => { if (i) w.owned = false; }); p.cur = 0; }
+    if (modOn(this, 'glass')) { p.maxHp = p.hp = 40; }
+    this.banner(m.week ? 'Défi de la semaine' : 'Défi du jour', m.name);
   },
   newSurvival(keep) {
     this.keysOpen = false; this.audio.init(); const prev = keep && this.player ? this.player : null; this.resetModes();
@@ -4120,7 +4138,7 @@ mixin(Game, {
       p.dead = true; p.hp = 0; p.carry = null; this.p1Down = 1; p.downX = p.x; p.downY = p.y; p.revT = 0; this.audio.death(); this.bleed(p.x, p.y, 0, 0, 20); this.toast(`${this.pName(p)} est à terre`, '#e2792f');
       return;
     }
-    p.dead = true; p.hp = 0; this.lives--; this.stats.deaths++; this.mult = 1; this.deathT = 3.4; this.deathLine = this.pickDeathLine(); this.bannerObj = null; this.notices = []; this.audio.death(); this.later(0.25, () => this.audio.heartbeat && this.audio.heartbeat()); this.audio.flame(false); this.shake(0.6);
+    p.dead = true; p.hp = 0; this.lives--; this.stats.deaths++; this.mult = 1; this.deathT = 3.4; this.deathLine = this.pickDeathLine(); this.deathSay = pick(DEATH_SAY[this.charKey] || DEATH_SAY.pedro); this.bannerObj = null; this.notices = []; this.audio.death(); this.later(0.25, () => this.audio.heartbeat && this.audio.heartbeat()); this.audio.flame(false); this.shake(0.6);
     this.bleed(p.x, p.y, 0, 0, 24); this.splat(p.x, p.y, 26);
   },
   onObjectivePickup(pk, by) {
@@ -4170,11 +4188,17 @@ mixin(Game, {
     this.notice('Sauvegardé', SAFES[s].name);
     if (this.endless) { this.later(0.8, () => this.openMutations()); return; }
     const report = this.missionReport(s); writeSave(this, s);
-    this.comic.show(['act2', 'act3', 'act4'][s], () => this.showMap({ current: s + 1, report }));
+    this.missionWin(s, () => this.comic.show(['act2', 'act3', 'act4'][s], () => this.showMap({ current: s + 1, report })));
   },
   pickDeathLine() {
     let i; do i = Math.floor(Math.random() * DEATH_LINES.length); while (i === this._lastDeath && DEATH_LINES.length > 1); this._lastDeath = i;
     const f = CHARS[this.charKey].fallen.endsWith('TOMBÉE'); return DEATH_LINES[i].replace(/\{e\}/g, f ? 'E' : '');
+  },
+  // fin de mission : un grand « SECTEUR NETTOYÉ » rongé, au ralenti, avant la BD
+  missionWin(k, then) {
+    const r = this.missionReport(k), sub = `${MISSION_NAMES[k]} · ${fmt(r.kills)} zombies abattus · ${fmtTime(r.time)}`;
+    this.winFx = { t: 0, title: k === 4 ? 'HÔPITAL NETTOYÉ' : 'SECTEUR NETTOYÉ', sub, then }; /* « then » part après 2,8 s de temps réel (le monde, lui, est au ralenti) */ this.netEmit(['win', this.winFx.title, sub]);
+    this.bannerObj = null; this.notices = []; this.audio.objective(); this.later(0.15, () => this.shake(0.35));
   },
   // la campagne continue à l'hôpital (mission 5)
   isCampaign() { return this.mode === 'story' || (this.mode === 'hospital' && !!this.hcamp); },
@@ -4187,7 +4211,7 @@ mixin(Game, {
     const p = this.player; p.hp = p.maxHp; p.battery = 100; this.activeZone = -1;
     this.checkpoint = this.makeCheckpoint(150, 600); this.checkpoint.safe = SAFES.length;
     const report = this.missionReport(3); writeSave(this, SAFES.length);
-    this.comic.show('act5', () => this.showMap({ current: 4, report, onGo: () => this.newHospitalMission() }));
+    this.missionWin(3, () => this.comic.show('act5', () => this.showMap({ current: 4, report, onGo: () => this.newHospitalMission() })));
   },
   // le Chirurgien est tombé : l'équipe s'envole du toit de l'hôpital
   finishCampaign() {
@@ -4200,7 +4224,7 @@ mixin(Game, {
     const xp = this.gainXP(200 + (this.kills - ((this.missionStart || {}).kills || 0)) * 2); this.toast(`+${xp} XP · mission 5 terminée`, '#9fd6e6');
     this.unlock(WIN_ACH[this.charKey]); if (this.diffKey === 'cauchemar') this.unlock('nightmare');
     Settings.survival = true; clearSave(); if (this.shibaFound.size >= SHIBAS_TOTAL) Settings.paradise = true; Settings.save(); refreshSurvivalBtn();
-    this.later(2.4, () => { if (this.state === 'playing') this.comic.show('epilogue', () => this.showEnd(true)); });
+    this.later(0.8, () => this.missionWin(4, () => { if (this.state === 'playing') this.comic.show('epilogue', () => this.showEnd(true)); }));
   },
   respawn() {
     const cp = this.checkpoint, kz = this.activeZone;
@@ -4224,6 +4248,7 @@ mixin(Game, {
   },
   tryInteract(by) {
     const p = by || this.player;
+    { const t = this.trapNear(p); if (t) { this.useTrap(t, p); return true; } }
     for (const o of this.level.obstacles) {
       if (o.kind === 'shop' && rectDist(p.x, p.y, o) < 46) { if (this.net && p.isP2) { this.toast('Le marché noir est réservé à l\'hôte en duo en ligne', '#8b867b'); return true; } this.shop.open(); return true; }
       if (o.kind === 'machine' && rectDist(p.x, p.y, o) < 34) {
@@ -4255,14 +4280,15 @@ mixin(Game, {
     const st = this.stats; stats.push(['Dégâts infligés', fmt(Math.round(st.dmg))], ['Tirs', fmt(st.shots)], ['Précision', st.shots ? Math.round(100 * st.hits / st.shots) + ' %' : '–'], ['Morts', String(st.deaths)]);
     if (camp) stats.push(['Shibas trouvés', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`]);
     if (this.achCards.length) { stats.push(['Succès débloqués', this.achCards.map(a => a.name).join(' · ')]); this.achCards = []; }
-    { const mode = this.dailyMod ? 'daily' : camp ? 'story' : this.mode; Settings.lastRun = { char: this.charKey, mode, win: !!victory, kills: this.kills, score: Math.floor(this.score), zone: Math.max(0, this.missionFor == null ? this.activeZone : this.missionFor), wave, shibas: this.shibaFound.size, diff: this.diffKey, mod: this.dailyMod ? this.dailyMod.name : '', date: Date.now() };
+    { const mode = this.dailyMod ? (this.dailyMod.week ? 'weekly' : 'daily') : camp ? 'story' : this.mode; Settings.lastRun = { char: this.charKey, mode, win: !!victory, kills: this.kills, score: Math.floor(this.score), zone: Math.max(0, this.missionFor == null ? this.activeZone : this.missionFor), wave, shibas: this.shibaFound.size, diff: this.diffKey, mod: this.dailyMod ? this.dailyMod.name : '', date: Date.now() };
       Settings.bestKills = Math.max(Settings.bestKills || 0, this.kills);
       if (this.mode !== 'training') for (const q of this.players()) { const cs = cstat(q.char); cs.games++; if (victory) cs.wins++; cs.kills += this.kills; cs.best = Math.max(cs.best, Math.floor(this.score)); cs.time += Math.floor(this.runTime || 0); }
       { this.levelUps = 0; const xp = this.gainXP(this.kills * 2 + this.score / 250 + (victory ? 600 : 0) + this.shibaFound.size * 40), L = levelInfo(Settings.xp); stats.push(['Expérience', `+${fmt(xp)} XP · niveau ${L.lv}${this.levelUps ? ' (niveau supérieur !)' : ''}`]); }
-      if (this.dailyMod && this.score > dailyBest()) { Settings.daily = { d: dayKey(), best: Math.floor(this.score) }; stats.unshift(['Nouveau record du jour', fmt(this.score)]); }
+      if (this.dailyMod && !this.dailyMod.week && this.score > dailyBest()) { Settings.daily = { d: dayKey(), best: Math.floor(this.score) }; stats.unshift(['Nouveau record du jour', fmt(this.score)]); }
+      if (this.dailyMod && this.dailyMod.week && this.score > weeklyBest()) { Settings.weekly = { w: weekKey(), best: Math.floor(this.score) }; stats.unshift(['Nouveau record de la semaine', fmt(this.score)]); }
       Settings.save(); }
     if (this.endless) { $('end-eyebrow').textContent = 'Nuit sans fin'; $('end-title').textContent = `Tombé pendant la nuit ${this.endless.night}`; $('end-stamp').textContent = `Nuit ${this.endless.night}`; stats.unshift(['Nuits survécues', String(this.endless.night - 1)], ['Mutations', String(Object.values(this.endless.m).reduce((a, b) => a + b, 0))]); }
-    if (this.dailyMod) { $('end-eyebrow').textContent = `Défi du jour · ${this.dailyMod.name}`; $('end-title').textContent = 'Défi terminé'; $('end-stamp').textContent = `Vague ${wave}`; }
+    if (this.dailyMod) { $('end-eyebrow').textContent = `${this.dailyMod.week ? 'Défi de la semaine' : 'Défi du jour'} · ${this.dailyMod.name}`; $('end-title').textContent = 'Défi terminé'; $('end-stamp').textContent = `Vague ${wave}`; }
     $('end-stats').innerHTML = stats.map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join('');
     { const h = newBeastsHTML(this.takeActBeasts()); $('end-beasts').innerHTML = h; $('end-beasts').hidden = !h; if (h) drawBestiary(); }
     $('end-name').value = Settings.name || 'Survivant'; $('btn-save').disabled = false; $('end-namebox').hidden = false;
@@ -4272,13 +4298,13 @@ mixin(Game, {
   saveScore() {
     if (this.savedScore) return; this.savedScore = true;
     const name = ($('end-name').value || 'Survivant').trim().slice(0, 16) || 'Survivant'; Settings.name = name; Settings.save();
-    const entry = { name, char: CHARS[this.charKey].name, score: Math.floor(this.score), diff: (this.endless ? `Nuit sans fin ${this.endless.night} · ` : this.dailyMod ? 'Défi · ' : this.mode === 'survival' ? 'Survie · ' : this.mode === 'secret' ? 'Paradis · ' : this.mode === 'hospital' && !this.hcamp ? 'Hôpital · ' : '') + this.diff.name, kills: this.kills, time: Math.floor(this.runTime), win: !!this.lastVictory, wave: this.mode === 'survival' ? this.surv.wave : 0, date: Date.now() };
+    const entry = { name, char: CHARS[this.charKey].name, score: Math.floor(this.score), diff: (this.endless ? `Nuit sans fin ${this.endless.night} · ` : this.dailyMod ? (this.dailyMod.week ? 'Semaine · ' : 'Défi · ') : this.mode === 'survival' ? 'Survie · ' : this.mode === 'secret' ? 'Paradis · ' : this.mode === 'hospital' && !this.hcamp ? 'Hôpital · ' : '') + this.diff.name, kills: this.kills, time: Math.floor(this.runTime), win: !!this.lastVictory, wave: this.mode === 'survival' ? this.surv.wave : 0, date: Date.now() };
     const top = Scores.add(entry); $('end-scores').innerHTML = scoreTable(top, entry.date); $('btn-save').disabled = true; $('btn-again').focus();
     { const best = top.find(r => nameKey(r.name) === nameKey(name)); if (best && best.date !== entry.date && best.score >= entry.score) this.toast(`Ton record tient toujours : ${fmt(Math.floor(best.score))} pts`, '#f0b25a'); }
-    if (Online.on() && this.mode !== 'training') { entry.mode = this.endless ? 'endless' : this.dailyMod ? 'daily' : this.coop ? 'coop' : this.mode; Online.send(entry).then(ok => this.toast(ok ? 'Score envoyé au classement en ligne' : 'Hors ligne : score envoyé à la prochaine connexion', ok ? '#7fd18b' : '#8b867b')); }
+    if (Online.on() && this.mode !== 'training') { entry.mode = this.endless ? 'endless' : this.dailyMod ? (this.dailyMod.week ? weekMode() : 'daily') : this.coop ? 'coop' : this.mode; Online.send(entry).then(ok => this.toast(ok ? 'Score envoyé au classement en ligne' : 'Hors ligne : score envoyé à la prochaine connexion', ok ? '#7fd18b' : '#8b867b')); }
   },
   // près d'une boutique ou d'un distributeur : le bouton E indique l'action possible
-  nearInteract() { const p = this.player; if (!p || p.dead || !this.level) return null; for (const o of this.level.obstacles) { if (o.kind === 'shop' && rectDist(p.x, p.y, o) < 46) return 'BOUTIQUE'; if (o.kind === 'machine' && rectDist(p.x, p.y, o) < 34 && !o.broken && o.charges > 0) return 'SOINS'; } return null; },
+  nearInteract() { const p = this.player; if (!p || p.dead || !this.level) return null; for (const o of this.level.obstacles) { if (o.kind === 'shop' && rectDist(p.x, p.y, o) < 46) return 'BOUTIQUE'; if (o.kind === 'machine' && rectDist(p.x, p.y, o) < 34 && !o.broken && o.charges > 0) return 'SOINS'; } { const t = this.trapNear(p); if (t && t.cd <= 0) return t.kind === 'fence' ? 'COURANT' : 'EAU'; } return null; },
   updateObjectives(dt) {
     const k = this.activeZone; if (k < 0) return; const o = this.level.obj[k], p = this.player;
     const alive = this.players().filter(q => !q.dead), near = (r) => alive.some(q => dist2(q.x, q.y, o.x, o.y) < r * r);
@@ -4395,7 +4421,7 @@ mixin(Game, {
   spawnAt(type, k, aggro) {
     if (this.zombies.length >= 220) return null; const s = this.findSpawnPoint(k); if (!s) return null;
     const z = new Zombie(this, type, s.x + rand(-6, 6), s.y + rand(-6, 6), s.kind === 'door' ? 'door' : s.kind === 'sewer' ? 'sewer' : 'dark');
-    z.aggro = true; if (this.dailyMod && this.dailyMod.id === 'tanks') z.maxHp = z.hp = z.hp * 1.6; this.zombies.push(z); if (s.anim !== undefined) s.anim = 1;
+    z.aggro = true; if (modOn(this, 'tanks')) z.maxHp = z.hp = z.hp * 1.6; this.zombies.push(z); if (s.anim !== undefined) s.anim = 1;
     if (s.kind === 'sewer') for (let i = 0; i < 5; i++) this.spawnP({ x: s.x, y: s.y, vx: rand(-40, 40), vy: rand(-40, 40), life: 1, type: 'smoke', size: 8, grow: 12 });
     if (type === 'dog') { const n = randi(1, 3); for (let i = 0; i < n && this.zombies.length < 220; i++) { const d = new Zombie(this, 'dog', s.x + rand(-26, 26), s.y + rand(-26, 26), z.spawnKind); d.aggro = true; d.spawnT += i * 0.15; this.zombies.push(d); } if (!this.dogTip && this.mode !== 'training') { this.dogTip = true; this.toast('Meute de chiens : quand un chien s\'accroupit en grognant, roule !', '#ff8a5a'); } }
     return z;
@@ -4599,6 +4625,38 @@ mixin(Game, {
 mixin(Game, {
   addLight(x, y, r, c, i, life) { this.netEmit(['light', Math.round(x), Math.round(y), Math.round(r), c, netR(i), netR(life)]); this.lights.push({ x, y, r, c, i, life, max: life, dead: false }); },
   spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
+  // ---------- pièges du décor : ils frappent tout le monde, zombies comme survivants
+  trapNear(p) { for (const t of this.level.traps || []) if (rectDist(p.x, p.y, t.ob) < 40) return t; return null; },
+  useTrap(t, by) {
+    if (t.cd > 0) { this.toast(`${t.kind === 'fence' ? 'La clôture' : 'La bouche d\'incendie'} se recharge (${Math.ceil(t.cd)} s)`, '#8b867b'); return; }
+    t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = by.aim || 0;
+    this.netEmit(['trap', t.ob.oid, netR(t.ang)]); this.trapFx(t);
+  },
+  trapFx(t) {
+    if (t.kind === 'fence') { this.audio.tone({ f: 60, f2: 120, dur: 0.5, type: 'sawtooth', g: 0.12 }); this.notice('Clôture électrifiée', 'Attention : elle grille tout le monde', '#9fd6ff'); }
+    else { this.audio.noise && this.audio.noise({ f: 1800, f2: 900, dur: 0.6, g: 0.2 }); this.notice('Bouche d\'incendie ouverte', 'Le jet repousse tout le monde', '#9fd6ff'); }
+  },
+  updateTraps(dt) {
+    for (const t of this.level.traps || []) {
+      if (t.cd > 0) t.cd -= dt; if (t.on <= 0) continue; t.on -= dt;
+      const host = !this.netGuest;
+      if (t.kind === 'fence') {
+        if (Math.random() < dt * 22) { const x = t.x + Math.random() * t.w; this.spawnP({ x, y: t.y + 8, z: 6 + Math.random() * 14, vx: rand(-60, 60), vy: rand(-40, 40), vz: rand(20, 80), life: 0.25, type: 'spark', size: 1.6, emissive: true, color: '#bfe6ff' }); }
+        if (!host) continue;
+        const inside = e => e.x > t.x - e.r && e.x < t.x + t.w + e.r && e.y > t.y - e.r && e.y < t.y + t.h + e.r;
+        for (const z of this.zombies) if (!z.dead && z.spawnT <= 0 && inside(z)) { z.damage(70 * dt, 0, 0, 'shock'); z.stun = Math.max(z.stun, 0.35); if (Math.random() < dt * 8) this.sparks(z.x, z.y - 14, 0, -1, 3); }
+        for (const p of this.players()) if (!p.dead && inside(p)) { p.hurtDot(22 * dt); p.ky += (p.y < t.y + 8 ? -1 : 1) * 900 * dt; /* la décharge rejette le survivant hors de la clôture */ }
+      } else {
+        const o = t.ob, hx = o.x + 8, hy = o.y + 8, ca = Math.cos(t.ang), sa = Math.sin(t.ang), R = 300;
+        for (let i = 0; i < 6; i++) { const a = t.ang + rand(-0.22, 0.22), sp = rand(420, 620); this.spawnP({ x: hx, y: hy, z: 14, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, vz: rand(10, 70), grav: 300, life: rand(0.4, 0.6), type: 'spark', size: 3, color: 'rgba(200,232,255,.95)', drag: 1 }); }
+        if (!host) continue;
+        const cone = (e, f) => { const dx = e.x - hx, dy = e.y - hy, d = Math.hypot(dx, dy) || 1; if (d > R || (dx * ca + dy * sa) / d < 0.85) return; const k = (1 - d / R) * f * dt; e.kx += ca * k; e.ky += sa * k; return true; };
+        for (const z of this.zombies) if (!z.dead && z.type !== 'boss' && cone(z, 5200 * z.kbMul)) { z.stun = Math.max(z.stun, 0.25); z.burn = 0; }
+        for (const p of this.players()) if (!p.dead) cone(p, 3600);
+        for (const f of this.fires) { const dx = f.x - hx, dy = f.y - hy, d = Math.hypot(dx, dy) || 1; if (d < R && (dx * ca + dy * sa) / d > 0.85) f.life = Math.min(f.life, 0.2); /* le jet éteint les flammes */ }
+      }
+    }
+  },
   // cri du Hurleur : la horde alentour s'excite et les lampes grésillent
   scream(z) {
     this.netEmit(['scream', Math.round(z.x), Math.round(z.y)]); this.screamFx(z.x, z.y);
@@ -4739,6 +4797,14 @@ mixin(Game, {
     if (this.buddy && inView(this.buddy.x, this.buddy.y)) { const b = this.buddy; c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(b.x, b.y + 2, 10, 4, 0, 0, TAU); c.fill(); drawShibaSprite(c, b.x, b.y - b.hop, 1, this.time * 1.6); }
     if (this.event && this.event.id === 'icecream' && inView(this.event.x, this.event.y, 120)) drawIceTruck(c, this.event.x, this.event.y, this.time);
     for (const s of this.level.spawners) if (s.anim > 0 && s.kind === 'sewer' && inView(s.x, s.y)) { c.fillStyle = '#55565a'; c.beginPath(); c.ellipse(s.x + 22 * s.anim, s.y - 4, 17, 9, 0.4, 0, TAU); c.fill(); }
+    // clôtures électriques au sol (poteaux, fils, arcs quand le courant passe)
+    for (const t of this.level.traps || []) if (t.kind === 'fence' && inView(t.x + t.w / 2, t.y, t.w)) {
+      const on = t.on > 0; c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(t.x, t.y + 10, t.w, 5);
+      for (let x = t.x; x <= t.x + t.w; x += 40) { c.fillStyle = '#4a4a50'; c.fillRect(x - 2, t.y - 18, 4, 30); c.fillStyle = '#c8b030'; c.fillRect(x - 3, t.y - 20, 6, 3); }
+      c.lineWidth = 1.5; c.strokeStyle = on ? `rgba(170,225,255,${0.6 + Math.random() * 0.4})` : '#6a6a70';
+      for (const h of [-12, -2]) { c.beginPath(); c.moveTo(t.x, t.y + h); for (let x = t.x + 10; x <= t.x + t.w; x += 10) c.lineTo(x, t.y + h + (on ? rand(-2.5, 2.5) : Math.sin(x) * 0.6)); c.stroke(); }
+      if (on) { c.save(); c.globalCompositeOperation = 'lighter'; const gr = c.createLinearGradient(0, t.y - 30, 0, t.y + 20); gr.addColorStop(0, 'rgba(120,200,255,0)'); gr.addColorStop(0.5, 'rgba(120,200,255,.25)'); gr.addColorStop(1, 'rgba(120,200,255,0)'); c.fillStyle = gr; c.fillRect(t.x - 6, t.y - 30, t.w + 12, 50); c.restore(); }
+    }
     // tri en profondeur
     const list = [];
     for (const o of this.level.queryRect(vx0 - 100, vy0 - 40, vx1 - vx0 + 200, vy1 - vy0 + 200)) { o._sy = o.y + o.h; list.push(o); }
@@ -4800,7 +4866,7 @@ mixin(Game, {
   renderLights(S, ox, oy, inView) {
     const L = lctx, lw = lightCanvas.width, lh = lightCanvas.height, p = this.player, t = this.time;
     L.setTransform(1, 0, 0, 1, 0, 0); L.globalCompositeOperation = 'source-over';
-    const amb = this.mode === 'secret' ? [58, 34, 56] : this.dailyMod && this.dailyMod.id === 'night' ? [3, 3, 6] : this.diff.ambient, bossDark = (this.blackoutT > 0 ? 0.1 : 1) * (this.bossRef && this.bossRef.state === 'intro' ? 0.4 : 1) * (this.event && this.event.id === 'blackout' ? 0.25 : this.event && this.event.id === 'ash' ? 0.7 : 1);
+    const amb = this.mode === 'secret' ? [58, 34, 56] : modOn(this, 'night') ? [3, 3, 6] : this.diff.ambient, bossDark = (this.blackoutT > 0 ? 0.1 : 1) * (this.bossRef && this.bossRef.state === 'intro' ? 0.4 : 1) * (this.event && this.event.id === 'blackout' ? 0.25 : this.event && this.event.id === 'ash' ? 0.7 : 1);
     L.fillStyle = `rgb(${amb[0] * bossDark | 0},${amb[1] * bossDark | 0},${amb[2] * bossDark | 0})`; L.fillRect(0, 0, lw, lh);
     L.setTransform(S / LD, 0, 0, S / LD, ox / LD, oy / LD); L.globalCompositeOperation = 'lighter';
     const glow = (x, y, r, col, i) => {
@@ -4955,6 +5021,8 @@ mixin(Game, {
       case 'wall': this.box(o.x, o.y, o.w, o.h, o.z, '#2c2c2f', '#4a4845'); c.fillStyle = 'rgba(0,0,0,.25)'; for (let y = o.y; y < o.y + o.h; y += 40) c.fillRect(o.x, y - o.z, o.w, 2); break;
       case 'gate': { c.strokeStyle = '#6a6e72'; c.lineWidth = 3; c.beginPath(); for (let y = o.y + 4; y <= o.y + o.h; y += 11) { c.moveTo(o.x + o.w / 2, y); c.lineTo(o.x + o.w / 2, y - o.z); } c.stroke(); c.fillStyle = '#7a3a1c'; c.fillRect(o.x + 2, o.y - o.z - 4, o.w - 4, 6); c.fillRect(o.x + 2, o.y + o.h - o.z - 4, o.w - 4, 6); c.fillStyle = '#c49a2c'; c.fillRect(o.x + o.w / 2 - 5, o.y + o.h / 2 - o.z / 2, 10, 12); break; }
       case 'car': this.drawCar(o); break;
+      case 'fbox': { const t = (this.level.traps || []).find(x => x.ob === o), on = t && t.on > 0, ready = t && t.cd <= 0; this.box(o.x, o.y, o.w, o.h, o.z, '#5a5a3a', '#3a3a26'); const fy = o.y + o.h - o.z; c.fillStyle = '#e8d030'; c.beginPath(); c.moveTo(o.x + 11, fy + 4); c.lineTo(o.x + 6, fy + 14); c.lineTo(o.x + 12, fy + 13); c.lineTo(o.x + 9, fy + 22); c.lineTo(o.x + 17, fy + 10); c.lineTo(o.x + 11, fy + 11); c.closePath(); c.fill(); c.fillStyle = on ? '#9fe0ff' : ready ? '#7fd18b' : '#b0231c'; c.fillRect(o.x + 15, fy + 3, 4, 4); break; }
+      case 'hydrant': { const t = (this.level.traps || []).find(x => x.ob === o), ready = t && t.cd <= 0; c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(o.x + 8, o.y + 14, 10, 4, 0, 0, TAU); c.fill(); c.fillStyle = '#a8231a'; c.fillRect(o.x + 3, o.y - 12, 10, 24); c.fillRect(o.x - 1, o.y - 4, 18, 6); c.fillStyle = '#d0402e'; c.beginPath(); c.arc(o.x + 8, o.y - 12, 6, Math.PI, 0); c.fill(); c.fillStyle = ready ? '#7fd18b' : '#5a1410'; c.fillRect(o.x + 6, o.y - 17, 4, 3); break; }
       case 'barrel': { if (o.pumpkin) { drawPumpkin(c, o.x + 11, o.y + 12, 1, this.time + o.x); break; } c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(o.x + 11, o.y + 20, 13, 5, 0, 0, TAU); c.fill(); c.fillStyle = '#7d1f17'; c.fillRect(o.x + 1, o.y - 6, 20, 26); c.fillStyle = '#d0a425'; c.fillRect(o.x + 1, o.y + 4, 20, 4); c.fillStyle = '#9a2a1f'; c.beginPath(); c.ellipse(o.x + 11, o.y - 6, 10, 4, 0, 0, TAU); c.fill(); break; }
       case 'barrier': this.box(o.x, o.y, o.w, o.h, o.z, '#8f8c84', '#6e6b64'); c.fillStyle = '#8a2b22'; for (let x = o.x + 6; x < o.x + o.w - 10; x += 26) c.fillRect(x, o.y + o.h - o.z + 6, 12, 8); break;
       case 'dumpster': this.box(o.x, o.y, o.w, o.h, o.z, o.hue > 0.5 ? '#2d4a35' : '#4a3d26', o.hue > 0.5 ? '#223a29' : '#3a301e'); c.fillStyle = 'rgba(0,0,0,.3)'; c.fillRect(o.x, o.y - o.z + o.h / 2, o.w, 2); break;
@@ -5795,6 +5863,13 @@ mixin(Game, {
     if (downs.length) { const [d, a] = downs[0], meDown = d === p; c.textAlign = 'center'; c.font = `${small ? 15 : 19}px ${FD}`; c.fillStyle = '#ff6a52'; c.fillText(meDown ? (this.p2 && !this.net ? 'J1 À TERRE' : 'TU ES À TERRE') : `${this.pName(d).toUpperCase()} EST À TERRE`, cw / 2, ch * 0.24); c.font = `13px ${FT}`; c.fillStyle = '#c6c0b2';
       c.font = `11px ${FT}`; c.fillText(this.reviveUsed ? 'Retour en fin d\'acte ou de vague' : meDown ? `${this.pName(a)} doit rester 4 s dans ton cercle` : 'Reste 4 s dans son cercle vert', cw / 2, ch * 0.24 + 16); }
     else if (!p.dead) this._deathHit = false;
+    if (this.winFx) { // fin de mission
+      const W2 = this.winFx, e = W2.t, k = Math.min(1, e / 0.5), a = Math.min(1, e * 2, (2.8 - e) * 2.5);
+      c.globalAlpha = Math.max(0, a) * 0.6; c.fillStyle = '#060404'; c.fillRect(0, 0, cw, ch); c.globalAlpha = 1;
+      const fs = Math.min(small ? 58 : 110, cw * 1.6 / Math.max(6, W2.title.length)), s = 1 + (1 - k) * (1 - k) * 1.6;
+      c.save(); c.translate(cw / 2, ch / 2 - fs * 0.05); c.scale(s, s); c.globalAlpha = Math.max(0, Math.min(1, e * 3, (2.8 - e) * 2.5)); c.textAlign = 'center'; grungeTitle(c, W2.title, 0, fs * 0.35, fs); c.restore();
+      if (e > 0.6) { c.globalAlpha = Math.max(0, Math.min(1, (e - 0.6) * 2, (2.8 - e) * 2.5)); c.textAlign = 'center'; c.font = `${small ? 13 : 17}px ${FT}`; c.fillStyle = '#d8d2c4'; c.fillText(W2.sub, cw / 2, ch / 2 + fs * 0.62); c.globalAlpha = 1; }
+    }
     if (!downs.length && p.dead && !this.netGuest) {
       // écran de mort : les couleurs se vident, le rouge envahit les bords, puis « TU ES MORT » s'écrase au centre
       const e = 3.4 - this.deathT, a = Math.min(1, e * 0.8), k = Math.min(1, e / 0.6);
@@ -5804,7 +5879,9 @@ mixin(Game, {
       if (e > 0.15) { const dl = this.deathLine || 'TU ES MORT', fs = Math.min(small ? 62 : 120, cw * 0.15, cw * 1.6 / Math.max(6, dl.length)), /* le titre tient toujours en largeur */ s = 1 + (1 - k) * (1 - k) * 1.8, sh = k < 1 ? 0 : Math.max(0, 0.18 - (e - 0.75)) * 40; c.save(); c.translate(cw / 2 + rand(-sh, sh), ch / 2 - fs * 0.05 + rand(-sh, sh)); c.scale(s, s); c.globalAlpha = Math.min(1, (e - 0.15) * 4); c.textAlign = 'center'; grungeTitle(c, dl, 0, fs * 0.35, fs); c.restore(); if (k >= 1 && !this._deathHit) { this._deathHit = true; this.shake(0.5); } }
       if (e > 0.9) { c.globalAlpha = Math.min(1, (e - 0.9) * 2); c.textAlign = 'center'; const fs = Math.min(small ? 62 : 120, cw * 0.15, cw * 1.6 / Math.max(6, (this.deathLine || 'TU ES MORT').length));
         c.font = `${small ? 15 : 20}px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(CHARS[this.charKey].fallen, cw / 2, ch / 2 + fs * 0.55);
-        c.font = `${small ? 12 : 15}px ${FT}`; c.fillStyle = '#a39e93'; c.fillText(this.lives > 0 ? `${this.lives} vie${this.lives > 1 ? 's' : ''} restante${this.lives > 1 ? 's' : ''} · retour au dernier point de sauvegarde` : 'Plus aucune vie. La nuit a gagné.', cw / 2, ch / 2 + fs * 0.55 + (small ? 22 : 28)); c.globalAlpha = 1; }
+        let ly = ch / 2 + fs * 0.55 + (small ? 22 : 28);
+        if (this.deathSay) { c.font = `italic ${small ? 13 : 17}px ${FT}`; c.fillStyle = '#e8dcc8'; for (const l of wrapLines(c, `« ${this.deathSay} »`, Math.min(cw - 40, 640))) { c.fillText(l, cw / 2, ly); ly += small ? 17 : 22; } ly += small ? 6 : 8; } /* sa dernière pensée */
+        c.font = `${small ? 12 : 15}px ${FT}`; c.fillStyle = '#a39e93'; c.fillText(this.lives > 0 ? `${this.lives} vie${this.lives > 1 ? 's' : ''} restante${this.lives > 1 ? 's' : ''} · retour au dernier point de sauvegarde` : 'Plus aucune vie. La nuit a gagné.', cw / 2, ly); c.globalAlpha = 1; }
     }
     // jauge de tir chargé du J2, autour de lui
     if (this.p2 && !this.p2.dead && this.state === 'playing') {
@@ -7076,7 +7153,7 @@ const netCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; let s = ''; for (l
 // canal de mise en relation
 class LocalSig {
   constructor(room, onMsg) { this.bc = new BroadcastChannel('cf-net-' + room); this.bc.onmessage = e => onMsg(e.data); this.ready = Promise.resolve(); }
-  send(m) { this.bc.postMessage(m); }
+  send(m) { try { this.bc.postMessage(m); } catch (e) { } }
   close() { try { this.bc.close(); } catch (e) { } }
 }
 class SupaSig {
@@ -7097,10 +7174,17 @@ class SupaSig {
 const Net = {
   role: null, room: null, sig: null, pc: null, fast: null, rel: null, relay: false, peer: null, last: 0, onData: null, onState: null, id: Math.random().toString(36).slice(2, 10),
   local: () => /[?&]netlocal\b/.test(location.search) || !(ONLINE.url && ONLINE.key),
+  mkSig() { const S = this.local() ? LocalSig : SupaSig, sig = this.sig = new S(this.room, m => this.onSig(m)); this.sigDead = false; sig.onClose = () => { if (this.sig !== sig) return; this.sigDead = true; if (this.role && !(game && game.net)) this.status('lost'); }; },
+  // coupure en pleine partie : on refait la mise en relation ; l'invité redemande l'hôte avec le même identifiant
+  async reconnect() {
+    if (!this.role || !this.room) return;
+    if (this.sigDead || !this.sig) { try { this.sig && this.sig.close(); } catch (e) { } this.mkSig(); try { await this.sig.ready; } catch (e) { this.sigDead = true; return; } }
+    if (this.role === 'guest') { try { this.pc && this.pc.close(); } catch (e) { } this.pc = this.fast = this.rel = null; this.relay = false; this.sig.send({ k: 'hello', from: this.id, name: Settings.name || 'Survivant', char: game.charKey }); }
+  },
   status(s, extra) { this.state = s; if (this.onState) this.onState(s, extra); },
   async open(role, room) {
     this.close(); this.role = role; this.room = room; this.relay = false; this.peer = null; this.last = performance.now();
-    const S = this.local() ? LocalSig : SupaSig; this.sig = new S(room, m => this.onSig(m)); this.sig.onClose = () => { if (this.role) this.status('lost'); };
+    this.cut = 0; this.mkSig();
     this.status('connecting');
     try { await this.sig.ready; } catch (e) { this.status('error', 'Mise en relation impossible (réseau ?)'); return false; }
     this.status(role === 'host' ? 'waiting' : 'joining');
@@ -7128,6 +7212,7 @@ const Net = {
   async startRtc(host, offer) {
     if (typeof RTCPeerConnection === 'undefined') { this.relay = true; this.status('ready', 'relais'); return; }
     try {
+      clearTimeout(this.rtcT); try { this.pc && this.pc.close(); } catch (e) { } this.fast = this.rel = null;
       const pc = this.pc = new RTCPeerConnection({ iceServers: NET_ICE }), to = this.peer.id;
       pc.onicecandidate = e => { if (e.candidate) this.sig.send({ k: 'ice', to, from: this.id, c: e.candidate.toJSON ? e.candidate.toJSON() : e.candidate }); };
       const bind = (ch) => { ch.onmessage = e => { this.last = performance.now(); let d; try { d = JSON.parse(e.data); } catch (er) { return; } this.recv(d); }; ch.onopen = () => { if (this.fast && this.rel && this.fast.readyState === 'open' && this.rel.readyState === 'open') { clearTimeout(this.rtcT); this.relay = false; this.status('ready', 'direct'); } }; };
@@ -7152,10 +7237,22 @@ const Net = {
     clearTimeout(this.joinT); clearTimeout(this.rtcT);
     if (this.sig && this.peer) { try { this.sig.send({ k: 'bye', to: this.peer.id, from: this.id }); } catch (e) { } }
     try { this.pc && this.pc.close(); } catch (e) { } if (this.sig) this.sig.close();
-    this.pc = this.fast = this.rel = this.sig = this.peer = null; this.role = null; this.relay = false; this.rtt = 0;
+    this.pc = this.fast = this.rel = this.sig = this.peer = null; this.role = null; this.relay = false; this.rtt = 0; this.cut = 0;
   }
 };
 setInterval(() => { if (game && game.net) Net.ping(); }, 1000);
+// ---------- coupure réseau en pleine partie : la partie se fige et attend l'ami 20 secondes
+const NET_GRACE = 20;
+setInterval(() => {
+  if (!game || !game.net || !Net.role || !Net.peer) return;
+  const now = performance.now(), gap = now - Net.last, who = Net.peer.name || 'ton ami';
+  if (!Net.cut) { if (gap > 3000 && game.state !== 'end') { Net.cut = now; Net.retryT = 0; game.audio.deny(); } else return; }
+  if (gap < 800) { Net.cut = 0; netWait(null); game.toast(`${who} est de retour`, '#7fd18b'); game.audio.objective(); return; }
+  const left = Math.ceil(NET_GRACE - (now - Net.cut) / 1000);
+  if (left <= 0) { Net.cut = 0; netWait(null); if (game.net === 'host') { game.toast(`${who} n'est pas revenu : la partie continue en solo`, '#ff8a5a'); Net.close(); game.p2 = null; game.coop = false; game.net = null; } else game.netLeave('La connexion avec l\'hôte est perdue.'); return; }
+  netWait(`Connexion perdue avec ${who}… on l'attend encore ${left} s`);
+  if (now - (Net.retryT || 0) > 3500) { Net.retryT = now; Net.reconnect(); }
+}, 250);
 // ---------- synchronisation de la partie (hôte → invité, invité → hôte)
 const NET_EDGES = ['firePressed', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'cycleUp', 'cycleDown'];
 const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap', 'scream'];
@@ -7320,6 +7417,8 @@ mixin(Game, {
       case 'notice': this.notice(a[0], a[1], a[2]); break;
       case 'text': this.floatText(...a); break;
       case 'scream': this.screamFx(a[0], a[1]); break;
+      case 'trap': { const t = (this.level.traps || []).find(x => x.ob.oid === a[0]); if (t) { t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = a[1]; this.trapFx(t); } break; }
+      case 'win': this.winFx = { t: 0, title: a[0], sub: a[1] }; this.audio.objective(); break;
       case 'slow': this.slowT = a[0]; this.slowMax = a[0]; this.slowLabel = a[1]; break;
       case 'boom': { const [x, y, R] = a; for (let i = 0; i < 26; i++) { const an = rand(0, TAU), s = rand(40, R * 2.4); this.spawnP({ x, y, z: rand(4, 20), vx: Math.cos(an) * s, vy: Math.sin(an) * s, vz: rand(20, 120), life: rand(0.3, 0.7), type: 'fire', size: rand(8, 16), emissive: true, drag: 3.5 }); } for (let i = 0; i < 14; i++) { const an = rand(0, TAU), s = rand(20, R); this.spawnP({ x, y, z: 10, vx: Math.cos(an) * s, vy: Math.sin(an) * s, life: rand(1, 2.2), type: 'smoke', size: rand(10, 18), grow: 22, drag: 1.5 }); } break; }
       case 'die': { const z = this.zmap.get(a[0]); if (z) { z.x = a[1]; z.y = a[2]; z.dead = true; try { this.bakeCorpse(z); } catch (er) { } for (let i = 0; i < (z.type === 'brute' ? 6 : 3); i++) this.spawnP({ x: z.x, y: z.y, z: 14, vx: rand(-160, 160), vy: rand(-160, 160), vz: rand(60, 220), grav: 700, life: 2, type: 'gib', size: rand(3, 5), bake: true, color: '#5a1410' }); this.zmap.delete(a[0]); this.zombies = [...this.zmap.values()]; } break; }
@@ -7357,7 +7456,7 @@ mixin(Game, {
     this.netGuestShots(dt, inp); this.bullets = (this._hb || []).concat(N.lb);
     for (const f of this.fires) if (Math.random() < dt * f.r * 0.5) { const a = rand(0, TAU), d = Math.sqrt(Math.random()) * f.r; this.spawnP({ x: f.x + Math.cos(a) * d, y: f.y + Math.sin(a) * d, z: 2, vz: rand(40, 90), vx: rand(-10, 10), vy: rand(-10, 10), life: rand(0.4, 0.8), type: 'fire', size: rand(5, 9), emissive: true }); }
     if (this.slowT > 0) this.slowT -= dt; if (this.flashFx > 0) this.flashFx -= dt; if (this.hurtFlash > 0) this.hurtFlash -= dt * 2;
-    this.updateCommon(dt);
+    this.updateCommon(dt); this.updateTraps(dt); if (this.winFx && (this.winFx.t += dt) >= 2.8) this.winFx = null;
     // caméra : sur soi, ou sur le boss pendant sa cinématique
     const S = VS * DPR * (this.zoom || 1), hw = W / 2 / S, hh = H / 2 / S; let tx = me.dead && !h.dead ? h.x : me.x, ty = me.dead && !h.dead ? h.y : me.y;
     if (this.cine) { const E = this.cine.b.entry; tx = E ? E.tx : this.cine.b.x; ty = (E ? E.ty : this.cine.b.y) - this.cine.b.r * 1.4; this.zoom = lerp(this.zoom || 1, 1.6, 1 - Math.exp(-4 * dt)); this.cineK = Math.min(1, (this.cineK || 0) + dt * 3); }
@@ -7414,6 +7513,7 @@ Net.onState = (s, x) => {
   else if (s === 'peer') { st.textContent = host ? `${x.name} (${CHARS[x.char].name}) a rejoint ! Connexion en cours…` : `Connecté à la partie de ${x.name}. Connexion en cours…`; game.audio.objective(); }
   else if (s === 'ready') { st.textContent = host ? `${Net.peer.name} est prêt (${x === 'direct' ? 'connexion directe' : 'via le relais'}). Lance quand tu veux !` : `Prêt ! (${x === 'direct' ? 'connexion directe' : 'via le relais'}) · ${Net.peer.name} choisit le mode et lance la partie…`; if (host) { $('net-go').disabled = false; $('net-go-story').disabled = false; $('net-go-story').focus(); } }
   else if (s === 'error') { st.textContent = x || 'Erreur de connexion.'; if (!host) $('net-ok').disabled = false; }
+  else if (s === 'lost' && (game.net || game.netGuest)) { /* coupure en partie : l'attente de 20 s s'en charge */ }
   else if (s === 'left' || s === 'lost') {
     if (game.net === 'host') { game.toast(`${Net.peer ? Net.peer.name : 'Ton ami'} a quitté la partie`, '#ff8a5a'); game.p2 = null; game.coop = false; game.net = null; }
     else if (game.netGuest) game.netLeave('L\'hôte a quitté la partie.');
@@ -7430,6 +7530,16 @@ for (const [id, mode] of [['net-go', 'survival'], ['net-go-story', 'story']]) $(
 for (const id of ['net-cancel-h', 'net-cancel-j']) $(id).addEventListener('click', () => { game.audio.ui(); Net.close(); netView('net-choose'); });
 $('net-close').addEventListener('click', () => { game.audio.ui(); $('net-modal').hidden = true; if (!game.net && !game.netGuest) Net.close(); });
 $('mode-online').addEventListener('click', openNet);
+// ---------- lien d'invitation : ton ami l'ouvre et arrive directement dans ta salle
+const netLink = code => location.origin + location.pathname + '?salle=' + code;
+$('net-link').addEventListener('click', async () => {
+  const code = $('net-code').textContent, url = netLink(code), st = $('net-st-h'); game.audio.ui();
+  try { if (navigator.share && TOUCH) { await navigator.share({ title: 'Couvre-Feu', text: `Rejoins-moi sur Couvre-Feu (code ${code}) :`, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(url); st.textContent = 'Lien copié : colle-le à ton ami dans un message.'; } catch (e) { st.textContent = url; }
+});
+{ const m = /[?&]salle=([A-Za-z]{4})\b/.exec(location.search);
+  if (m) { const code = m[1].toUpperCase(); try { history.replaceState(null, '', location.pathname + location.search.replace(/[?&]salle=[A-Za-z]{4}/, '').replace(/^&/, '?')); } catch (e) { }
+    setTimeout(() => { openNet(); netView('net-joinv'); $('net-in').value = code; $('net-st-j').textContent = 'Invitation reçue : connexion à la partie…'; $('net-ok').click(); }, 900); } }
 window.__Net = Net;
 // ============================================================ création du jeu
 // tout ce qui précède définit les classes ; à partir d'ici, les menus peuvent utiliser « game »
@@ -7901,13 +8011,23 @@ const DAILY_MODS = [
 const dayKey = () => { const d = new Date(); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
 function todayMod() { const k = dayKey(); return DAILY_MODS[(Math.imul(k, 2654435761) >>> 0) % DAILY_MODS.length]; }
 function dailyBest() { const d = Settings.daily; return d && d.d === dayKey() ? d.best : 0; }
+// ---------- défi de la semaine : deux contraintes à la fois, la même pour tout le monde du lundi au dimanche, avec son propre classement
+const weekKey = () => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7); const y = d.getFullYear(), w1 = new Date(y, 0, 4); return y * 100 + 1 + Math.round(((d - w1) / 864e5 - 3 + (w1.getDay() + 6) % 7) / 7); };
+function weekMod() {
+  const k = weekKey(), n = DAILY_MODS.length, i = (Math.imul(k, 2246822519) >>> 0) % n; let j = (Math.imul(k + 7, 3266489917) >>> 0) % (n - 1); if (j >= i) j++;
+  const a = DAILY_MODS[i], b = DAILY_MODS[j];
+  return { id: 'week', week: true, ids: new Set([a.id, b.id]), name: `${a.name} + ${b.name}`, desc: `${a.desc} ${b.desc}`, weights: a.weights || b.weights };
+}
+function weeklyBest() { const d = Settings.weekly; return d && d.w === weekKey() ? d.best : 0; }
+const weekMode = () => 'semaine-' + weekKey(); // nom du classement en ligne de la semaine
+const modOn = (g, id) => !!g.dailyMod && (g.dailyMod.id === id || (!!g.dailyMod.ids && g.dailyMod.ids.has(id)));
 // ---------- actus KE-DLA-D sur ta dernière partie
 const FEM = { fiona: true, dragon: true };
 const ZONE_BG = [g => bgNight(g, 4), bgRadio, g => bgParking(g, false), bgPlaza];
 function personalNews() {
   const r = Settings.lastRun, out = []; if (!r || !CHARS[r.char]) return out;
   const N = CHARS[r.char].name, e = FEM[r.char] ? 'e' : '', z = Math.max(0, Math.min(3, r.zone | 0)), body = (g, mood) => hero(r.char, g, 250, 420, 1.0, { mood, hand: PROP[r.char] });
-  if (r.mode === 'daily') out.push({ h: `Défi du jour : ${fmt(r.score)} points pour ${N}`, t: `Épreuve « ${r.mod} ». ${r.kills} zombies abattus avant la fin.`, loc: 'la place de la Mairie', draw: g => { bgPlaza(g); body(g, 'determined'); sfx(g, 'DÉFI !', 380, 80, 46, 0.08); } });
+  if (r.mode === 'daily' || r.mode === 'weekly') out.push({ h: `${r.mode === 'weekly' ? 'Défi de la semaine' : 'Défi du jour'} : ${fmt(r.score)} points pour ${N}`, t: `Épreuve « ${r.mod} ». ${r.kills} zombies abattus avant la fin.`, loc: 'la place de la Mairie', draw: g => { bgPlaza(g); body(g, 'determined'); sfx(g, 'DÉFI !', 380, 80, 46, 0.08); } });
   else if (r.mode === 'survival') out.push({ h: `Survie : ${N} tient ${r.wave} vague${r.wave > 1 ? 's' : ''}`, t: `${r.kills} zombies abattus sur la Place de la Mairie. Les voisins n'ont pas fermé l'œil.`, loc: 'la place de la Mairie', draw: g => { bgPlaza(g); body(g, 'determined'); sfx(g, 'TENU !', 380, 80, 46, 0.08); } });
   else if (r.mode === 'secret') out.push({ h: r.win ? `Le Shibanophile vaincu par ${N}` : `${N} recule devant le Shibanophile`, t: r.win ? 'Les shibas du paradis organisent une fête. Croquettes à volonté.' : 'Les shibas attendent toujours leur héros.', loc: 'le Paradis des Shibas', draw: g => { bgParadise(g); body(g, r.win ? 'happy' : 'shock'); shibaC(g, 400, 330, 1.2, { flip: true }); } });
   else if (r.win) out.push({ h: `${N} évacué${e} du toit de l'hôpital Saint-Lazare !`, t: `${r.kills} zombies abattus et ${fmt(r.score)} points. La Mairie salue un${e} « survivant${e} têtu${e} ».`, loc: 'l\'hôpital Saint-Lazare', draw: g => { bgHeli(g); body(g, 'happy'); sfx(g, 'SAUVÉ' + (e ? 'E' : '') + ' !', 370, 80, 46, 0.08); } });
@@ -8052,6 +8172,7 @@ showNews(Math.floor(Math.random() * NEWS.length), 1, true); fontsReady.then(() =
 function refreshHub() {
   refreshLevelUI(); renderAccPicker();
   { const m = todayMod(), b = dailyBest(); $('daily-sub').textContent = `${m.name} · ${b ? 'record ' + fmt(b) : m.desc}`; }
+  { const m = weekMod(), b = weeklyBest(); $('weekly-sub').textContent = `${m.name}${b ? ' · record ' + fmt(b) : ' · classement de la semaine'}`; }
   rebuildNews();
   const u = Ach.get(), got = ACH.filter(a => u[a[0]]).length, d = readSave();
   $('hub-achchip').textContent = `★ ${got}/${ACH.length}`;
@@ -8102,7 +8223,7 @@ $('btn-start').addEventListener('click', () => {
   if (launchMode === 'coop' && sv && !$('btn-start').dataset.confirm) { const b = $('btn-start'); b.dataset.confirm = '1'; b.textContent = 'Confirmer : la sauvegarde solo sera remplacée'; b.classList.add('danger'); return; }
   $('btn-start').dataset.confirm = ''; $('btn-start').classList.remove('danger');
   closeHubModals();
-  if (launchMode === 'coop') openJoin(); else if (launchMode === 'survival') game.newSurvival(false); else if (launchMode === 'endless') game.newEndless(); else if (launchMode === 'daily') game.newDaily(); else if (launchMode === 'hospital') game.newHospital(); else game.newGame();
+  if (launchMode === 'coop') openJoin(); else if (launchMode === 'survival') game.newSurvival(false); else if (launchMode === 'endless') game.newEndless(); else if (launchMode === 'daily') game.newDaily(); else if (launchMode === 'weekly') game.newWeekly(); else if (launchMode === 'hospital') game.newHospital(); else game.newGame();
 });
 // panneaux de l'écran titre : un seul ouvert à la fois, et on défile jusqu'à lui
 const TITLE_PANELS = [['panel-settings', 'btn-settings'], ['panel-scores', 'btn-scores'], ['panel-ach', 'btn-ach'], ['panel-best', 'btn-best'], ['panel-news', 'btn-news']];
@@ -8126,14 +8247,14 @@ $('btn-settings').addEventListener('click', e => { refreshContinue(); setHome('o
 function closeSheets() { for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden = true; $(bid).setAttribute('aria-expanded', 'false'); } $('scr-title').classList.remove('page-open'); if (typeof setTab === 'function') setTab(hubTab); }
 for (const sh of document.querySelectorAll('.sheet')) sh.addEventListener('click', e => { if (e.target === sh || e.target.closest('.sheet-close')) { closeSheets(); game.audio.ui(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !game.keysOpen && document.querySelector('.sheet:not([hidden])')) { e.preventDefault(); if (!setBack()) closeSheets(); } });
-const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
+const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['week', 'Semaine'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
 function scoresHTML() {
   if (!Online.on()) return scoreTable(Scores.list()) + (ONLINE.url ? '<p class="hint">Classement en ligne désactivé dans les Paramètres.</p>' : '');
   return `<div class="sc-tabs" role="tablist"><button type="button" class="btn sm" data-sct="local" aria-pressed="false">Sur cet appareil</button><button type="button" class="btn sm" data-sct="online" aria-pressed="true">En ligne</button></div><div class="sc-modes">${ONLINE_MODES.map(([k, v]) => `<button type="button" class="btn sm" data-scm="${k}" aria-pressed="${k === 'all'}">${v}</button>`).join('')}</div><div id="sc-body"><p class="hint">Chargement du classement…</p></div>`;
 }
 async function loadOnline(mode) {
   const el = $('sc-body'); if (!el) return; el.innerHTML = '<p class="hint">Chargement du classement…</p>';
-  try { const l = await Online.top(mode); const me = (Settings.name || '').trim();
+  try { const l = await Online.top(mode === 'week' ? weekMode() : mode); const me = (Settings.name || '').trim();
     el.innerHTML = !l.length ? '<p class="empty">Personne n\'a encore envoyé de score ici. À toi de jouer !</p>' : `<div class="tablewrap"><table class="scores"><thead><tr><th>#</th><th>Nom</th><th>Perso</th><th class="num">Score</th><th>Mode</th><th class="num">Abattus</th></tr></thead><tbody>${l.map((e, i) => `<tr class="${e.name === me ? 'me' : ''}"><td>${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.perso || '–')}</td><td class="num">${fmt(e.score)}</td><td>${escapeHtml(e.diff || e.mode || '')}</td><td class="num">${fmt(e.kills || 0)}</td></tr>`).join('')}</tbody></table></div>`;
   } catch (er) { el.innerHTML = '<p class="empty">Classement en ligne injoignable (pas de réseau ?). Tes scores restent enregistrés sur l\'appareil.</p>'; }
 }
@@ -8221,6 +8342,7 @@ const LAUNCH = {
   survival: { eb: 'Challenge', title: 'Mode Survie', kick: 'Place de la Mairie · vagues sans fin', go: 'Tenir la place' },
   endless: { eb: 'Challenge', title: 'Nuit sans fin', kick: 'Ville tirée au hasard · mutations', go: 'Entrer dans la nuit' },
   daily: { eb: 'Challenge', title: 'Défi du jour', go: 'Relever le défi' },
+  weekly: { eb: 'Challenge', title: 'Défi de la semaine', go: 'Relever le défi' },
   hospital: { eb: 'Bonus · secteur 5', title: 'Hôpital Saint-Lazare', kick: 'Couloirs étroits, néons qui grésillent… et Le Chirurgien', go: 'Entrer aux urgences' }
 };
 let launchMode = 'story';
@@ -8228,7 +8350,7 @@ function launchText() {
   const L = LAUNCH[launchMode], d = readSave();
   $('launch-mode').textContent = L.eb; campRefresh(launchMode === 'story');
   if (launchMode === 'story') { refreshStartDiff(); refreshContinue(); if (!d) $('start-title').textContent = `Mission 1 · ${MISSION_NAMES[0]}`; return; }
-  $('start-title').textContent = L.title; $('start-kicker').textContent = launchMode === 'daily' ? `${todayMod().name} · ${todayMod().desc}` : L.kick;
+  $('start-title').textContent = L.title; $('start-kicker').textContent = launchMode === 'daily' ? `${todayMod().name} · ${todayMod().desc}` : launchMode === 'weekly' ? `${weekMod().name} · jusqu'à dimanche minuit` : L.kick;
   $('btn-continue').hidden = true; $('save-summary').hidden = true; $('btn-start').textContent = L.go; $('btn-start').classList.add('primary');
 }
 function openLaunch(mode) {
@@ -8246,6 +8368,7 @@ $('mode-coop').addEventListener('click', () => openLaunch('coop'));
 $('mode-endless').addEventListener('click', () => openLaunch('endless'));
 $('mode-hospital').addEventListener('click', () => openLaunch('hospital'));
 $('mode-daily').addEventListener('click', () => openLaunch('daily'));
+$('mode-weekly').addEventListener('click', () => openLaunch('weekly'));
 $('btn-survival-title').addEventListener('click', () => openLaunch('survival'));
 $('mode-training').addEventListener('click', () => { game.audio.init(); game.newTraining(false); });
 $('mode-tutorial').addEventListener('click', () => { game.audio.init(); game.newTraining(true); });
@@ -8353,7 +8476,7 @@ window.__drawBestiary = drawBestiary; window.__v42 = { HALLOWEEN, Zombie, Settin
 $('btn-quit').addEventListener('click', () => { if (game.net || game.netGuest) { game.netLeave(); return; } game.audio.flame(false); game.setupDemo(); game.showScreen('scr-title'); refreshSurvivalBtn(); });
 $('btn-save').addEventListener('click', () => game.saveScore());
 $('end-name').addEventListener('keydown', e => { if (e.key === 'Enter') game.saveScore(); });
-$('btn-again').addEventListener('click', () => { if (game.net === 'host' && Net.ok()) { game.netStartHost(game.netMode); return; } if (game.netGuest) { game.toast('C\'est l\'hôte qui relance la partie', '#9fd6e6'); return; } if (game.coop) game.newCoop(); else if (game.endless) game.newEndless(); else if (game.dailyMod) game.newDaily(); else if (game.mode === 'survival') game.newSurvival(false); else if (game.mode === 'secret') game.newSecret(false); else if (game.mode === 'hospital') game.newHospital(); else game.newGame(); });
+$('btn-again').addEventListener('click', () => { if (game.net === 'host' && Net.ok()) { game.netStartHost(game.netMode); return; } if (game.netGuest) { game.toast('C\'est l\'hôte qui relance la partie', '#9fd6e6'); return; } if (game.coop) game.newCoop(); else if (game.endless) game.newEndless(); else if (game.dailyMod) { if (game.dailyMod.week) game.newWeekly(); else game.newDaily(); } else if (game.mode === 'survival') game.newSurvival(false); else if (game.mode === 'secret') game.newSecret(false); else if (game.mode === 'hospital') game.newHospital(); else game.newGame(); });
 $('btn-photo').addEventListener('click', openSouvenir);
 $('photo-close').addEventListener('click', () => { $('photo-modal').hidden = true; $('btn-photo').focus(); });
 $('btn-menu').addEventListener('click', () => { if (game.net || game.netGuest) { game.netLeave(); return; } game.setupDemo(); game.showScreen('scr-title'); refreshSurvivalBtn(); });
@@ -8476,6 +8599,14 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 77, d: '30 oct.', t: 'Pièges, défis et duo solide', s: 'Le décor se retourne contre tout le monde, et ton ami peut perdre le réseau sans tout casser.', it: [
+    ['new', 'Pièges du décor', 'Clôtures électriques et bouches d\'incendie dans les secteurs 1 à 3 : appuie sur E devant le boîtier. Le courant grille les zombies… et toi si tu traînes dessus. Le jet d\'eau repousse tout le monde et éteint les flammes.'],
+    ['new', 'Défi de la semaine', 'Deux contraintes à la fois, les mêmes pour tous du lundi au dimanche, avec leur propre record et leur classement en ligne (Scores › Semaine).'],
+    ['new', 'Secteur nettoyé', 'Fin de mission au ralenti, avec un grand « SECTEUR NETTOYÉ » et ton bilan.'],
+    ['up', 'Dernières pensées', 'À ta mort, ton perso a une dernière phrase bien à lui.'],
+    ['new', 'Duo en ligne : lien d\'invitation', 'Un bouton envoie le lien à ton ami : il l\'ouvre et arrive direct dans ta salle.'],
+    ['fix', 'Duo en ligne : coupure réseau', 'Si la connexion saute, la partie se fige et attend ton ami 20 secondes au lieu de s\'arrêter.']],
+    q: ['chewie', 'Chewie', 'La clôture m\'a grillé les poils. Je kiffe moyen.'] },
   { v: 75, d: '30 oct.', t: 'Tu es mort', s: 'Mourir fait enfin mal.', it: [
     ['new', 'Écran de mort', 'Le monde passe au ralenti, les couleurs se vident, le rouge envahit les bords, ton cœur bat de plus en plus lentement, et un grand titre rongé s\'écrase au centre : « Tu es mort », « Dévoré », « Plat du jour », « Bienvenue dans la horde »… vingt variantes, jamais deux fois de suite la même.']],
     q: ['fiona', 'Fiona', 'J\'ai vu l\'écran rouge. Franchement, ça m\'a changé de mon teint habituel.'] },

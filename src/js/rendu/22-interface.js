@@ -355,6 +355,13 @@ mixin(Game, {
     if (downs.length) { const [d, a] = downs[0], meDown = d === p; c.textAlign = 'center'; c.font = `${small ? 15 : 19}px ${FD}`; c.fillStyle = '#ff6a52'; c.fillText(meDown ? (this.p2 && !this.net ? 'J1 À TERRE' : 'TU ES À TERRE') : `${this.pName(d).toUpperCase()} EST À TERRE`, cw / 2, ch * 0.24); c.font = `13px ${FT}`; c.fillStyle = '#c6c0b2';
       c.font = `11px ${FT}`; c.fillText(this.reviveUsed ? 'Retour en fin d\'acte ou de vague' : meDown ? `${this.pName(a)} doit rester 4 s dans ton cercle` : 'Reste 4 s dans son cercle vert', cw / 2, ch * 0.24 + 16); }
     else if (!p.dead) this._deathHit = false;
+    if (this.winFx) { // fin de mission
+      const W2 = this.winFx, e = W2.t, k = Math.min(1, e / 0.5), a = Math.min(1, e * 2, (2.8 - e) * 2.5);
+      c.globalAlpha = Math.max(0, a) * 0.6; c.fillStyle = '#060404'; c.fillRect(0, 0, cw, ch); c.globalAlpha = 1;
+      const fs = Math.min(small ? 58 : 110, cw * 1.6 / Math.max(6, W2.title.length)), s = 1 + (1 - k) * (1 - k) * 1.6;
+      c.save(); c.translate(cw / 2, ch / 2 - fs * 0.05); c.scale(s, s); c.globalAlpha = Math.max(0, Math.min(1, e * 3, (2.8 - e) * 2.5)); c.textAlign = 'center'; grungeTitle(c, W2.title, 0, fs * 0.35, fs); c.restore();
+      if (e > 0.6) { c.globalAlpha = Math.max(0, Math.min(1, (e - 0.6) * 2, (2.8 - e) * 2.5)); c.textAlign = 'center'; c.font = `${small ? 13 : 17}px ${FT}`; c.fillStyle = '#d8d2c4'; c.fillText(W2.sub, cw / 2, ch / 2 + fs * 0.62); c.globalAlpha = 1; }
+    }
     if (!downs.length && p.dead && !this.netGuest) {
       // écran de mort : les couleurs se vident, le rouge envahit les bords, puis « TU ES MORT » s'écrase au centre
       const e = 3.4 - this.deathT, a = Math.min(1, e * 0.8), k = Math.min(1, e / 0.6);
@@ -364,7 +371,9 @@ mixin(Game, {
       if (e > 0.15) { const dl = this.deathLine || 'TU ES MORT', fs = Math.min(small ? 62 : 120, cw * 0.15, cw * 1.6 / Math.max(6, dl.length)), /* le titre tient toujours en largeur */ s = 1 + (1 - k) * (1 - k) * 1.8, sh = k < 1 ? 0 : Math.max(0, 0.18 - (e - 0.75)) * 40; c.save(); c.translate(cw / 2 + rand(-sh, sh), ch / 2 - fs * 0.05 + rand(-sh, sh)); c.scale(s, s); c.globalAlpha = Math.min(1, (e - 0.15) * 4); c.textAlign = 'center'; grungeTitle(c, dl, 0, fs * 0.35, fs); c.restore(); if (k >= 1 && !this._deathHit) { this._deathHit = true; this.shake(0.5); } }
       if (e > 0.9) { c.globalAlpha = Math.min(1, (e - 0.9) * 2); c.textAlign = 'center'; const fs = Math.min(small ? 62 : 120, cw * 0.15, cw * 1.6 / Math.max(6, (this.deathLine || 'TU ES MORT').length));
         c.font = `${small ? 15 : 20}px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(CHARS[this.charKey].fallen, cw / 2, ch / 2 + fs * 0.55);
-        c.font = `${small ? 12 : 15}px ${FT}`; c.fillStyle = '#a39e93'; c.fillText(this.lives > 0 ? `${this.lives} vie${this.lives > 1 ? 's' : ''} restante${this.lives > 1 ? 's' : ''} · retour au dernier point de sauvegarde` : 'Plus aucune vie. La nuit a gagné.', cw / 2, ch / 2 + fs * 0.55 + (small ? 22 : 28)); c.globalAlpha = 1; }
+        let ly = ch / 2 + fs * 0.55 + (small ? 22 : 28);
+        if (this.deathSay) { c.font = `italic ${small ? 13 : 17}px ${FT}`; c.fillStyle = '#e8dcc8'; for (const l of wrapLines(c, `« ${this.deathSay} »`, Math.min(cw - 40, 640))) { c.fillText(l, cw / 2, ly); ly += small ? 17 : 22; } ly += small ? 6 : 8; } /* sa dernière pensée */
+        c.font = `${small ? 12 : 15}px ${FT}`; c.fillStyle = '#a39e93'; c.fillText(this.lives > 0 ? `${this.lives} vie${this.lives > 1 ? 's' : ''} restante${this.lives > 1 ? 's' : ''} · retour au dernier point de sauvegarde` : 'Plus aucune vie. La nuit a gagné.', cw / 2, ly); c.globalAlpha = 1; }
     }
     // jauge de tir chargé du J2, autour de lui
     if (this.p2 && !this.p2.dead && this.state === 'playing') {

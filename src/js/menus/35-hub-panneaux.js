@@ -2,6 +2,7 @@
 function refreshHub() {
   refreshLevelUI(); renderAccPicker();
   { const m = todayMod(), b = dailyBest(); $('daily-sub').textContent = `${m.name} · ${b ? 'record ' + fmt(b) : m.desc}`; }
+  { const m = weekMod(), b = weeklyBest(); $('weekly-sub').textContent = `${m.name}${b ? ' · record ' + fmt(b) : ' · classement de la semaine'}`; }
   rebuildNews();
   const u = Ach.get(), got = ACH.filter(a => u[a[0]]).length, d = readSave();
   $('hub-achchip').textContent = `★ ${got}/${ACH.length}`;
@@ -52,7 +53,7 @@ $('btn-start').addEventListener('click', () => {
   if (launchMode === 'coop' && sv && !$('btn-start').dataset.confirm) { const b = $('btn-start'); b.dataset.confirm = '1'; b.textContent = 'Confirmer : la sauvegarde solo sera remplacée'; b.classList.add('danger'); return; }
   $('btn-start').dataset.confirm = ''; $('btn-start').classList.remove('danger');
   closeHubModals();
-  if (launchMode === 'coop') openJoin(); else if (launchMode === 'survival') game.newSurvival(false); else if (launchMode === 'endless') game.newEndless(); else if (launchMode === 'daily') game.newDaily(); else if (launchMode === 'hospital') game.newHospital(); else game.newGame();
+  if (launchMode === 'coop') openJoin(); else if (launchMode === 'survival') game.newSurvival(false); else if (launchMode === 'endless') game.newEndless(); else if (launchMode === 'daily') game.newDaily(); else if (launchMode === 'weekly') game.newWeekly(); else if (launchMode === 'hospital') game.newHospital(); else game.newGame();
 });
 // panneaux de l'écran titre : un seul ouvert à la fois, et on défile jusqu'à lui
 const TITLE_PANELS = [['panel-settings', 'btn-settings'], ['panel-scores', 'btn-scores'], ['panel-ach', 'btn-ach'], ['panel-best', 'btn-best'], ['panel-news', 'btn-news']];
@@ -76,14 +77,14 @@ $('btn-settings').addEventListener('click', e => { refreshContinue(); setHome('o
 function closeSheets() { for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden = true; $(bid).setAttribute('aria-expanded', 'false'); } $('scr-title').classList.remove('page-open'); if (typeof setTab === 'function') setTab(hubTab); }
 for (const sh of document.querySelectorAll('.sheet')) sh.addEventListener('click', e => { if (e.target === sh || e.target.closest('.sheet-close')) { closeSheets(); game.audio.ui(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !game.keysOpen && document.querySelector('.sheet:not([hidden])')) { e.preventDefault(); if (!setBack()) closeSheets(); } });
-const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
+const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['week', 'Semaine'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
 function scoresHTML() {
   if (!Online.on()) return scoreTable(Scores.list()) + (ONLINE.url ? '<p class="hint">Classement en ligne désactivé dans les Paramètres.</p>' : '');
   return `<div class="sc-tabs" role="tablist"><button type="button" class="btn sm" data-sct="local" aria-pressed="false">Sur cet appareil</button><button type="button" class="btn sm" data-sct="online" aria-pressed="true">En ligne</button></div><div class="sc-modes">${ONLINE_MODES.map(([k, v]) => `<button type="button" class="btn sm" data-scm="${k}" aria-pressed="${k === 'all'}">${v}</button>`).join('')}</div><div id="sc-body"><p class="hint">Chargement du classement…</p></div>`;
 }
 async function loadOnline(mode) {
   const el = $('sc-body'); if (!el) return; el.innerHTML = '<p class="hint">Chargement du classement…</p>';
-  try { const l = await Online.top(mode); const me = (Settings.name || '').trim();
+  try { const l = await Online.top(mode === 'week' ? weekMode() : mode); const me = (Settings.name || '').trim();
     el.innerHTML = !l.length ? '<p class="empty">Personne n\'a encore envoyé de score ici. À toi de jouer !</p>' : `<div class="tablewrap"><table class="scores"><thead><tr><th>#</th><th>Nom</th><th>Perso</th><th class="num">Score</th><th>Mode</th><th class="num">Abattus</th></tr></thead><tbody>${l.map((e, i) => `<tr class="${e.name === me ? 'me' : ''}"><td>${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td><td>${escapeHtml(e.name)}</td><td>${escapeHtml(e.perso || '–')}</td><td class="num">${fmt(e.score)}</td><td>${escapeHtml(e.diff || e.mode || '')}</td><td class="num">${fmt(e.kills || 0)}</td></tr>`).join('')}</tbody></table></div>`;
   } catch (er) { el.innerHTML = '<p class="empty">Classement en ligne injoignable (pas de réseau ?). Tes scores restent enregistrés sur l\'appareil.</p>'; }
 }

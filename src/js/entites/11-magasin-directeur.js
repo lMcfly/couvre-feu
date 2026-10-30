@@ -52,7 +52,7 @@ class Shop {
     const pay = n => { if (p.money < n) return false; p.money -= n; return true; };
     switch (parts[0]) {
       case 'close': g.audio.ui(); this.close(); return;
-      case 'buy': { const w = p.weapons[+parts[1]]; if (g.dailyMod && g.dailyMod.id === 'pistol') { g.toast('Défi du jour : pistolet seulement', '#8b867b'); break; } if (!w.owned && pay(w.def.price)) { w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack; ok = true; } break; }
+      case 'buy': { const w = p.weapons[+parts[1]]; if (modOn(g, 'pistol')) { g.toast('Défi : pistolet seulement', '#8b867b'); break; } if (!w.owned && pay(w.def.price)) { w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack; ok = true; } break; }
       case 'ammo': { const w = p.weapons[+parts[1]]; if (pay(w.def.ammoPrice)) { w.reserve += w.def.ammoPack; ok = true; } break; }
       case 'up': { const i = +parts[1], u = parts[2], w = p.weapons[i]; if (w.lvl[u] < 3 && pay(this.upPrice(i, u))) { const before = w.magSize(); w.lvl[u]++; if (u === 'mag') w.ammo += w.magSize() - before; ok = true; } break; }
       case 'armor': if (p.armor < 3 && pay(300 * (p.armor + 1))) { p.armor++; ok = true; } break;
@@ -84,7 +84,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -115,7 +115,7 @@ function mergeProgress(a, b) {
 }
 function applyProfile(d) {
   const s = d.s || {};
-  for (const k of PROFILE_KEYS) { if (s[k] == null) continue; Settings[k] = k === 'daily' ? (!Settings.daily || s.daily.d > Settings.daily.d ? s.daily : s.daily.d === Settings.daily.d ? { d: s.daily.d, best: Math.max(s.daily.best || 0, Settings.daily.best || 0) } : Settings.daily) : mergeProgress(Settings[k], s[k]); }
+  for (const k of PROFILE_KEYS) { if (s[k] == null) continue; Settings[k] = k === 'weekly' ? (!Settings.weekly || s.weekly.w > Settings.weekly.w ? s.weekly : s.weekly.w === Settings.weekly.w ? { w: s.weekly.w, best: Math.max(s.weekly.best || 0, Settings.weekly.best || 0) } : Settings.weekly) : k === 'daily' ? (!Settings.daily || s.daily.d > Settings.daily.d ? s.daily : s.daily.d === Settings.daily.d ? { d: s.daily.d, best: Math.max(s.daily.best || 0, Settings.daily.best || 0) } : Settings.daily) : mergeProgress(Settings[k], s[k]); }
   Settings.save(); Ach.set(mergeProgress(Ach.get(), d.a || {}));
   for (const e of d.sc || []) if (e && e.name && typeof e.score === 'number') Scores.add(e);
   const sv = validSave(d.sv) ? d.sv : null, cur = readSave(); if (sv && (!cur || (sv.date || 0) >= (cur.date || 0))) { memSave = sv; try { localStorage.setItem(SAVE_KEY, JSON.stringify(sv)); } catch (e) { } } /* la partie la plus récente gagne */

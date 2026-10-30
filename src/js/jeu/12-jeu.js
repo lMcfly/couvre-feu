@@ -5,7 +5,7 @@ class Game {
     this.hash = new SpatialHash(64); this._q = []; this._qs = [];
     this.state = 'title'; this.diffKey = 'normal'; this.diff = DIFFS.normal; this.time = 0;
     this.cam = { x: 760, y: 600 }; this.trauma = 0; this.shakeX = 0; this.shakeY = 0;
-    this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.hurtFlash = 0; this.weaponFlash = 0; this.multPulse = 0; this.hint = null;
+    this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.winFx = null; this.hurtFlash = 0; this.weaponFlash = 0; this.multPulse = 0; this.hint = null;
     this.charKey = Settings.char; this.comic = new Comic(this);
     this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.mode = 'story'; this.stats = newStats(); this.shibaFound = new Set();
     this.torchFlicker = 0; this.score = 0; this.mult = 1; this.lives = 2; this.kills = 0; this.maxMult = 1; this.runTime = 0;
@@ -13,7 +13,7 @@ class Game {
   }
   resetWorld() {
     this.cleared = []; this.finFx = null; this.buddy = null; this.event = null; this.slowT = 0; this.recentKills = []; this.slowCd = 0; this.dailyMod = null;
-    this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.mapHover = null;
+    this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.winFx = null; this.mapHover = null;
     this.zombies = []; this.bullets = []; this.flames = []; this.rockets = []; this.throwables = []; this.mines = []; this.acids = [];
     this.puddles = []; this.fires = []; this.shockwaves = []; this.beams = []; this.particles = []; this.pickups = []; this.lights = []; this.survivors = [];
     this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
@@ -77,7 +77,7 @@ class Game {
   fillPauseStats() {
     const st = this.stats || {}, t = Math.floor(this.runTime || 0), acc = st.shots ? Math.round(100 * st.hits / st.shots) : 0, p = this.player;
     const zn = this.activeZone >= 0 ? ZONES[this.activeZone] : null;
-    $('pause-where').textContent = this.mode === 'training' ? (this.train && this.train.tut ? 'Didacticiel' : "Camp d'entraînement") : this.endless ? `Nuit sans fin · nuit ${this.endless.night}` : this.dailyMod ? `Défi du jour · ${this.dailyMod.name}` : this.mode === 'survival' ? `Mode survie · vague ${this.surv ? this.surv.wave : 0}` : this.mode === 'secret' ? 'Le Paradis des Shibas' : this.mode === 'hospital' ? (this.hcamp ? 'Mission 5 · Hôpital Saint-Lazare' : 'Secteur 5 · Hôpital Saint-Lazare') : `${zn ? zn.sub + ' · ' + zn.name : this.safeName || 'Campagne'} · ${this.diff.name}${this.p2 ? ' · duo' : ''}`;
+    $('pause-where').textContent = this.mode === 'training' ? (this.train && this.train.tut ? 'Didacticiel' : "Camp d'entraînement") : this.endless ? `Nuit sans fin · nuit ${this.endless.night}` : this.dailyMod ? `${this.dailyMod.week ? 'Défi de la semaine' : 'Défi du jour'} · ${this.dailyMod.name}` : this.mode === 'survival' ? `Mode survie · vague ${this.surv ? this.surv.wave : 0}` : this.mode === 'secret' ? 'Le Paradis des Shibas' : this.mode === 'hospital' ? (this.hcamp ? 'Mission 5 · Hôpital Saint-Lazare' : 'Secteur 5 · Hôpital Saint-Lazare') : `${zn ? zn.sub + ' · ' + zn.name : this.safeName || 'Campagne'} · ${this.diff.name}${this.p2 ? ' · duo' : ''}`;
     const cells = [['Score', fmt(Math.floor(this.score))], ['Zombies abattus', fmt(this.kills)], ['Temps', `${Math.floor(t / 60)} min ${String(t % 60).padStart(2, '0')}`], ['Précision', acc + ' %'], ['Multiplicateur max', '×' + (this.maxMult || 1).toFixed(1)], ['Argent', '$ ' + fmt(p ? p.money : 0)]];
     if (this.isCampaign()) cells.push(['Shibas', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`], ['Vies', `${this.lives} / ${this.diff.lives}`], ['Survivants sauvés', String(this.run ? this.run.saved : 0)]);
     if (this.mode === 'training' && this.train) cells.push(['Cibles abattues', String(this.train.hits)]);
@@ -91,7 +91,8 @@ class Game {
     const inp = this.input.poll(this);
     pollPadCapture();
     const st0 = this.state;
-    if (st0 === 'playing') { if (this.netGuest) { this.portrait = this.input.touchMode && innerHeight > innerWidth * 1.05; this.updateGuest(dt, inp); } else this.updatePlaying(dt, inp); }
+    if (st0 === 'playing' && this.net && Net.cut) { /* duo en ligne coupé : tout est figé en attendant l'ami */ }
+    else if (st0 === 'playing') { if (this.netGuest) { this.portrait = this.input.touchMode && innerHeight > innerWidth * 1.05; this.updateGuest(dt, inp); } else this.updatePlaying(dt, inp); }
     else if (this.state === 'title') { this.updateTitle(dt); if (!padCursor.update(this, dt)) this.menuNav(inp); }
     else if (!padCursor.update(this, dt)) this.menuNav(inp);
     if (this.net === 'host') this.netHostTick(dt);
@@ -159,6 +160,7 @@ class Game {
     if (W8.open) { dt *= 0.2; pdt = realDt * 0.5; }
     if (this.slowT > 0) { this.slowT -= realDt; if (!W8.open) { dt *= 0.28; pdt = realDt * 0.45; } }
     if (p.dead && !(this.p1Down > 0) && this.deathT > 0) dt *= 0.3; /* mort : le monde passe au ralenti */
+    if (this.winFx) { const w = this.winFx; w.t += realDt; dt *= 0.45; if (w.t >= 2.8 && w.then) { this.winFx = null; w.then(); return; } }
     if (!p.dead) p.update(pdt, inp);
     else if (this.p1Down > 0) { /* à terre : attend d'être relevé par son allié ou la fin de la manche */ }
     else { this.deathT -= realDt; if (this.deathT <= 0) { if (this.lives > 0) { if (this.mode === 'secret' || this.mode === 'hospital') this.respawnSecret(); else this.respawn(); } else if (this.mode === 'survival' || this.mode === 'secret' || (this.mode === 'hospital' && !this.hcamp) || this.endless) { this.showEnd(false); return; } else { this.comic.show('gameover', () => this.showEnd(false)); return; } } }
@@ -207,7 +209,7 @@ class Game {
       else if (!c.wreck && c.hp < c.maxHp * 0.45 && Math.random() < dt * 4) this.spawnP({ x: c.x + c.w * 0.8, y: c.y + c.h / 2, z: c.z, vz: 30, life: 1.4, type: 'smoke', size: 5, grow: 10, drag: 0.5 });
     }
     for (const s of this.level.spawners) if (s.anim > 0) s.anim = Math.max(0, s.anim - dt);
-    this.updateObjectives(dt);
+    this.updateObjectives(dt); this.updateTraps(dt);
     this.updateCommon(dt);
     // indice d'interaction
     this.hint = null;

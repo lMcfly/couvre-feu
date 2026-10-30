@@ -6,7 +6,7 @@ const netCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; let s = ''; for (l
 // canal de mise en relation
 class LocalSig {
   constructor(room, onMsg) { this.bc = new BroadcastChannel('cf-net-' + room); this.bc.onmessage = e => onMsg(e.data); this.ready = Promise.resolve(); }
-  send(m) { this.bc.postMessage(m); }
+  send(m) { try { this.bc.postMessage(m); } catch (e) { } }
   close() { try { this.bc.close(); } catch (e) { } }
 }
 class SupaSig {
@@ -27,10 +27,17 @@ class SupaSig {
 const Net = {
   role: null, room: null, sig: null, pc: null, fast: null, rel: null, relay: false, peer: null, last: 0, onData: null, onState: null, id: Math.random().toString(36).slice(2, 10),
   local: () => /[?&]netlocal\b/.test(location.search) || !(ONLINE.url && ONLINE.key),
+  mkSig() { const S = this.local() ? LocalSig : SupaSig, sig = this.sig = new S(this.room, m => this.onSig(m)); this.sigDead = false; sig.onClose = () => { if (this.sig !== sig) return; this.sigDead = true; if (this.role && !(game && game.net)) this.status('lost'); }; },
+  // coupure en pleine partie : on refait la mise en relation ; l'invité redemande l'hôte avec le même identifiant
+  async reconnect() {
+    if (!this.role || !this.room) return;
+    if (this.sigDead || !this.sig) { try { this.sig && this.sig.close(); } catch (e) { } this.mkSig(); try { await this.sig.ready; } catch (e) { this.sigDead = true; return; } }
+    if (this.role === 'guest') { try { this.pc && this.pc.close(); } catch (e) { } this.pc = this.fast = this.rel = null; this.relay = false; this.sig.send({ k: 'hello', from: this.id, name: Settings.name || 'Survivant', char: game.charKey }); }
+  },
   status(s, extra) { this.state = s; if (this.onState) this.onState(s, extra); },
   async open(role, room) {
     this.close(); this.role = role; this.room = room; this.relay = false; this.peer = null; this.last = performance.now();
-    const S = this.local() ? LocalSig : SupaSig; this.sig = new S(room, m => this.onSig(m)); this.sig.onClose = () => { if (this.role) this.status('lost'); };
+    this.cut = 0; this.mkSig();
     this.status('connecting');
     try { await this.sig.ready; } catch (e) { this.status('error', 'Mise en relation impossible (réseau ?)'); return false; }
     this.status(role === 'host' ? 'waiting' : 'joining');
@@ -58,6 +65,7 @@ const Net = {
   async startRtc(host, offer) {
     if (typeof RTCPeerConnection === 'undefined') { this.relay = true; this.status('ready', 'relais'); return; }
     try {
+      clearTimeout(this.rtcT); try { this.pc && this.pc.close(); } catch (e) { } this.fast = this.rel = null;
       const pc = this.pc = new RTCPeerConnection({ iceServers: NET_ICE }), to = this.peer.id;
       pc.onicecandidate = e => { if (e.candidate) this.sig.send({ k: 'ice', to, from: this.id, c: e.candidate.toJSON ? e.candidate.toJSON() : e.candidate }); };
       const bind = (ch) => { ch.onmessage = e => { this.last = performance.now(); let d; try { d = JSON.parse(e.data); } catch (er) { return; } this.recv(d); }; ch.onopen = () => { if (this.fast && this.rel && this.fast.readyState === 'open' && this.rel.readyState === 'open') { clearTimeout(this.rtcT); this.relay = false; this.status('ready', 'direct'); } }; };
@@ -82,10 +90,22 @@ const Net = {
     clearTimeout(this.joinT); clearTimeout(this.rtcT);
     if (this.sig && this.peer) { try { this.sig.send({ k: 'bye', to: this.peer.id, from: this.id }); } catch (e) { } }
     try { this.pc && this.pc.close(); } catch (e) { } if (this.sig) this.sig.close();
-    this.pc = this.fast = this.rel = this.sig = this.peer = null; this.role = null; this.relay = false; this.rtt = 0;
+    this.pc = this.fast = this.rel = this.sig = this.peer = null; this.role = null; this.relay = false; this.rtt = 0; this.cut = 0;
   }
 };
 setInterval(() => { if (game && game.net) Net.ping(); }, 1000);
+// ---------- coupure réseau en pleine partie : la partie se fige et attend l'ami 20 secondes
+const NET_GRACE = 20;
+setInterval(() => {
+  if (!game || !game.net || !Net.role || !Net.peer) return;
+  const now = performance.now(), gap = now - Net.last, who = Net.peer.name || 'ton ami';
+  if (!Net.cut) { if (gap > 3000 && game.state !== 'end') { Net.cut = now; Net.retryT = 0; game.audio.deny(); } else return; }
+  if (gap < 800) { Net.cut = 0; netWait(null); game.toast(`${who} est de retour`, '#7fd18b'); game.audio.objective(); return; }
+  const left = Math.ceil(NET_GRACE - (now - Net.cut) / 1000);
+  if (left <= 0) { Net.cut = 0; netWait(null); if (game.net === 'host') { game.toast(`${who} n'est pas revenu : la partie continue en solo`, '#ff8a5a'); Net.close(); game.p2 = null; game.coop = false; game.net = null; } else game.netLeave('La connexion avec l\'hôte est perdue.'); return; }
+  netWait(`Connexion perdue avec ${who}… on l'attend encore ${left} s`);
+  if (now - (Net.retryT || 0) > 3500) { Net.retryT = now; Net.reconnect(); }
+}, 250);
 // ---------- synchronisation de la partie (hôte → invité, invité → hôte)
 const NET_EDGES = ['firePressed', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'cycleUp', 'cycleDown'];
 const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap', 'scream'];
@@ -250,6 +270,8 @@ mixin(Game, {
       case 'notice': this.notice(a[0], a[1], a[2]); break;
       case 'text': this.floatText(...a); break;
       case 'scream': this.screamFx(a[0], a[1]); break;
+      case 'trap': { const t = (this.level.traps || []).find(x => x.ob.oid === a[0]); if (t) { t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = a[1]; this.trapFx(t); } break; }
+      case 'win': this.winFx = { t: 0, title: a[0], sub: a[1] }; this.audio.objective(); break;
       case 'slow': this.slowT = a[0]; this.slowMax = a[0]; this.slowLabel = a[1]; break;
       case 'boom': { const [x, y, R] = a; for (let i = 0; i < 26; i++) { const an = rand(0, TAU), s = rand(40, R * 2.4); this.spawnP({ x, y, z: rand(4, 20), vx: Math.cos(an) * s, vy: Math.sin(an) * s, vz: rand(20, 120), life: rand(0.3, 0.7), type: 'fire', size: rand(8, 16), emissive: true, drag: 3.5 }); } for (let i = 0; i < 14; i++) { const an = rand(0, TAU), s = rand(20, R); this.spawnP({ x, y, z: 10, vx: Math.cos(an) * s, vy: Math.sin(an) * s, life: rand(1, 2.2), type: 'smoke', size: rand(10, 18), grow: 22, drag: 1.5 }); } break; }
       case 'die': { const z = this.zmap.get(a[0]); if (z) { z.x = a[1]; z.y = a[2]; z.dead = true; try { this.bakeCorpse(z); } catch (er) { } for (let i = 0; i < (z.type === 'brute' ? 6 : 3); i++) this.spawnP({ x: z.x, y: z.y, z: 14, vx: rand(-160, 160), vy: rand(-160, 160), vz: rand(60, 220), grav: 700, life: 2, type: 'gib', size: rand(3, 5), bake: true, color: '#5a1410' }); this.zmap.delete(a[0]); this.zombies = [...this.zmap.values()]; } break; }
@@ -287,7 +309,7 @@ mixin(Game, {
     this.netGuestShots(dt, inp); this.bullets = (this._hb || []).concat(N.lb);
     for (const f of this.fires) if (Math.random() < dt * f.r * 0.5) { const a = rand(0, TAU), d = Math.sqrt(Math.random()) * f.r; this.spawnP({ x: f.x + Math.cos(a) * d, y: f.y + Math.sin(a) * d, z: 2, vz: rand(40, 90), vx: rand(-10, 10), vy: rand(-10, 10), life: rand(0.4, 0.8), type: 'fire', size: rand(5, 9), emissive: true }); }
     if (this.slowT > 0) this.slowT -= dt; if (this.flashFx > 0) this.flashFx -= dt; if (this.hurtFlash > 0) this.hurtFlash -= dt * 2;
-    this.updateCommon(dt);
+    this.updateCommon(dt); this.updateTraps(dt); if (this.winFx && (this.winFx.t += dt) >= 2.8) this.winFx = null;
     // caméra : sur soi, ou sur le boss pendant sa cinématique
     const S = VS * DPR * (this.zoom || 1), hw = W / 2 / S, hh = H / 2 / S; let tx = me.dead && !h.dead ? h.x : me.x, ty = me.dead && !h.dead ? h.y : me.y;
     if (this.cine) { const E = this.cine.b.entry; tx = E ? E.tx : this.cine.b.x; ty = (E ? E.ty : this.cine.b.y) - this.cine.b.r * 1.4; this.zoom = lerp(this.zoom || 1, 1.6, 1 - Math.exp(-4 * dt)); this.cineK = Math.min(1, (this.cineK || 0) + dt * 3); }
@@ -344,6 +366,7 @@ Net.onState = (s, x) => {
   else if (s === 'peer') { st.textContent = host ? `${x.name} (${CHARS[x.char].name}) a rejoint ! Connexion en cours…` : `Connecté à la partie de ${x.name}. Connexion en cours…`; game.audio.objective(); }
   else if (s === 'ready') { st.textContent = host ? `${Net.peer.name} est prêt (${x === 'direct' ? 'connexion directe' : 'via le relais'}). Lance quand tu veux !` : `Prêt ! (${x === 'direct' ? 'connexion directe' : 'via le relais'}) · ${Net.peer.name} choisit le mode et lance la partie…`; if (host) { $('net-go').disabled = false; $('net-go-story').disabled = false; $('net-go-story').focus(); } }
   else if (s === 'error') { st.textContent = x || 'Erreur de connexion.'; if (!host) $('net-ok').disabled = false; }
+  else if (s === 'lost' && (game.net || game.netGuest)) { /* coupure en partie : l'attente de 20 s s'en charge */ }
   else if (s === 'left' || s === 'lost') {
     if (game.net === 'host') { game.toast(`${Net.peer ? Net.peer.name : 'Ton ami'} a quitté la partie`, '#ff8a5a'); game.p2 = null; game.coop = false; game.net = null; }
     else if (game.netGuest) game.netLeave('L\'hôte a quitté la partie.');
@@ -360,4 +383,14 @@ for (const [id, mode] of [['net-go', 'survival'], ['net-go-story', 'story']]) $(
 for (const id of ['net-cancel-h', 'net-cancel-j']) $(id).addEventListener('click', () => { game.audio.ui(); Net.close(); netView('net-choose'); });
 $('net-close').addEventListener('click', () => { game.audio.ui(); $('net-modal').hidden = true; if (!game.net && !game.netGuest) Net.close(); });
 $('mode-online').addEventListener('click', openNet);
+// ---------- lien d'invitation : ton ami l'ouvre et arrive directement dans ta salle
+const netLink = code => location.origin + location.pathname + '?salle=' + code;
+$('net-link').addEventListener('click', async () => {
+  const code = $('net-code').textContent, url = netLink(code), st = $('net-st-h'); game.audio.ui();
+  try { if (navigator.share && TOUCH) { await navigator.share({ title: 'Couvre-Feu', text: `Rejoins-moi sur Couvre-Feu (code ${code}) :`, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(url); st.textContent = 'Lien copié : colle-le à ton ami dans un message.'; } catch (e) { st.textContent = url; }
+});
+{ const m = /[?&]salle=([A-Za-z]{4})\b/.exec(location.search);
+  if (m) { const code = m[1].toUpperCase(); try { history.replaceState(null, '', location.pathname + location.search.replace(/[?&]salle=[A-Za-z]{4}/, '').replace(/^&/, '?')); } catch (e) { }
+    setTimeout(() => { openNet(); netView('net-joinv'); $('net-in').value = code; $('net-st-j').textContent = 'Invitation reçue : connexion à la partie…'; $('net-ok').click(); }, 900); } }
 window.__Net = Net;

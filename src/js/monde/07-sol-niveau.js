@@ -27,7 +27,7 @@ class Ground {
 // ============================================================ niveau
 class Level {
   constructor(g) {
-    this.g = g; this.obstacles = []; this.lamps = []; this.spawners = []; this.chests = []; this.fixedLights = []; this.obj = []; this.gates = {}; this.stamp = 0;
+    this.g = g; this.obstacles = []; this.lamps = []; this.spawners = []; this.chests = []; this.fixedLights = []; this.obj = []; this.gates = {}; this.stamp = 0; this.traps = [];
     this.buildStatic(); for (let k = 0; k < 4; k++) this.buildZone(k);
     if (HALLOWEEN) this.addPumpkins();
     this.rebuildGrid(); this.ground = new Ground(this);
@@ -124,6 +124,11 @@ class Level {
       for (const [bx, by] of [[PLAZA - 400, 380], [PLAZA + 400, 380], [PLAZA - 400, 820], [PLAZA + 400, 820]]) { add({ x: bx - 13, y: by - 13, w: 26, h: 26, z: 30, kind: 'brazier' }); this.fixedLights.push({ x: bx, y: by, r: 230, c: '255,130,50', i: 0.75, flick: 2, zone: 3 }); }
       for (let i = 0; i < 4; i++) { const hor = r() < 0.6; const w = hor ? 92 : 46, h = hor ? 46 : 92; place(w, h, 40, 260, 940, (x, y) => car(x, y, w, h, r() < 0.5), 80); }
     }
+    // pièges du décor (secteurs 1 à 3) : une clôture électrique avec son boîtier, deux bouches d'incendie
+    if (k < 3) {
+      place(200, 16, 60, 300, 880, (x, y) => { if (!free(x - 40, y - 20, 40, 40, 10)) return; const sw = add({ x: x - 34, y: y - 14, w: 22, h: 26, z: 34, kind: 'fbox' }); this.traps.push({ kind: 'fence', x, y, w: 200, h: 16, ob: sw, on: 0, cd: 0, zone: k }); reserved.push({ x: x - 40, y: y - 40, w: 260, h: 96 }); }, 50);
+      for (let i = 0; i < 2; i++) place(16, 16, 40, ST + 70, ST + 120 + (i ? 760 : 0), (x, y) => { const ob = add({ x, y, w: 16, h: 16, z: 24, kind: 'hydrant' }); this.traps.push({ kind: 'hydrant', ob, on: 0, cd: 0, ang: 0, zone: k }); }, 60);
+    }
     // barils explosifs
     for (let i = 0; i < (k === 3 ? 3 : 7); i++) place(22, 22, 30, 250, 950, (x, y) => { add({ x, y, w: 22, h: 22, z: 28, kind: 'barrel', hp: 30 }); if (r() < 0.5 && free(x + 26, y, 22, 22, 2)) add({ x: x + 26, y: y + 2, w: 22, h: 22, z: 28, kind: 'barrel', hp: 30 }); });
     // distributeurs de soins contre les façades
@@ -165,7 +170,7 @@ class Level {
     this.obstacles = this.obstacles.filter(o => o.zone !== k);
     this.lamps = this.lamps.filter(o => o.zone !== k);
     this.spawners = this.spawners.filter(o => o.zone !== k);
-    this.chests = this.chests.filter(o => o.zone !== k);
+    this.chests = this.chests.filter(o => o.zone !== k); this.traps = this.traps.filter(o => o.zone !== k);
     this.fixedLights = this.fixedLights.filter(o => o.zone !== k);
     for (const b of this.obstacles) if (b.kind === 'building') b.doors = b.doors.filter(d => d.zone !== k);
     this.g.pickups = this.g.pickups.filter(p => p.zone !== k);

@@ -15,7 +15,7 @@ mixin(Game, {
   spawnAt(type, k, aggro) {
     if (this.zombies.length >= 220) return null; const s = this.findSpawnPoint(k); if (!s) return null;
     const z = new Zombie(this, type, s.x + rand(-6, 6), s.y + rand(-6, 6), s.kind === 'door' ? 'door' : s.kind === 'sewer' ? 'sewer' : 'dark');
-    z.aggro = true; if (this.dailyMod && this.dailyMod.id === 'tanks') z.maxHp = z.hp = z.hp * 1.6; this.zombies.push(z); if (s.anim !== undefined) s.anim = 1;
+    z.aggro = true; if (modOn(this, 'tanks')) z.maxHp = z.hp = z.hp * 1.6; this.zombies.push(z); if (s.anim !== undefined) s.anim = 1;
     if (s.kind === 'sewer') for (let i = 0; i < 5; i++) this.spawnP({ x: s.x, y: s.y, vx: rand(-40, 40), vy: rand(-40, 40), life: 1, type: 'smoke', size: 8, grow: 12 });
     if (type === 'dog') { const n = randi(1, 3); for (let i = 0; i < n && this.zombies.length < 220; i++) { const d = new Zombie(this, 'dog', s.x + rand(-26, 26), s.y + rand(-26, 26), z.spawnKind); d.aggro = true; d.spawnT += i * 0.15; this.zombies.push(d); } if (!this.dogTip && this.mode !== 'training') { this.dogTip = true; this.toast('Meute de chiens : quand un chien s\'accroupit en grognant, roule !', '#ff8a5a'); } }
     return z;

@@ -84,7 +84,7 @@ class Player {
     this.recoil = Math.max(0, this.recoil - dt * 8);
     this.spCd = Math.max(0, this.spCd - dt); if (this.playDead > 0) this.playDead -= dt;
     if (g.state === 'playing') {
-      this.battery = Math.max(0, this.battery - g.diff.battery * (g.dailyMod && g.dailyMod.id === 'lamp' ? 2.5 : 1) * Math.pow(0.5, mutN('lamp')) * dt);
+      this.battery = Math.max(0, this.battery - g.diff.battery * (modOn(g, 'lamp') ? 2.5 : 1) * Math.pow(0.5, mutN('lamp')) * dt);
       if (this.battery < 20 && !this.lowBattery) { this.lowBattery = true; g.toast('Lampe faible : trouve des piles', '#f0b25a'); }
       if (this.battery > 40) this.lowBattery = false;
     }

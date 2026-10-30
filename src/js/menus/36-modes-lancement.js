@@ -26,6 +26,7 @@ const LAUNCH = {
   survival: { eb: 'Challenge', title: 'Mode Survie', kick: 'Place de la Mairie · vagues sans fin', go: 'Tenir la place' },
   endless: { eb: 'Challenge', title: 'Nuit sans fin', kick: 'Ville tirée au hasard · mutations', go: 'Entrer dans la nuit' },
   daily: { eb: 'Challenge', title: 'Défi du jour', go: 'Relever le défi' },
+  weekly: { eb: 'Challenge', title: 'Défi de la semaine', go: 'Relever le défi' },
   hospital: { eb: 'Bonus · secteur 5', title: 'Hôpital Saint-Lazare', kick: 'Couloirs étroits, néons qui grésillent… et Le Chirurgien', go: 'Entrer aux urgences' }
 };
 let launchMode = 'story';
@@ -33,7 +34,7 @@ function launchText() {
   const L = LAUNCH[launchMode], d = readSave();
   $('launch-mode').textContent = L.eb; campRefresh(launchMode === 'story');
   if (launchMode === 'story') { refreshStartDiff(); refreshContinue(); if (!d) $('start-title').textContent = `Mission 1 · ${MISSION_NAMES[0]}`; return; }
-  $('start-title').textContent = L.title; $('start-kicker').textContent = launchMode === 'daily' ? `${todayMod().name} · ${todayMod().desc}` : L.kick;
+  $('start-title').textContent = L.title; $('start-kicker').textContent = launchMode === 'daily' ? `${todayMod().name} · ${todayMod().desc}` : launchMode === 'weekly' ? `${weekMod().name} · jusqu'à dimanche minuit` : L.kick;
   $('btn-continue').hidden = true; $('save-summary').hidden = true; $('btn-start').textContent = L.go; $('btn-start').classList.add('primary');
 }
 function openLaunch(mode) {
@@ -51,6 +52,7 @@ $('mode-coop').addEventListener('click', () => openLaunch('coop'));
 $('mode-endless').addEventListener('click', () => openLaunch('endless'));
 $('mode-hospital').addEventListener('click', () => openLaunch('hospital'));
 $('mode-daily').addEventListener('click', () => openLaunch('daily'));
+$('mode-weekly').addEventListener('click', () => openLaunch('weekly'));
 $('btn-survival-title').addEventListener('click', () => openLaunch('survival'));
 $('mode-training').addEventListener('click', () => { game.audio.init(); game.newTraining(false); });
 $('mode-tutorial').addEventListener('click', () => { game.audio.init(); game.newTraining(true); });
