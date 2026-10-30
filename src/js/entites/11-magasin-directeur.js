@@ -5,39 +5,49 @@ class Shop {
     this.body.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && !b.disabled) this.act(b.dataset.act); });
   }
   upPrice(i, u) { const w = this.g.player.weapons[i]; return Math.round({ dmg: 220, rate: 240, mag: 170 }[u] * (w.lvl[u] + 1) * w.def.tier / 10) * 10; }
-  open() { const g = this.g; g.state = 'shop'; g.audio.flame(false); this.render(); g.showScreen('scr-shop'); const b = this.body.querySelector('button:not([disabled])'); if (b) b.focus(); }
+  open() { const g = this.g; this.sel = null; g.state = 'shop'; g.audio.flame(false); this.render(); g.showScreen('scr-shop'); const b = this.body.querySelector('button:not([disabled])'); if (b) b.focus(); }
   close() { const g = this.g; g.state = 'playing'; g.showScreen(null); g.input.mdown = false; if (g.p2) g.syncP2Gear(); }
+  // l'armurerie : un grand panneau, l'objet choisi en grand, une rangée d'objets et une rangée d'améliorations
   render() {
-    const g = this.g, p = g.player, money = p.money;
-    const btn = (act, label, ok, cls = 'sm') => `<button type="button" class="btn ${cls}" data-act="${act}" ${ok ? '' : 'disabled'}>${label}</button>`;
-    const pips = (l, m) => `<span class="pips" aria-label="niveau ${l} sur ${m}">${'■'.repeat(l)}<i>${'■'.repeat(m - l)}</i></span>`;
-    const tab = this.tab || 'arms', tb = (k, l) => `<button type="button" class="btn sm" data-act="tab:${k}" aria-pressed="${tab === k}">${l}</button>`;
-    let h = `<header class="shop-head"><div><p class="eyebrow">${g.safeName || 'Point de sauvegarde'} · progression sauvegardée</p><h2>Marché noir</h2></div><span class="sseg shop-tabs" role="group" aria-label="Rayon">${tb('arms', 'Armes')}${tb('gear', 'Équipement')}</span><div class="purse" aria-label="Argent disponible">$ ${fmt(money)}</div></header>`;
-    h += `<div class="shop-cols" data-tab="${tab}"><section class="sec-arms"><h3 class="sec">Armes</h3><div class="shop-grid">`;
-    p.weapons.forEach((w, i) => {
-      const d = w.def;
-      h += `<article class="card ${w.owned ? '' : 'locked'}"><img class="ico" src="${iconURL(d.id, true)}" alt=""><div class="card-head"><h3>${d.name}</h3><span class="slot">${i + 1}</span></div><p class="desc">${d.desc}</p>`;
-      if (!w.owned) h += btn(`buy:${i}`, `Acheter · $${fmt(d.price)}`, money >= d.price, '');
+    const g = this.g, p = g.player, money = p.money, tab = this.tab || 'arms', sel = this.sel || (this.sel = { arms: p.cur || 0, gear: 'armor' });
+    const stars = (l, m) => `<span class="arm-stars" aria-label="niveau ${l} sur ${m}">${'★'.repeat(l)}<i>${'★'.repeat(m - l)}</i></span>`;
+    const act = (a, label, price, ok, sub = '') => `<button type="button" class="arm-case" data-act="${a}" ${ok ? '' : 'disabled'}><b>${label}</b>${sub}<span class="arm-price">${price}</span></button>`;
+    const off = (label, txt) => `<div class="arm-case off"><b>${label}</b><span class="arm-price">${txt}</span></div>`;
+    const GEAR = [['armor', 'Armure', 'armor'], ['heal', 'Soins complets', 'med'], ['battery', 'Piles de lampe', 'battery'], ['grenades', 'Grenade', 'grenade'], ['mines', 'Mine', 'mine'], ['decoys', 'Fusée-leurre', 'decoy']];
+    const ITEMS = { grenades: [60, 9, `${keyPhrase('grenade')}. Explose après 1,7 s.`], mines: [80, 5, `${keyPhrase('mine')}. Posée à tes pieds, s'arme en 1 s.`], decoys: [70, 5, `${keyPhrase('decoy')}. Attire la horde 8 s puis explose.`] };
+    let name, desc, state, img, items = '', cases = '';
+    if (tab === 'arms') {
+      p.weapons.forEach((w, i) => { const d = w.def; items += `<button type="button" class="arm-slot ${i === sel.arms ? 'on' : ''} ${w.owned ? '' : 'locked'}" data-act="sel:${i}" aria-pressed="${i === sel.arms}"><img src="${iconURL(d.id, true)}" alt=""><b>${d.name}</b><small>${w.owned ? (d.infinite ? '∞' : `${w.ammo} / ${w.reserve}`) : '$' + fmt(d.price)}</small></button>`; });
+      const i = sel.arms, w = p.weapons[i], d = w.def; name = d.name; desc = d.desc; img = iconURL(d.id, true);
+      state = w.owned ? `Touche ${i + 1} · munitions ${w.ammo} / ${d.infinite ? '∞' : w.reserve}` : `Pas encore à toi · $${fmt(d.price)}`;
+      if (!w.owned) { cases += act(`buy:${i}`, 'Acheter', '$' + fmt(d.price), money >= d.price, '<small>l\'arme et un chargeur plein</small>'); for (const u of ['dmg', 'rate', 'mag']) cases += off(UPNAMES[u], 'achète d\'abord l\'arme'); }
       else {
-        h += `<p class="ammo">Munitions : ${w.ammo} / ${d.infinite ? '∞' : w.reserve}</p>`;
-        if (!d.infinite) h += btn(`ammo:${i}`, `+${d.ammoPack} munitions · $${d.ammoPrice}`, money >= d.ammoPrice);
-        for (const u of ['dmg', 'rate', 'mag']) { const l = w.lvl[u], pr = this.upPrice(i, u); h += `<div class="up"><span>${UPNAMES[u]}</span>${pips(l, 3)}${l >= 3 ? '<span class="maxed">MAX</span>' : btn(`up:${i}:${u}`, '$' + fmt(pr), money >= pr)}</div>`; }
+        cases += d.infinite ? off('Munitions', 'infinies') : act(`ammo:${i}`, 'Munitions', '$' + d.ammoPrice, money >= d.ammoPrice, `<small>+${d.ammoPack} balles</small>`);
+        for (const u of ['dmg', 'rate', 'mag']) { const l = w.lvl[u], pr = this.upPrice(i, u); cases += l >= 3 ? off(UPNAMES[u], stars(3, 3) + ' max') : act(`up:${i}:${u}`, UPNAMES[u], '$' + fmt(pr), money >= pr, stars(l, 3)); }
       }
-      h += '</article>';
-    });
-    h += '</div></section><section class="sec-gear"><h3 class="sec">Équipement</h3><div class="gear">';
-    const armP = 300 * (p.armor + 1);
-    h += `<article class="card"><img class="ico" src="${iconURL('armor')}" alt=""><div class="card-head"><h3>Armure</h3>${pips(p.armor, 3)}</div><p class="desc">Chaque niveau réduit les dégâts de 15 %.</p>${p.armor >= 3 ? '<span class="maxed">MAX</span>' : btn('armor', `Renforcer · $${armP}`, money >= armP)}</article>`;
-    h += `<article class="card"><img class="ico" src="${iconURL('med')}" alt=""><div class="card-head"><h3>Soins complets</h3><span class="slot">${Math.ceil(p.hp)}/${p.maxHp}</span></div><p class="desc">Remet la santé au maximum.</p>${btn('heal', 'Soigner · $150', money >= 150 && p.hp < p.maxHp)}</article>`;
-    h += `<article class="card"><img class="ico" src="${iconURL('battery')}" alt=""><div class="card-head"><h3>Piles de lampe</h3><span class="slot">${Math.round(p.battery)} %</span></div><p class="desc">La lampe s'use. +50 % d'autonomie.</p>${btn('battery', 'Recharger · $40', money >= 40 && p.battery < 100)}</article>`;
-    const ICO = { grenades: 'grenade', mines: 'mine', decoys: 'decoy' };
-    for (const [k, name, price, max, desc] of [['grenades', 'Grenade', 60, 9, `${keyPhrase('grenade')}. Explose après 1,7 s.`], ['mines', 'Mine', 80, 5, `${keyPhrase('mine')}. Posée à tes pieds, s'arme en 1 s.`], ['decoys', 'Fusée-leurre', 70, 5, `${keyPhrase('decoy')}. Attire la horde 8 s puis explose.`]])
-      h += `<article class="card"><img class="ico" src="${iconURL(ICO[k])}" alt=""><div class="card-head"><h3>${name}</h3><span class="slot">${p[k]}/${max}</span></div><p class="desc">${desc}</p>${btn('item:' + k + ':' + price + ':' + max, `+1 · $${price}`, money >= price && p[k] < max)}</article>`;
-    h += `</div></section></div><div class="row end shop-foot"><button type="button" class="btn primary" data-act="close">Reprendre la route</button></div>`;
-    this.body.innerHTML = h;
+    } else {
+      for (const [k, n, ic] of GEAR) items += `<button type="button" class="arm-slot ${k === sel.gear ? 'on' : ''}" data-act="sel:${k}" aria-pressed="${k === sel.gear}"><img src="${iconURL(ic)}" alt=""><b>${n}</b><small>${k === 'armor' ? `${p.armor} / 3` : k === 'heal' ? `${Math.ceil(p.hp)} / ${p.maxHp}` : k === 'battery' ? Math.round(p.battery) + ' %' : `${p[k]} / ${ITEMS[k][1]}`}</small></button>`;
+      const k = sel.gear, G = GEAR.find(x => x[0] === k); name = G[1]; img = iconURL(G[2]);
+      if (k === 'armor') { const pr = 300 * (p.armor + 1); desc = 'Chaque niveau réduit les dégâts de 15 %.'; state = `Niveau ${p.armor} / 3`; cases += p.armor >= 3 ? off('Renforcer', stars(3, 3) + ' max') : act('armor', 'Renforcer', '$' + pr, money >= pr, stars(p.armor, 3)); }
+      else if (k === 'heal') { desc = 'Remet la santé au maximum.'; state = `Santé ${Math.ceil(p.hp)} / ${p.maxHp}`; cases += act('heal', 'Soigner', '$150', money >= 150 && p.hp < p.maxHp, p.hp >= p.maxHp ? '<small>déjà en pleine forme</small>' : ''); }
+      else if (k === 'battery') { desc = 'La lampe s\'use. +50 % d\'autonomie.'; state = `Lampe ${Math.round(p.battery)} %`; cases += act('battery', 'Recharger', '$40', money >= 40 && p.battery < 100); }
+      else { const [pr, max, ds] = ITEMS[k]; desc = ds; state = `${p[k]} / ${max} sur toi`; cases += act(`item:${k}:${pr}:${max}`, 'Acheter +1', '$' + pr, money >= pr && p[k] < max, p[k] >= max ? '<small>poches pleines</small>' : ''); }
+    }
+    // encart : ce qui vient de devenir abordable
+    const news = []; p.weapons.forEach((w, i) => { if (!w.owned && money >= w.def.price) news.push(['Enfin disponible', w.def.name]); else if (w.owned && ['dmg', 'rate', 'mag'].some(u => w.lvl[u] < 3 && money >= this.upPrice(i, u))) news.push(['Amélioration possible', w.def.name]); });
+    if (p.armor < 3 && money >= 300 * (p.armor + 1)) news.push(['Amélioration possible', 'Armure']);
+    const tb = (k, l, ic) => `<button type="button" class="arm-tab" data-act="tab:${k}" aria-pressed="${tab === k}" aria-label="${l}"><img src="${iconURL(ic, k === 'arms')}" alt=""><span>${l}</span></button>`;
+    this.body.innerHTML = `<div class="arm" data-tab="${tab}">
+      <header class="arm-top"><div class="arm-brand"><h2>Armurerie</h2><div class="purse" aria-label="Argent disponible">$ ${fmt(money)}</div><p class="eyebrow">${g.safeName || 'Point de sauvegarde'} · progression sauvegardée</p></div>
+        <div class="arm-detail"><h3>${name}</h3><p class="arm-desc">${desc}</p><p class="arm-state">${state}</p></div><div class="arm-big"><img src="${img}" alt=""></div></header>
+      <div class="arm-mid"><aside class="arm-news" aria-label="Nouveautés de l'armurerie"><p class="arm-news-h">Nouv. armurerie</p>${news.length ? news.slice(0, 4).map(([a, b]) => `<p><span>${a} :</span><b>${b}</b></p>`).join('<hr>') : '<p class="arm-none">Rien d\'abordable. Ramène des dollars.</p>'}</aside>
+        <div class="arm-rack"><div class="arm-tabs" role="group" aria-label="Rayon">${tb('arms', 'Armes', 'smg')}${tb('gear', 'Équipement', 'armor')}</div>
+          <div class="arm-rows"><div class="arm-row arm-items">${items}</div><div class="arm-row arm-ups">${cases}</div></div></div></div>
+      <footer class="arm-foot"><span class="arm-hint">${g.input.touchMode ? 'Touche un objet pour le voir · touche une case pour acheter' : 'Choisis un objet · clique une case pour acheter'}</span><button type="button" class="btn primary" data-act="close">Reprendre la route</button></footer></div>`;
   }
   act(a) {
     const g = this.g, p = g.player, parts = a.split(':'); let ok = false;
+    if (parts[0] === 'sel') { const v = parts[1], k = this.tab === 'gear' ? 'gear' : 'arms'; this.sel[k] = k === 'arms' ? +v : v; g.audio.ui(); this.render(); const t = this.body.querySelector(`[data-act="sel:${v}"]`); if (t) t.focus({ preventScroll: true }); return; }
     if (parts[0] === 'tab') { this.tab = parts[1]; g.audio.ui(); this.render(); $('scr-shop').scrollTop = 0; const t = this.body.querySelector(`[data-act="tab:${parts[1]}"]`); if (t) t.focus({ preventScroll: true }); return; }
     const pay = n => { if (p.money < n) return false; p.money -= n; return true; };
     switch (parts[0]) {
@@ -52,10 +62,10 @@ class Shop {
     }
     if (ok) g.audio.buy(); else g.audio.deny();
     const ae = document.activeElement, focusAct = ae && ae.dataset ? ae.dataset.act : null, scr = $('scr-shop'), keep = scr.scrollTop;
-    const cardIdx = ae && ae.closest ? [...this.body.querySelectorAll('.card')].indexOf(ae.closest('.card')) : -1;
+    const cardIdx = ae && ae.closest ? [...this.body.querySelectorAll('.arm-case')].indexOf(ae.closest('.arm-case')) : -1;
     this.render();
     let again = focusAct && this.body.querySelector(`[data-act="${focusAct}"]:not([disabled])`);
-    if (!again && cardIdx >= 0) { const card = this.body.querySelectorAll('.card')[cardIdx]; again = card && card.querySelector('button:not([disabled])'); }
+    if (!again && cardIdx >= 0) { const c = this.body.querySelectorAll('.arm-case')[cardIdx]; again = c && !c.disabled && c.tagName === 'BUTTON' ? c : this.body.querySelector('.arm-slot.on'); }
     (again || this.body.querySelector('[data-act="close"]')).focus({ preventScroll: true }); scr.scrollTop = keep;
   }
 }

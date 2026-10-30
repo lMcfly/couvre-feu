@@ -26,7 +26,7 @@ class Game {
     for (let i = 0; i < 22; i++) { const z = new Zombie(this, Math.random() < 0.15 ? 'runner' : 'walker', rand(300, 1500), rand(260, 960), null); if (!this.level.pointObstacle(z.x, z.y)) this.zombies.push(z); }
     this.cam.x = 760; this.cam.y = 600;
   }
-  showScreen(id) { for (const s of document.querySelectorAll('.screen')) s.hidden = s.id !== id; }
+  showScreen(id) { const was = this._scr || null; this._scr = id; if (was !== id) screenFx(); for (const s of document.querySelectorAll('.screen')) s.hidden = s.id !== id; }
   screenToWorld(sx, sy) { const S = VS * DPR * (this.zoom || 1); return { x: (sx * DPR - (W / 2 - this.cam.x * S)) / S, y: (sy * DPR - (H / 2 - this.cam.y * S)) / S }; }
   wheelCenter() { const ch = H / DPR / HUDK, cw = W / DPR / HUDK, Ro = Math.min(TOUCH ? 92 : 104, ch * 0.24), ps = this.w2h(this.player.x, this.player.y - 16); return { x: clamp(ps.x, Ro + 12, cw - Ro - 12), y: clamp(ps.y, Ro + 40, ch - Ro - 50) }; }
   w2h(x, y) { const s = this.worldToScreen(x, y); s.x /= HUDK; s.y /= HUDK; return s; }
@@ -226,7 +226,7 @@ class Game {
     this.cam.y = hh * 2 >= 1280 ? 560 : clamp(this.cam.y, -110 + hh, 1170 - hh);
     // musique : intensité selon les zombies proches
     let near = 0; for (const z of this.zombies) if (z.aggro && dist2(z.x, z.y, p.x, p.y) < 500 * 500) near++;
-    this.audio.musicTick(this.bossRef && !this.bossRef.dead ? 1 : clamp(near / 30, 0, 1));
+    const boss = !!(this.bossRef && !this.bossRef.dead); this.audio.musicTick(boss ? 1 : clamp(near / 18 + (this.director.queue > 15 ? 0.25 : 0), 0, 1), boss);
   }
   updateCommon(dt) {
     for (const t of this.timers) { t.t -= dt; if (t.t <= 0 && !t.dead) { t.dead = true; t.fn(); } } compact(this.timers);

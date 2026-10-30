@@ -64,6 +64,7 @@ function fillCredits(el) {
 }
 const fillCreditsOnce = el => { if (el && !el.dataset.filled) fillCredits(el); };
 function togglePanel(id, btn, fill) {
+  screenFx();
   game.audio.init(); const p = $(id);
   for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden = true; $(bid).setAttribute('aria-expanded', 'false'); }
   if (fill) (p.querySelector('.sheet-body') || p).innerHTML = fill();

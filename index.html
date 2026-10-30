@@ -1138,6 +1138,89 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
 .beast-say::before{border-bottom-color:#3a3034}
 .beast-tip b{font:400 14px var(--display);color:#d8241a;text-transform:uppercase}
 .beast-kills{border-top-color:rgba(255,255,255,.08);color:var(--ash)}
+/* ============ armurerie façon Dead Nation : métal sale, objet en grand, rangées de cases ============ */
+#scr-shop #shop-body{width:min(1180px,100%);max-width:none;padding:0;background:none;border:0;box-shadow:none}
+#scr-shop .arm{position:relative;display:grid;grid-template-rows:auto 1fr auto;gap:14px;padding:20px 22px 16px;background:var(--grime),radial-gradient(120% 90% at 20% 0%,rgba(120,20,14,.35),transparent 60%),linear-gradient(180deg,#1d1819,#0e0b0c);background-size:512px 512px,100% 100%,100% 100%;border:1px solid #3a2e30;box-shadow:0 0 0 4px #0a0809,0 0 0 5px #2a2224,0 30px 80px rgba(0,0,0,.7)}
+#scr-shop .arm::before,#scr-shop .arm::after{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8a7c74,#2a2224 70%);top:8px;left:8px} /* rivets */
+#scr-shop .arm::after{left:auto;right:8px}
+.arm-top{display:grid;grid-template-columns:auto minmax(0,1fr) 230px;gap:24px;align-items:center}
+.arm-brand h2{font-size:clamp(30px,3.6vw,46px);line-height:1}
+.arm-brand .purse{font-size:30px;margin:2px 0 4px;display:flex;align-items:center;gap:8px}
+.arm-brand .eyebrow{font-size:10px}
+.arm-detail{border-left:2px solid rgba(176,35,28,.6);padding-left:18px;min-width:0}
+.arm-detail h3{font-size:clamp(24px,2.6vw,34px);line-height:1}
+.arm-desc{margin:6px 0 4px;font-size:13.5px;line-height:1.4;color:#d0c9bb}
+.arm-state{margin:0;font-family:var(--display);letter-spacing:.08em;font-size:13px;color:var(--sodium)}
+.arm-big{height:124px;display:grid;place-items:center;background:radial-gradient(closest-side,rgba(226,121,47,.2),transparent);border:1px solid #2e2427;background-color:rgba(0,0,0,.35)}
+.arm-big img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(0,0,0,.8))}
+.arm-mid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:16px;min-height:0}
+.arm-news{background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),linear-gradient(180deg,#0f1410,#070908);border:2px solid #2a3a2c;box-shadow:inset 0 0 30px rgba(0,0,0,.8),0 0 0 3px #141716;padding:10px 12px;color:#9fdc8a;font-family:var(--display);letter-spacing:.06em;overflow:auto}
+.arm-news-h{margin:0 0 8px;padding:3px 6px;background:#1d2b1e;color:#bff0a6;text-align:center;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.arm-news p{margin:0;font-size:13px;line-height:1.3;text-transform:uppercase}.arm-news p span{display:block;color:#6fa862;font-size:11px}.arm-news p b{font-weight:400;color:#d8ffc8}
+.arm-news hr{border:0;border-top:1px dashed #3a5a3a;margin:8px 0}
+.arm-news .arm-none{color:#6fa862;font-size:12px}
+.arm-rack{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;min-width:0}
+.arm-tabs{display:flex;flex-direction:column;gap:8px}
+.arm-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:linear-gradient(180deg,#2a2224,#151112);border:1px solid #3a2e30;color:var(--ash);cursor:pointer;padding:6px 4px}
+.arm-tab img{width:44px;height:30px;object-fit:contain;filter:grayscale(1) brightness(.7)}
+.arm-tab span{font-family:var(--display);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.arm-tab[aria-pressed="true"]{border-color:var(--ember);color:#fff;box-shadow:inset 0 0 0 1px rgba(226,121,47,.4),0 0 14px rgba(226,121,47,.25)}.arm-tab[aria-pressed="true"] img{filter:none}
+.arm-rows{display:grid;grid-template-rows:auto auto;gap:10px;min-width:0}
+.arm-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px}
+.arm-slot,.arm-case{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;padding:8px 10px;text-align:left;color:var(--bone);background:var(--grime),linear-gradient(180deg,#3a3335,#1c1718);background-size:256px 256px,100% 100%;border:1px solid #4a3e40;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 3px 0 #000;cursor:pointer;transition:transform .12s,border-color .12s,box-shadow .12s}
+.arm-slot img{width:100%;height:54px;object-fit:contain;filter:drop-shadow(0 3px 4px rgba(0,0,0,.7))}
+.arm-slot b,.arm-case b{font-family:var(--display);font-weight:400;font-size:14px;letter-spacing:.04em;text-transform:uppercase;line-height:1.1}
+.arm-slot small{font-family:var(--display);font-size:12px;color:var(--ash);letter-spacing:.05em}
+.arm-slot.locked img{filter:grayscale(.9) brightness(.55)}.arm-slot.locked small{color:#d8241a}
+.arm-slot:hover,.arm-case:not(:disabled):not(.off):hover{transform:translateY(-2px);border-color:#8a7468}
+.arm-slot.on{border:2px solid var(--ember);padding:7px 9px;box-shadow:0 0 0 2px #000,0 0 18px rgba(226,121,47,.45),inset 0 0 20px rgba(226,121,47,.12)}
+.arm-slot.on::after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);border:7px solid transparent;border-top-color:var(--ember);border-bottom:0}
+.arm-slot:focus-visible,.arm-case:focus-visible,.arm-tab:focus-visible{outline:2px solid var(--sodium);outline-offset:2px}
+.arm-case{justify-content:space-between;min-height:76px;background:var(--grime),linear-gradient(180deg,#2c2526,#141011);background-size:256px 256px,100% 100%}
+.arm-case small{font-size:11px;color:var(--ash)}
+.arm-price{align-self:flex-end;font-family:var(--display);font-size:18px;color:#e8261a;letter-spacing:.04em;text-shadow:0 2px 0 #000}
+.arm-case:disabled{cursor:default;opacity:.55}.arm-case:disabled .arm-price{color:#7a5a56}
+.arm-case.off{cursor:default;opacity:.5}.arm-case.off .arm-price{color:var(--ash);font-size:12px}
+.arm-stars{color:#ffb400;font-size:14px;letter-spacing:2px;text-shadow:0 1px 0 #000}.arm-stars i{font-style:normal;color:#3a3032}
+.arm-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:10px;border-top:1px solid #2e2427}
+.arm-hint{font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ash)}
+/* téléphone et petites hauteurs : sans l'encart, tout tient sur un écran */
+@media (max-height:600px),(max-width:820px){
+  #scr-shop .arm{padding:10px 12px 8px;gap:8px}
+  .arm-top{grid-template-columns:auto minmax(0,1fr) 150px;gap:12px}
+  .arm-brand h2{font-size:24px}.arm-brand .purse{font-size:20px;margin:0}.arm-brand .eyebrow{display:none}
+  .arm-detail{padding-left:10px}.arm-detail h3{font-size:20px}.arm-desc{font-size:11.5px;margin:3px 0;line-height:1.3}
+  .arm-state{font-size:11px}
+  .arm-big{height:70px}
+  .arm-mid{grid-template-columns:minmax(0,1fr)}.arm-news{display:none}
+  .arm-rack{grid-template-columns:48px minmax(0,1fr);gap:6px}.arm-tab img{width:32px;height:22px}.arm-tab span{font-size:8.5px}
+  .arm-rows{gap:7px}.arm-row{gap:5px}
+  .arm-slot,.arm-case{padding:5px 6px}.arm-slot.on{padding:4px 5px}
+  .arm-slot img{height:30px}.arm-slot b,.arm-case b{font-size:11px}.arm-slot small{font-size:10px}
+  .arm-case{min-height:52px}.arm-case small{font-size:9.5px}.arm-price{font-size:14px}.arm-stars{font-size:11px;letter-spacing:1px}
+  .arm-foot{padding-top:6px}.arm-hint{font-size:10px}.arm-foot .btn{padding:8px 16px;font-size:13px}
+}
+.arm-ups{grid-auto-columns:calc((100% - 24px) / 4)} /* les cases d'achat gardent la même taille, même seules */
+@media (max-height:600px),(max-width:820px){.arm-ups{grid-auto-columns:calc((100% - 15px) / 4)}}
+/* même panneau de métal sale que l'armurerie : pause, fin de partie, carte */
+#scr-pause .notice,#scr-end .notice,.map-side,.map-frame{background:var(--grime),radial-gradient(120% 90% at 15% 0%,rgba(120,20,14,.32),transparent 60%),linear-gradient(180deg,#1d1819,#0e0b0c);background-size:512px 512px,100% 100%,100% 100%;border:1px solid #3a2e30;border-top:3px solid var(--blood);box-shadow:0 0 0 4px #0a0809,0 0 0 5px #2a2224,0 30px 80px rgba(0,0,0,.7);position:relative}
+.map-side{padding:12px 14px}
+#scr-pause .notice::before,#scr-end .notice::before,.map-side::before{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8a7c74,#2a2224 70%);top:8px;left:8px}
+#scr-pause .notice::after,#scr-end .notice::after,.map-side::after{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8a7c74,#2a2224 70%);top:8px;right:8px}
+.pause-stats div,#scr-end .stat{background:var(--grime),linear-gradient(180deg,#2c2526,#141011);background-size:256px 256px,100% 100%;border:1px solid #4a3e40;border-left:3px solid var(--blood);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 3px 0 #000}
+.map-side #map-report,.map-side .report{background:none}
+.screen.map-screen{background:var(--grime),radial-gradient(ellipse at 50% 30%,#22110d,#050507 75%);background-size:512px 512px,100% 100%}
+/* transitions entre menus */
+#tvfx{position:fixed;inset:0;z-index:9000;pointer-events:none;opacity:0}
+#tvfx.tv{animation:tvOff .42s steps(1) forwards;background:var(--static);background-size:160px 160px;mix-blend-mode:screen}
+#tvfx.tv i{position:absolute;left:0;right:0;height:9%;background:rgba(255,40,30,.5);mix-blend-mode:screen}
+#tvfx.tv i:nth-child(1){top:18%;animation:tvBand .42s steps(3) forwards}#tvfx.tv i:nth-child(2){top:57%;height:4%;background:rgba(60,200,255,.45);animation:tvBand .42s .05s steps(4) forwards}#tvfx.tv i:nth-child(3){top:79%;height:2%;background:rgba(255,255,255,.6);animation:tvBand .42s .1s steps(2) forwards}
+@keyframes tvOff{0%{opacity:.55;background-position:0 0;filter:contrast(1.4)}20%{opacity:.35;background-position:-40px 30px}40%{opacity:.25;background-position:70px -20px}60%{opacity:.14;background-position:-10px 60px}80%{opacity:.07}100%{opacity:0}}
+@keyframes tvBand{0%{transform:translateX(-8%) scaleY(1)}50%{transform:translateX(6%) scaleY(1.6)}100%{transform:translateX(0) scaleY(0);opacity:0}}
+#tvfx.blood{opacity:1;background:none}
+#tvfx.blood i{position:absolute;top:0;height:100%;background:linear-gradient(180deg,#4a0605 0%,#7a0c09 calc(100% - var(--len,30%)),rgba(122,12,9,0) 100%);border-radius:0 0 45% 45%/0 0 6% 6%;transform:translateY(-102%);animation:bloodRun .6s cubic-bezier(.5,0,.6,1) forwards}
+#tvfx.tv i:nth-child(n+4){display:none}
+@keyframes bloodRun{0%{transform:translateY(-102%);opacity:.9}45%{transform:translateY(-8%);opacity:.85}100%{transform:translateY(25%);opacity:0}}
 </style>
 
 <canvas id="game" aria-label="Couvre-Feu, zone de jeu"></canvas>
@@ -1812,9 +1895,20 @@ function grungeTitle(c, t, x, y, fs, o = {}) {
       gb.fillStyle = 'rgba(105,8,6,.42)'; gb.beginPath(); for (let k = 0; k <= 24; k++) { const an = k / 24 * TAU, rr = R * (0.55 + r() * 0.45); k ? gb.lineTo(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr) : gb.moveTo(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr); } gb.fill();
       for (let k = 0; k < 60; k++) { const an = r() * TAU, d = R * (0.9 + r() * 2.2); gb.fillStyle = `rgba(${90 + r() * 40},6,5,${0.25 + r() * 0.35})`; gb.beginPath(); gb.arc(cx + Math.cos(an) * d, cy + Math.sin(an) * d, r() * 3 + 0.5, 0, TAU); gb.fill(); }
       for (let k = 0; k < 3; k++) { const x = cx + (r() - 0.5) * R, len = 30 + r() * 90; const gr = gb.createLinearGradient(0, cy, 0, cy + len); gr.addColorStop(0, 'rgba(105,8,6,.4)'); gr.addColorStop(1, 'rgba(105,8,6,0)'); gb.fillStyle = gr; gb.fillRect(x, cy, 2 + r() * 3, len); } }
-    const R = document.documentElement.style; R.setProperty('--grunge', `url(${a.toDataURL()})`); R.setProperty('--grime', `url(${b.toDataURL()})`);
+    const [n, gn] = mk(160, 160), id = gn.createImageData(160, 160); for (let k = 0; k < id.data.length; k += 4) { const v = r() * 255; id.data[k] = id.data[k + 1] = id.data[k + 2] = v; id.data[k + 3] = 255; } gn.putImageData(id, 0, 0);
+    const R = document.documentElement.style; R.setProperty('--static', `url(${n.toDataURL()})`); R.setProperty('--grunge', `url(${a.toDataURL()})`); R.setProperty('--grime', `url(${b.toDataURL()})`);
   } catch (e) { }
 })();
+// passage d'un menu à l'autre : une télé qui saute, ou un voile de sang qui coule (purement visuel, ne bloque rien)
+let fxT = 0;
+function screenFx() {
+  try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) { }
+  const now = performance.now(); if (now - fxT < 250) return; fxT = now;
+  let el = document.getElementById('tvfx'); if (!el) { el = document.createElement('div'); el.id = 'tvfx'; el.setAttribute('aria-hidden', 'true'); el.innerHTML = '<i></i>'.repeat(9); document.body.appendChild(el); }
+  const tv = Math.random() < 0.6; let x = -2;
+  for (const i of el.children) { const w = 8 + Math.random() * 12; i.style.cssText = tv ? '' : `left:${x}%;width:${w + 2}%;animation-delay:${(Math.random() * 0.12).toFixed(2)}s;--len:${(18 + Math.random() * 30).toFixed(0)}%`; x += w; } /* coulées de sang de largeurs et de vitesses différentes */
+  el.className = ''; void el.offsetWidth; el.className = tv ? 'tv' : 'blood';
+}
 // ============================================================ audio (Web Audio, tout est synthétisé)
 const MUSIC_THEMES = {
   gare: { base: 36.7, tempo: 1.55, beat: 1, scale: [146.83, 155.56, 174.61, 196, 207.65, 233.08, 261.63] },
@@ -1944,10 +2038,19 @@ class AudioSys {
     const T = MUSIC_THEMES[name] || MUSIC_THEMES.gare; this.themeName = MUSIC_THEMES[name] ? name : 'gare'; if (this.theme === T) return; this.theme = T; this.motifI = 0;
     if (this.drones && this.ctx) this.drones.forEach((o, i) => o.frequency.setTargetAtTime(T.base * [1, 1.007, 1.5, 2.12][i], this.ctx.currentTime, 1.2));
   }
-  musicTick(target) {
-    if (!this.ctx || !this.mlp) return; this.intensity = lerp(this.intensity, target, 0.02);
-    const t = this.t, I = this.intensity; this.mlp.frequency.setTargetAtTime(200 + I * 700, t, 0.5);
-    const TH = this.theme || MUSIC_THEMES.gare;
+  // musique qui suit l'action : exploration (nappe et notes rares), horde (charleston et basse qui pousse), boss (frappes lourdes et accords dissonants)
+  musicTick(target, boss) {
+    if (!this.ctx || !this.mlp) return; this.intensity = lerp(this.intensity, target, target > this.intensity ? 0.05 : 0.012);
+    const t = this.t, I = this.intensity; this.mlp.frequency.setTargetAtTime(200 + I * 900 + (boss ? 500 : 0), t, 0.5);
+    const TH = this.theme || MUSIC_THEMES.gare, stage = boss ? 2 : I > 0.38 ? 1 : 0;
+    if (stage > (this.stage || 0)) this.stinger(t, stage); this.stage = stage;
+    if (stage >= 1) {
+      if (!this.nextHat || this.nextHat < t - 0.5) this.nextHat = t; const step = (TH.tempo - I * 0.85) / (boss ? 4 : 2);
+      while (this.nextHat < t + 0.1) { const h = this.nextHat, k = this.hatI = ((this.hatI || 0) + 1) % 8; this.hat(h, (boss ? 0.05 : 0.035) * (k % 2 ? 0.6 : 1) * Math.min(1, (I - 0.3) * 2.5 + (boss ? 0.5 : 0)));
+        if (k % 2 === 0 && (I > 0.55 || boss)) this.bass(h, (TH.base || 36.7) * (boss ? [1, 1, 1.06, 1][k / 2 % 4] : [1, 1, 1.5, 1.33][k / 2 % 4]) * 2, step * 1.6, boss ? 0.13 : 0.09);
+        if (boss && k === 0) { this.thump(h, 0.55); this.mtone(h, (TH.base || 36.7) * 4 * 1.414, 0.6, 0.035); } /* triton de boss */
+        this.nextHat = h + step; }
+    }
     if (t > this.nextBeat - 0.05) { const bt = Math.max(t, this.nextBeat); this.thump(bt, (0.16 + I * 0.4) * TH.beat); this.thump(bt + 0.22, (0.1 + I * 0.3) * TH.beat); if (TH.triple) this.thump(bt + 0.44, 0.08 + I * 0.25); this.nextBeat = bt + (TH.tempo - I * 0.85); }
     if (TH.motif && t > this.nextNote - 0.05) {
       const nt = Math.max(t, this.nextNote), m = TH.motif[this.motifI++ % TH.motif.length];
@@ -1960,6 +2063,10 @@ class AudioSys {
       this.nextNote = nt + Math.max(1.2, rand(2.4, 5.2) - I * 1.4);
     }
   }
+  hat(t, g) { const c = this.ctx, s = c.createBufferSource(); s.buffer = this.nb; const f = c.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 7000; const gn = c.createGain(); gn.gain.setValueAtTime(g, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.05); s.connect(f); f.connect(gn); gn.connect(this.mus); s.start(t, Math.random() * 1.5, 0.07); }
+  bass(t, f, dur, g) { const c = this.ctx, o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 420; const gn = c.createGain(); gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.015); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(lp); lp.connect(gn); gn.connect(this.mus); o.start(t); o.stop(t + dur + 0.05); }
+  // la horde arrive / le boss entre : une montée brève qui annonce le changement
+  stinger(t, stage) { const c = this.ctx, o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(stage > 1 ? 55 : 110, t); o.frequency.exponentialRampToValueAtTime(stage > 1 ? 40 : 220, t + 0.9); const gn = c.createGain(); gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(stage > 1 ? 0.16 : 0.08, t + 0.6); gn.gain.exponentialRampToValueAtTime(0.0001, t + 1.1); o.connect(gn); gn.connect(this.mus); o.start(t); o.stop(t + 1.2); if (stage > 1) this.thump(t + 0.9, 0.7); }
   thump(t, g) { const c = this.ctx; const o = c.createOscillator(); o.frequency.setValueAtTime(62, t); o.frequency.exponentialRampToValueAtTime(36, t + 0.2); const gn = c.createGain(); gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.01); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.24); o.connect(gn); gn.connect(this.mus); o.start(t); o.stop(t + 0.3); }
   mtone(t, f, dur, g) { const c = this.ctx; const o = c.createOscillator(); o.type = 'triangle'; o.frequency.value = f; const gn = c.createGain(); gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(gn); gn.connect(this.mus); gn.connect(this.echo); o.start(t); o.stop(t + dur + 0.1); }
 }
@@ -3237,39 +3344,49 @@ class Shop {
     this.body.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && !b.disabled) this.act(b.dataset.act); });
   }
   upPrice(i, u) { const w = this.g.player.weapons[i]; return Math.round({ dmg: 220, rate: 240, mag: 170 }[u] * (w.lvl[u] + 1) * w.def.tier / 10) * 10; }
-  open() { const g = this.g; g.state = 'shop'; g.audio.flame(false); this.render(); g.showScreen('scr-shop'); const b = this.body.querySelector('button:not([disabled])'); if (b) b.focus(); }
+  open() { const g = this.g; this.sel = null; g.state = 'shop'; g.audio.flame(false); this.render(); g.showScreen('scr-shop'); const b = this.body.querySelector('button:not([disabled])'); if (b) b.focus(); }
   close() { const g = this.g; g.state = 'playing'; g.showScreen(null); g.input.mdown = false; if (g.p2) g.syncP2Gear(); }
+  // l'armurerie : un grand panneau, l'objet choisi en grand, une rangée d'objets et une rangée d'améliorations
   render() {
-    const g = this.g, p = g.player, money = p.money;
-    const btn = (act, label, ok, cls = 'sm') => `<button type="button" class="btn ${cls}" data-act="${act}" ${ok ? '' : 'disabled'}>${label}</button>`;
-    const pips = (l, m) => `<span class="pips" aria-label="niveau ${l} sur ${m}">${'■'.repeat(l)}<i>${'■'.repeat(m - l)}</i></span>`;
-    const tab = this.tab || 'arms', tb = (k, l) => `<button type="button" class="btn sm" data-act="tab:${k}" aria-pressed="${tab === k}">${l}</button>`;
-    let h = `<header class="shop-head"><div><p class="eyebrow">${g.safeName || 'Point de sauvegarde'} · progression sauvegardée</p><h2>Marché noir</h2></div><span class="sseg shop-tabs" role="group" aria-label="Rayon">${tb('arms', 'Armes')}${tb('gear', 'Équipement')}</span><div class="purse" aria-label="Argent disponible">$ ${fmt(money)}</div></header>`;
-    h += `<div class="shop-cols" data-tab="${tab}"><section class="sec-arms"><h3 class="sec">Armes</h3><div class="shop-grid">`;
-    p.weapons.forEach((w, i) => {
-      const d = w.def;
-      h += `<article class="card ${w.owned ? '' : 'locked'}"><img class="ico" src="${iconURL(d.id, true)}" alt=""><div class="card-head"><h3>${d.name}</h3><span class="slot">${i + 1}</span></div><p class="desc">${d.desc}</p>`;
-      if (!w.owned) h += btn(`buy:${i}`, `Acheter · $${fmt(d.price)}`, money >= d.price, '');
+    const g = this.g, p = g.player, money = p.money, tab = this.tab || 'arms', sel = this.sel || (this.sel = { arms: p.cur || 0, gear: 'armor' });
+    const stars = (l, m) => `<span class="arm-stars" aria-label="niveau ${l} sur ${m}">${'★'.repeat(l)}<i>${'★'.repeat(m - l)}</i></span>`;
+    const act = (a, label, price, ok, sub = '') => `<button type="button" class="arm-case" data-act="${a}" ${ok ? '' : 'disabled'}><b>${label}</b>${sub}<span class="arm-price">${price}</span></button>`;
+    const off = (label, txt) => `<div class="arm-case off"><b>${label}</b><span class="arm-price">${txt}</span></div>`;
+    const GEAR = [['armor', 'Armure', 'armor'], ['heal', 'Soins complets', 'med'], ['battery', 'Piles de lampe', 'battery'], ['grenades', 'Grenade', 'grenade'], ['mines', 'Mine', 'mine'], ['decoys', 'Fusée-leurre', 'decoy']];
+    const ITEMS = { grenades: [60, 9, `${keyPhrase('grenade')}. Explose après 1,7 s.`], mines: [80, 5, `${keyPhrase('mine')}. Posée à tes pieds, s'arme en 1 s.`], decoys: [70, 5, `${keyPhrase('decoy')}. Attire la horde 8 s puis explose.`] };
+    let name, desc, state, img, items = '', cases = '';
+    if (tab === 'arms') {
+      p.weapons.forEach((w, i) => { const d = w.def; items += `<button type="button" class="arm-slot ${i === sel.arms ? 'on' : ''} ${w.owned ? '' : 'locked'}" data-act="sel:${i}" aria-pressed="${i === sel.arms}"><img src="${iconURL(d.id, true)}" alt=""><b>${d.name}</b><small>${w.owned ? (d.infinite ? '∞' : `${w.ammo} / ${w.reserve}`) : '$' + fmt(d.price)}</small></button>`; });
+      const i = sel.arms, w = p.weapons[i], d = w.def; name = d.name; desc = d.desc; img = iconURL(d.id, true);
+      state = w.owned ? `Touche ${i + 1} · munitions ${w.ammo} / ${d.infinite ? '∞' : w.reserve}` : `Pas encore à toi · $${fmt(d.price)}`;
+      if (!w.owned) { cases += act(`buy:${i}`, 'Acheter', '$' + fmt(d.price), money >= d.price, '<small>l\'arme et un chargeur plein</small>'); for (const u of ['dmg', 'rate', 'mag']) cases += off(UPNAMES[u], 'achète d\'abord l\'arme'); }
       else {
-        h += `<p class="ammo">Munitions : ${w.ammo} / ${d.infinite ? '∞' : w.reserve}</p>`;
-        if (!d.infinite) h += btn(`ammo:${i}`, `+${d.ammoPack} munitions · $${d.ammoPrice}`, money >= d.ammoPrice);
-        for (const u of ['dmg', 'rate', 'mag']) { const l = w.lvl[u], pr = this.upPrice(i, u); h += `<div class="up"><span>${UPNAMES[u]}</span>${pips(l, 3)}${l >= 3 ? '<span class="maxed">MAX</span>' : btn(`up:${i}:${u}`, '$' + fmt(pr), money >= pr)}</div>`; }
+        cases += d.infinite ? off('Munitions', 'infinies') : act(`ammo:${i}`, 'Munitions', '$' + d.ammoPrice, money >= d.ammoPrice, `<small>+${d.ammoPack} balles</small>`);
+        for (const u of ['dmg', 'rate', 'mag']) { const l = w.lvl[u], pr = this.upPrice(i, u); cases += l >= 3 ? off(UPNAMES[u], stars(3, 3) + ' max') : act(`up:${i}:${u}`, UPNAMES[u], '$' + fmt(pr), money >= pr, stars(l, 3)); }
       }
-      h += '</article>';
-    });
-    h += '</div></section><section class="sec-gear"><h3 class="sec">Équipement</h3><div class="gear">';
-    const armP = 300 * (p.armor + 1);
-    h += `<article class="card"><img class="ico" src="${iconURL('armor')}" alt=""><div class="card-head"><h3>Armure</h3>${pips(p.armor, 3)}</div><p class="desc">Chaque niveau réduit les dégâts de 15 %.</p>${p.armor >= 3 ? '<span class="maxed">MAX</span>' : btn('armor', `Renforcer · $${armP}`, money >= armP)}</article>`;
-    h += `<article class="card"><img class="ico" src="${iconURL('med')}" alt=""><div class="card-head"><h3>Soins complets</h3><span class="slot">${Math.ceil(p.hp)}/${p.maxHp}</span></div><p class="desc">Remet la santé au maximum.</p>${btn('heal', 'Soigner · $150', money >= 150 && p.hp < p.maxHp)}</article>`;
-    h += `<article class="card"><img class="ico" src="${iconURL('battery')}" alt=""><div class="card-head"><h3>Piles de lampe</h3><span class="slot">${Math.round(p.battery)} %</span></div><p class="desc">La lampe s'use. +50 % d'autonomie.</p>${btn('battery', 'Recharger · $40', money >= 40 && p.battery < 100)}</article>`;
-    const ICO = { grenades: 'grenade', mines: 'mine', decoys: 'decoy' };
-    for (const [k, name, price, max, desc] of [['grenades', 'Grenade', 60, 9, `${keyPhrase('grenade')}. Explose après 1,7 s.`], ['mines', 'Mine', 80, 5, `${keyPhrase('mine')}. Posée à tes pieds, s'arme en 1 s.`], ['decoys', 'Fusée-leurre', 70, 5, `${keyPhrase('decoy')}. Attire la horde 8 s puis explose.`]])
-      h += `<article class="card"><img class="ico" src="${iconURL(ICO[k])}" alt=""><div class="card-head"><h3>${name}</h3><span class="slot">${p[k]}/${max}</span></div><p class="desc">${desc}</p>${btn('item:' + k + ':' + price + ':' + max, `+1 · $${price}`, money >= price && p[k] < max)}</article>`;
-    h += `</div></section></div><div class="row end shop-foot"><button type="button" class="btn primary" data-act="close">Reprendre la route</button></div>`;
-    this.body.innerHTML = h;
+    } else {
+      for (const [k, n, ic] of GEAR) items += `<button type="button" class="arm-slot ${k === sel.gear ? 'on' : ''}" data-act="sel:${k}" aria-pressed="${k === sel.gear}"><img src="${iconURL(ic)}" alt=""><b>${n}</b><small>${k === 'armor' ? `${p.armor} / 3` : k === 'heal' ? `${Math.ceil(p.hp)} / ${p.maxHp}` : k === 'battery' ? Math.round(p.battery) + ' %' : `${p[k]} / ${ITEMS[k][1]}`}</small></button>`;
+      const k = sel.gear, G = GEAR.find(x => x[0] === k); name = G[1]; img = iconURL(G[2]);
+      if (k === 'armor') { const pr = 300 * (p.armor + 1); desc = 'Chaque niveau réduit les dégâts de 15 %.'; state = `Niveau ${p.armor} / 3`; cases += p.armor >= 3 ? off('Renforcer', stars(3, 3) + ' max') : act('armor', 'Renforcer', '$' + pr, money >= pr, stars(p.armor, 3)); }
+      else if (k === 'heal') { desc = 'Remet la santé au maximum.'; state = `Santé ${Math.ceil(p.hp)} / ${p.maxHp}`; cases += act('heal', 'Soigner', '$150', money >= 150 && p.hp < p.maxHp, p.hp >= p.maxHp ? '<small>déjà en pleine forme</small>' : ''); }
+      else if (k === 'battery') { desc = 'La lampe s\'use. +50 % d\'autonomie.'; state = `Lampe ${Math.round(p.battery)} %`; cases += act('battery', 'Recharger', '$40', money >= 40 && p.battery < 100); }
+      else { const [pr, max, ds] = ITEMS[k]; desc = ds; state = `${p[k]} / ${max} sur toi`; cases += act(`item:${k}:${pr}:${max}`, 'Acheter +1', '$' + pr, money >= pr && p[k] < max, p[k] >= max ? '<small>poches pleines</small>' : ''); }
+    }
+    // encart : ce qui vient de devenir abordable
+    const news = []; p.weapons.forEach((w, i) => { if (!w.owned && money >= w.def.price) news.push(['Enfin disponible', w.def.name]); else if (w.owned && ['dmg', 'rate', 'mag'].some(u => w.lvl[u] < 3 && money >= this.upPrice(i, u))) news.push(['Amélioration possible', w.def.name]); });
+    if (p.armor < 3 && money >= 300 * (p.armor + 1)) news.push(['Amélioration possible', 'Armure']);
+    const tb = (k, l, ic) => `<button type="button" class="arm-tab" data-act="tab:${k}" aria-pressed="${tab === k}" aria-label="${l}"><img src="${iconURL(ic, k === 'arms')}" alt=""><span>${l}</span></button>`;
+    this.body.innerHTML = `<div class="arm" data-tab="${tab}">
+      <header class="arm-top"><div class="arm-brand"><h2>Armurerie</h2><div class="purse" aria-label="Argent disponible">$ ${fmt(money)}</div><p class="eyebrow">${g.safeName || 'Point de sauvegarde'} · progression sauvegardée</p></div>
+        <div class="arm-detail"><h3>${name}</h3><p class="arm-desc">${desc}</p><p class="arm-state">${state}</p></div><div class="arm-big"><img src="${img}" alt=""></div></header>
+      <div class="arm-mid"><aside class="arm-news" aria-label="Nouveautés de l'armurerie"><p class="arm-news-h">Nouv. armurerie</p>${news.length ? news.slice(0, 4).map(([a, b]) => `<p><span>${a} :</span><b>${b}</b></p>`).join('<hr>') : '<p class="arm-none">Rien d\'abordable. Ramène des dollars.</p>'}</aside>
+        <div class="arm-rack"><div class="arm-tabs" role="group" aria-label="Rayon">${tb('arms', 'Armes', 'smg')}${tb('gear', 'Équipement', 'armor')}</div>
+          <div class="arm-rows"><div class="arm-row arm-items">${items}</div><div class="arm-row arm-ups">${cases}</div></div></div></div>
+      <footer class="arm-foot"><span class="arm-hint">${g.input.touchMode ? 'Touche un objet pour le voir · touche une case pour acheter' : 'Choisis un objet · clique une case pour acheter'}</span><button type="button" class="btn primary" data-act="close">Reprendre la route</button></footer></div>`;
   }
   act(a) {
     const g = this.g, p = g.player, parts = a.split(':'); let ok = false;
+    if (parts[0] === 'sel') { const v = parts[1], k = this.tab === 'gear' ? 'gear' : 'arms'; this.sel[k] = k === 'arms' ? +v : v; g.audio.ui(); this.render(); const t = this.body.querySelector(`[data-act="sel:${v}"]`); if (t) t.focus({ preventScroll: true }); return; }
     if (parts[0] === 'tab') { this.tab = parts[1]; g.audio.ui(); this.render(); $('scr-shop').scrollTop = 0; const t = this.body.querySelector(`[data-act="tab:${parts[1]}"]`); if (t) t.focus({ preventScroll: true }); return; }
     const pay = n => { if (p.money < n) return false; p.money -= n; return true; };
     switch (parts[0]) {
@@ -3284,10 +3401,10 @@ class Shop {
     }
     if (ok) g.audio.buy(); else g.audio.deny();
     const ae = document.activeElement, focusAct = ae && ae.dataset ? ae.dataset.act : null, scr = $('scr-shop'), keep = scr.scrollTop;
-    const cardIdx = ae && ae.closest ? [...this.body.querySelectorAll('.card')].indexOf(ae.closest('.card')) : -1;
+    const cardIdx = ae && ae.closest ? [...this.body.querySelectorAll('.arm-case')].indexOf(ae.closest('.arm-case')) : -1;
     this.render();
     let again = focusAct && this.body.querySelector(`[data-act="${focusAct}"]:not([disabled])`);
-    if (!again && cardIdx >= 0) { const card = this.body.querySelectorAll('.card')[cardIdx]; again = card && card.querySelector('button:not([disabled])'); }
+    if (!again && cardIdx >= 0) { const c = this.body.querySelectorAll('.arm-case')[cardIdx]; again = c && !c.disabled && c.tagName === 'BUTTON' ? c : this.body.querySelector('.arm-slot.on'); }
     (again || this.body.querySelector('[data-act="close"]')).focus({ preventScroll: true }); scr.scrollTop = keep;
   }
 }
@@ -3414,7 +3531,7 @@ class Game {
     for (let i = 0; i < 22; i++) { const z = new Zombie(this, Math.random() < 0.15 ? 'runner' : 'walker', rand(300, 1500), rand(260, 960), null); if (!this.level.pointObstacle(z.x, z.y)) this.zombies.push(z); }
     this.cam.x = 760; this.cam.y = 600;
   }
-  showScreen(id) { for (const s of document.querySelectorAll('.screen')) s.hidden = s.id !== id; }
+  showScreen(id) { const was = this._scr || null; this._scr = id; if (was !== id) screenFx(); for (const s of document.querySelectorAll('.screen')) s.hidden = s.id !== id; }
   screenToWorld(sx, sy) { const S = VS * DPR * (this.zoom || 1); return { x: (sx * DPR - (W / 2 - this.cam.x * S)) / S, y: (sy * DPR - (H / 2 - this.cam.y * S)) / S }; }
   wheelCenter() { const ch = H / DPR / HUDK, cw = W / DPR / HUDK, Ro = Math.min(TOUCH ? 92 : 104, ch * 0.24), ps = this.w2h(this.player.x, this.player.y - 16); return { x: clamp(ps.x, Ro + 12, cw - Ro - 12), y: clamp(ps.y, Ro + 40, ch - Ro - 50) }; }
   w2h(x, y) { const s = this.worldToScreen(x, y); s.x /= HUDK; s.y /= HUDK; return s; }
@@ -3614,7 +3731,7 @@ class Game {
     this.cam.y = hh * 2 >= 1280 ? 560 : clamp(this.cam.y, -110 + hh, 1170 - hh);
     // musique : intensité selon les zombies proches
     let near = 0; for (const z of this.zombies) if (z.aggro && dist2(z.x, z.y, p.x, p.y) < 500 * 500) near++;
-    this.audio.musicTick(this.bossRef && !this.bossRef.dead ? 1 : clamp(near / 30, 0, 1));
+    const boss = !!(this.bossRef && !this.bossRef.dead); this.audio.musicTick(boss ? 1 : clamp(near / 18 + (this.director.queue > 15 ? 0.25 : 0), 0, 1), boss);
   }
   updateCommon(dt) {
     for (const t of this.timers) { t.t -= dt; if (t.t <= 0 && !t.dead) { t.dead = true; t.fn(); } } compact(this.timers);
@@ -7232,7 +7349,7 @@ mixin(Game, {
     const kc = 1 - Math.exp(-5 * dt); this.cam.x = lerp(this.cam.x, tx, kc); this.cam.y = lerp(this.cam.y, ty, kc);
     this.cam.x = clamp(this.cam.x, hw, WORLD.w - hw); this.cam.y = hh * 2 >= 1280 ? 560 : clamp(this.cam.y, -110 + hh, 1170 - hh);
     this.trauma = Math.max(0, this.trauma - dt * 1.5); const sh = this.trauma * this.trauma * 16; this.shakeX = rand(-sh, sh); this.shakeY = rand(-sh, sh);
-    this.audio.musicTick(N.mi || 0.5);
+    this.audio.musicTick(N.mi || 0.5, !!this.bossRef);
     const lag = performance.now() - N.last;
     if (lag > 4000 && !N.lostTip) { N.lostTip = true; this.toast('Connexion avec l\'hôte perdue… reconnexion', '#ff8a5a'); }
     if (lag < 1000) N.lostTip = false;
@@ -7981,6 +8098,7 @@ function fillCredits(el) {
 }
 const fillCreditsOnce = el => { if (el && !el.dataset.filled) fillCredits(el); };
 function togglePanel(id, btn, fill) {
+  screenFx();
   game.audio.init(); const p = $(id);
   for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden = true; $(bid).setAttribute('aria-expanded', 'false'); }
   if (fill) (p.querySelector('.sheet-body') || p).innerHTML = fill();
@@ -8343,6 +8461,12 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 73, d: '30 oct.', t: 'L\'armurerie', s: 'Le marché noir devient une vraie armurerie, et la musique suit enfin l\'action.', it: [
+    ['new', 'Armurerie', 'Un grand panneau de métal sale : l\'arme choisie en grand avec sa description, une rangée d\'armes, une rangée d\'améliorations avec leurs étoiles, et l\'écran « Nouv. armurerie » qui t\'indique ce qui est enfin à ta portée.'],
+    ['new', 'Musique qui suit l\'action', 'Calme quand tu explores. Quand la horde arrive, la batterie et la basse se lèvent. Face à un boss : frappes lourdes et accords qui grincent.'],
+    ['new', 'Transitions', 'Entre deux menus, la télé saute ou du sang coule sur l\'écran.'],
+    ['up', 'Pause, carte et fin de partie', 'Même panneau de métal riveté et taché de sang que l\'armurerie.']],
+    q: ['pedro', 'Pedro', '¡Una armería de verdad! Il manque juste un rayon burritos.'] },
   { v: 72, d: '30 oct.', t: 'Le bestiaire broie du noir', s: 'Fiches sombres, icônes de fin du monde et plus de carré au survol des menus.', it: [
     ['up', 'Bestiaire sombre', 'Les fiches deviennent des dossiers tachés de sang. En fin de partie, plus de « Tu as découvert ! » : c\'est une mauvaise nouvelle, une nouvelle menace.'],
     ['new', 'Icônes zombie', 'Télé cassée pour l\'affichage, tombe pour la sauvegarde, main qui sort de terre pour le bestiaire, machette, crâne, bâtons de survivant pour les scores…'],

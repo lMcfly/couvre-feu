@@ -295,7 +295,7 @@ mixin(Game, {
     const kc = 1 - Math.exp(-5 * dt); this.cam.x = lerp(this.cam.x, tx, kc); this.cam.y = lerp(this.cam.y, ty, kc);
     this.cam.x = clamp(this.cam.x, hw, WORLD.w - hw); this.cam.y = hh * 2 >= 1280 ? 560 : clamp(this.cam.y, -110 + hh, 1170 - hh);
     this.trauma = Math.max(0, this.trauma - dt * 1.5); const sh = this.trauma * this.trauma * 16; this.shakeX = rand(-sh, sh); this.shakeY = rand(-sh, sh);
-    this.audio.musicTick(N.mi || 0.5);
+    this.audio.musicTick(N.mi || 0.5, !!this.bossRef);
     const lag = performance.now() - N.last;
     if (lag > 4000 && !N.lostTip) { N.lostTip = true; this.toast('Connexion avec l\'hôte perdue… reconnexion', '#ff8a5a'); }
     if (lag < 1000) N.lostTip = false;

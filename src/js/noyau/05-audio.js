@@ -127,10 +127,19 @@ class AudioSys {
     const T = MUSIC_THEMES[name] || MUSIC_THEMES.gare; this.themeName = MUSIC_THEMES[name] ? name : 'gare'; if (this.theme === T) return; this.theme = T; this.motifI = 0;
     if (this.drones && this.ctx) this.drones.forEach((o, i) => o.frequency.setTargetAtTime(T.base * [1, 1.007, 1.5, 2.12][i], this.ctx.currentTime, 1.2));
   }
-  musicTick(target) {
-    if (!this.ctx || !this.mlp) return; this.intensity = lerp(this.intensity, target, 0.02);
-    const t = this.t, I = this.intensity; this.mlp.frequency.setTargetAtTime(200 + I * 700, t, 0.5);
-    const TH = this.theme || MUSIC_THEMES.gare;
+  // musique qui suit l'action : exploration (nappe et notes rares), horde (charleston et basse qui pousse), boss (frappes lourdes et accords dissonants)
+  musicTick(target, boss) {
+    if (!this.ctx || !this.mlp) return; this.intensity = lerp(this.intensity, target, target > this.intensity ? 0.05 : 0.012);
+    const t = this.t, I = this.intensity; this.mlp.frequency.setTargetAtTime(200 + I * 900 + (boss ? 500 : 0), t, 0.5);
+    const TH = this.theme || MUSIC_THEMES.gare, stage = boss ? 2 : I > 0.38 ? 1 : 0;
+    if (stage > (this.stage || 0)) this.stinger(t, stage); this.stage = stage;
+    if (stage >= 1) {
+      if (!this.nextHat || this.nextHat < t - 0.5) this.nextHat = t; const step = (TH.tempo - I * 0.85) / (boss ? 4 : 2);
+      while (this.nextHat < t + 0.1) { const h = this.nextHat, k = this.hatI = ((this.hatI || 0) + 1) % 8; this.hat(h, (boss ? 0.05 : 0.035) * (k % 2 ? 0.6 : 1) * Math.min(1, (I - 0.3) * 2.5 + (boss ? 0.5 : 0)));
+        if (k % 2 === 0 && (I > 0.55 || boss)) this.bass(h, (TH.base || 36.7) * (boss ? [1, 1, 1.06, 1][k / 2 % 4] : [1, 1, 1.5, 1.33][k / 2 % 4]) * 2, step * 1.6, boss ? 0.13 : 0.09);
+        if (boss && k === 0) { this.thump(h, 0.55); this.mtone(h, (TH.base || 36.7) * 4 * 1.414, 0.6, 0.035); } /* triton de boss */
+        this.nextHat = h + step; }
+    }
     if (t > this.nextBeat - 0.05) { const bt = Math.max(t, this.nextBeat); this.thump(bt, (0.16 + I * 0.4) * TH.beat); this.thump(bt + 0.22, (0.1 + I * 0.3) * TH.beat); if (TH.triple) this.thump(bt + 0.44, 0.08 + I * 0.25); this.nextBeat = bt + (TH.tempo - I * 0.85); }
     if (TH.motif && t > this.nextNote - 0.05) {
       const nt = Math.max(t, this.nextNote), m = TH.motif[this.motifI++ % TH.motif.length];
@@ -143,6 +152,10 @@ class AudioSys {
       this.nextNote = nt + Math.max(1.2, rand(2.4, 5.2) - I * 1.4);
     }
   }
+  hat(t, g) { const c = this.ctx, s = c.createBufferSource(); s.buffer = this.nb; const f = c.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 7000; const gn = c.createGain(); gn.gain.setValueAtTime(g, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.05); s.connect(f); f.connect(gn); gn.connect(this.mus); s.start(t, Math.random() * 1.5, 0.07); }
+  bass(t, f, dur, g) { const c = this.ctx, o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 420; const gn = c.createGain(); gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.015); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(lp); lp.connect(gn); gn.connect(this.mus); o.start(t); o.stop(t + dur + 0.05); }
+  // la horde arrive / le boss entre : une montée brève qui annonce le changement
+  stinger(t, stage) { const c = this.ctx, o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(stage > 1 ? 55 : 110, t); o.frequency.exponentialRampToValueAtTime(stage > 1 ? 40 : 220, t + 0.9); const gn = c.createGain(); gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(stage > 1 ? 0.16 : 0.08, t + 0.6); gn.gain.exponentialRampToValueAtTime(0.0001, t + 1.1); o.connect(gn); gn.connect(this.mus); o.start(t); o.stop(t + 1.2); if (stage > 1) this.thump(t + 0.9, 0.7); }
   thump(t, g) { const c = this.ctx; const o = c.createOscillator(); o.frequency.setValueAtTime(62, t); o.frequency.exponentialRampToValueAtTime(36, t + 0.2); const gn = c.createGain(); gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.01); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.24); o.connect(gn); gn.connect(this.mus); o.start(t); o.stop(t + 0.3); }
   mtone(t, f, dur, g) { const c = this.ctx; const o = c.createOscillator(); o.type = 'triangle'; o.frequency.value = f; const gn = c.createGain(); gn.gain.setValueAtTime(0.0001, t); gn.gain.linearRampToValueAtTime(g, t + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(gn); gn.connect(this.mus); gn.connect(this.echo); o.start(t); o.stop(t + dur + 0.1); }
 }

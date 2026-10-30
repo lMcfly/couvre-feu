@@ -93,6 +93,17 @@ function grungeTitle(c, t, x, y, fs, o = {}) {
       gb.fillStyle = 'rgba(105,8,6,.42)'; gb.beginPath(); for (let k = 0; k <= 24; k++) { const an = k / 24 * TAU, rr = R * (0.55 + r() * 0.45); k ? gb.lineTo(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr) : gb.moveTo(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr); } gb.fill();
       for (let k = 0; k < 60; k++) { const an = r() * TAU, d = R * (0.9 + r() * 2.2); gb.fillStyle = `rgba(${90 + r() * 40},6,5,${0.25 + r() * 0.35})`; gb.beginPath(); gb.arc(cx + Math.cos(an) * d, cy + Math.sin(an) * d, r() * 3 + 0.5, 0, TAU); gb.fill(); }
       for (let k = 0; k < 3; k++) { const x = cx + (r() - 0.5) * R, len = 30 + r() * 90; const gr = gb.createLinearGradient(0, cy, 0, cy + len); gr.addColorStop(0, 'rgba(105,8,6,.4)'); gr.addColorStop(1, 'rgba(105,8,6,0)'); gb.fillStyle = gr; gb.fillRect(x, cy, 2 + r() * 3, len); } }
-    const R = document.documentElement.style; R.setProperty('--grunge', `url(${a.toDataURL()})`); R.setProperty('--grime', `url(${b.toDataURL()})`);
+    const [n, gn] = mk(160, 160), id = gn.createImageData(160, 160); for (let k = 0; k < id.data.length; k += 4) { const v = r() * 255; id.data[k] = id.data[k + 1] = id.data[k + 2] = v; id.data[k + 3] = 255; } gn.putImageData(id, 0, 0);
+    const R = document.documentElement.style; R.setProperty('--static', `url(${n.toDataURL()})`); R.setProperty('--grunge', `url(${a.toDataURL()})`); R.setProperty('--grime', `url(${b.toDataURL()})`);
   } catch (e) { }
 })();
+// passage d'un menu à l'autre : une télé qui saute, ou un voile de sang qui coule (purement visuel, ne bloque rien)
+let fxT = 0;
+function screenFx() {
+  try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) { }
+  const now = performance.now(); if (now - fxT < 250) return; fxT = now;
+  let el = document.getElementById('tvfx'); if (!el) { el = document.createElement('div'); el.id = 'tvfx'; el.setAttribute('aria-hidden', 'true'); el.innerHTML = '<i></i>'.repeat(9); document.body.appendChild(el); }
+  const tv = Math.random() < 0.6; let x = -2;
+  for (const i of el.children) { const w = 8 + Math.random() * 12; i.style.cssText = tv ? '' : `left:${x}%;width:${w + 2}%;animation-delay:${(Math.random() * 0.12).toFixed(2)}s;--len:${(18 + Math.random() * 30).toFixed(0)}%`; x += w; } /* coulées de sang de largeurs et de vitesses différentes */
+  el.className = ''; void el.offsetWidth; el.className = tv ? 'tv' : 'blood';
+}
