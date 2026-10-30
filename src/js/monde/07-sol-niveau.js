@@ -27,7 +27,7 @@ class Ground {
 // ============================================================ niveau
 class Level {
   constructor(g) {
-    this.g = g; this.obstacles = []; this.lamps = []; this.spawners = []; this.chests = []; this.fixedLights = []; this.obj = []; this.gates = {}; this.stamp = 0; this.traps = [];
+    this.g = g; this.obstacles = []; this.lamps = []; this.spawners = []; this.chests = []; this.fixedLights = []; this.obj = []; this.gates = {}; this.stamp = 0; this.traps = []; this.graffiti = [];
     this.buildStatic(); for (let k = 0; k < 4; k++) this.buildZone(k);
     if (HALLOWEEN) this.addPumpkins();
     this.rebuildGrid(); this.ground = new Ground(this);
@@ -144,12 +144,19 @@ class Level {
     // piles, objets fétiches et survivant, dans des recoins sombres
     const spot = () => { for (let t = 0; t < 50; t++) { const x = Math.round(Z.x0 + 160 + r() * (Z.x1 - Z.x0 - 320)), y = Math.round(r() < 0.5 ? ST + 92 + r() * 50 : SB - 46 - r() * 50); if (free(x - 14, y - 14, 28, 28, 6)) return [x, y]; } return null; };
     // shibas : cachettes tirées au hasard à chaque nouvelle partie (graine gardée dans la sauvegarde)
-    { const rs = mulberry32(7919 + k * 97 + (g.shibaSeed || 0)), ok = [];
+    const shibaSpots = [];
+    { const rs = mulberry32(7919 + k * 97 + (g.shibaSeed || 0)), ok = shibaSpots;
       for (let i = 0; i < SHIBAS_PER; i++) for (let t = 0; t < 80; t++) {
         const edge = rs() < 0.6, x = Math.round(Z.x0 + 170 + rs() * (Z.x1 - Z.x0 - 340)), y = Math.round(edge ? (rs() < 0.5 ? ST + 92 + rs() * 60 : SB - 46 - rs() * 60) : 280 + rs() * 640);
         if (!free(x - 14, y - 14, 28, 28, 6) || ok.some(([a, b]) => Math.abs(a - x) < 380 && Math.abs(b - y) < 260)) continue;
         ok.push([x, y]); if (!(g.shibaFound && g.shibaFound.has(k + '-' + i))) pickup('shiba', x, y, i); else reserved.push({ x: x - 30, y: y - 30, w: 60, h: 60 }); break;
       } }
+    // graffitis laissés par d'autres survivants ; certains montrent une cachette de shiba ou une planque
+    { const rg = mulberry32(4231 + k * 17 + (g.shibaSeed || 0)), tag = (x, y, t, col) => this.graffiti.push({ x: clamp(x, Z.x0 + 80, Z.x1 - 80), y, t, col, rot: (rg() - 0.5) * 0.16, zone: k });
+      const POOL = ['NE PAS ENTRER', 'ILS SONT DANS LE MÉTRO', 'VISEZ LA TÊTE', 'MAMAN JE T\'AIME', 'ON NOUS A MENTI', 'COUVRE-FEU = MORT', 'PAS DE SORTIE', 'KEVIN EST VIVANT', 'COUREZ', 'J\'AI FAIM', 'LA MAIRIE NOUS A LÂCHÉS', 'ILS ENTENDENT TOUT', 'DERNIER JOUR', 'ÉTEINS TA LAMPE'];
+      for (let i = 0; i < 3; i++) tag(Z.x0 + 200 + rg() * (Z.x1 - Z.x0 - 400), rg() < 0.6 ? ST + 26 : SB - 18, POOL[Math.floor(rg() * POOL.length)], rg() < 0.5 ? '#b0231c' : '#d8d2c4');
+      if (shibaSpots.length) { const [sx, sy] = shibaSpots[Math.floor(rg() * shibaSpots.length)], left = sx - Z.x0 > 260; tag(sx + (left ? -150 : 150), sy + 4, left ? 'UN CHIEN PAR LÀ →' : '← UN CHIEN PAR LÀ', '#f0b25a'); }
+      const ch = this.chests.filter(c => c.zone === k); if (ch.length) { const c0 = ch[Math.floor(rg() * ch.length)], left = c0.x - Z.x0 > 260; tag(c0.x + (left ? -140 : 140), c0.y + 6, left ? 'PLANQUE →' : '← PLANQUE', '#7fd18b'); } }
     for (let i = 0; i < (k < 3 ? 2 : 1); i++) { const s1 = spot(); if (s1) pickup('battery', s1[0], s1[1], 0); const s2 = spot(); if (s2) pickup('fetish', s2[0], s2[1], 0); }
     if (k < 3) { const s = spot(); if (s) { const sv = new Survivor(g, s[0], s[1], k, k); g.survivors.push(sv); } }
     if (k === 2) for (let t = 0; t < 30; t++) { const x = Z.x0 + 400 + r() * 1700, y = 362 + (r() < 0.5 ? 0 : 470); if (free(x - 14, y - 6, 28, 12, 2)) { this.chests.push({ x, y, open: false, zone: k, value: Math.round(200 + r() * 200) }); break; } }
@@ -170,7 +177,7 @@ class Level {
     this.obstacles = this.obstacles.filter(o => o.zone !== k);
     this.lamps = this.lamps.filter(o => o.zone !== k);
     this.spawners = this.spawners.filter(o => o.zone !== k);
-    this.chests = this.chests.filter(o => o.zone !== k); this.traps = this.traps.filter(o => o.zone !== k);
+    this.chests = this.chests.filter(o => o.zone !== k); this.traps = this.traps.filter(o => o.zone !== k); this.graffiti = this.graffiti.filter(o => o.zone !== k);
     this.fixedLights = this.fixedLights.filter(o => o.zone !== k);
     for (const b of this.obstacles) if (b.kind === 'building') b.doors = b.doors.filter(d => d.zone !== k);
     this.g.pickups = this.g.pickups.filter(p => p.zone !== k);

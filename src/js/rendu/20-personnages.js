@@ -98,6 +98,7 @@ mixin(Game, {
     const c = ctx, r = z.r, t = z.walkT; c.save(); c.translate(z.x, z.y);
     let rise = 1; if (z.spawnT > 0) { rise = 1 - z.spawnT / z.spawnMax; c.globalAlpha = Math.min(1, rise * 1.6); }
     c.fillStyle = 'rgba(0,0,0,.45)'; c.beginPath(); c.ellipse(0, 2, r * 1.1, r * 0.5, 0, 0, TAU); c.fill();
+    if (z.elite && z.spawnT <= 0) { const pu = 0.55 + Math.sin(this.time * 6 + z.nid) * 0.25, col = z.elite === 'gold' ? '255,210,60' : '255,110,30'; c.save(); c.globalCompositeOperation = 'lighter'; const gr = c.createRadialGradient(0, -r, 2, 0, -r, r * 2.6); gr.addColorStop(0, `rgba(${col},${0.35 * pu})`); gr.addColorStop(1, `rgba(${col},0)`); c.fillStyle = gr; c.fillRect(-r * 2.6, -r * 3.6, r * 5.2, r * 5.2); c.restore(); c.strokeStyle = `rgba(${col},${pu})`; c.lineWidth = 2; c.beginPath(); c.ellipse(0, 2, r * 1.3, r * 0.6, 0, 0, TAU); c.stroke(); } /* halo d'élite */
     if (z.spawnT > 0 && z.spawnKind === 'sewer') { c.beginPath(); c.rect(-r * 3, -r * 5, r * 6, r * 5); c.clip(); c.translate(0, (1 - rise) * r * 3.2); }
     const ca = Math.cos(z.dir), sa = Math.sin(z.dir), sw = Math.sin(t) * r * 0.35;
     if (z.type === 'brute' && z.bState === 'wind') c.translate(rand(-1.5, 1.5), 0);
@@ -127,7 +128,8 @@ mixin(Game, {
     if (z.hitFlash > 0) { c.globalAlpha = 0.6; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 0.85, r * 1.15, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     if (z.burn > 0) { c.globalAlpha = 0.35; c.fillStyle = '#ff7a22'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 0.9, r * 1.2, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     c.restore();
-    if ((z.type === 'brute' || z.type === 'spitter' || z.type === 'screamer') && z.hp < z.maxHp && z.spawnT <= 0) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(z.x - 16, z.y - r * 2.9, 32, 4); c.fillStyle = '#b0231c'; c.fillRect(z.x - 16, z.y - r * 2.9, 32 * z.hp / z.maxHp, 4); }
+    if (z.elite && z.spawnT <= 0) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(z.x - 18, z.y - r * 3.1, 36, 4); c.fillStyle = z.elite === 'gold' ? '#ffd23a' : '#ff7a3a'; c.fillRect(z.x - 18, z.y - r * 3.1, 36 * z.hp / z.maxHp, 4); }
+    else if ((z.type === 'brute' || z.type === 'spitter' || z.type === 'screamer') && z.hp < z.maxHp && z.spawnT <= 0) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(z.x - 16, z.y - r * 2.9, 32, 4); c.fillStyle = '#b0231c'; c.fillRect(z.x - 16, z.y - r * 2.9, 32 * z.hp / z.maxHp, 4); }
   },
   drawDog(z, ca, sa) {
     const c = ctx, r = z.r, t = z.walkT, crouch = z.bState === 'crouch', leap = z.bState === 'leap';

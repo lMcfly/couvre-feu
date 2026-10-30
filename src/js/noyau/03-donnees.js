@@ -13,6 +13,16 @@ const SAFES = [
   { x0: 8600, x1: 9000, name: 'Poste de secours' }
 ];
 const EXIT = { x0: 10400, x1: 10600 };
+// radio des survivants : les nouvelles grésillantes entre deux missions (selon la mission qu'on vient de finir)
+const RADIO = [
+  ['Ici Radio Survivants. La gare est tombée, mais le distributeur de café fonctionne encore. Il ne rend pas la monnaie. Comme avant.', 'Info trafic : bouchon de zombies sur le boulevard des Tanneurs. Prévoyez trois heures. Ou une grenade.', 'Le contrôleur de la ligne 4 a été aperçu sans sa casquette. Les autorités parlent d\'un drame.'],
+  ['Le signal est passé. On répète : un hélicoptère se posera à l\'aube. Pas de bagages en soute, pas de morsures en cabine.', 'Météo : nuit couverte, averses de cendres, risque élevé de dents dans le cou. Sortez couverts.', 'Annonce : la Speakerine présente toujours la météo. Elle a juste arrêté de cligner des yeux.'],
+  ['Les lampadaires du parking se rallument. Les zombies adorent. Les moustiques aussi.', 'Courrier des auditeurs : « Mon voisin grogne et mange mon chat. Dois-je m\'inquiéter ? » Oui, Monique. Oui.', 'Le gardien du parking réclame toujours ton ticket. On te conseille de payer en plomb.'],
+  ['L\'Abomination est tombée. La mairie annonce un deuil municipal de trois minutes. Les élus ont été mangés pendant la minute de silence.', 'Changement de programme : l\'hélicoptère est dérouté vers l\'hôpital Saint-Lazare. Prenez un ticket à l\'accueil. Le temps d\'attente est estimé à… toujours.', 'Rappel sanitaire : se faire mordre n\'est pas remboursé par la Sécu.'],
+  ['L\'hôpital est silencieux. Le Chirurgien a enfin posé son bistouri. Les patients, eux, ne se plaignent plus.', 'Dernier bulletin de la nuit. Si tu entends ce message, tu es vivant. Félicitations. C\'est rare.']
+];
+// médailles de mission : temps de référence en secondes, et les trois métaux
+const MEDAL_PAR = [210, 240, 270, 200, 220], MEDALS = { 1: { name: 'Bronze', col: '#c9824a' }, 2: { name: 'Argent', col: '#cfd6dc' }, 3: { name: 'Or', col: '#ffd23a' } };
 // la campagne : les quatre secteurs de la ville, puis l'hôpital (mission 5)
 const MISSION_NAMES = [...ZONES.map(z => z.name), 'Hôpital Saint-Lazare'], MISSIONS = MISSION_NAMES.length;
 const BOUNDS = [2600, 3000, 5600, 6000, 8600, 9000, 10400];

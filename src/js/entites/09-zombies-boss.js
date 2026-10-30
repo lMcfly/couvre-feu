@@ -15,6 +15,9 @@ class Zombie {
     this.pants = shade(pick(CLOTHS), -0.35);
     this.shootCd = rand(1.5, 3); this.spitWind = 0; this.bState = 'walk'; this.bT = 0; this.bCd = rand(1, 3); this.frenzy = 0;
     if (type === 'dog') { this.skin = pick(['#6b5a48', '#5a5048', '#7a6a52', '#4a4440']); this.bCd = rand(0.6, 1.4); }
+    // zombie d'élite : un sur cinquante, doré ou enflammé, plus solide et qui lâche un bonus rare
+    this.elite = type !== 'boss' && g.mode !== 'training' && g.state !== 'title' && Math.random() < 0.02 ? (Math.random() < 0.5 ? 'gold' : 'fire') : null;
+    if (this.elite) { if (this.elite === 'gold') { this.skin = '#d4ad3c'; this.cloth = '#7a5a14'; } else { this.skin = '#8a3a1e'; this.cloth = '#2a1208'; } this.maxHp = this.hp = this.hp * 3; this.speed *= 1.12; this.dmg *= 1.3; this.aggro = true; }
     this.costume = HALLOWEEN && g.mode !== 'training' && (type === 'walker' || type === 'runner') && Math.random() < 0.3 ? pick(COSTUMES) : null;
   }
   knock(x, y) { this.kx += x * this.kbMul; this.ky += y * this.kbMul; }
@@ -38,6 +41,7 @@ class Zombie {
     if (this.hitFlash > 0) this.hitFlash -= dt;
     if (this.spawnT > 0) { this.spawnT -= dt; return; }
     this.atkCd -= dt; this.flameCd -= dt; this.lunge -= dt; if (this.stun > 0) this.stun -= dt;
+    if (this.elite === 'fire') { this.burn = 0; if (Math.random() < dt * 14) g.spawnP({ x: this.x + rand(-7, 7), y: this.y, z: this.r * 1.6, vz: rand(40, 90), vx: rand(-15, 15), vy: rand(-15, 15), life: rand(0.3, 0.6), type: 'fire', size: rand(4, 8), emissive: true, drag: 1 }); } /* il brûle sans se consumer */
     if (this.burn > 0) {
       this.burn -= dt; this.hp -= 16 * dt;
       if (Math.random() < dt * 16) g.spawnP({ x: this.x + rand(-6, 6), y: this.y, z: this.r * 1.4, vz: rand(30, 70), vx: rand(-15, 15), vy: rand(-15, 15), life: rand(0.3, 0.6), type: 'fire', size: rand(4, 7), emissive: true, drag: 1 });

@@ -69,7 +69,7 @@ mixin(Game, {
     const L = this.level, H = HOSP;
     L.obstacles = L.obstacles.filter(o => o.zone !== 0); L.spawners = L.spawners.filter(s => s.zone !== 0); L.chests = (L.chests || []).filter(c => c.zone !== 0);
     for (const l of L.lamps) if (l.zone === 0) l.on = false;
-    this.pickups = []; this.survivors = []; L.traps = L.traps.filter(t => t.zone !== 0); /* rien de la ville ne reste dans l'hôpital */
+    this.pickups = []; this.survivors = []; L.traps = L.traps.filter(t => t.zone !== 0); L.graffiti = L.graffiti.filter(t => t.zone !== 0); /* rien de la ville ne reste dans l'hôpital */
     const A = o => { o.zone = 0; return L.add(o); }, wall = (x, y, w, h) => A({ x, y, w, h, z: 46, kind: 'hwall', blood: Math.random() < 0.3 ? Math.round(rand(4, Math.max(5, w - 14))) : 0 });
     for (const y of [H.top, H.bot]) { let x = H.x0; for (const d of H.doors) { wall(x, y, d - 42 - x, 18); x = d + 42; } wall(x, y, H.morgue - x, 18); }
     for (const x of H.cols) { wall(x, ST, 18, H.top - ST); wall(x, H.bot + 18, 18, SB - H.bot - 18); }

@@ -42,6 +42,8 @@ mixin(Game, {
     if (this.buddy && inView(this.buddy.x, this.buddy.y)) { const b = this.buddy; c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(b.x, b.y + 2, 10, 4, 0, 0, TAU); c.fill(); drawShibaSprite(c, b.x, b.y - b.hop, 1, this.time * 1.6); }
     if (this.event && this.event.id === 'icecream' && inView(this.event.x, this.event.y, 120)) drawIceTruck(c, this.event.x, this.event.y, this.time);
     for (const s of this.level.spawners) if (s.anim > 0 && s.kind === 'sewer' && inView(s.x, s.y)) { c.fillStyle = '#55565a'; c.beginPath(); c.ellipse(s.x + 22 * s.anim, s.y - 4, 17, 9, 0.4, 0, TAU); c.fill(); }
+    // graffitis à la bombe sur le bitume
+    for (const t of this.level.graffiti || []) if (inView(t.x, t.y, 200)) { c.save(); c.translate(t.x, t.y); c.rotate(t.rot); c.font = `18px ${FD}`; c.textAlign = 'center'; c.globalAlpha = 0.5; c.fillStyle = t.col; c.fillText(t.t, 0, 0); c.globalAlpha = 0.25; c.fillText(t.t, 1.5, 1); c.globalAlpha = 1; c.restore(); }
     // clôtures électriques au sol (poteaux, fils, arcs quand le courant passe)
     for (const t of this.level.traps || []) if (t.kind === 'fence' && inView(t.x + t.w / 2, t.y, t.w)) {
       const on = t.on > 0; c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(t.x, t.y + 10, t.w, 5);

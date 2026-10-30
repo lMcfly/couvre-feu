@@ -1,11 +1,13 @@
 // ============================================================ jeu : campagne, carte et fin de partie
 mixin(Game, {
   makeCheckpoint(x, y) { const p = this.player; return { x, y, score: this.score, kills: this.kills, money: p.money, armor: p.armor, grenades: p.grenades, mines: p.mines, decoys: p.decoys, cur: p.cur, weapons: p.weapons.map(w => w.snapshot()), shibas: [...this.shibaFound] }; },
-  snapStats() { return { score: this.score, kills: this.kills, shots: this.stats.shots, hits: this.stats.hits, dmg: this.stats.dmg, deaths: this.stats.deaths, time: this.runTime, saved: this.run.saved }; },
+  snapStats() { return { score: this.score, kills: this.kills, shots: this.stats.shots, hits: this.stats.hits, dmg: this.stats.dmg, taken: this.stats.taken || 0, deaths: this.stats.deaths, time: this.runTime, saved: this.run.saved }; },
   missionReport(k) {
-    const a = this.missionStart || { score: 0, kills: 0, shots: 0, hits: 0, dmg: 0, deaths: 0, time: 0, saved: 0 }, b = this.snapStats(), r = { k };
-    for (const key of Object.keys(b)) r[key] = b[key] - a[key];
-    r.shibas = [...this.shibaFound].filter(id => id.startsWith(k + '-')).length; return r;
+    const a = this.missionStart || { score: 0, kills: 0, shots: 0, hits: 0, dmg: 0, taken: 0, deaths: 0, time: 0, saved: 0 }, b = this.snapStats(), r = { k };
+    for (const key of Object.keys(b)) r[key] = b[key] - (a[key] || 0);
+    r.shibas = [...this.shibaFound].filter(id => id.startsWith(k + '-')).length;
+    // médaille : quatre défis par mission (trois shibas, aucune mort, moins de 60 dégâts reçus, sous le temps de référence)
+    r.goals = [r.shibas >= SHIBAS_PER, r.deaths <= 0, r.taken < 60, r.time <= MEDAL_PAR[k]]; const n = r.goals.filter(Boolean).length; r.medal = n >= 3 ? 3 : n === 2 ? 2 : 1; return r;
   },
   showMap({ current, report = null, onGo = null, resumed = false }) {
     this.state = 'map'; this.audio.flame(false); this.mapGo = onGo; this.mapCur = current; this.mapSel = Math.min(current, MISSIONS - 1);
@@ -16,12 +18,18 @@ mixin(Game, {
     $('map-report').innerHTML = report ? reportHTML(report) + nb : resumed ? '<p class="hint">Partie reprise au dernier point de sauvegarde.</p>' : `<p class="hint">Trouve les 3 shibas cachés de chaque mission : ils aboient quand tu t\'approches. Les ${SHIBAS_TOTAL} débloquent un niveau secret.</p>`;
     $('btn-map-go').textContent = `Entrer · mission ${current + 1}`;
     const pc = this._mapPortrait || (this._mapPortrait = document.createElement('canvas')); pc.width = pc.height = 160; renderHead(pc, this.charKey, '#0c0a09');
-    this.mapInfo(); this.showScreen('scr-map'); $('btn-map-go').focus(); if (nb) drawBestiary();
+    this.mapRadio(report ? report.k : -1); this.mapInfo(); this.showScreen('scr-map'); $('btn-map-go').focus({ preventScroll: true }); if (nb) drawBestiary();
     const cv = $('map-cv'), g = cv.getContext('2d'), loop = () => { if (this.state !== 'map') return; drawMapCanvas(g, this, performance.now() / 1000, pc); requestAnimationFrame(loop); }; loop();
     const hit = e => { const r = cv.getBoundingClientRect(), sc = Math.min(r.width / 1000, r.height / 560), x = (e.clientX - r.left - (r.width - 1000 * sc) / 2) / sc, y = (e.clientY - r.top - (r.height - 560 * sc) / 2) / sc; let k = null; MAP_NODES.forEach((n, i) => { if (dist2(x, y, n.x, n.y) < 50 * 50) k = i; }); return k; };
     cv.onmousemove = e => { if (e.pointerType === 'touch' || TOUCH) return; const k = hit(e); if (k !== this.mapHover) { this.mapHover = k; this.mapTip(k); } cv.style.cursor = k == null ? 'default' : 'pointer'; };
     cv.onmouseleave = () => { this.mapHover = null; this.mapTip(null); };
     cv.onclick = e => { const k = hit(e); if (k == null) { if (TOUCH) this.mapTip(null); return; } this.mapSel = k; this.mapInfo(); this.audio.ui(); if (TOUCH) this.mapTip(k); };
+  },
+  // la radio grésille quelques secondes, puis le message s'écrit lettre par lettre
+  mapRadio(k) {
+    const box = $('map-radio'), el = $('map-radio-t'); clearInterval(this._radioI); if (k < 0 || !RADIO[k]) { box.hidden = true; return; }
+    const msg = pick(RADIO[k]); box.hidden = false; box.classList.add('tuning'); el.textContent = '…krrrzzt…'; let i = 0;
+    this._radioI = setTimeout(() => { box.classList.remove('tuning'); this._radioI = setInterval(() => { i += 2; el.textContent = msg.slice(0, i); if (Math.random() < 0.05) this.audio.tone && this.audio.tone({ f: 2400, f2: 900, dur: 0.05, type: 'square', g: 0.015 }); if (i >= msg.length || this.state !== 'map') { el.textContent = msg; clearInterval(this._radioI); } }, 28); }, 900);
   },
   mapTip(i) {
     const tip = $('map-tip'); if (i == null) { tip.classList.remove('show'); return; }
@@ -161,7 +169,8 @@ mixin(Game, {
   },
   // fin de mission : un grand « SECTEUR NETTOYÉ » rongé, au ralenti, avant la BD
   missionWin(k, then) {
-    const r = this.missionReport(k), sub = `${MISSION_NAMES[k]} · ${fmt(r.kills)} zombies abattus · ${fmtTime(r.time)}`;
+    const r = this.missionReport(k), M = MEDALS[r.medal], sub = `Médaille ${M.name.toLowerCase()} · ${fmt(r.kills)} zombies abattus · ${fmtTime(r.time)}`;
+    if (this.isCampaign()) { const bm = Settings.medals || (Settings.medals = {}); if (!(bm[k] >= r.medal)) { bm[k] = r.medal; Settings.save(); } (this.run.medals || (this.run.medals = []))[k] = r.medal; }
     this.winFx = { t: 0, title: k === 4 ? 'HÔPITAL NETTOYÉ' : 'SECTEUR NETTOYÉ', sub, then }; /* « then » part après 2,8 s de temps réel (le monde, lui, est au ralenti) */ this.netEmit(['win', this.winFx.title, sub]);
     this.bannerObj = null; this.notices = []; this.audio.objective(); this.later(0.15, () => this.shake(0.35));
   },

@@ -110,7 +110,7 @@ setInterval(() => {
 const NET_EDGES = ['firePressed', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'cycleUp', 'cycleDown'];
 const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap', 'scream'];
 const NET_PK = ['x', 'y', 'aim', 'hp', 'maxHp', 'dead', 'rollT', 'rollDir', 'cur', 'vx', 'vy', 'inv', 'walkT', 'muzzleT', 'meleeT', 'recoil', 'playDead', 'hidden', 'battery', 'stamina', 'armor', 'grenades', 'mines', 'decoys', 'money', 'reloadT', 'charging', 'charge', 'spCd', 'spMax', 'flashCd', 'exhausted', 'hpTrail', 'char', 'downX', 'downY', 'revT', 'slowT', 'dazeT', 'carry'];
-const NET_ZS = ['type', 'r', 'skin', 'cloth', 'pants', 'costume', 'spawnMax', 'spawnKind', 'seed', 'mini', 'mk', 'bkind', 'ultimate', 'title', 'maxHp', 'target'];
+const NET_ZS = ['type', 'r', 'skin', 'cloth', 'pants', 'costume', 'spawnMax', 'spawnKind', 'seed', 'mini', 'mk', 'bkind', 'ultimate', 'title', 'maxHp', 'target', 'elite'];
 const NET_BOSS = ['state', 'st', 'phase', 'weakT', 'rageT', 'jumpZ', 'echoA', 'ramA', 'bladeA', 'entry', 'dir', 'hp', 'maxHp', 'r'];
 // propriétés calculées du joueur (accesseurs) : on ne les écrit pas
 const NET_RO = new Set(Object.entries(Object.getOwnPropertyDescriptors(Player.prototype)).filter(([, d]) => d.get && !d.set).map(([k]) => k));

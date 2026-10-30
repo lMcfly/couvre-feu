@@ -1,5 +1,12 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 78, d: '30 oct.', t: 'Médailles et radio', s: 'Chaque mission se joue pour l\'or, et les rues parlent.', it: [
+    ['new', 'Médailles', 'Bronze, argent ou or à chaque mission selon quatre défis : 3 shibas, aucune mort, moins de 60 dégâts reçus, et le temps. Elles s\'affichent sur la carte, ton meilleur résultat est gardé.'],
+    ['new', 'Radio Survivants', 'Entre deux missions, la radio grésille et donne les nouvelles. Humour noir garanti.'],
+    ['new', 'Graffitis', 'Des messages de survivants sur le bitume. Certains montrent la cachette d\'un shiba ou une planque pleine de dollars.'],
+    ['new', 'Zombies d\'élite', 'Un zombie sur cinquante est doré ou enflammé : trois fois plus solide, mais il lâche une bourse, un objet et des points en plus.'],
+    ['fix', 'Petites corrections', 'Le bonus quand tu vides toute la rue s\'appelle maintenant « Rue nettoyée » pour ne plus se confondre avec la fin de mission.']],
+    q: ['dragon', 'Dragon', 'Une médaille d\'or. Évidemment. Je ne m\'attendais à rien d\'autre.'] },
   { v: 77, d: '30 oct.', t: 'Pièges, défis et duo solide', s: 'Le décor se retourne contre tout le monde, et ton ami peut perdre le réseau sans tout casser.', it: [
     ['new', 'Pièges du décor', 'Clôtures électriques et bouches d\'incendie dans les secteurs 1 à 3 : appuie sur E devant le boîtier. Le courant grille les zombies… et toi si tu traînes dessus. Le jet d\'eau repousse tout le monde et éteint les flammes.'],
     ['new', 'Défi de la semaine', 'Deux contraintes à la fois, les mêmes pour tous du lundi au dimanche, avec leur propre record et leur classement en ligne (Scores › Semaine).'],

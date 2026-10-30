@@ -400,6 +400,10 @@ function drawMapCanvas(g, game, t, portrait) {
     if (done) { g.strokeStyle = '#b3221a'; g.lineWidth = 5; g.beginPath(); g.moveTo(n.x - 10, n.y - 10); g.lineTo(n.x + 10, n.y + 10); g.moveTo(n.x + 10, n.y - 10); g.lineTo(n.x - 10, n.y + 10); g.stroke(); }
     else if (i === MISSIONS && !open) { g.save(); g.translate(n.x, n.y + 2); g.scale(2, 2); lockIcon(g, 0, 0, '#8a8488'); g.restore(); g.strokeStyle = '#4a464a'; g.lineWidth = 3; g.setLineDash([5, 3]); g.beginPath(); g.moveTo(n.x - 40, n.y - 20); g.lineTo(n.x + 40, n.y + 20); g.moveTo(n.x + 40, n.y - 20); g.lineTo(n.x - 40, n.y + 20); g.stroke(); g.setLineDash([]); }
     else g.fillText(i === MISSIONS ? '?' : String(i + 1), n.x, n.y + 9 * sc);
+    // médaille gagnée sur cette mission (celle de la partie, sinon le meilleur record)
+    const md = i < MISSIONS && (((game.run && game.run.medals) || [])[i] || (Settings.medals || {})[i]);
+    if (md) { const M = MEDALS[md], mx = n.x + 22 * sc, my = n.y - 22 * sc; g.strokeStyle = '#000'; g.lineWidth = 3; g.fillStyle = '#6a1410'; g.beginPath(); g.moveTo(mx - 6, my - 14); g.lineTo(mx - 2, my - 4); g.lineTo(mx + 2, my - 4); g.lineTo(mx + 6, my - 14); g.fill();
+      const mg = g.createRadialGradient(mx - 3, my - 3, 1, mx, my, 11); mg.addColorStop(0, '#fff'); mg.addColorStop(0.35, M.col); mg.addColorStop(1, '#3a2a10'); g.fillStyle = mg; g.beginPath(); g.arc(mx, my + 2, 9, 0, TAU); g.fill(); g.stroke(); g.fillStyle = 'rgba(0,0,0,.55)'; g.font = `bold 10px ${FD}`; g.fillText(md === 3 ? '★' : md === 2 ? '✦' : '•', mx, my + 6); }
   });
   // pion du personnage
   const by = pn.y - 76 + Math.sin(t * 3) * 4;
@@ -418,7 +422,9 @@ function drawMapCanvas(g, game, t, portrait) {
 function reportHTML(r) {
   const acc = r.shots > 0 ? Math.round(100 * r.hits / r.shots) + ' %' : '–';
   const items = [['Score de la mission', fmt(r.score)], ['Zombies abattus', fmt(r.kills)], ['Dégâts infligés', fmt(Math.round(r.dmg))], ['Tirs', fmt(r.shots)], ['Précision', acc], ['Shibas trouvés', `${r.shibas} / ${SHIBAS_PER}`], ['Survivants sauvés', String(r.saved)], ['Morts', String(r.deaths)], ['Temps', fmtTime(r.time)]];
-  return `<div class="report"><h3>Bilan · mission ${r.k + 1}</h3><p class="rep-zone">${MISSION_NAMES[r.k]}</p><dl class="rep">${items.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
+  const M = r.medal ? MEDALS[r.medal] : null, G = r.goals || [], lab = ['3 shibas', 'Aucune mort', 'Moins de 60 dégâts', `Moins de ${fmtTime(MEDAL_PAR[r.k] || 0)}`];
+  const med = M ? `<div class="rep-medal" style="--mc:${M.col}"><span class="rep-m-ico" aria-hidden="true"></span><b>Médaille ${M.name.toLowerCase()}</b><ul>${lab.map((l, i) => `<li class="${G[i] ? 'ok' : ''}">${G[i] ? '✓' : '✗'} ${l}</li>`).join('')}</ul></div>` : '';
+  return `<div class="report"><h3>Bilan · mission ${r.k + 1}</h3><p class="rep-zone">${MISSION_NAMES[r.k]}</p>${med}<dl class="rep">${items.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
 }
 function wrapText(c, text, x, y, maxW, lh) { const words = text.split(' '); let line = ''; for (const w of words) { const test = line ? line + ' ' + w : w; if (c.measureText(test).width > maxW && line) { c.fillText(line, x, y); line = w; y += lh; } else line = test; } if (line) c.fillText(line, x, y); }
 function scoreTable(list, hiDate) {

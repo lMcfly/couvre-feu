@@ -128,8 +128,8 @@ mixin(Game, {
     { const now = this.time; this.recentKills = (this.recentKills || []).filter(t0 => now - t0 < 8); this.recentKills.push(now);
       const k0 = this.activeZone, o0 = k0 >= 0 && this.level.obj[k0];
       if (this.mode === 'story' && o0 && (k0 < 3 ? o0.done : o0.dead) && this.director.queue <= 0 && !(this.cleared || (this.cleared = []))[k0] && !this.zombies.some(o => o !== z && !o.dead)) {
-        this.cleared[k0] = true; this.finFx = currentFinisher(); this.slowMo(2.2, 'SECTEUR NETTOYÉ'); this.slowCd = now + 20; this.recentKills = [];
-        const bonus = Math.round(3000 * this.diff.score); this.score += bonus; this.player.money += 150; this.later(0.6, () => this.toast(`Secteur nettoyé : +${fmt(bonus)} points, +$150`, '#ffd23a')); this.audio.objective();
+        this.cleared[k0] = true; this.finFx = currentFinisher(); this.slowMo(2.2, 'RUE NETTOYÉE'); this.slowCd = now + 20; this.recentKills = [];
+        const bonus = Math.round(3000 * this.diff.score); this.score += bonus; this.player.money += 150; this.later(0.6, () => this.toast(`Plus un zombie dans la rue : +${fmt(bonus)} points, +$150`, '#ffd23a')); this.audio.objective();
       } else if (this.recentKills.length >= 12 && !(this.slowCd > now) && !this.zombies.some(o => o !== z && !o.dead && o.aggro && dist2(o.x, o.y, this.player.x, this.player.y) < 700 * 700)) { this.slowMo(1.2, 'HORDE NETTOYÉE'); this.slowCd = now + 20; this.recentKills = []; } }
     const pts = Math.round(T.score * this.mult * this.diff.score); this.score += pts;
     if (this.mult < 5 && this.mult + 0.1 >= 5) this.quip('streak');
@@ -142,6 +142,12 @@ mixin(Game, {
     for (let i = 0; i < n; i++) this.pickups.push(new Pickup(this, 'coin', z.x + rand(-6, 6), z.y + rand(-6, 6), Math.max(1, Math.round(m / n))));
     const r = Math.random();
     if (r < 0.05) this.pickups.push(new Pickup(this, 'ammo', z.x, z.y, 0)); else if (r < 0.075) this.pickups.push(new Pickup(this, 'med', z.x, z.y, 0)); else if (r < 0.085) this.pickups.push(new Pickup(this, 'grenade', z.x, z.y, 0)); else if (r < 0.125) this.pickups.push(new Pickup(this, 'battery', z.x, z.y, 0));
+    if (z.elite) { // bonus rare : une bourse, un objet au choix du hasard, et des points en plus
+      const cash = Math.round(120 * this.diff.money); this.pickups.push(new Pickup(this, 'coin', z.x, z.y, cash)); this.pickups.push(new Pickup(this, pick(['grenade', 'med', 'ammo', 'battery']), z.x + 10, z.y, 0));
+      const eb = Math.round(1500 * this.diff.score); this.score += eb; this.floatText(z.x, z.y - 56, `ÉLITE ABATTU · +${fmt(eb)}`, z.elite === 'gold' ? '#ffd23a' : '#ff7a3a'); this.audio.coin(); this.shake(0.3);
+      if (z.elite === 'fire') this.fires.push(new FireArea(this, z.x, z.y, 60, 2.2));
+      if (!this.eliteTip) { this.eliteTip = true; this.later(0.6, () => this.toast('Les zombies d\'élite rapportent gros : guette les dorés et les enflammés', '#ffd23a')); }
+    }
     this.bleed(z.x, z.y, 0, 0, z.type === 'boss' ? 40 : 10);
     for (let i = 0; i < (z.type === 'brute' ? 6 : 3); i++) this.spawnP({ x: z.x, y: z.y, z: 14, vx: rand(-160, 160), vy: rand(-160, 160), vz: rand(60, 220), grav: 700, life: 2, type: 'gib', size: rand(3, 5), bake: true, color: '#5a1410' });
     this.bakeCorpse(z);

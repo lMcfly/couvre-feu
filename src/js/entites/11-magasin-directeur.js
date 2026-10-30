@@ -84,7 +84,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -122,7 +122,7 @@ function applyProfile(d) {
   return { lv: levelInfo(Settings.xp || 0).lv, ach: ACH.filter(a => Ach.get()[a[0]]).length, run: !!readSave() };
 }
 function saveLine(d) { return `${CHARS[d.char].name} · ${DIFFS[d.diff].name} · mission ${d.safe + 2} sur ${MISSIONS} · ${fmt(d.cp.score || 0)} pts · ${(d.cp.shibas || []).length}/${SHIBAS_TOTAL} shibas`; }
-function newStats() { return { shots: 0, hits: 0, dmg: 0, deaths: 0 }; }
+function newStats() { return { shots: 0, hits: 0, dmg: 0, deaths: 0, taken: 0 }; }
 const SHIBAS_PER = 3, SHIBAS_TOTAL = SHIBAS_PER * MISSIONS;
 const BESTIARY = [
   { k: 'walker', name: 'Le Traînard', type: 'Zombie ordinaire', m: 1, txt: 'Ancien usager de la ligne 4. Attend toujours son bus, mais accepte un mollet en dédommagement.', tip: 'Lent, mais jamais seul. Recule en tirant.' },

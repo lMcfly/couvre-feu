@@ -178,7 +178,7 @@ class Player {
   }
   hurt(dmg, sx, sy, kb = 260) {
     const g = this.g; if (this.inv > 0 || this.rollT > 0 || this.dead || g.state !== 'playing') return;
-    dmg *= 1 - 0.15 * this.armor; this.hp -= dmg; this.inv = 0.35; g.zoneHit = true; this.lastHurt = g.time;
+    dmg *= 1 - 0.15 * this.armor; this.hp -= dmg; if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + dmg; this.inv = 0.35; g.zoneHit = true; this.lastHurt = g.time;
     g.mult = Math.max(1, g.mult - 1); g.hurtFlash = Math.min(1, 0.35 + dmg / 40); g.shake(0.25 + dmg / 80); g.audio.hurt();
     const dx = this.x - sx, dy = this.y - sy, d = Math.hypot(dx, dy) || 1; this.kx += dx / d * kb; this.ky += dy / d * kb; if (this.isP2 && g.net === 'host') g.netEmit(['kb', Math.round(dx / d * kb), Math.round(dy / d * kb)]);
     g.bleed(this.x, this.y, dx / d, dy / d, 6);
@@ -187,7 +187,7 @@ class Player {
   }
   hurtDot(a) {
     const g = this.g; if (this.dead || g.state !== 'playing') return;
-    this.hp -= a * (1 - 0.15 * this.armor); g.hurtFlash = Math.max(g.hurtFlash, 0.18); g.zoneHit = true; this.lastHurt = g.time;
+    this.hp -= a * (1 - 0.15 * this.armor); if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + a * (1 - 0.15 * this.armor); g.hurtFlash = Math.max(g.hurtFlash, 0.18); g.zoneHit = true; this.lastHurt = g.time;
     if (g.time - this.dotSnd > 0.45) { this.dotSnd = g.time; g.audio.hurt(); }
     if (this.hp <= 0) { if (this.isP2) g.onP2Death(this); else g.onPlayerDeath(); }
   }

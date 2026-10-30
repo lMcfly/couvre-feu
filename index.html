@@ -1217,6 +1217,24 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
 #tvfx.tv i:nth-child(1){top:18%;animation:tvBand .42s steps(3) forwards}#tvfx.tv i:nth-child(2){top:57%;height:4%;background:rgba(60,200,255,.45);animation:tvBand .42s .05s steps(4) forwards}#tvfx.tv i:nth-child(3){top:79%;height:2%;background:rgba(255,255,255,.6);animation:tvBand .42s .1s steps(2) forwards}
 @keyframes tvOff{0%{opacity:.55;background-position:0 0;filter:contrast(1.4)}20%{opacity:.35;background-position:-40px 30px}40%{opacity:.25;background-position:70px -20px}60%{opacity:.14;background-position:-10px 60px}80%{opacity:.07}100%{opacity:0}}
 @keyframes tvBand{0%{transform:translateX(-8%) scaleY(1)}50%{transform:translateX(6%) scaleY(1.6)}100%{transform:translateX(0) scaleY(0);opacity:0}}
+.rep-medal{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center;margin:6px 0 8px;padding:8px 10px;border:1px solid #3a2e30;background:rgba(0,0,0,.3)}
+.rep-m-ico{grid-row:1/3;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--mc) 40%,#3a2a10);border:2px solid #000;box-shadow:0 0 12px color-mix(in srgb,var(--mc) 50%,transparent)}
+.rep-medal b{font-family:var(--display);font-weight:400;font-size:17px;letter-spacing:.06em;text-transform:uppercase;color:var(--mc)}
+.rep-medal ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:2px 10px;font-size:11px;color:#7a6a6c}.rep-medal li.ok{color:#a8d8a0}
+.map-radio{margin:0 0 10px;padding:8px 10px 9px;border:2px solid #2a3a2c;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),linear-gradient(180deg,#0f1410,#070908);box-shadow:inset 0 0 24px rgba(0,0,0,.8);color:#9fdc8a}
+.mr-h{margin:0 0 4px;display:flex;align-items:center;gap:6px;font-family:var(--display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6fa862}
+.mr-dot{width:7px;height:7px;border-radius:50%;background:#d8241a;box-shadow:0 0 6px #d8241a;animation:mrBlink 1s steps(1) infinite}
+.mr-t{margin:0;font-size:12.5px;line-height:1.4;min-height:3.6em}
+.map-radio.tuning .mr-t{animation:mrTune .12s steps(2) infinite;color:#5a8a50}
+@keyframes mrBlink{50%{opacity:.2}}@keyframes mrTune{50%{transform:translateX(1px);opacity:.6}}
+@media (max-height:520px){.map-radio{padding:5px 8px;margin-bottom:6px}.mr-t{font-size:11px;min-height:0}}
+/* carte sur téléphone : la colonne de droite défile seule, la carte reste en place ; radio et médaille en version compacte */
+@media (max-height:560px){
+  .map-side{max-height:calc((100vh - 16px) / var(--ui,1));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+  .rep-medal{padding:5px 7px;margin:4px 0 5px;gap:0 8px}.rep-m-ico{width:22px;height:22px}.rep-medal b{font-size:14px}.rep-medal ul{font-size:10px;gap:0 8px}
+  .map-radio .mr-t{font-size:10.5px;line-height:1.3}
+}
+@media (max-height:560px){.map-side .rep{display:none}.map-side .report{padding:6px 9px}}
 </style>
 
 <canvas id="game" aria-label="Couvre-Feu, zone de jeu"></canvas>
@@ -1526,6 +1544,7 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
       <div class="map-main"><div class="map-frame"><canvas id="map-cv" width="1000" height="560" aria-label="Carte des missions"></canvas><div class="map-tip" id="map-tip" role="tooltip"></div></div>
       <p class="map-info" id="map-info" aria-live="polite"></p></div>
       <aside class="map-side">
+        <div class="map-radio" id="map-radio" hidden aria-live="polite"><p class="mr-h"><span class="mr-dot"></span>Radio Survivants · 87.6 FM</p><p class="mr-t" id="map-radio-t"></p></div>
         <div id="map-report"></div>
         <div class="map-actions">
           <button type="button" class="btn primary big" id="btn-map-go">Entrer</button>
@@ -1603,7 +1622,7 @@ const Settings = {
   quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -1725,6 +1744,16 @@ const SAFES = [
   { x0: 8600, x1: 9000, name: 'Poste de secours' }
 ];
 const EXIT = { x0: 10400, x1: 10600 };
+// radio des survivants : les nouvelles grésillantes entre deux missions (selon la mission qu'on vient de finir)
+const RADIO = [
+  ['Ici Radio Survivants. La gare est tombée, mais le distributeur de café fonctionne encore. Il ne rend pas la monnaie. Comme avant.', 'Info trafic : bouchon de zombies sur le boulevard des Tanneurs. Prévoyez trois heures. Ou une grenade.', 'Le contrôleur de la ligne 4 a été aperçu sans sa casquette. Les autorités parlent d\'un drame.'],
+  ['Le signal est passé. On répète : un hélicoptère se posera à l\'aube. Pas de bagages en soute, pas de morsures en cabine.', 'Météo : nuit couverte, averses de cendres, risque élevé de dents dans le cou. Sortez couverts.', 'Annonce : la Speakerine présente toujours la météo. Elle a juste arrêté de cligner des yeux.'],
+  ['Les lampadaires du parking se rallument. Les zombies adorent. Les moustiques aussi.', 'Courrier des auditeurs : « Mon voisin grogne et mange mon chat. Dois-je m\'inquiéter ? » Oui, Monique. Oui.', 'Le gardien du parking réclame toujours ton ticket. On te conseille de payer en plomb.'],
+  ['L\'Abomination est tombée. La mairie annonce un deuil municipal de trois minutes. Les élus ont été mangés pendant la minute de silence.', 'Changement de programme : l\'hélicoptère est dérouté vers l\'hôpital Saint-Lazare. Prenez un ticket à l\'accueil. Le temps d\'attente est estimé à… toujours.', 'Rappel sanitaire : se faire mordre n\'est pas remboursé par la Sécu.'],
+  ['L\'hôpital est silencieux. Le Chirurgien a enfin posé son bistouri. Les patients, eux, ne se plaignent plus.', 'Dernier bulletin de la nuit. Si tu entends ce message, tu es vivant. Félicitations. C\'est rare.']
+];
+// médailles de mission : temps de référence en secondes, et les trois métaux
+const MEDAL_PAR = [210, 240, 270, 200, 220], MEDALS = { 1: { name: 'Bronze', col: '#c9824a' }, 2: { name: 'Argent', col: '#cfd6dc' }, 3: { name: 'Or', col: '#ffd23a' } };
 // la campagne : les quatre secteurs de la ville, puis l'hôpital (mission 5)
 const MISSION_NAMES = [...ZONES.map(z => z.name), 'Hôpital Saint-Lazare'], MISSIONS = MISSION_NAMES.length;
 const BOUNDS = [2600, 3000, 5600, 6000, 8600, 9000, 10400];
@@ -2243,7 +2272,7 @@ class Ground {
 // ============================================================ niveau
 class Level {
   constructor(g) {
-    this.g = g; this.obstacles = []; this.lamps = []; this.spawners = []; this.chests = []; this.fixedLights = []; this.obj = []; this.gates = {}; this.stamp = 0; this.traps = [];
+    this.g = g; this.obstacles = []; this.lamps = []; this.spawners = []; this.chests = []; this.fixedLights = []; this.obj = []; this.gates = {}; this.stamp = 0; this.traps = []; this.graffiti = [];
     this.buildStatic(); for (let k = 0; k < 4; k++) this.buildZone(k);
     if (HALLOWEEN) this.addPumpkins();
     this.rebuildGrid(); this.ground = new Ground(this);
@@ -2360,12 +2389,19 @@ class Level {
     // piles, objets fétiches et survivant, dans des recoins sombres
     const spot = () => { for (let t = 0; t < 50; t++) { const x = Math.round(Z.x0 + 160 + r() * (Z.x1 - Z.x0 - 320)), y = Math.round(r() < 0.5 ? ST + 92 + r() * 50 : SB - 46 - r() * 50); if (free(x - 14, y - 14, 28, 28, 6)) return [x, y]; } return null; };
     // shibas : cachettes tirées au hasard à chaque nouvelle partie (graine gardée dans la sauvegarde)
-    { const rs = mulberry32(7919 + k * 97 + (g.shibaSeed || 0)), ok = [];
+    const shibaSpots = [];
+    { const rs = mulberry32(7919 + k * 97 + (g.shibaSeed || 0)), ok = shibaSpots;
       for (let i = 0; i < SHIBAS_PER; i++) for (let t = 0; t < 80; t++) {
         const edge = rs() < 0.6, x = Math.round(Z.x0 + 170 + rs() * (Z.x1 - Z.x0 - 340)), y = Math.round(edge ? (rs() < 0.5 ? ST + 92 + rs() * 60 : SB - 46 - rs() * 60) : 280 + rs() * 640);
         if (!free(x - 14, y - 14, 28, 28, 6) || ok.some(([a, b]) => Math.abs(a - x) < 380 && Math.abs(b - y) < 260)) continue;
         ok.push([x, y]); if (!(g.shibaFound && g.shibaFound.has(k + '-' + i))) pickup('shiba', x, y, i); else reserved.push({ x: x - 30, y: y - 30, w: 60, h: 60 }); break;
       } }
+    // graffitis laissés par d'autres survivants ; certains montrent une cachette de shiba ou une planque
+    { const rg = mulberry32(4231 + k * 17 + (g.shibaSeed || 0)), tag = (x, y, t, col) => this.graffiti.push({ x: clamp(x, Z.x0 + 80, Z.x1 - 80), y, t, col, rot: (rg() - 0.5) * 0.16, zone: k });
+      const POOL = ['NE PAS ENTRER', 'ILS SONT DANS LE MÉTRO', 'VISEZ LA TÊTE', 'MAMAN JE T\'AIME', 'ON NOUS A MENTI', 'COUVRE-FEU = MORT', 'PAS DE SORTIE', 'KEVIN EST VIVANT', 'COUREZ', 'J\'AI FAIM', 'LA MAIRIE NOUS A LÂCHÉS', 'ILS ENTENDENT TOUT', 'DERNIER JOUR', 'ÉTEINS TA LAMPE'];
+      for (let i = 0; i < 3; i++) tag(Z.x0 + 200 + rg() * (Z.x1 - Z.x0 - 400), rg() < 0.6 ? ST + 26 : SB - 18, POOL[Math.floor(rg() * POOL.length)], rg() < 0.5 ? '#b0231c' : '#d8d2c4');
+      if (shibaSpots.length) { const [sx, sy] = shibaSpots[Math.floor(rg() * shibaSpots.length)], left = sx - Z.x0 > 260; tag(sx + (left ? -150 : 150), sy + 4, left ? 'UN CHIEN PAR LÀ →' : '← UN CHIEN PAR LÀ', '#f0b25a'); }
+      const ch = this.chests.filter(c => c.zone === k); if (ch.length) { const c0 = ch[Math.floor(rg() * ch.length)], left = c0.x - Z.x0 > 260; tag(c0.x + (left ? -140 : 140), c0.y + 6, left ? 'PLANQUE →' : '← PLANQUE', '#7fd18b'); } }
     for (let i = 0; i < (k < 3 ? 2 : 1); i++) { const s1 = spot(); if (s1) pickup('battery', s1[0], s1[1], 0); const s2 = spot(); if (s2) pickup('fetish', s2[0], s2[1], 0); }
     if (k < 3) { const s = spot(); if (s) { const sv = new Survivor(g, s[0], s[1], k, k); g.survivors.push(sv); } }
     if (k === 2) for (let t = 0; t < 30; t++) { const x = Z.x0 + 400 + r() * 1700, y = 362 + (r() < 0.5 ? 0 : 470); if (free(x - 14, y - 6, 28, 12, 2)) { this.chests.push({ x, y, open: false, zone: k, value: Math.round(200 + r() * 200) }); break; } }
@@ -2386,7 +2422,7 @@ class Level {
     this.obstacles = this.obstacles.filter(o => o.zone !== k);
     this.lamps = this.lamps.filter(o => o.zone !== k);
     this.spawners = this.spawners.filter(o => o.zone !== k);
-    this.chests = this.chests.filter(o => o.zone !== k); this.traps = this.traps.filter(o => o.zone !== k);
+    this.chests = this.chests.filter(o => o.zone !== k); this.traps = this.traps.filter(o => o.zone !== k); this.graffiti = this.graffiti.filter(o => o.zone !== k);
     this.fixedLights = this.fixedLights.filter(o => o.zone !== k);
     for (const b of this.obstacles) if (b.kind === 'building') b.doors = b.doors.filter(d => d.zone !== k);
     this.g.pickups = this.g.pickups.filter(p => p.zone !== k);
@@ -2672,7 +2708,7 @@ class Player {
   }
   hurt(dmg, sx, sy, kb = 260) {
     const g = this.g; if (this.inv > 0 || this.rollT > 0 || this.dead || g.state !== 'playing') return;
-    dmg *= 1 - 0.15 * this.armor; this.hp -= dmg; this.inv = 0.35; g.zoneHit = true; this.lastHurt = g.time;
+    dmg *= 1 - 0.15 * this.armor; this.hp -= dmg; if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + dmg; this.inv = 0.35; g.zoneHit = true; this.lastHurt = g.time;
     g.mult = Math.max(1, g.mult - 1); g.hurtFlash = Math.min(1, 0.35 + dmg / 40); g.shake(0.25 + dmg / 80); g.audio.hurt();
     const dx = this.x - sx, dy = this.y - sy, d = Math.hypot(dx, dy) || 1; this.kx += dx / d * kb; this.ky += dy / d * kb; if (this.isP2 && g.net === 'host') g.netEmit(['kb', Math.round(dx / d * kb), Math.round(dy / d * kb)]);
     g.bleed(this.x, this.y, dx / d, dy / d, 6);
@@ -2681,7 +2717,7 @@ class Player {
   }
   hurtDot(a) {
     const g = this.g; if (this.dead || g.state !== 'playing') return;
-    this.hp -= a * (1 - 0.15 * this.armor); g.hurtFlash = Math.max(g.hurtFlash, 0.18); g.zoneHit = true; this.lastHurt = g.time;
+    this.hp -= a * (1 - 0.15 * this.armor); if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + a * (1 - 0.15 * this.armor); g.hurtFlash = Math.max(g.hurtFlash, 0.18); g.zoneHit = true; this.lastHurt = g.time;
     if (g.time - this.dotSnd > 0.45) { this.dotSnd = g.time; g.audio.hurt(); }
     if (this.hp <= 0) { if (this.isP2) g.onP2Death(this); else g.onPlayerDeath(); }
   }
@@ -2704,6 +2740,9 @@ class Zombie {
     this.pants = shade(pick(CLOTHS), -0.35);
     this.shootCd = rand(1.5, 3); this.spitWind = 0; this.bState = 'walk'; this.bT = 0; this.bCd = rand(1, 3); this.frenzy = 0;
     if (type === 'dog') { this.skin = pick(['#6b5a48', '#5a5048', '#7a6a52', '#4a4440']); this.bCd = rand(0.6, 1.4); }
+    // zombie d'élite : un sur cinquante, doré ou enflammé, plus solide et qui lâche un bonus rare
+    this.elite = type !== 'boss' && g.mode !== 'training' && g.state !== 'title' && Math.random() < 0.02 ? (Math.random() < 0.5 ? 'gold' : 'fire') : null;
+    if (this.elite) { if (this.elite === 'gold') { this.skin = '#d4ad3c'; this.cloth = '#7a5a14'; } else { this.skin = '#8a3a1e'; this.cloth = '#2a1208'; } this.maxHp = this.hp = this.hp * 3; this.speed *= 1.12; this.dmg *= 1.3; this.aggro = true; }
     this.costume = HALLOWEEN && g.mode !== 'training' && (type === 'walker' || type === 'runner') && Math.random() < 0.3 ? pick(COSTUMES) : null;
   }
   knock(x, y) { this.kx += x * this.kbMul; this.ky += y * this.kbMul; }
@@ -2727,6 +2766,7 @@ class Zombie {
     if (this.hitFlash > 0) this.hitFlash -= dt;
     if (this.spawnT > 0) { this.spawnT -= dt; return; }
     this.atkCd -= dt; this.flameCd -= dt; this.lunge -= dt; if (this.stun > 0) this.stun -= dt;
+    if (this.elite === 'fire') { this.burn = 0; if (Math.random() < dt * 14) g.spawnP({ x: this.x + rand(-7, 7), y: this.y, z: this.r * 1.6, vz: rand(40, 90), vx: rand(-15, 15), vy: rand(-15, 15), life: rand(0.3, 0.6), type: 'fire', size: rand(4, 8), emissive: true, drag: 1 }); } /* il brûle sans se consumer */
     if (this.burn > 0) {
       this.burn -= dt; this.hp -= 16 * dt;
       if (Math.random() < dt * 16) g.spawnP({ x: this.x + rand(-6, 6), y: this.y, z: this.r * 1.4, vz: rand(30, 70), vx: rand(-15, 15), vy: rand(-15, 15), life: rand(0.3, 0.6), type: 'fire', size: rand(4, 7), emissive: true, drag: 1 });
@@ -3442,7 +3482,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -3480,7 +3520,7 @@ function applyProfile(d) {
   return { lv: levelInfo(Settings.xp || 0).lv, ach: ACH.filter(a => Ach.get()[a[0]]).length, run: !!readSave() };
 }
 function saveLine(d) { return `${CHARS[d.char].name} · ${DIFFS[d.diff].name} · mission ${d.safe + 2} sur ${MISSIONS} · ${fmt(d.cp.score || 0)} pts · ${(d.cp.shibas || []).length}/${SHIBAS_TOTAL} shibas`; }
-function newStats() { return { shots: 0, hits: 0, dmg: 0, deaths: 0 }; }
+function newStats() { return { shots: 0, hits: 0, dmg: 0, deaths: 0, taken: 0 }; }
 const SHIBAS_PER = 3, SHIBAS_TOTAL = SHIBAS_PER * MISSIONS;
 const BESTIARY = [
   { k: 'walker', name: 'Le Traînard', type: 'Zombie ordinaire', m: 1, txt: 'Ancien usager de la ligne 4. Attend toujours son bus, mais accepte un mollet en dédommagement.', tip: 'Lent, mais jamais seul. Recule en tirant.' },
@@ -3844,7 +3884,7 @@ mixin(Game, {
     const L = this.level, H = HOSP;
     L.obstacles = L.obstacles.filter(o => o.zone !== 0); L.spawners = L.spawners.filter(s => s.zone !== 0); L.chests = (L.chests || []).filter(c => c.zone !== 0);
     for (const l of L.lamps) if (l.zone === 0) l.on = false;
-    this.pickups = []; this.survivors = []; L.traps = L.traps.filter(t => t.zone !== 0); /* rien de la ville ne reste dans l'hôpital */
+    this.pickups = []; this.survivors = []; L.traps = L.traps.filter(t => t.zone !== 0); L.graffiti = L.graffiti.filter(t => t.zone !== 0); /* rien de la ville ne reste dans l'hôpital */
     const A = o => { o.zone = 0; return L.add(o); }, wall = (x, y, w, h) => A({ x, y, w, h, z: 46, kind: 'hwall', blood: Math.random() < 0.3 ? Math.round(rand(4, Math.max(5, w - 14))) : 0 });
     for (const y of [H.top, H.bot]) { let x = H.x0; for (const d of H.doors) { wall(x, y, d - 42 - x, 18); x = d + 42; } wall(x, y, H.morgue - x, 18); }
     for (const x of H.cols) { wall(x, ST, 18, H.top - ST); wall(x, H.bot + 18, 18, SB - H.bot - 18); }
@@ -4036,11 +4076,13 @@ mixin(Game, {
 // ============================================================ jeu : campagne, carte et fin de partie
 mixin(Game, {
   makeCheckpoint(x, y) { const p = this.player; return { x, y, score: this.score, kills: this.kills, money: p.money, armor: p.armor, grenades: p.grenades, mines: p.mines, decoys: p.decoys, cur: p.cur, weapons: p.weapons.map(w => w.snapshot()), shibas: [...this.shibaFound] }; },
-  snapStats() { return { score: this.score, kills: this.kills, shots: this.stats.shots, hits: this.stats.hits, dmg: this.stats.dmg, deaths: this.stats.deaths, time: this.runTime, saved: this.run.saved }; },
+  snapStats() { return { score: this.score, kills: this.kills, shots: this.stats.shots, hits: this.stats.hits, dmg: this.stats.dmg, taken: this.stats.taken || 0, deaths: this.stats.deaths, time: this.runTime, saved: this.run.saved }; },
   missionReport(k) {
-    const a = this.missionStart || { score: 0, kills: 0, shots: 0, hits: 0, dmg: 0, deaths: 0, time: 0, saved: 0 }, b = this.snapStats(), r = { k };
-    for (const key of Object.keys(b)) r[key] = b[key] - a[key];
-    r.shibas = [...this.shibaFound].filter(id => id.startsWith(k + '-')).length; return r;
+    const a = this.missionStart || { score: 0, kills: 0, shots: 0, hits: 0, dmg: 0, taken: 0, deaths: 0, time: 0, saved: 0 }, b = this.snapStats(), r = { k };
+    for (const key of Object.keys(b)) r[key] = b[key] - (a[key] || 0);
+    r.shibas = [...this.shibaFound].filter(id => id.startsWith(k + '-')).length;
+    // médaille : quatre défis par mission (trois shibas, aucune mort, moins de 60 dégâts reçus, sous le temps de référence)
+    r.goals = [r.shibas >= SHIBAS_PER, r.deaths <= 0, r.taken < 60, r.time <= MEDAL_PAR[k]]; const n = r.goals.filter(Boolean).length; r.medal = n >= 3 ? 3 : n === 2 ? 2 : 1; return r;
   },
   showMap({ current, report = null, onGo = null, resumed = false }) {
     this.state = 'map'; this.audio.flame(false); this.mapGo = onGo; this.mapCur = current; this.mapSel = Math.min(current, MISSIONS - 1);
@@ -4051,12 +4093,18 @@ mixin(Game, {
     $('map-report').innerHTML = report ? reportHTML(report) + nb : resumed ? '<p class="hint">Partie reprise au dernier point de sauvegarde.</p>' : `<p class="hint">Trouve les 3 shibas cachés de chaque mission : ils aboient quand tu t\'approches. Les ${SHIBAS_TOTAL} débloquent un niveau secret.</p>`;
     $('btn-map-go').textContent = `Entrer · mission ${current + 1}`;
     const pc = this._mapPortrait || (this._mapPortrait = document.createElement('canvas')); pc.width = pc.height = 160; renderHead(pc, this.charKey, '#0c0a09');
-    this.mapInfo(); this.showScreen('scr-map'); $('btn-map-go').focus(); if (nb) drawBestiary();
+    this.mapRadio(report ? report.k : -1); this.mapInfo(); this.showScreen('scr-map'); $('btn-map-go').focus({ preventScroll: true }); if (nb) drawBestiary();
     const cv = $('map-cv'), g = cv.getContext('2d'), loop = () => { if (this.state !== 'map') return; drawMapCanvas(g, this, performance.now() / 1000, pc); requestAnimationFrame(loop); }; loop();
     const hit = e => { const r = cv.getBoundingClientRect(), sc = Math.min(r.width / 1000, r.height / 560), x = (e.clientX - r.left - (r.width - 1000 * sc) / 2) / sc, y = (e.clientY - r.top - (r.height - 560 * sc) / 2) / sc; let k = null; MAP_NODES.forEach((n, i) => { if (dist2(x, y, n.x, n.y) < 50 * 50) k = i; }); return k; };
     cv.onmousemove = e => { if (e.pointerType === 'touch' || TOUCH) return; const k = hit(e); if (k !== this.mapHover) { this.mapHover = k; this.mapTip(k); } cv.style.cursor = k == null ? 'default' : 'pointer'; };
     cv.onmouseleave = () => { this.mapHover = null; this.mapTip(null); };
     cv.onclick = e => { const k = hit(e); if (k == null) { if (TOUCH) this.mapTip(null); return; } this.mapSel = k; this.mapInfo(); this.audio.ui(); if (TOUCH) this.mapTip(k); };
+  },
+  // la radio grésille quelques secondes, puis le message s'écrit lettre par lettre
+  mapRadio(k) {
+    const box = $('map-radio'), el = $('map-radio-t'); clearInterval(this._radioI); if (k < 0 || !RADIO[k]) { box.hidden = true; return; }
+    const msg = pick(RADIO[k]); box.hidden = false; box.classList.add('tuning'); el.textContent = '…krrrzzt…'; let i = 0;
+    this._radioI = setTimeout(() => { box.classList.remove('tuning'); this._radioI = setInterval(() => { i += 2; el.textContent = msg.slice(0, i); if (Math.random() < 0.05) this.audio.tone && this.audio.tone({ f: 2400, f2: 900, dur: 0.05, type: 'square', g: 0.015 }); if (i >= msg.length || this.state !== 'map') { el.textContent = msg; clearInterval(this._radioI); } }, 28); }, 900);
   },
   mapTip(i) {
     const tip = $('map-tip'); if (i == null) { tip.classList.remove('show'); return; }
@@ -4196,7 +4244,8 @@ mixin(Game, {
   },
   // fin de mission : un grand « SECTEUR NETTOYÉ » rongé, au ralenti, avant la BD
   missionWin(k, then) {
-    const r = this.missionReport(k), sub = `${MISSION_NAMES[k]} · ${fmt(r.kills)} zombies abattus · ${fmtTime(r.time)}`;
+    const r = this.missionReport(k), M = MEDALS[r.medal], sub = `Médaille ${M.name.toLowerCase()} · ${fmt(r.kills)} zombies abattus · ${fmtTime(r.time)}`;
+    if (this.isCampaign()) { const bm = Settings.medals || (Settings.medals = {}); if (!(bm[k] >= r.medal)) { bm[k] = r.medal; Settings.save(); } (this.run.medals || (this.run.medals = []))[k] = r.medal; }
     this.winFx = { t: 0, title: k === 4 ? 'HÔPITAL NETTOYÉ' : 'SECTEUR NETTOYÉ', sub, then }; /* « then » part après 2,8 s de temps réel (le monde, lui, est au ralenti) */ this.netEmit(['win', this.winFx.title, sub]);
     this.bannerObj = null; this.notices = []; this.audio.objective(); this.later(0.15, () => this.shake(0.35));
   },
@@ -4534,8 +4583,8 @@ mixin(Game, {
     { const now = this.time; this.recentKills = (this.recentKills || []).filter(t0 => now - t0 < 8); this.recentKills.push(now);
       const k0 = this.activeZone, o0 = k0 >= 0 && this.level.obj[k0];
       if (this.mode === 'story' && o0 && (k0 < 3 ? o0.done : o0.dead) && this.director.queue <= 0 && !(this.cleared || (this.cleared = []))[k0] && !this.zombies.some(o => o !== z && !o.dead)) {
-        this.cleared[k0] = true; this.finFx = currentFinisher(); this.slowMo(2.2, 'SECTEUR NETTOYÉ'); this.slowCd = now + 20; this.recentKills = [];
-        const bonus = Math.round(3000 * this.diff.score); this.score += bonus; this.player.money += 150; this.later(0.6, () => this.toast(`Secteur nettoyé : +${fmt(bonus)} points, +$150`, '#ffd23a')); this.audio.objective();
+        this.cleared[k0] = true; this.finFx = currentFinisher(); this.slowMo(2.2, 'RUE NETTOYÉE'); this.slowCd = now + 20; this.recentKills = [];
+        const bonus = Math.round(3000 * this.diff.score); this.score += bonus; this.player.money += 150; this.later(0.6, () => this.toast(`Plus un zombie dans la rue : +${fmt(bonus)} points, +$150`, '#ffd23a')); this.audio.objective();
       } else if (this.recentKills.length >= 12 && !(this.slowCd > now) && !this.zombies.some(o => o !== z && !o.dead && o.aggro && dist2(o.x, o.y, this.player.x, this.player.y) < 700 * 700)) { this.slowMo(1.2, 'HORDE NETTOYÉE'); this.slowCd = now + 20; this.recentKills = []; } }
     const pts = Math.round(T.score * this.mult * this.diff.score); this.score += pts;
     if (this.mult < 5 && this.mult + 0.1 >= 5) this.quip('streak');
@@ -4548,6 +4597,12 @@ mixin(Game, {
     for (let i = 0; i < n; i++) this.pickups.push(new Pickup(this, 'coin', z.x + rand(-6, 6), z.y + rand(-6, 6), Math.max(1, Math.round(m / n))));
     const r = Math.random();
     if (r < 0.05) this.pickups.push(new Pickup(this, 'ammo', z.x, z.y, 0)); else if (r < 0.075) this.pickups.push(new Pickup(this, 'med', z.x, z.y, 0)); else if (r < 0.085) this.pickups.push(new Pickup(this, 'grenade', z.x, z.y, 0)); else if (r < 0.125) this.pickups.push(new Pickup(this, 'battery', z.x, z.y, 0));
+    if (z.elite) { // bonus rare : une bourse, un objet au choix du hasard, et des points en plus
+      const cash = Math.round(120 * this.diff.money); this.pickups.push(new Pickup(this, 'coin', z.x, z.y, cash)); this.pickups.push(new Pickup(this, pick(['grenade', 'med', 'ammo', 'battery']), z.x + 10, z.y, 0));
+      const eb = Math.round(1500 * this.diff.score); this.score += eb; this.floatText(z.x, z.y - 56, `ÉLITE ABATTU · +${fmt(eb)}`, z.elite === 'gold' ? '#ffd23a' : '#ff7a3a'); this.audio.coin(); this.shake(0.3);
+      if (z.elite === 'fire') this.fires.push(new FireArea(this, z.x, z.y, 60, 2.2));
+      if (!this.eliteTip) { this.eliteTip = true; this.later(0.6, () => this.toast('Les zombies d\'élite rapportent gros : guette les dorés et les enflammés', '#ffd23a')); }
+    }
     this.bleed(z.x, z.y, 0, 0, z.type === 'boss' ? 40 : 10);
     for (let i = 0; i < (z.type === 'brute' ? 6 : 3); i++) this.spawnP({ x: z.x, y: z.y, z: 14, vx: rand(-160, 160), vy: rand(-160, 160), vz: rand(60, 220), grav: 700, life: 2, type: 'gib', size: rand(3, 5), bake: true, color: '#5a1410' });
     this.bakeCorpse(z);
@@ -4797,6 +4852,8 @@ mixin(Game, {
     if (this.buddy && inView(this.buddy.x, this.buddy.y)) { const b = this.buddy; c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(b.x, b.y + 2, 10, 4, 0, 0, TAU); c.fill(); drawShibaSprite(c, b.x, b.y - b.hop, 1, this.time * 1.6); }
     if (this.event && this.event.id === 'icecream' && inView(this.event.x, this.event.y, 120)) drawIceTruck(c, this.event.x, this.event.y, this.time);
     for (const s of this.level.spawners) if (s.anim > 0 && s.kind === 'sewer' && inView(s.x, s.y)) { c.fillStyle = '#55565a'; c.beginPath(); c.ellipse(s.x + 22 * s.anim, s.y - 4, 17, 9, 0.4, 0, TAU); c.fill(); }
+    // graffitis à la bombe sur le bitume
+    for (const t of this.level.graffiti || []) if (inView(t.x, t.y, 200)) { c.save(); c.translate(t.x, t.y); c.rotate(t.rot); c.font = `18px ${FD}`; c.textAlign = 'center'; c.globalAlpha = 0.5; c.fillStyle = t.col; c.fillText(t.t, 0, 0); c.globalAlpha = 0.25; c.fillText(t.t, 1.5, 1); c.globalAlpha = 1; c.restore(); }
     // clôtures électriques au sol (poteaux, fils, arcs quand le courant passe)
     for (const t of this.level.traps || []) if (t.kind === 'fence' && inView(t.x + t.w / 2, t.y, t.w)) {
       const on = t.on > 0; c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(t.x, t.y + 10, t.w, 5);
@@ -5208,6 +5265,7 @@ mixin(Game, {
     const c = ctx, r = z.r, t = z.walkT; c.save(); c.translate(z.x, z.y);
     let rise = 1; if (z.spawnT > 0) { rise = 1 - z.spawnT / z.spawnMax; c.globalAlpha = Math.min(1, rise * 1.6); }
     c.fillStyle = 'rgba(0,0,0,.45)'; c.beginPath(); c.ellipse(0, 2, r * 1.1, r * 0.5, 0, 0, TAU); c.fill();
+    if (z.elite && z.spawnT <= 0) { const pu = 0.55 + Math.sin(this.time * 6 + z.nid) * 0.25, col = z.elite === 'gold' ? '255,210,60' : '255,110,30'; c.save(); c.globalCompositeOperation = 'lighter'; const gr = c.createRadialGradient(0, -r, 2, 0, -r, r * 2.6); gr.addColorStop(0, `rgba(${col},${0.35 * pu})`); gr.addColorStop(1, `rgba(${col},0)`); c.fillStyle = gr; c.fillRect(-r * 2.6, -r * 3.6, r * 5.2, r * 5.2); c.restore(); c.strokeStyle = `rgba(${col},${pu})`; c.lineWidth = 2; c.beginPath(); c.ellipse(0, 2, r * 1.3, r * 0.6, 0, 0, TAU); c.stroke(); } /* halo d'élite */
     if (z.spawnT > 0 && z.spawnKind === 'sewer') { c.beginPath(); c.rect(-r * 3, -r * 5, r * 6, r * 5); c.clip(); c.translate(0, (1 - rise) * r * 3.2); }
     const ca = Math.cos(z.dir), sa = Math.sin(z.dir), sw = Math.sin(t) * r * 0.35;
     if (z.type === 'brute' && z.bState === 'wind') c.translate(rand(-1.5, 1.5), 0);
@@ -5237,7 +5295,8 @@ mixin(Game, {
     if (z.hitFlash > 0) { c.globalAlpha = 0.6; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 0.85, r * 1.15, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     if (z.burn > 0) { c.globalAlpha = 0.35; c.fillStyle = '#ff7a22'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 0.9, r * 1.2, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     c.restore();
-    if ((z.type === 'brute' || z.type === 'spitter' || z.type === 'screamer') && z.hp < z.maxHp && z.spawnT <= 0) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(z.x - 16, z.y - r * 2.9, 32, 4); c.fillStyle = '#b0231c'; c.fillRect(z.x - 16, z.y - r * 2.9, 32 * z.hp / z.maxHp, 4); }
+    if (z.elite && z.spawnT <= 0) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(z.x - 18, z.y - r * 3.1, 36, 4); c.fillStyle = z.elite === 'gold' ? '#ffd23a' : '#ff7a3a'; c.fillRect(z.x - 18, z.y - r * 3.1, 36 * z.hp / z.maxHp, 4); }
+    else if ((z.type === 'brute' || z.type === 'spitter' || z.type === 'screamer') && z.hp < z.maxHp && z.spawnT <= 0) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(z.x - 16, z.y - r * 2.9, 32, 4); c.fillStyle = '#b0231c'; c.fillRect(z.x - 16, z.y - r * 2.9, 32 * z.hp / z.maxHp, 4); }
   },
   drawDog(z, ca, sa) {
     const c = ctx, r = z.r, t = z.walkT, crouch = z.bState === 'crouch', leap = z.bState === 'leap';
@@ -6365,6 +6424,10 @@ function drawMapCanvas(g, game, t, portrait) {
     if (done) { g.strokeStyle = '#b3221a'; g.lineWidth = 5; g.beginPath(); g.moveTo(n.x - 10, n.y - 10); g.lineTo(n.x + 10, n.y + 10); g.moveTo(n.x + 10, n.y - 10); g.lineTo(n.x - 10, n.y + 10); g.stroke(); }
     else if (i === MISSIONS && !open) { g.save(); g.translate(n.x, n.y + 2); g.scale(2, 2); lockIcon(g, 0, 0, '#8a8488'); g.restore(); g.strokeStyle = '#4a464a'; g.lineWidth = 3; g.setLineDash([5, 3]); g.beginPath(); g.moveTo(n.x - 40, n.y - 20); g.lineTo(n.x + 40, n.y + 20); g.moveTo(n.x + 40, n.y - 20); g.lineTo(n.x - 40, n.y + 20); g.stroke(); g.setLineDash([]); }
     else g.fillText(i === MISSIONS ? '?' : String(i + 1), n.x, n.y + 9 * sc);
+    // médaille gagnée sur cette mission (celle de la partie, sinon le meilleur record)
+    const md = i < MISSIONS && (((game.run && game.run.medals) || [])[i] || (Settings.medals || {})[i]);
+    if (md) { const M = MEDALS[md], mx = n.x + 22 * sc, my = n.y - 22 * sc; g.strokeStyle = '#000'; g.lineWidth = 3; g.fillStyle = '#6a1410'; g.beginPath(); g.moveTo(mx - 6, my - 14); g.lineTo(mx - 2, my - 4); g.lineTo(mx + 2, my - 4); g.lineTo(mx + 6, my - 14); g.fill();
+      const mg = g.createRadialGradient(mx - 3, my - 3, 1, mx, my, 11); mg.addColorStop(0, '#fff'); mg.addColorStop(0.35, M.col); mg.addColorStop(1, '#3a2a10'); g.fillStyle = mg; g.beginPath(); g.arc(mx, my + 2, 9, 0, TAU); g.fill(); g.stroke(); g.fillStyle = 'rgba(0,0,0,.55)'; g.font = `bold 10px ${FD}`; g.fillText(md === 3 ? '★' : md === 2 ? '✦' : '•', mx, my + 6); }
   });
   // pion du personnage
   const by = pn.y - 76 + Math.sin(t * 3) * 4;
@@ -6383,7 +6446,9 @@ function drawMapCanvas(g, game, t, portrait) {
 function reportHTML(r) {
   const acc = r.shots > 0 ? Math.round(100 * r.hits / r.shots) + ' %' : '–';
   const items = [['Score de la mission', fmt(r.score)], ['Zombies abattus', fmt(r.kills)], ['Dégâts infligés', fmt(Math.round(r.dmg))], ['Tirs', fmt(r.shots)], ['Précision', acc], ['Shibas trouvés', `${r.shibas} / ${SHIBAS_PER}`], ['Survivants sauvés', String(r.saved)], ['Morts', String(r.deaths)], ['Temps', fmtTime(r.time)]];
-  return `<div class="report"><h3>Bilan · mission ${r.k + 1}</h3><p class="rep-zone">${MISSION_NAMES[r.k]}</p><dl class="rep">${items.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
+  const M = r.medal ? MEDALS[r.medal] : null, G = r.goals || [], lab = ['3 shibas', 'Aucune mort', 'Moins de 60 dégâts', `Moins de ${fmtTime(MEDAL_PAR[r.k] || 0)}`];
+  const med = M ? `<div class="rep-medal" style="--mc:${M.col}"><span class="rep-m-ico" aria-hidden="true"></span><b>Médaille ${M.name.toLowerCase()}</b><ul>${lab.map((l, i) => `<li class="${G[i] ? 'ok' : ''}">${G[i] ? '✓' : '✗'} ${l}</li>`).join('')}</ul></div>` : '';
+  return `<div class="report"><h3>Bilan · mission ${r.k + 1}</h3><p class="rep-zone">${MISSION_NAMES[r.k]}</p>${med}<dl class="rep">${items.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
 }
 function wrapText(c, text, x, y, maxW, lh) { const words = text.split(' '); let line = ''; for (const w of words) { const test = line ? line + ' ' + w : w; if (c.measureText(test).width > maxW && line) { c.fillText(line, x, y); line = w; y += lh; } else line = test; } if (line) c.fillText(line, x, y); }
 function scoreTable(list, hiDate) {
@@ -7257,7 +7322,7 @@ setInterval(() => {
 const NET_EDGES = ['firePressed', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'cycleUp', 'cycleDown'];
 const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap', 'scream'];
 const NET_PK = ['x', 'y', 'aim', 'hp', 'maxHp', 'dead', 'rollT', 'rollDir', 'cur', 'vx', 'vy', 'inv', 'walkT', 'muzzleT', 'meleeT', 'recoil', 'playDead', 'hidden', 'battery', 'stamina', 'armor', 'grenades', 'mines', 'decoys', 'money', 'reloadT', 'charging', 'charge', 'spCd', 'spMax', 'flashCd', 'exhausted', 'hpTrail', 'char', 'downX', 'downY', 'revT', 'slowT', 'dazeT', 'carry'];
-const NET_ZS = ['type', 'r', 'skin', 'cloth', 'pants', 'costume', 'spawnMax', 'spawnKind', 'seed', 'mini', 'mk', 'bkind', 'ultimate', 'title', 'maxHp', 'target'];
+const NET_ZS = ['type', 'r', 'skin', 'cloth', 'pants', 'costume', 'spawnMax', 'spawnKind', 'seed', 'mini', 'mk', 'bkind', 'ultimate', 'title', 'maxHp', 'target', 'elite'];
 const NET_BOSS = ['state', 'st', 'phase', 'weakT', 'rageT', 'jumpZ', 'echoA', 'ramA', 'bladeA', 'entry', 'dir', 'hp', 'maxHp', 'r'];
 // propriétés calculées du joueur (accesseurs) : on ne les écrit pas
 const NET_RO = new Set(Object.entries(Object.getOwnPropertyDescriptors(Player.prototype)).filter(([, d]) => d.get && !d.set).map(([k]) => k));
@@ -8456,7 +8521,7 @@ function bestHTML() {
 }
 function beastSprite(k) {
   const g = game, z = k === 'ultimate' ? new UltimateBoss(g, 0, 0) : k === 'boss' ? new Boss(g, 0, 0) : k.startsWith('mini') ? new MiniBoss(g, 0, 0, +k.slice(4)) : new Zombie(g, k, 0, 0, null);
-  z.spawnT = 0; z.dir = Math.PI * 0.3; z.walkT = 2.2; z.costume = null; z.state = 'chase'; z.hitFlash = 0; z.hp = z.maxHp; z.burn = 0; if (k === 'dog') { z.bState = 'crouch'; z.bT = 0.2; z.cdx = 0; z.cdy = 0; } return z;
+  z.spawnT = 0; z.dir = Math.PI * 0.3; z.walkT = 2.2; z.costume = null; if (z.elite) { z.elite = null; z.skin = pick(SKINS); z.cloth = pick(CLOTHS); } /* une fiche ne sort jamais en version élite */ z.state = 'chase'; z.hitFlash = 0; z.hp = z.maxHp; z.burn = 0; if (k === 'dog') { z.bState = 'crouch'; z.bT = 0.2; z.cdx = 0; z.cdy = 0; } return z;
 }
 const beastBuf = document.createElement('canvas');
 function drawBeast(cv, k, known) {
@@ -8599,6 +8664,13 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 78, d: '30 oct.', t: 'Médailles et radio', s: 'Chaque mission se joue pour l\'or, et les rues parlent.', it: [
+    ['new', 'Médailles', 'Bronze, argent ou or à chaque mission selon quatre défis : 3 shibas, aucune mort, moins de 60 dégâts reçus, et le temps. Elles s\'affichent sur la carte, ton meilleur résultat est gardé.'],
+    ['new', 'Radio Survivants', 'Entre deux missions, la radio grésille et donne les nouvelles. Humour noir garanti.'],
+    ['new', 'Graffitis', 'Des messages de survivants sur le bitume. Certains montrent la cachette d\'un shiba ou une planque pleine de dollars.'],
+    ['new', 'Zombies d\'élite', 'Un zombie sur cinquante est doré ou enflammé : trois fois plus solide, mais il lâche une bourse, un objet et des points en plus.'],
+    ['fix', 'Petites corrections', 'Le bonus quand tu vides toute la rue s\'appelle maintenant « Rue nettoyée » pour ne plus se confondre avec la fin de mission.']],
+    q: ['dragon', 'Dragon', 'Une médaille d\'or. Évidemment. Je ne m\'attendais à rien d\'autre.'] },
   { v: 77, d: '30 oct.', t: 'Pièges, défis et duo solide', s: 'Le décor se retourne contre tout le monde, et ton ami peut perdre le réseau sans tout casser.', it: [
     ['new', 'Pièges du décor', 'Clôtures électriques et bouches d\'incendie dans les secteurs 1 à 3 : appuie sur E devant le boîtier. Le courant grille les zombies… et toi si tu traînes dessus. Le jet d\'eau repousse tout le monde et éteint les flammes.'],
     ['new', 'Défi de la semaine', 'Deux contraintes à la fois, les mêmes pour tous du lundi au dimanche, avec leur propre record et leur classement en ligne (Scores › Semaine).'],

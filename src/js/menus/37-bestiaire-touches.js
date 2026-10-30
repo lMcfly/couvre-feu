@@ -9,7 +9,7 @@ function bestHTML() {
 }
 function beastSprite(k) {
   const g = game, z = k === 'ultimate' ? new UltimateBoss(g, 0, 0) : k === 'boss' ? new Boss(g, 0, 0) : k.startsWith('mini') ? new MiniBoss(g, 0, 0, +k.slice(4)) : new Zombie(g, k, 0, 0, null);
-  z.spawnT = 0; z.dir = Math.PI * 0.3; z.walkT = 2.2; z.costume = null; z.state = 'chase'; z.hitFlash = 0; z.hp = z.maxHp; z.burn = 0; if (k === 'dog') { z.bState = 'crouch'; z.bT = 0.2; z.cdx = 0; z.cdy = 0; } return z;
+  z.spawnT = 0; z.dir = Math.PI * 0.3; z.walkT = 2.2; z.costume = null; if (z.elite) { z.elite = null; z.skin = pick(SKINS); z.cloth = pick(CLOTHS); } /* une fiche ne sort jamais en version élite */ z.state = 'chase'; z.hitFlash = 0; z.hp = z.maxHp; z.burn = 0; if (k === 'dog') { z.bState = 'crouch'; z.bT = 0.2; z.cdx = 0; z.cdy = 0; } return z;
 }
 const beastBuf = document.createElement('canvas');
 function drawBeast(cv, k, known) {
