@@ -1,5 +1,10 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 72, d: '30 oct.', t: 'Le bestiaire broie du noir', s: 'Fiches sombres, icônes de fin du monde et plus de carré au survol des menus.', it: [
+    ['up', 'Bestiaire sombre', 'Les fiches deviennent des dossiers tachés de sang. En fin de partie, plus de « Tu as découvert ! » : c\'est une mauvaise nouvelle, une nouvelle menace.'],
+    ['new', 'Icônes zombie', 'Télé cassée pour l\'affichage, tombe pour la sauvegarde, main qui sort de terre pour le bestiaire, machette, crâne, bâtons de survivant pour les scores…'],
+    ['fix', 'Survol des menus', 'Le carré sombre qui apparaissait derrière Solo, Duo et les autres choix au survol a disparu.']],
+    q: ['chewie', 'Chewie', 'Une main qui sort de la terre comme icône… grave stylé, mais ça fait flipper.'] },
   { v: 71, d: '30 oct.', t: 'Une seule écriture', s: 'Tout le jeu parle maintenant d\'une même voix, façon affiche de film d\'horreur.', it: [
     ['up', 'Titres', 'Tous les titres en lettres épaisses rouge sang, bords rongés, contour noir.'],
     ['up', 'Boutons et étiquettes', 'Onglets, boutons, chiffres et petites étiquettes dans la même police, en clair. Les phrases restent à la machine à écrire. Seule la BD garde son lettrage.'],

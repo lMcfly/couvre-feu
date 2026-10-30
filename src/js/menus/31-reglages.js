@@ -1,13 +1,13 @@
 // ============================================================ interface : réglages
 // réglages rangés par thème : une grille d'icônes, puis une page par thème
 const SET_CATS = {
-  son: ['Son', '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>'],
-  affichage: ['Affichage', '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/>'],
-  commandes: ['Commandes', '<path d="M6.5 8h11a4.5 4.5 0 0 1 4.4 5.4l-.4 1.8a2.6 2.6 0 0 1-4.6 1L15.5 14h-7l-1.4 2.2a2.6 2.6 0 0 1-4.6-1l-.4-1.8A4.5 4.5 0 0 1 6.5 8z"/><path d="M8 10.2v3.2M6.4 11.8h3.2M15.6 11h.01M17.6 13h.01"/>'],
-  access: ['Accessibilité', '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'],
-  online: ['En ligne', '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3.4 3.2 14.6 0 18M12 3c-3.2 3.4-3.2 14.6 0 18"/>'],
-  credits: ['Crédits', '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>'],
-  save: ['Sauvegarde', '<path d="M5 3h11.5L20 6.5V21H5z"/><path d="M8.5 3v5h7V3M8.5 21v-7h8v7"/>']
+  son: ['Son', '<path d="M3 10v4h3l7 4.5V5.5L6 10z"/><path d="M8.5 9.3l1.4 2-1.2 1.6.9 1.6"/><path d="M16.5 9.5c1 1.2 1 3.8 0 5M19 6.5l.8 1.4M20.5 11.6H22M19 17.5l.8-1.4"/>'],
+  affichage: ['Affichage', '<rect x="2.5" y="7" width="19" height="13" rx="2"/><path d="M8 3l4 4 4-4"/><path d="M10.5 9.5l-2 3.2 2.8.8-1.8 3.5M13 12.5l2.4-1"/><path d="M18.5 10.5h.01M18.5 13h.01"/>'],
+  commandes: ['Commandes', '<path d="M6.5 8h4.7l.8 1.2.8-1.2.8 1.2.8-1.2h2.1a4.5 4.5 0 0 1 4.4 5.4l-.4 1.8a2.6 2.6 0 0 1-4.6 1L15.5 14h-7l-1.4 2.2a2.6 2.6 0 0 1-4.6-1l-.4-1.8A4.5 4.5 0 0 1 6.5 8z"/><path d="M8 10.2v3.2M6.4 11.8h3.2M15.6 11h.01M17.6 13h.01"/><path class="ib" d="M12 9.6c0 1-1.4 2.3-1.4 3.1a1.4 1.4 0 0 0 2.8 0c0-.8-1.4-2.1-1.4-3.1z"/>'],
+  access: ['Accessibilité', '<path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12z"/><circle cx="12.6" cy="12.8" r="2.7"/><path d="M4.3 10.8l2.2.6M4.8 13.6l2-.4M19.6 10.6l-2 .9M19.2 14.1l-1.9-.6"/>'],
+  online: ['En ligne', '<rect x="7" y="7" width="10" height="14" rx="1.6"/><path d="M10 7V2.5M9.5 11h5M9.5 14h5M10 17.5h1.5"/><path d="M4.2 7.2a6 6 0 0 1 2.3-3M1.8 9a9 9 0 0 1 2.6-5.6"/>'],
+  credits: ['Crédits', '<path d="M12 3a7.5 7.5 0 0 0-5 13.1V19h10v-2.9A7.5 7.5 0 0 0 12 3z"/><circle cx="9.3" cy="11" r="1.6"/><circle cx="14.7" cy="11" r="1.6"/><path d="M11 15.2l1-1.5 1 1.5M10 19v2M14 19v2"/>'],
+  save: ['Sauvegarde', '<path d="M6 21V10a6 6 0 0 1 12 0v11"/><path d="M3.5 21h17"/><path d="M12 8.5v7M9.5 11h5"/><path d="M8 21l1-2M15 21l1.2-1.6"/>']
 };
 const pct = v => Math.round(v * 100) + ' %';
 function setSummary(cat) {

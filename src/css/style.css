@@ -1076,7 +1076,7 @@ button,input,select,textarea{font-family:inherit}
 .btn,.hub-tabs .tab,.eyebrow,.diffs button b,.seg button b,.set-tile b,.mode b,.stamp,.camp-eb,.start-kicker,.camp-m b,.camp-m small{font-family:var(--display);font-weight:400}
 .label,table.scores th,.stat span,.wn-stamp small,.wn-new,.stop .chip,.map-tip .st,.map-tip dt,.beast-txt small,table.binds th,.studio .pres,.hub-brand small,.story-kicker,.preview-kicker,.preview-tag,.statbars span,.wcard .wc-kind,.wcard .wc-foot,.prompt-bar,.tk-lbl,.wn-hub-top b,.wn-hub-more,.wn-fab-t b,.op-role,.ars-price,.rep dt,.pause-where,.pause-stats span,.fiche-info .label{font-family:var(--display);font-weight:400;letter-spacing:.1em}
 .btn{letter-spacing:.08em}.hub-tabs .tab{letter-spacing:.1em;font-size:14px}.eyebrow{letter-spacing:.16em}
-h1,h2,h3,.hub-brand b,.mode.big b,.camp-title em,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.wn-pop h2,.beast-txt>b{font-family:var(--display);font-weight:400;text-transform:uppercase;letter-spacing:.015em;padding:0 .06em .08em 0;text-shadow:none;background:linear-gradient(180deg,#ff6a3a 0%,#e8261a 36%,#a8110b 70%,#4e0404 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-mask-image:var(--grunge);mask-image:var(--grunge);-webkit-mask-size:200px;mask-size:200px;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .035em 0 #160202) drop-shadow(0 .06em .14em rgba(0,0,0,.85))}
+h1,h2,h3,.hub-brand b,.mode.big b,.camp-title em,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.wn-pop h2,.beast-txt>b{font-family:var(--display);font-weight:400;text-transform:uppercase;letter-spacing:.015em;padding:0 .06em .08em 0;text-shadow:none;background:linear-gradient(180deg,#ff6a3a 0%,#e8261a 36%,#a8110b 70%,#4e0404 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-mask-image:var(--grunge);mask-image:var(--grunge);-webkit-mask-size:200px;mask-size:200px;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .035em 0 #160202)} /* ombre nette, qui reste dans la boîte du titre (sinon un rectangle apparaît sur les fonds clairs) */
 /* l'usure ne ronge que les grands titres : en petit, rouge net pour rester lisible */
 h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webkit-mask-image:none;mask-image:none;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .05em 0 #160202)}
 .news-h{font-family:var(--display);color:#fff;-webkit-text-fill-color:#fff;letter-spacing:.02em}
@@ -1089,3 +1089,24 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
 /* panneaux en métal sale, tachés de sang */
 .sheet-card,.hub-card,.start-card,.camp-m{background-image:var(--grime),linear-gradient(180deg,rgba(24,20,20,.9),rgba(12,10,11,.92));background-size:512px 512px,100% 100%}
 #launch-modal.camp .start-card,#launch-modal.camp .camp-m{background-image:var(--grime),linear-gradient(180deg,rgba(24,18,18,.82),rgba(10,8,9,.86))}
+.ib{fill:#b0231c;stroke:none} /* goutte de sang des icônes */
+/* bestiaire et nouvelles menaces : des dossiers sombres, pas des cartes de collection */
+.new-beasts{background:var(--grime),linear-gradient(180deg,#171214,#0c0a0b);background-size:512px 512px,100% 100%;color:var(--bone);border:1px solid #2a2226;border-left:3px solid var(--blood);box-shadow:0 10px 30px rgba(0,0,0,.6);transform:none}
+.nb-eb{margin:0;font-size:12px;font-style:italic;color:var(--ash)}
+.nb-h{font:400 26px/1 var(--display);text-transform:uppercase;color:#d8241a;-webkit-text-stroke:0;letter-spacing:.02em;text-shadow:0 2px 0 #000}
+.nb canvas{border:1px solid #3a2a2c;background:#060506;filter:saturate(.75) brightness(.9)}
+.nb b{font:400 15px/1.05 var(--display);text-transform:uppercase;letter-spacing:.03em;color:var(--bone)}
+.nb.boss canvas{border-color:var(--blood);box-shadow:0 0 0 1px #000,0 0 14px rgba(176,35,28,.45)}
+.nb-foot{color:var(--ash);opacity:1;font-style:italic}
+.beast{background:var(--grime),linear-gradient(180deg,#171315,#0d0b0c);background-size:512px 512px,100% 100%;color:var(--bone);border:1px solid #2c2427;box-shadow:0 8px 24px rgba(0,0,0,.55);transform:none}
+.beast:nth-child(even){transform:none}
+.beast.boss{background:var(--grime),linear-gradient(180deg,#22100f,#0e0707);background-size:512px 512px,100% 100%;border-color:#5a1410;box-shadow:0 0 0 1px #000,0 8px 28px rgba(120,10,8,.35)}
+.beast.unk{background:#0b0a0c;color:#5f5a62;border-color:#1a171b;box-shadow:none}
+.beast-art{border-bottom:1px solid #2c2427;background:#060506}
+.beast-art canvas{filter:saturate(.8) brightness(.92)}
+.beast-no{background:rgba(0,0,0,.75);color:#d8241a;font:400 13px var(--display);border:1px solid #3a1a18}
+.beast-sfx{font:400 22px var(--display);color:#d8241a;-webkit-text-stroke:0;text-shadow:0 2px 0 #000;transform:rotate(-4deg)}
+.beast-say{background:#1c1719;color:#d8d2c4;border:1px solid #3a3034;font:13px/1.4 var(--type)}
+.beast-say::before{border-bottom-color:#3a3034}
+.beast-tip b{font:400 14px var(--display);color:#d8241a;text-transform:uppercase}
+.beast-kills{border-top-color:rgba(255,255,255,.08);color:var(--ash)}
