@@ -1791,6 +1791,8 @@ const QUIPS = {
   dragon: { low: ['Hmpf. Une égratignure.', 'Le mal ne saigne pas. Enfin, un peu.'], streak: ['Mwahaha !', 'Tremblez, mortels !'], boss: ['Enfin, un adversaire à ma mesure.'], fuel: ['Du carburant pour mon souffle.'], fetish: ['Un café noir. Comme mon âme.', 'Café corsé. Parfait.'], special: ['SOUFFLE DU DRAGON !', 'Brûlez !'] },
   fiona: { low: ['Ouille. Ch’est pas l’moment.', 'J’ai d’jà eu pire au carnaval d’Dunkerque.'], streak: ['Allez hop, biloute !', 'Comme à la braderie !'], boss: ['Elle a pire tête que moi. Respect.'], fuel: ['Un jerrican. Comme au garage d’papa.'], fetish: ['Un cornet d’frites. La vie est belle.', 'Avec d’la sauce andalouse, en plus.'], special: ['Bon. Je fais la morte. J’ai l’habitude.'], battery: ['Des piles. Pas d’trop.'] }
 };
+// le grand titre de l'écran de mort, tiré au hasard (accordé au féminin pour Fiona) ; jamais deux fois de suite le même
+const DEATH_LINES = ['TU ES MORT{e}', 'DÉVORÉ{e}', 'MORDU{e}', 'DÉCHIQUETÉ{e}', 'C\'EST FINI', 'TROP TARD', 'ILS T\'ONT EU', 'REPOSE EN PIÈCES', 'PLAT DU JOUR', 'AU MENU CE SOIR', 'LA HORDE A FAIM', 'MANGÉ{e} TOUT{e} CRU{e}', 'UN DE PLUS', 'TU AS PERDU LA TÊTE', 'BIENVENUE DANS LA HORDE', 'ÇA SENT LE SAPIN', 'CHAIR FRAÎCHE', 'TU NE RENTRERAS PAS', 'TOUT LE MONDE A MANGÉ', 'RIP'];
 const SKINS = ['#7d8a6a', '#8b8f74', '#6f7b63', '#9a9178', '#7a8570', '#848a7a'];
 const CLOTHS = ['#3d4652', '#5a3b33', '#4a4a3c', '#2f3a35', '#5b5448', '#3b2f3f', '#6a5a3a', '#4b3a2c'];
 const CAR_COLORS = ['#5b2a26', '#2f3d4f', '#4f5254', '#6b6a5e', '#2e4436', '#6e5a35', '#3a3340', '#7a7c80'];
@@ -4118,7 +4120,7 @@ mixin(Game, {
       p.dead = true; p.hp = 0; p.carry = null; this.p1Down = 1; p.downX = p.x; p.downY = p.y; p.revT = 0; this.audio.death(); this.bleed(p.x, p.y, 0, 0, 20); this.toast(`${this.pName(p)} est à terre`, '#e2792f');
       return;
     }
-    p.dead = true; p.hp = 0; this.lives--; this.stats.deaths++; this.mult = 1; this.deathT = 3.4; this.bannerObj = null; this.notices = []; this.audio.death(); this.later(0.25, () => this.audio.heartbeat && this.audio.heartbeat()); this.audio.flame(false); this.shake(0.6);
+    p.dead = true; p.hp = 0; this.lives--; this.stats.deaths++; this.mult = 1; this.deathT = 3.4; this.deathLine = this.pickDeathLine(); this.bannerObj = null; this.notices = []; this.audio.death(); this.later(0.25, () => this.audio.heartbeat && this.audio.heartbeat()); this.audio.flame(false); this.shake(0.6);
     this.bleed(p.x, p.y, 0, 0, 24); this.splat(p.x, p.y, 26);
   },
   onObjectivePickup(pk, by) {
@@ -4169,6 +4171,10 @@ mixin(Game, {
     if (this.endless) { this.later(0.8, () => this.openMutations()); return; }
     const report = this.missionReport(s); writeSave(this, s);
     this.comic.show(['act2', 'act3', 'act4'][s], () => this.showMap({ current: s + 1, report }));
+  },
+  pickDeathLine() {
+    let i; do i = Math.floor(Math.random() * DEATH_LINES.length); while (i === this._lastDeath && DEATH_LINES.length > 1); this._lastDeath = i;
+    const f = CHARS[this.charKey].fallen.endsWith('TOMBÉE'); return DEATH_LINES[i].replace(/\{e\}/g, f ? 'E' : '');
   },
   // la campagne continue à l'hôpital (mission 5)
   isCampaign() { return this.mode === 'story' || (this.mode === 'hospital' && !!this.hcamp); },
@@ -5795,8 +5801,8 @@ mixin(Game, {
       c.save(); c.globalCompositeOperation = 'saturation'; c.globalAlpha = Math.min(1, e * 1.4); c.fillStyle = '#808080'; c.fillRect(0, 0, cw, ch); c.restore();
       c.globalAlpha = a * 0.55; c.fillStyle = '#0c0101'; c.fillRect(0, 0, cw, ch);
       c.globalAlpha = Math.min(1, e * 0.9); c.drawImage(VIG_RED, 0, 0, cw, ch); c.globalAlpha = 1;
-      if (e > 0.15) { const fs = Math.min(small ? 62 : 120, cw * 0.15), s = 1 + (1 - k) * (1 - k) * 1.8, sh = k < 1 ? 0 : Math.max(0, 0.18 - (e - 0.75)) * 40; c.save(); c.translate(cw / 2 + rand(-sh, sh), ch / 2 - fs * 0.05 + rand(-sh, sh)); c.scale(s, s); c.globalAlpha = Math.min(1, (e - 0.15) * 4); c.textAlign = 'center'; grungeTitle(c, 'TU ES MORT', 0, fs * 0.35, fs); c.restore(); if (k >= 1 && !this._deathHit) { this._deathHit = true; this.shake(0.5); } }
-      if (e > 0.9) { c.globalAlpha = Math.min(1, (e - 0.9) * 2); c.textAlign = 'center'; const fs = Math.min(small ? 62 : 120, cw * 0.15);
+      if (e > 0.15) { const dl = this.deathLine || 'TU ES MORT', fs = Math.min(small ? 62 : 120, cw * 0.15, cw * 1.6 / Math.max(6, dl.length)), /* le titre tient toujours en largeur */ s = 1 + (1 - k) * (1 - k) * 1.8, sh = k < 1 ? 0 : Math.max(0, 0.18 - (e - 0.75)) * 40; c.save(); c.translate(cw / 2 + rand(-sh, sh), ch / 2 - fs * 0.05 + rand(-sh, sh)); c.scale(s, s); c.globalAlpha = Math.min(1, (e - 0.15) * 4); c.textAlign = 'center'; grungeTitle(c, dl, 0, fs * 0.35, fs); c.restore(); if (k >= 1 && !this._deathHit) { this._deathHit = true; this.shake(0.5); } }
+      if (e > 0.9) { c.globalAlpha = Math.min(1, (e - 0.9) * 2); c.textAlign = 'center'; const fs = Math.min(small ? 62 : 120, cw * 0.15, cw * 1.6 / Math.max(6, (this.deathLine || 'TU ES MORT').length));
         c.font = `${small ? 15 : 20}px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(CHARS[this.charKey].fallen, cw / 2, ch / 2 + fs * 0.55);
         c.font = `${small ? 12 : 15}px ${FT}`; c.fillStyle = '#a39e93'; c.fillText(this.lives > 0 ? `${this.lives} vie${this.lives > 1 ? 's' : ''} restante${this.lives > 1 ? 's' : ''} · retour au dernier point de sauvegarde` : 'Plus aucune vie. La nuit a gagné.', cw / 2, ch / 2 + fs * 0.55 + (small ? 22 : 28)); c.globalAlpha = 1; }
     }
@@ -8471,7 +8477,7 @@ addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === '
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
   { v: 75, d: '30 oct.', t: 'Tu es mort', s: 'Mourir fait enfin mal.', it: [
-    ['new', 'Écran de mort', 'Le monde passe au ralenti, les couleurs se vident, le rouge envahit les bords, ton cœur bat de plus en plus lentement, et un grand « TU ES MORT » rongé s\'écrase au centre.']],
+    ['new', 'Écran de mort', 'Le monde passe au ralenti, les couleurs se vident, le rouge envahit les bords, ton cœur bat de plus en plus lentement, et un grand titre rongé s\'écrase au centre : « Tu es mort », « Dévoré », « Plat du jour », « Bienvenue dans la horde »… vingt variantes, jamais deux fois de suite la même.']],
     q: ['fiona', 'Fiona', 'J\'ai vu l\'écran rouge. Franchement, ça m\'a changé de mon teint habituel.'] },
   { v: 73, d: '30 oct.', t: 'L\'armurerie', s: 'Le marché noir devient une vraie armurerie, et la musique suit enfin l\'action.', it: [
     ['new', 'Armurerie', 'Un grand panneau de métal sale : l\'arme choisie en grand avec sa description, une rangée d\'armes, une rangée d\'améliorations avec leurs étoiles, et l\'écran « Nouv. armurerie » qui t\'indique ce qui est enfin à ta portée.'],

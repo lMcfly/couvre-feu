@@ -80,6 +80,8 @@ const QUIPS = {
   dragon: { low: ['Hmpf. Une égratignure.', 'Le mal ne saigne pas. Enfin, un peu.'], streak: ['Mwahaha !', 'Tremblez, mortels !'], boss: ['Enfin, un adversaire à ma mesure.'], fuel: ['Du carburant pour mon souffle.'], fetish: ['Un café noir. Comme mon âme.', 'Café corsé. Parfait.'], special: ['SOUFFLE DU DRAGON !', 'Brûlez !'] },
   fiona: { low: ['Ouille. Ch’est pas l’moment.', 'J’ai d’jà eu pire au carnaval d’Dunkerque.'], streak: ['Allez hop, biloute !', 'Comme à la braderie !'], boss: ['Elle a pire tête que moi. Respect.'], fuel: ['Un jerrican. Comme au garage d’papa.'], fetish: ['Un cornet d’frites. La vie est belle.', 'Avec d’la sauce andalouse, en plus.'], special: ['Bon. Je fais la morte. J’ai l’habitude.'], battery: ['Des piles. Pas d’trop.'] }
 };
+// le grand titre de l'écran de mort, tiré au hasard (accordé au féminin pour Fiona) ; jamais deux fois de suite le même
+const DEATH_LINES = ['TU ES MORT{e}', 'DÉVORÉ{e}', 'MORDU{e}', 'DÉCHIQUETÉ{e}', 'C\'EST FINI', 'TROP TARD', 'ILS T\'ONT EU', 'REPOSE EN PIÈCES', 'PLAT DU JOUR', 'AU MENU CE SOIR', 'LA HORDE A FAIM', 'MANGÉ{e} TOUT{e} CRU{e}', 'UN DE PLUS', 'TU AS PERDU LA TÊTE', 'BIENVENUE DANS LA HORDE', 'ÇA SENT LE SAPIN', 'CHAIR FRAÎCHE', 'TU NE RENTRERAS PAS', 'TOUT LE MONDE A MANGÉ', 'RIP'];
 const SKINS = ['#7d8a6a', '#8b8f74', '#6f7b63', '#9a9178', '#7a8570', '#848a7a'];
 const CLOTHS = ['#3d4652', '#5a3b33', '#4a4a3c', '#2f3a35', '#5b5448', '#3b2f3f', '#6a5a3a', '#4b3a2c'];
 const CAR_COLORS = ['#5b2a26', '#2f3d4f', '#4f5254', '#6b6a5e', '#2e4436', '#6e5a35', '#3a3340', '#7a7c80'];

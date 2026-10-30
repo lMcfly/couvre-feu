@@ -1,7 +1,7 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
   { v: 75, d: '30 oct.', t: 'Tu es mort', s: 'Mourir fait enfin mal.', it: [
-    ['new', 'Écran de mort', 'Le monde passe au ralenti, les couleurs se vident, le rouge envahit les bords, ton cœur bat de plus en plus lentement, et un grand « TU ES MORT » rongé s\'écrase au centre.']],
+    ['new', 'Écran de mort', 'Le monde passe au ralenti, les couleurs se vident, le rouge envahit les bords, ton cœur bat de plus en plus lentement, et un grand titre rongé s\'écrase au centre : « Tu es mort », « Dévoré », « Plat du jour », « Bienvenue dans la horde »… vingt variantes, jamais deux fois de suite la même.']],
     q: ['fiona', 'Fiona', 'J\'ai vu l\'écran rouge. Franchement, ça m\'a changé de mon teint habituel.'] },
   { v: 73, d: '30 oct.', t: 'L\'armurerie', s: 'Le marché noir devient une vraie armurerie, et la musique suit enfin l\'action.', it: [
     ['new', 'Armurerie', 'Un grand panneau de métal sale : l\'arme choisie en grand avec sa description, une rangée d\'armes, une rangée d\'améliorations avec leurs étoiles, et l\'écran « Nouv. armurerie » qui t\'indique ce qui est enfin à ta portée.'],
