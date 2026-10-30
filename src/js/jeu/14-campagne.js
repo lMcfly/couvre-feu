@@ -103,7 +103,7 @@ mixin(Game, {
       p.dead = true; p.hp = 0; p.carry = null; this.p1Down = 1; p.downX = p.x; p.downY = p.y; p.revT = 0; this.audio.death(); this.bleed(p.x, p.y, 0, 0, 20); this.toast(`${this.pName(p)} est à terre`, '#e2792f');
       return;
     }
-    p.dead = true; p.hp = 0; this.lives--; this.stats.deaths++; this.mult = 1; this.deathT = 3.4; this.audio.death(); this.audio.flame(false); this.shake(0.6);
+    p.dead = true; p.hp = 0; this.lives--; this.stats.deaths++; this.mult = 1; this.deathT = 3.4; this.bannerObj = null; this.notices = []; this.audio.death(); this.later(0.25, () => this.audio.heartbeat && this.audio.heartbeat()); this.audio.flame(false); this.shake(0.6);
     this.bleed(p.x, p.y, 0, 0, 24); this.splat(p.x, p.y, 26);
   },
   onObjectivePickup(pk, by) {

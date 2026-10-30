@@ -60,7 +60,7 @@ mixin(Game, {
     c.setTransform(DPR * K, 0, 0, DPR * K, 0, 0); c.globalAlpha = 1; c.textBaseline = 'alphabetic';
     if (this.input.touchMode) {
       if (this.portrait) { c.fillStyle = 'rgba(5,5,7,.92)'; c.fillRect(0, 0, cw, ch); c.textAlign = 'center'; c.fillStyle = '#d8d2c4'; c.font = `30px ${FD}`; c.fillText('TOURNE TON TÉLÉPHONE', cw / 2, ch / 2 - 10); c.font = `15px ${FT}`; c.fillStyle = '#8b867b'; c.fillText('Le jeu se joue en mode paysage.', cw / 2, ch / 2 + 22); return; }
-      c.save(); c.translate(SAFE.l / K, SAFE.t / K * 0.5); this.drawHUDTouch(cw - (SAFE.l + SAFE.r) / K, ch - SAFE.b / K); c.restore(); this.drawHUDShared(cw, ch, true); this.drawInstructor(cw, ch); c.setTransform(DPR, 0, 0, DPR, 0, 0); this.drawTouchControls(W / DPR, H / DPR); c.setTransform(DPR * K, 0, 0, DPR * K, 0, 0); this.drawWheel(cw, ch); return;
+      c.save(); c.translate(SAFE.l / K, SAFE.t / K * 0.5); this.drawHUDTouch(cw - (SAFE.l + SAFE.r) / K, ch - SAFE.b / K); c.restore(); this.drawHUDShared(cw, ch, true); this.drawInstructor(cw, ch); c.setTransform(DPR, 0, 0, DPR, 0, 0); if (!(this.player.dead && !(this.p1Down > 0) && this.deathT > 0)) this.drawTouchControls(W / DPR, H / DPR); /* mort : rien par-dessus le message */ c.setTransform(DPR * K, 0, 0, DPR * K, 0, 0); this.drawWheel(cw, ch); return;
     }
     const small = cw < 700;
     const S = (small ? 0.72 : 1), coop = !!this.p2;
@@ -354,10 +354,17 @@ mixin(Game, {
     const downs = this.downPlayers();
     if (downs.length) { const [d, a] = downs[0], meDown = d === p; c.textAlign = 'center'; c.font = `${small ? 15 : 19}px ${FD}`; c.fillStyle = '#ff6a52'; c.fillText(meDown ? (this.p2 && !this.net ? 'J1 À TERRE' : 'TU ES À TERRE') : `${this.pName(d).toUpperCase()} EST À TERRE`, cw / 2, ch * 0.24); c.font = `13px ${FT}`; c.fillStyle = '#c6c0b2';
       c.font = `11px ${FT}`; c.fillText(this.reviveUsed ? 'Retour en fin d\'acte ou de vague' : meDown ? `${this.pName(a)} doit rester 4 s dans ton cercle` : 'Reste 4 s dans son cercle vert', cw / 2, ch * 0.24 + 16); }
-    else if (p.dead && !this.netGuest) {
-      const a = Math.min(1, (3.4 - this.deathT) * 0.8); c.globalAlpha = a * 0.65; c.fillStyle = '#1a0202'; c.fillRect(0, 0, cw, ch); c.globalAlpha = a;
-      c.font = `${small ? 40 : 66}px ${FD}`; c.fillStyle = '#b0231c'; c.fillText(CHARS[this.charKey].fallen, cw / 2, ch / 2);
-      c.font = `16px ${FT}`; c.fillStyle = '#c6c0b2'; c.fillText(this.lives > 0 ? 'Le multiplicateur retombe à ×1. Retour au dernier point de sauvegarde…' : 'Plus aucune vie. Fin de la nuit.', cw / 2, ch / 2 + 34); c.globalAlpha = 1;
+    else if (!p.dead) this._deathHit = false;
+    if (!downs.length && p.dead && !this.netGuest) {
+      // écran de mort : les couleurs se vident, le rouge envahit les bords, puis « TU ES MORT » s'écrase au centre
+      const e = 3.4 - this.deathT, a = Math.min(1, e * 0.8), k = Math.min(1, e / 0.6);
+      c.save(); c.globalCompositeOperation = 'saturation'; c.globalAlpha = Math.min(1, e * 1.4); c.fillStyle = '#808080'; c.fillRect(0, 0, cw, ch); c.restore();
+      c.globalAlpha = a * 0.55; c.fillStyle = '#0c0101'; c.fillRect(0, 0, cw, ch);
+      c.globalAlpha = Math.min(1, e * 0.9); c.drawImage(VIG_RED, 0, 0, cw, ch); c.globalAlpha = 1;
+      if (e > 0.15) { const fs = Math.min(small ? 62 : 120, cw * 0.15), s = 1 + (1 - k) * (1 - k) * 1.8, sh = k < 1 ? 0 : Math.max(0, 0.18 - (e - 0.75)) * 40; c.save(); c.translate(cw / 2 + rand(-sh, sh), ch / 2 - fs * 0.05 + rand(-sh, sh)); c.scale(s, s); c.globalAlpha = Math.min(1, (e - 0.15) * 4); c.textAlign = 'center'; grungeTitle(c, 'TU ES MORT', 0, fs * 0.35, fs); c.restore(); if (k >= 1 && !this._deathHit) { this._deathHit = true; this.shake(0.5); } }
+      if (e > 0.9) { c.globalAlpha = Math.min(1, (e - 0.9) * 2); c.textAlign = 'center'; const fs = Math.min(small ? 62 : 120, cw * 0.15);
+        c.font = `${small ? 15 : 20}px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(CHARS[this.charKey].fallen, cw / 2, ch / 2 + fs * 0.55);
+        c.font = `${small ? 12 : 15}px ${FT}`; c.fillStyle = '#a39e93'; c.fillText(this.lives > 0 ? `${this.lives} vie${this.lives > 1 ? 's' : ''} restante${this.lives > 1 ? 's' : ''} · retour au dernier point de sauvegarde` : 'Plus aucune vie. La nuit a gagné.', cw / 2, ch / 2 + fs * 0.55 + (small ? 22 : 28)); c.globalAlpha = 1; }
     }
     // jauge de tir chargé du J2, autour de lui
     if (this.p2 && !this.p2.dead && this.state === 'playing') {

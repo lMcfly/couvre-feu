@@ -158,9 +158,10 @@ class Game {
     W8.k = clamp(W8.k + (W8.open ? 1 : -1) * realDt * 6, 0, 1);
     if (W8.open) { dt *= 0.2; pdt = realDt * 0.5; }
     if (this.slowT > 0) { this.slowT -= realDt; if (!W8.open) { dt *= 0.28; pdt = realDt * 0.45; } }
+    if (p.dead && !(this.p1Down > 0) && this.deathT > 0) dt *= 0.3; /* mort : le monde passe au ralenti */
     if (!p.dead) p.update(pdt, inp);
     else if (this.p1Down > 0) { /* à terre : attend d'être relevé par son allié ou la fin de la manche */ }
-    else { this.deathT -= dt; if (this.deathT <= 0) { if (this.lives > 0) { if (this.mode === 'secret' || this.mode === 'hospital') this.respawnSecret(); else this.respawn(); } else if (this.mode === 'survival' || this.mode === 'secret' || (this.mode === 'hospital' && !this.hcamp) || this.endless) { this.showEnd(false); return; } else { this.comic.show('gameover', () => this.showEnd(false)); return; } } }
+    else { this.deathT -= realDt; if (this.deathT <= 0) { if (this.lives > 0) { if (this.mode === 'secret' || this.mode === 'hospital') this.respawnSecret(); else this.respawn(); } else if (this.mode === 'survival' || this.mode === 'secret' || (this.mode === 'hospital' && !this.hcamp) || this.endless) { this.showEnd(false); return; } else { this.comic.show('gameover', () => this.showEnd(false)); return; } } }
     if (this.p2) this.updateRevive(pdt);
     if (this.p2) { const q = this.p2, i2 = this.input.pollP2(this); if (i2.pause && !inp.pause) { this.pause(); return; } if (!q.dead) { q.update(pdt, i2); if (!p.dead && !this.net && dist2(q.x, q.y, p.x, p.y) > 720 * 720) { q.x = p.x - 30; q.y = p.y + 20; this.toast('J2 ramené près du J1', '#9fd6e6'); } } }
     // progression
