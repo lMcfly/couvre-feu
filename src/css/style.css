@@ -2,7 +2,7 @@
 :root{
   --night:#07080b; --panel:#0f1013; --panel-2:#16171b; --line:#2b2b31;
   --bone:#d8d2c4; --ash:#8b867b; --blood:#b0231c; --blood-deep:#6e120e; --ember:#e2792f; --sodium:#f0b25a;
-  --display:"Saira Stencil One", Impact, "Arial Narrow", sans-serif;
+  --display:Anton, Impact, "Arial Narrow", sans-serif;
   --type:"Special Elite", "Courier New", Courier, monospace;
   --comic:"Comic Neue", "Comic Sans MS", "Trebuchet MS", sans-serif;
   --comic-title:Bangers, Impact, "Arial Narrow", sans-serif;
@@ -1068,12 +1068,24 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 #launch-modal.camp .launch-head .eyebrow{visibility:hidden}
 @media (max-height:560px){#launch-modal.camp #save-summary{display:none}}
 
-/* grands titres façon affiche d'horreur : lettres épaisses rouge sang, contour noir, bords rongés (texture --grunge fabriquée au lancement) */
-:root{--horror:Anton,Impact,"Arial Narrow",sans-serif}
-.hub-brand b,h2,.mode.big b,.camp-title em,.start-title,.sheet-head h3{font-family:var(--horror);font-weight:400;text-transform:uppercase;letter-spacing:.015em;padding:0 .06em .08em 0;background:linear-gradient(180deg,#ff6a3a 0%,#e8261a 36%,#a8110b 70%,#4e0404 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-mask-image:var(--grunge);mask-image:var(--grunge);-webkit-mask-size:200px;mask-size:200px;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .035em 0 #160202) drop-shadow(0 .06em .14em rgba(0,0,0,.85))}
+/* une seule règle d'écriture partout :
+   titres = Anton en rouge sang rongé ; boutons, onglets, étiquettes et chiffres = Anton clair ; phrases = machine à écrire.
+   Seule la BD garde son lettrage de bande dessinée. */
+:root{--comic-title:var(--display);--comic:var(--type)}
+button,input,select,textarea{font-family:inherit}
+.btn,.hub-tabs .tab,.eyebrow,.diffs button b,.seg button b,.set-tile b,.mode b,.stamp,.camp-eb,.start-kicker,.camp-m b,.camp-m small{font-family:var(--display);font-weight:400}
+.label,table.scores th,.stat span,.wn-stamp small,.wn-new,.stop .chip,.map-tip .st,.map-tip dt,.beast-txt small,table.binds th,.studio .pres,.hub-brand small,.story-kicker,.preview-kicker,.preview-tag,.statbars span,.wcard .wc-kind,.wcard .wc-foot,.prompt-bar,.tk-lbl,.wn-hub-top b,.wn-hub-more,.wn-fab-t b,.op-role,.ars-price,.rep dt,.pause-where,.pause-stats span,.fiche-info .label{font-family:var(--display);font-weight:400;letter-spacing:.1em}
+.btn{letter-spacing:.08em}.hub-tabs .tab{letter-spacing:.1em;font-size:14px}.eyebrow{letter-spacing:.16em}
+h1,h2,h3,.hub-brand b,.mode.big b,.camp-title em,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.wn-pop h2,.beast-txt>b{font-family:var(--display);font-weight:400;text-transform:uppercase;letter-spacing:.015em;padding:0 .06em .08em 0;text-shadow:none;background:linear-gradient(180deg,#ff6a3a 0%,#e8261a 36%,#a8110b 70%,#4e0404 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-mask-image:var(--grunge);mask-image:var(--grunge);-webkit-mask-size:200px;mask-size:200px;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .035em 0 #160202) drop-shadow(0 .06em .14em rgba(0,0,0,.85))}
+/* l'usure ne ronge que les grands titres : en petit, rouge net pour rester lisible */
+h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webkit-mask-image:none;mask-image:none;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .05em 0 #160202)}
+.news-h{font-family:var(--display);color:#fff;-webkit-text-fill-color:#fff;letter-spacing:.02em}
 .hub-brand b span{-webkit-text-fill-color:transparent}
 .hub-brand b{font-size:28px}.mode.big b{font-size:32px;letter-spacing:.02em}
 .camp-title em{text-shadow:none;letter-spacing:.01em}
+/* la BD garde son lettrage */
+.comic-head h2{font-family:Bangers,Impact,sans-serif;background:none;-webkit-text-fill-color:currentColor;color:var(--ink);-webkit-mask-image:none;mask-image:none;filter:none;text-transform:none;padding:0}
+.cap,.bubble,.comic-head .eyebrow{font-family:"Comic Neue","Comic Sans MS",sans-serif}
 /* panneaux en métal sale, tachés de sang */
 .sheet-card,.hub-card,.start-card,.camp-m{background-image:var(--grime),linear-gradient(180deg,rgba(24,20,20,.9),rgba(12,10,11,.92));background-size:512px 512px,100% 100%}
 #launch-modal.camp .start-card,#launch-modal.camp .camp-m{background-image:var(--grime),linear-gradient(180deg,rgba(24,18,18,.82),rgba(10,8,9,.86))}

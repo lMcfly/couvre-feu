@@ -1,5 +1,10 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 71, d: '30 oct.', t: 'Une seule écriture', s: 'Tout le jeu parle maintenant d\'une même voix, façon affiche de film d\'horreur.', it: [
+    ['up', 'Titres', 'Tous les titres en lettres épaisses rouge sang, bords rongés, contour noir.'],
+    ['up', 'Boutons et étiquettes', 'Onglets, boutons, chiffres et petites étiquettes dans la même police, en clair. Les phrases restent à la machine à écrire. Seule la BD garde son lettrage.'],
+    ['fix', 'Plus de police au hasard', 'Certains textes de boutons s\'affichaient dans la police par défaut du navigateur : c\'est fini.']],
+    q: ['dragon', 'Dragon', 'Enfin une typographie à la hauteur de ma noirceur.'] },
   { v: 70, d: '30 oct.', t: 'Cinquième mission : l\'hôpital', s: 'La nuit ne s\'arrête plus à la Mairie : l\'hélicoptère se pose sur le toit de Saint-Lazare.', it: [
     ['new', 'Mission 5 · Hôpital Saint-Lazare', 'Après la Mairie, une BD inédite puis l\'hôpital : couloirs, chambres, morgue et le Chirurgien. Inès, l\'infirmière de garde, attend qu\'on la sorte de là.'],
     ['new', 'Le Hurleur', 'Un patient zombie qui garde ses distances puis hurle : la horde s\'excite et ta lampe grésille. Tire-lui dessus quand il ouvre la bouche pour le faire taire.'],

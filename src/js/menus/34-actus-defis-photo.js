@@ -44,17 +44,17 @@ function makeSouvenir(g0) {
   g.fillStyle = '#efe6cf'; g.fillRect(0, 0, W2, H2);
   g.fillStyle = 'rgba(120,90,50,.08)'; const rr = mulberry32(3); for (let i = 0; i < 900; i++) g.fillRect(rr() * W2, rr() * H2, 2, 2);
   g.fillStyle = '#d0141e'; g.fillRect(0, 0, W2, 92);
-  g.font = '64px Bangers, Impact, sans-serif'; g.textAlign = 'left'; g.fillStyle = '#ffcf33'; g.lineWidth = 6; g.strokeStyle = '#120c09'; g.strokeText('KE-DLA-D', 40, 68); g.fillText('KE-DLA-D', 40, 68); g.fillStyle = '#fff'; g.fillText('TV', 300, 68);
+  g.font = `64px ${FD}`; g.textAlign = 'left'; g.fillStyle = '#ffcf33'; g.lineWidth = 6; g.strokeStyle = '#120c09'; g.strokeText('KE-DLA-D', 40, 68); g.fillText('KE-DLA-D', 40, 68); g.fillStyle = '#fff'; g.fillText('TV', 300, 68);
   g.font = '22px "Special Elite", monospace'; g.textAlign = 'right'; g.fillStyle = '#fff'; g.fillText('ÉDITION SPÉCIALE · ' + new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase(), W2 - 40, 56);
   const pn = personalNews()[0] || { h: `${N} a survécu à la nuit`, t: '' };
-  g.textAlign = 'left'; g.fillStyle = '#120c09'; g.font = '58px Bangers, Impact, sans-serif';
+  g.textAlign = 'left'; g.fillStyle = '#120c09'; g.font = `58px ${FD}`;
   const lines = wrapLines(g, pn.h.toUpperCase(), 1120).slice(0, 2); lines.forEach((l, i) => g.fillText(l, 40, 160 + i * 60));
   const ty = 160 + lines.length * 60;
   const pc = document.createElement('canvas'); pc.width = 480; pc.height = 360; renderPortrait(pc, ch);
   g.save(); g.translate(40, ty); g.rotate(-0.02); g.fillStyle = '#fff'; g.fillRect(-10, -10, 520, 400); g.drawImage(pc, 0, 0, 500, 375); g.strokeStyle = '#120c09'; g.lineWidth = 4; g.strokeRect(0, 0, 500, 375); g.restore();
-  g.font = '24px "Comic Neue", sans-serif'; g.fillStyle = '#2a2018'; wrapLines(g, pn.t, 600).slice(0, 4).forEach((l, i) => g.fillText(l, 580, ty + 30 + i * 32));
+  g.font = `24px ${FT}`; g.fillStyle = '#2a2018'; wrapLines(g, pn.t, 600).slice(0, 4).forEach((l, i) => g.fillText(l, 580, ty + 30 + i * 32));
   const st = [['Score', fmt(r.score || g0.score)], ['Zombies', fmt(r.kills || g0.kills)], ['Shibas', String(r.shibas || 0)], [r.mode === 'survival' || r.mode === 'daily' ? 'Vagues' : 'Difficulté', r.mode === 'survival' || r.mode === 'daily' ? String(r.wave || 0) : (DIFFS[r.diff] || g0.diff).name]];
-  st.forEach(([k, v], i) => { const x = 580 + (i % 2) * 290, y = ty + 180 + Math.floor(i / 2) * 104; g.fillStyle = '#120c09'; g.fillRect(x, y, 270, 90); g.fillStyle = '#ffcf33'; g.font = '46px Bangers, Impact, sans-serif'; g.fillText(v, x + 16, y + 56); g.fillStyle = '#c6c0b2'; g.font = '16px "Special Elite", monospace'; g.fillText(k.toUpperCase(), x + 16, y + 80); });
+  st.forEach(([k, v], i) => { const x = 580 + (i % 2) * 290, y = ty + 180 + Math.floor(i / 2) * 104; g.fillStyle = '#120c09'; g.fillRect(x, y, 270, 90); g.fillStyle = '#ffcf33'; g.font = `46px ${FD}`; g.fillText(v, x + 16, y + 56); g.fillStyle = '#c6c0b2'; g.font = '16px "Special Elite", monospace'; g.fillText(k.toUpperCase(), x + 16, y + 80); });
   g.fillStyle = '#120c09'; g.fillRect(0, H2 - 40, W2, 40); g.fillStyle = '#efe6cf'; g.font = '18px "Special Elite", monospace'; g.textAlign = 'center'; g.fillText('COUVRE-FEU · UN JEU NADRAX PROD · L\'INFO QUI PIQUE… ET QUI MORD', W2 / 2, H2 - 14);
   return cv;
 }
@@ -129,8 +129,8 @@ function drawDuplex(g, i, t) {
   g.strokeStyle = `rgba(60,140,255,${0.6 + Math.sin(t * 2.5) * 0.3})`; g.lineWidth = 3; g.beginPath(); g.moveTo(0, 214); g.quadraticCurveTo(240, 196, W2, 210); g.stroke();
   g.fillStyle = '#fff'; g.save(); g.translate(250, 220); g.rotate(-0.06); g.fillRect(0, 0, 40, 26); g.fillStyle = '#c9ccd6'; for (let k = 0; k < 4; k++) g.fillRect(5, 5 + k * 5, 30, 1.5); g.restore();
   // logo de la chaîne, heure réelle, direct
-  g.textAlign = 'left'; g.font = '20px Bangers, Impact, sans-serif'; g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.5)'; g.strokeText('KE-DLA-D', 10, 28); g.fillStyle = '#fff'; g.fillText('KE-DLA-D', 10, 28); g.strokeText('TV.', 10, 48); g.fillText('TV.', 10, 48);
-  g.fillStyle = '#fff'; g.fillRect(98, 13, 44, 18); g.fillStyle = '#0a1a4a'; g.font = '15px Bangers, Impact, sans-serif'; g.fillText(clockStr(), 104, 27);
+  g.textAlign = 'left'; g.font = `20px ${FD}`; g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.5)'; g.strokeText('KE-DLA-D', 10, 28); g.fillStyle = '#fff'; g.fillText('KE-DLA-D', 10, 28); g.strokeText('TV.', 10, 48); g.fillText('TV.', 10, 48);
+  g.fillStyle = '#fff'; g.fillRect(98, 13, 44, 18); g.fillStyle = '#0a1a4a'; g.font = `15px ${FD}`; g.fillText(clockStr(), 104, 27);
   g.fillStyle = '#123a9e'; g.fillRect(142, 13, 52, 18); g.fillStyle = Math.sin(t * 4) > -0.2 ? '#fff' : '#9fb8ff'; g.fillText('DIRECT', 148, 27);
 }
 function paintSlide(el, t) { const i = +el.dataset.idx; if (!el.dataset.idx || isNaN(i)) return; drawDuplex(el.querySelector('canvas').getContext('2d'), i, t); }

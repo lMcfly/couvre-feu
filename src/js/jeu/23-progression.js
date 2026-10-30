@@ -313,7 +313,7 @@ function buildMapStatic(open) {
   g.strokeStyle = '#5a5550'; g.lineWidth = 2; g.beginPath(); g.moveTo(380, 120); g.lineTo(370, 160); g.moveTo(380, 120); g.lineTo(390, 160); g.moveTo(374, 140); g.lineTo(386, 140); g.moveTo(380, 120); g.lineTo(380, 100); g.stroke();
   // 3 · parking : dalle de béton, voitures retournées
   box(498, 318, 156, 66); g.strokeStyle = 'rgba(200,190,150,.15)'; g.lineWidth = 2; for (let i = 0; i < 5; i++) { g.beginPath(); g.moveTo(538 + i * 24, 326); g.lineTo(538 + i * 24, 346); g.stroke(); }
-  g.font = 'bold 26px "Saira Stencil One", Impact, sans-serif'; g.textAlign = 'center'; g.fillStyle = '#2c4d7a'; g.fillText('P', 518, 352);
+  g.font = `bold 26px ${FD}`; g.textAlign = 'center'; g.fillStyle = '#2c4d7a'; g.fillText('P', 518, 352);
   const car = (x, y, a, col) => { g.save(); g.translate(x, y); g.rotate(a); g.fillStyle = col; g.fillRect(-18, -9, 36, 18); g.strokeStyle = ink; g.lineWidth = 2.5; g.strokeRect(-18, -9, 36, 18); g.fillStyle = '#0b0b0d'; g.fillRect(-8, -7, 14, 14); g.restore(); };
   car(530, 370, 0.4, '#3e2a24'); car(610, 366, -0.2, '#26323a'); car(470, 410, 1.2, '#2e2a1e'); car(300, 280, 0.1, '#33201c'); car(760, 330, -0.6, '#242a30');
   g.fillStyle = '#3a3a2a'; g.fillRect(640, 392, 22, 16); g.strokeStyle = ink; g.strokeRect(640, 392, 22, 16);
@@ -329,7 +329,7 @@ function buildMapStatic(open) {
   for (let k = 0; k < 2; k++) for (let j = 0; j < 6; j++) win(872 + j * 18, 350 + k * 18, r() < 0.25);
   g.fillStyle = '#0a0909'; g.fillRect(912, 376, 24, 20); g.strokeStyle = ink; g.lineWidth = 2; g.strokeRect(912, 376, 24, 20);
   g.fillStyle = '#8a1a14'; g.fillRect(918, 312, 12, 30); g.fillRect(909, 321, 30, 12); g.strokeStyle = ink; g.lineWidth = 2; g.strokeRect(918, 312, 12, 30);
-  g.strokeStyle = 'rgba(230,220,190,.35)'; g.lineWidth = 2; g.beginPath(); g.arc(964, 326, 13, 0, TAU); g.stroke(); g.font = 'bold 14px "Saira Stencil One", Impact, sans-serif'; g.textAlign = 'center'; g.fillStyle = 'rgba(230,220,190,.45)'; g.fillText('H', 964, 331);
+  g.strokeStyle = 'rgba(230,220,190,.35)'; g.lineWidth = 2; g.beginPath(); g.arc(964, 326, 13, 0, TAU); g.stroke(); g.font = `bold 14px ${FD}`; g.textAlign = 'center'; g.fillStyle = 'rgba(230,220,190,.45)'; g.fillText('H', 964, 331);
   // 6 · le paradis, perché dans les nuages
   g.fillStyle = open ? 'rgba(255,170,200,.18)' : 'rgba(120,110,120,.12)'; for (const [x, y, rr] of [[920, 96, 40], [878, 110, 28], [962, 112, 28], [920, 124, 32]]) { g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); }
   return cv;
@@ -396,7 +396,7 @@ function drawMapCanvas(g, game, t, portrait) {
     g.fillStyle = mg; g.strokeStyle = '#000'; g.lineWidth = 4; g.beginPath(); g.arc(n.x, n.y, 26 * sc, 0, TAU); g.fill(); g.stroke();
     g.strokeStyle = done ? '#7a6a58' : locked ? '#4a464a' : '#d0603a'; g.lineWidth = 2; g.beginPath(); g.arc(n.x, n.y, 21 * sc, 0, TAU); g.stroke();
     for (let k = 0; k < 4; k++) { const a = k * TAU / 4 + 0.78; g.fillStyle = '#6a6058'; g.beginPath(); g.arc(n.x + Math.cos(a) * 23.5 * sc, n.y + Math.sin(a) * 23.5 * sc, 1.6, 0, TAU); g.fill(); }
-    g.fillStyle = '#e8dfc8'; g.font = `${Math.round(24 * sc)}px "Saira Stencil One", Impact, sans-serif`;
+    g.fillStyle = '#e8dfc8'; g.font = `${Math.round(24 * sc)}px ${FD}`;
     if (done) { g.strokeStyle = '#b3221a'; g.lineWidth = 5; g.beginPath(); g.moveTo(n.x - 10, n.y - 10); g.lineTo(n.x + 10, n.y + 10); g.moveTo(n.x + 10, n.y - 10); g.lineTo(n.x - 10, n.y + 10); g.stroke(); }
     else if (i === MISSIONS && !open) { g.save(); g.translate(n.x, n.y + 2); g.scale(2, 2); lockIcon(g, 0, 0, '#8a8488'); g.restore(); g.strokeStyle = '#4a464a'; g.lineWidth = 3; g.setLineDash([5, 3]); g.beginPath(); g.moveTo(n.x - 40, n.y - 20); g.lineTo(n.x + 40, n.y + 20); g.moveTo(n.x + 40, n.y - 20); g.lineTo(n.x - 40, n.y + 20); g.stroke(); g.setLineDash([]); }
     else g.fillText(i === MISSIONS ? '?' : String(i + 1), n.x, n.y + 9 * sc);
@@ -412,7 +412,7 @@ function drawMapCanvas(g, game, t, portrait) {
   const v = g.createRadialGradient(500, 280, 250, 500, 280, 620); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.75)'); g.fillStyle = v; g.fillRect(0, 0, 1000, 560);
   // titre de la mission choisie
   const sn = MAP_NODES[hov != null ? hov : sel], si = hov != null ? hov : sel, ly = si === MISSIONS ? 58 : sn.y > 300 ? sn.y + 74 : sn.y - 120;
-  g.font = `44px ${FH}`; const hw = g.measureText(sn.name.toUpperCase()).width / 2 + 24, lx = si === MISSIONS ? 850 : clamp(sn.x, hw, 1000 - hw); /* le nom tient toujours dans la carte */
+  g.font = `44px ${FD}`; const hw = g.measureText(sn.name.toUpperCase()).width / 2 + 24, lx = si === MISSIONS ? 850 : clamp(sn.x, hw, 1000 - hw); /* le nom tient toujours dans la carte */
   g.textAlign = si === MISSIONS ? 'right' : 'center'; grungeTitle(g, sn.name.toUpperCase(), lx, ly, 44);
 }
 function reportHTML(r) {

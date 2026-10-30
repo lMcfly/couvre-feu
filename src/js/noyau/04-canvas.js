@@ -60,7 +60,7 @@ function grungeTitle(c, t, x, y, fs, o = {}) {
   const sc = Math.max(1, Math.min(3, Math.hypot(c.getTransform().a, c.getTransform().b))), key = `${t}|${Math.round(fs * sc)}|${o.rage ? 1 : 0}`;
   let e = TITLE_CACHE.get(key);
   if (!e) {
-    const F = fs * sc, font = `${F}px ${FH}`, m = document.createElement('canvas').getContext('2d'); m.font = font;
+    const F = fs * sc, font = `${F}px ${FD}`, m = document.createElement('canvas').getContext('2d'); m.font = font;
     const tw = m.measureText(t).width, cv = document.createElement('canvas'); cv.width = Math.ceil(tw + F * 0.5); cv.height = Math.ceil(F * 1.55);
     const g = cv.getContext('2d'), bx = F * 0.25, by = F * 1.18; let h = 7; for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0; const r = mulberry32(h);
     g.font = font; g.textAlign = 'left'; g.textBaseline = 'alphabetic'; g.lineJoin = 'round';
@@ -74,7 +74,7 @@ function grungeTitle(c, t, x, y, fs, o = {}) {
     for (let k = 0; k < tw / F * 70; k++) { const px = bx + r() * tw, py = by - r() * F * 0.95, rr = F * (r() < 0.85 ? 0.006 + r() * 0.018 : 0.03 + r() * 0.04); g.globalAlpha = 0.5 + r() * 0.5; g.beginPath(); g.arc(px, py, rr, 0, TAU); g.fill(); }
     g.globalAlpha = 0.7; g.lineWidth = Math.max(1, F * 0.01); for (let k = 0; k < tw / F * 5; k++) { const sx = bx + r() * tw, sy = by - r() * F; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + (r() - 0.5) * F * 0.4, sy + r() * F * 0.12); g.stroke(); }
     e = { cv, sc, ox: bx / sc, oy: by / sc, w: tw / sc };
-    if (!document.fonts || document.fonts.check(`20px ${FH}`)) { TITLE_CACHE.set(key, e); if (TITLE_CACHE.size > 120) TITLE_CACHE.delete(TITLE_CACHE.keys().next().value); } /* police pas encore chargée : on ne garde pas le brouillon */
+    if (!document.fonts || document.fonts.check(`20px ${FD}`)) { TITLE_CACHE.set(key, e); if (TITLE_CACHE.size > 120) TITLE_CACHE.delete(TITLE_CACHE.keys().next().value); } /* police pas encore chargée : on ne garde pas le brouillon */
   }
   const dx = c.textAlign === 'center' ? -e.w / 2 : c.textAlign === 'right' ? -e.w : 0;
   c.drawImage(e.cv, x + dx - e.ox, y - e.oy, e.cv.width / e.sc, e.cv.height / e.sc);

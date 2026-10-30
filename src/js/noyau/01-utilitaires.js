@@ -32,7 +32,6 @@ function compact(arr) { let j = 0; for (let i = 0; i < arr.length; i++) { const 
 function shade(hex, f) { const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255; if (f < 0) { r *= 1 + f; g *= 1 + f; b *= 1 + f; } else { r += (255 - r) * f; g += (255 - g) * f; b += (255 - b) * f; } return `rgb(${r | 0},${g | 0},${b | 0})`; }
 const fmt = n => Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const fmtTime = s => { s = Math.floor(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-const FD = '"Saira Stencil One", Impact, sans-serif';
-const FH = 'Anton, Impact, sans-serif'; // grands titres : lettres épaisses, rouges et rongées
+const FD = 'Anton, Impact, "Arial Narrow", sans-serif'; // titres, étiquettes et chiffres : une seule police d'affichage partout
 const FT = '"Special Elite", "Courier New", monospace';
 

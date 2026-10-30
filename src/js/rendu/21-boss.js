@@ -3,7 +3,7 @@ mixin(Game, {
   // nom du boss à son arrivée : les lettres tombent du ciel une à une, rebondissent en éclaboussant, puis restent droites et lisibles
   drawBossTitle(title, cx, y, fs, t, rage) {
     const c = ctx, ch = [...title], gap = fs * 0.03, bounce = k => { const n = 7.5625, d = 2.75; if (k < 1 / d) return n * k * k; if (k < 2 / d) return n * (k -= 1.5 / d) * k + 0.75; if (k < 2.5 / d) return n * (k -= 2.25 / d) * k + 0.9375; return n * (k -= 2.625 / d) * k + 0.984375; };
-    c.save(); c.font = `${fs}px ${FH}`; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.lineJoin = 'round';
+    c.save(); c.font = `${fs}px ${FD}`; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.lineJoin = 'round';
     const ws = ch.map(l => c.measureText(l).width), tw = ws.reduce((a, w) => a + w, 0) + gap * (ch.length - 1); let x = cx - tw / 2;
     ch.forEach((l, i) => {
       const w = ws[i], k = clamp((t - 0.06 - i * 0.055) / 0.55, 0, 1); if (k <= 0 || l === ' ') { x += w + gap; return; }
@@ -35,8 +35,8 @@ mixin(Game, {
     const E = z.state === 'intro' && z.entry, ek = E ? 1 - Math.max(0, z.st) / E.T : 1;
     if (E) {
       // repère au sol : là où il va se tenir
-      { const ox = E.tx - z.x, oy = E.ty - z.y + (z.jumpZ || 0), pu = 0.5 + Math.sin(t * 12) * 0.3; c.save(); c.translate(ox, oy); c.scale(1, 0.55); c.strokeStyle = `rgba(${DZ()},${pu})`; c.lineWidth = 4; c.beginPath(); c.arc(0, 0, r * 1.6, 0, TAU); c.stroke(); c.restore(); c.fillStyle = `rgba(255,90,60,${pu})`; c.font = '22px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillText('!', ox, oy + 8); }
-      if (E.prop === 'metro' || E.prop === 'drawer' || E.prop === 'gore') { c.fillStyle = E.prop === 'gore' ? '#2a0a08' : '#0a0a0c'; c.beginPath(); c.ellipse(0, 0, r * 1.3, r * 0.5, 0, 0, TAU); c.fill(); c.strokeStyle = E.prop === 'metro' ? '#d0a020' : E.prop === 'drawer' ? '#9aa4a8' : '#5a1410'; c.lineWidth = 3; c.stroke(); if (E.prop === 'metro') { c.fillStyle = '#d0a020'; c.font = '14px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillText('M', 0, -r * 0.6); } }
+      { const ox = E.tx - z.x, oy = E.ty - z.y + (z.jumpZ || 0), pu = 0.5 + Math.sin(t * 12) * 0.3; c.save(); c.translate(ox, oy); c.scale(1, 0.55); c.strokeStyle = `rgba(${DZ()},${pu})`; c.lineWidth = 4; c.beginPath(); c.arc(0, 0, r * 1.6, 0, TAU); c.stroke(); c.restore(); c.fillStyle = `rgba(255,90,60,${pu})`; c.font = `22px ${FD}`; c.textAlign = 'center'; c.fillText('!', ox, oy + 8); }
+      if (E.prop === 'metro' || E.prop === 'drawer' || E.prop === 'gore') { c.fillStyle = E.prop === 'gore' ? '#2a0a08' : '#0a0a0c'; c.beginPath(); c.ellipse(0, 0, r * 1.3, r * 0.5, 0, 0, TAU); c.fill(); c.strokeStyle = E.prop === 'metro' ? '#d0a020' : E.prop === 'drawer' ? '#9aa4a8' : '#5a1410'; c.lineWidth = 3; c.stroke(); if (E.prop === 'metro') { c.fillStyle = '#d0a020'; c.font = `14px ${FD}`; c.textAlign = 'center'; c.fillText('M', 0, -r * 0.6); } }
       if (E.prop === 'tvset' && ek < 0.5) { c.fillStyle = '#4a3e36'; RR(c, -r * 0.7, -r * 1.1, r * 1.4, r * 1.0, 6); c.fill(); c.fillStyle = `rgba(160,230,220,${0.5 + Math.random() * 0.5})`; c.fillRect(-r * 0.55, -r * 0.98, r * 1.1, r * 0.72); }
       if (E.prop === 'cables') { c.strokeStyle = '#1a1818'; c.lineWidth = 2; for (const sx of [-r * 0.4, 0, r * 0.4]) { c.beginPath(); c.moveTo(sx, -r * 2.6 - (z.jumpZ || 0) * 0); c.lineTo(sx + Math.sin(t * 3 + sx) * 8, -900); c.stroke(); } }
       if (E.prop === 'gate' && ek < 0.6) { c.save(); c.translate(-r * 1.4, -r * 0.6); c.rotate(-Math.min(1, ek / 0.5) * 1.4); for (let i = 0; i < 8; i++) { c.fillStyle = i % 2 ? '#f0f0f0' : '#d02020'; c.fillRect(i * r * 0.36, -r * 0.08, r * 0.36, r * 0.16); } c.restore(); c.fillStyle = '#3a3a40'; c.fillRect(-r * 1.55, -r * 0.9, r * 0.3, r * 0.9); }
@@ -56,7 +56,7 @@ mixin(Game, {
     if (E) { // neige télé par-dessus le boss
       if (E.prop === 'snow' && ek < 0.85) { for (let i = 0; i < 90; i++) { c.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,.75)' : 'rgba(40,40,40,.75)'; c.fillRect(rand(-r * 1.2, r * 1.2), rand(-r * 3.2, 0), 3, 3); } }
     }
-    if (z.weakT > 0 && Math.sin(t * 22) > -0.3) { const wy = -r * 1.25; c.strokeStyle = '#ffd23a'; c.lineWidth = 2.5; c.beginPath(); c.arc(0, wy, r * 0.38, 0, TAU); c.stroke(); c.beginPath(); c.moveTo(-r * 0.55, wy); c.lineTo(-r * 0.2, wy); c.moveTo(r * 0.2, wy); c.lineTo(r * 0.55, wy); c.moveTo(0, wy - r * 0.55); c.lineTo(0, wy - r * 0.2); c.moveTo(0, wy + r * 0.2); c.lineTo(0, wy + r * 0.55); c.stroke(); c.fillStyle = '#ffd23a'; c.font = '13px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillText('×2', r * 0.65, wy - r * 0.4); }
+    if (z.weakT > 0 && Math.sin(t * 22) > -0.3) { const wy = -r * 1.25; c.strokeStyle = '#ffd23a'; c.lineWidth = 2.5; c.beginPath(); c.arc(0, wy, r * 0.38, 0, TAU); c.stroke(); c.beginPath(); c.moveTo(-r * 0.55, wy); c.lineTo(-r * 0.2, wy); c.moveTo(r * 0.2, wy); c.lineTo(r * 0.55, wy); c.moveTo(0, wy - r * 0.55); c.lineTo(0, wy - r * 0.2); c.moveTo(0, wy + r * 0.2); c.lineTo(0, wy + r * 0.55); c.stroke(); c.fillStyle = '#ffd23a'; c.font = `13px ${FD}`; c.textAlign = 'center'; c.fillText('×2', r * 0.65, wy - r * 0.4); }
     if (z.hitFlash > 0) { c.globalAlpha = 0.45; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, -r * 1.3, r * 1.05, r * 1.35, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     if (z.state === 'stunned') { c.fillStyle = '#f0b25a'; for (let i = 0; i < 3; i++) { const a = t * 4 + i * 2.1; c.fillRect(Math.cos(a) * 24 - 2, -r * 3.1 + Math.sin(a) * 6, 4, 4); } }
   },

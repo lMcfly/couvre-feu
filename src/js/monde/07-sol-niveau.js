@@ -212,7 +212,7 @@ class Level {
     g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1; g.beginPath(); for (let x = Math.floor(x0 / 40) * 40; x <= x1; x += 40) { g.moveTo(x, ya); g.lineTo(x, yb); } for (let y = Math.floor(ya / 40) * 40; y <= yb; y += 40) { g.moveTo(x0, y); g.lineTo(x1, y); } g.stroke();
     g.fillStyle = 'rgba(80,190,150,.22)'; g.fillRect(x0, 586, x1 - x0, 6); g.fillStyle = 'rgba(230,200,80,.18)'; g.fillRect(x0, 606, x1 - x0, 6);
     for (let i = 0; i < 5; i++) { const x = x0 + r() * (x1 - x0), y = ya + r() * (yb - ya); g.fillStyle = 'rgba(90,8,6,.45)'; g.beginPath(); g.ellipse(x, y, 10 + r() * 24, 5 + r() * 9, r() * 3, 0, TAU); g.fill(); }
-    if (x0 <= HOSP.morgue + 260 && x1 >= HOSP.morgue + 140) { g.save(); g.font = 'bold 30px Bangers, Impact, sans-serif'; g.fillStyle = 'rgba(160,230,200,.18)'; g.textAlign = 'center'; g.fillText('MORGUE', HOSP.morgue + 270, 470); g.restore(); }
+    if (x0 <= HOSP.morgue + 260 && x1 >= HOSP.morgue + 140) { g.save(); g.font = `bold 30px ${FD}`; g.fillStyle = 'rgba(160,230,200,.18)'; g.textAlign = 'center'; g.fillText('MORGUE', HOSP.morgue + 270, 470); g.restore(); }
   }
   paintGround(g, x0, y0, w, h, cx, cy) {
     const r = mulberry32(cx * 92821 + cy * 68917 + 7);

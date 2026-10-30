@@ -19,7 +19,7 @@ function drawBeast(cv, k, known) {
   g.fillStyle = known ? 'rgba(0,0,0,.12)' : 'rgba(0,0,0,.25)'; for (let y = 6; y < H; y += 9) for (let x = (y / 9 % 2) * 4.5; x < W; x += 9) { g.beginPath(); g.arc(x, y, 1.6, 0, TAU); g.fill(); }
   const b = beastBuf; b.width = W; b.height = H; const bc = b.getContext('2d'), z = beastSprite(k), sc = Math.min(3.4, (H * 0.8) / (z.r * (z.type === 'dog' ? 2.6 : z.type === 'boss' ? 4 : 3.2)));
   bc.save(); bc.translate(W / 2, H * 0.9); bc.scale(sc, sc); const saved = ctx; ctx = bc; try { game.drawZombie(z); } catch (e) { } ctx = saved; bc.restore();
-  if (!known) { bc.globalCompositeOperation = 'source-in'; bc.fillStyle = '#0b090d'; bc.fillRect(0, 0, W, H); bc.globalCompositeOperation = 'source-over'; bc.fillStyle = '#5a5560'; bc.font = '64px Bangers, Impact, sans-serif'; bc.textAlign = 'center'; bc.fillText('?', W / 2, H * 0.58); }
+  if (!known) { bc.globalCompositeOperation = 'source-in'; bc.fillStyle = '#0b090d'; bc.fillRect(0, 0, W, H); bc.globalCompositeOperation = 'source-over'; bc.fillStyle = '#5a5560'; bc.font = `64px ${FD}`; bc.textAlign = 'center'; bc.fillText('?', W / 2, H * 0.58); }
   g.drawImage(b, 0, 0);
 }
 function drawBestiary() { for (const cv of document.querySelectorAll('canvas[data-beast]')) drawBeast(cv, cv.dataset.beast, !!cv.dataset.known); }

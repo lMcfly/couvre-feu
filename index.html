@@ -15,15 +15,12 @@
 <meta name="theme-color" content="#0b0b0d">
 <link rel="preload" href="fonts/bangers-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/special-elite-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fonts/saira-stencil-one-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/comic-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/anton-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>/* polices hébergées avec le jeu (licences libres OFL / Apache 2.0, voir fonts/LICENCES.txt) */
 @font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/bangers-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;}
 @font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/bangers-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 @font-face { font-family: 'Comic Neue'; font-style: normal; font-weight: 700; font-display: swap; src: url(fonts/comic-neue-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
-@font-face { font-family: 'Saira Stencil One'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/saira-stencil-one-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;}
-@font-face { font-family: 'Saira Stencil One'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/saira-stencil-one-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 @font-face { font-family: 'Special Elite'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/special-elite-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;}
 @font-face { font-family: 'Special Elite'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/special-elite-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 @font-face { font-family: 'Anton'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/anton-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
@@ -33,7 +30,7 @@
 :root{
   --night:#07080b; --panel:#0f1013; --panel-2:#16171b; --line:#2b2b31;
   --bone:#d8d2c4; --ash:#8b867b; --blood:#b0231c; --blood-deep:#6e120e; --ember:#e2792f; --sodium:#f0b25a;
-  --display:"Saira Stencil One", Impact, "Arial Narrow", sans-serif;
+  --display:Anton, Impact, "Arial Narrow", sans-serif;
   --type:"Special Elite", "Courier New", Courier, monospace;
   --comic:"Comic Neue", "Comic Sans MS", "Trebuchet MS", sans-serif;
   --comic-title:Bangers, Impact, "Arial Narrow", sans-serif;
@@ -1099,12 +1096,24 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 #launch-modal.camp .launch-head .eyebrow{visibility:hidden}
 @media (max-height:560px){#launch-modal.camp #save-summary{display:none}}
 
-/* grands titres façon affiche d'horreur : lettres épaisses rouge sang, contour noir, bords rongés (texture --grunge fabriquée au lancement) */
-:root{--horror:Anton,Impact,"Arial Narrow",sans-serif}
-.hub-brand b,h2,.mode.big b,.camp-title em,.start-title,.sheet-head h3{font-family:var(--horror);font-weight:400;text-transform:uppercase;letter-spacing:.015em;padding:0 .06em .08em 0;background:linear-gradient(180deg,#ff6a3a 0%,#e8261a 36%,#a8110b 70%,#4e0404 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-mask-image:var(--grunge);mask-image:var(--grunge);-webkit-mask-size:200px;mask-size:200px;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .035em 0 #160202) drop-shadow(0 .06em .14em rgba(0,0,0,.85))}
+/* une seule règle d'écriture partout :
+   titres = Anton en rouge sang rongé ; boutons, onglets, étiquettes et chiffres = Anton clair ; phrases = machine à écrire.
+   Seule la BD garde son lettrage de bande dessinée. */
+:root{--comic-title:var(--display);--comic:var(--type)}
+button,input,select,textarea{font-family:inherit}
+.btn,.hub-tabs .tab,.eyebrow,.diffs button b,.seg button b,.set-tile b,.mode b,.stamp,.camp-eb,.start-kicker,.camp-m b,.camp-m small{font-family:var(--display);font-weight:400}
+.label,table.scores th,.stat span,.wn-stamp small,.wn-new,.stop .chip,.map-tip .st,.map-tip dt,.beast-txt small,table.binds th,.studio .pres,.hub-brand small,.story-kicker,.preview-kicker,.preview-tag,.statbars span,.wcard .wc-kind,.wcard .wc-foot,.prompt-bar,.tk-lbl,.wn-hub-top b,.wn-hub-more,.wn-fab-t b,.op-role,.ars-price,.rep dt,.pause-where,.pause-stats span,.fiche-info .label{font-family:var(--display);font-weight:400;letter-spacing:.1em}
+.btn{letter-spacing:.08em}.hub-tabs .tab{letter-spacing:.1em;font-size:14px}.eyebrow{letter-spacing:.16em}
+h1,h2,h3,.hub-brand b,.mode.big b,.camp-title em,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.wn-pop h2,.beast-txt>b{font-family:var(--display);font-weight:400;text-transform:uppercase;letter-spacing:.015em;padding:0 .06em .08em 0;text-shadow:none;background:linear-gradient(180deg,#ff6a3a 0%,#e8261a 36%,#a8110b 70%,#4e0404 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-mask-image:var(--grunge);mask-image:var(--grunge);-webkit-mask-size:200px;mask-size:200px;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .035em 0 #160202) drop-shadow(0 .06em .14em rgba(0,0,0,.85))}
+/* l'usure ne ronge que les grands titres : en petit, rouge net pour rester lisible */
+h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webkit-mask-image:none;mask-image:none;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .05em 0 #160202)}
+.news-h{font-family:var(--display);color:#fff;-webkit-text-fill-color:#fff;letter-spacing:.02em}
 .hub-brand b span{-webkit-text-fill-color:transparent}
 .hub-brand b{font-size:28px}.mode.big b{font-size:32px;letter-spacing:.02em}
 .camp-title em{text-shadow:none;letter-spacing:.01em}
+/* la BD garde son lettrage */
+.comic-head h2{font-family:Bangers,Impact,sans-serif;background:none;-webkit-text-fill-color:currentColor;color:var(--ink);-webkit-mask-image:none;mask-image:none;filter:none;text-transform:none;padding:0}
+.cap,.bubble,.comic-head .eyebrow{font-family:"Comic Neue","Comic Sans MS",sans-serif}
 /* panneaux en métal sale, tachés de sang */
 .sheet-card,.hub-card,.start-card,.camp-m{background-image:var(--grime),linear-gradient(180deg,rgba(24,20,20,.9),rgba(12,10,11,.92));background-size:512px 512px,100% 100%}
 #launch-modal.camp .start-card,#launch-modal.camp .camp-m{background-image:var(--grime),linear-gradient(180deg,rgba(24,18,18,.82),rgba(10,8,9,.86))}
@@ -1485,8 +1494,7 @@ function compact(arr) { let j = 0; for (let i = 0; i < arr.length; i++) { const 
 function shade(hex, f) { const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255; if (f < 0) { r *= 1 + f; g *= 1 + f; b *= 1 + f; } else { r += (255 - r) * f; g += (255 - g) * f; b += (255 - b) * f; } return `rgb(${r | 0},${g | 0},${b | 0})`; }
 const fmt = n => Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const fmtTime = s => { s = Math.floor(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-const FD = '"Saira Stencil One", Impact, sans-serif';
-const FH = 'Anton, Impact, sans-serif'; // grands titres : lettres épaisses, rouges et rongées
+const FD = 'Anton, Impact, "Arial Narrow", sans-serif'; // titres, étiquettes et chiffres : une seule police d'affichage partout
 const FT = '"Special Elite", "Courier New", monospace';
 
 // ============================================================ réglages et scores
@@ -1750,7 +1758,7 @@ function grungeTitle(c, t, x, y, fs, o = {}) {
   const sc = Math.max(1, Math.min(3, Math.hypot(c.getTransform().a, c.getTransform().b))), key = `${t}|${Math.round(fs * sc)}|${o.rage ? 1 : 0}`;
   let e = TITLE_CACHE.get(key);
   if (!e) {
-    const F = fs * sc, font = `${F}px ${FH}`, m = document.createElement('canvas').getContext('2d'); m.font = font;
+    const F = fs * sc, font = `${F}px ${FD}`, m = document.createElement('canvas').getContext('2d'); m.font = font;
     const tw = m.measureText(t).width, cv = document.createElement('canvas'); cv.width = Math.ceil(tw + F * 0.5); cv.height = Math.ceil(F * 1.55);
     const g = cv.getContext('2d'), bx = F * 0.25, by = F * 1.18; let h = 7; for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0; const r = mulberry32(h);
     g.font = font; g.textAlign = 'left'; g.textBaseline = 'alphabetic'; g.lineJoin = 'round';
@@ -1764,7 +1772,7 @@ function grungeTitle(c, t, x, y, fs, o = {}) {
     for (let k = 0; k < tw / F * 70; k++) { const px = bx + r() * tw, py = by - r() * F * 0.95, rr = F * (r() < 0.85 ? 0.006 + r() * 0.018 : 0.03 + r() * 0.04); g.globalAlpha = 0.5 + r() * 0.5; g.beginPath(); g.arc(px, py, rr, 0, TAU); g.fill(); }
     g.globalAlpha = 0.7; g.lineWidth = Math.max(1, F * 0.01); for (let k = 0; k < tw / F * 5; k++) { const sx = bx + r() * tw, sy = by - r() * F; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + (r() - 0.5) * F * 0.4, sy + r() * F * 0.12); g.stroke(); }
     e = { cv, sc, ox: bx / sc, oy: by / sc, w: tw / sc };
-    if (!document.fonts || document.fonts.check(`20px ${FH}`)) { TITLE_CACHE.set(key, e); if (TITLE_CACHE.size > 120) TITLE_CACHE.delete(TITLE_CACHE.keys().next().value); } /* police pas encore chargée : on ne garde pas le brouillon */
+    if (!document.fonts || document.fonts.check(`20px ${FD}`)) { TITLE_CACHE.set(key, e); if (TITLE_CACHE.size > 120) TITLE_CACHE.delete(TITLE_CACHE.keys().next().value); } /* police pas encore chargée : on ne garde pas le brouillon */
   }
   const dx = c.textAlign === 'center' ? -e.w / 2 : c.textAlign === 'right' ? -e.w : 0;
   c.drawImage(e.cv, x + dx - e.ox, y - e.oy, e.cv.width / e.sc, e.cv.height / e.sc);
@@ -2278,7 +2286,7 @@ class Level {
     g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1; g.beginPath(); for (let x = Math.floor(x0 / 40) * 40; x <= x1; x += 40) { g.moveTo(x, ya); g.lineTo(x, yb); } for (let y = Math.floor(ya / 40) * 40; y <= yb; y += 40) { g.moveTo(x0, y); g.lineTo(x1, y); } g.stroke();
     g.fillStyle = 'rgba(80,190,150,.22)'; g.fillRect(x0, 586, x1 - x0, 6); g.fillStyle = 'rgba(230,200,80,.18)'; g.fillRect(x0, 606, x1 - x0, 6);
     for (let i = 0; i < 5; i++) { const x = x0 + r() * (x1 - x0), y = ya + r() * (yb - ya); g.fillStyle = 'rgba(90,8,6,.45)'; g.beginPath(); g.ellipse(x, y, 10 + r() * 24, 5 + r() * 9, r() * 3, 0, TAU); g.fill(); }
-    if (x0 <= HOSP.morgue + 260 && x1 >= HOSP.morgue + 140) { g.save(); g.font = 'bold 30px Bangers, Impact, sans-serif'; g.fillStyle = 'rgba(160,230,200,.18)'; g.textAlign = 'center'; g.fillText('MORGUE', HOSP.morgue + 270, 470); g.restore(); }
+    if (x0 <= HOSP.morgue + 260 && x1 >= HOSP.morgue + 140) { g.save(); g.font = `bold 30px ${FD}`; g.fillStyle = 'rgba(160,230,200,.18)'; g.textAlign = 'center'; g.fillText('MORGUE', HOSP.morgue + 270, 470); g.restore(); }
   }
   paintGround(g, x0, y0, w, h, cx, cy) {
     const r = mulberry32(cx * 92821 + cy * 68917 + 7);
@@ -3098,7 +3106,7 @@ class Hazard {
         c.fillStyle = `rgba(${DZ()},${0.1 + k * 0.18})`; c.beginPath(); c.arc(0, 0, this.r, 0, TAU); c.fill();
         c.strokeStyle = `rgba(${DZ()},${0.6 + Math.sin(t * 16) * 0.3})`; c.lineWidth = 4; c.setLineDash([14, 10]); c.lineDashOffset = -t * 60; c.beginPath(); c.arc(0, 0, this.r, 0, TAU); c.stroke(); c.setLineDash([]);
         c.strokeStyle = 'rgba(255,210,58,.9)'; c.lineWidth = 6; c.beginPath(); c.arc(0, 0, this.r + 8, -Math.PI / 2, -Math.PI / 2 + TAU * (1 - k)); c.stroke(); c.restore();
-        c.font = `16px Bangers, Impact, sans-serif`; c.textAlign = 'center'; c.fillStyle = '#ffd23a'; c.fillText('VOS PAPIERS !', this.x, this.y - this.r * 0.62 - 12); break; }
+        c.font = `16px ${FD}`; c.textAlign = 'center'; c.fillStyle = '#ffd23a'; c.fillText('VOS PAPIERS !', this.x, this.y - this.r * 0.62 - 12); break; }
       case 'ram': { const hor = Math.abs(this.vx) >= Math.abs(this.vy), w = hor ? 96 : 46, h = hor ? 46 : 96; c.save(); c.translate(rand(-1, 1), rand(-0.6, 0.6)); this.g.drawCar({ x: this.x - w / 2, y: this.y - h / 2, w, h, z: 24, color: '#6a5a3a', hor, hp: 30, maxHp: 170 }); c.fillStyle = `rgba(255,${140 + Math.random() * 80 | 0},40,.85)`; for (let i = 0; i < 3; i++) { c.beginPath(); c.arc(this.x - Math.sign(this.vx || 1) * w * 0.3 + rand(-8, 8), this.y - 30 - rand(0, 10), rand(4, 8), 0, TAU); c.fill(); } c.restore(); break; }
       case 'ramOld': { c.save(); c.translate(this.x, this.y); c.fillStyle = 'rgba(0,0,0,.45)'; c.beginPath(); c.ellipse(0, 6, 44, 14, 0, 0, TAU); c.fill(); const s = Math.sign(this.vx) || 1; c.scale(s, 1);
         c.fillStyle = '#4a4e52'; RR(c, -40, -26, 80, 30, 6); c.fill(); c.fillStyle = '#6a6e70'; RR(c, -24, -40, 46, 16, 5); c.fill(); c.fillStyle = 'rgba(140,180,200,.5)'; c.fillRect(-20, -37, 18, 10); c.fillStyle = '#1a1a1c'; for (const wx of [-26, 24]) { c.beginPath(); c.arc(wx, 4, 9, 0, TAU); c.fill(); }
@@ -3106,7 +3114,7 @@ class Hazard {
       case 'blade': c.save(); c.translate(this.x, this.y - 18); c.rotate(Math.atan2(this.vy, this.vx)); c.fillStyle = '#e8eef2'; c.beginPath(); c.moveTo(10, 0); c.lineTo(-2, -3); c.lineTo(-2, 3); c.fill(); c.fillStyle = '#3a4448'; c.fillRect(-9, -1.5, 8, 3); c.restore(); break;
       case 'gas': { const a = Math.min(1, this.t * 3, (this.life - this.t) * 1.5); c.save(); c.globalAlpha = a; c.translate(this.x, this.y); c.scale(1, 0.62); const gr = c.createRadialGradient(0, 0, 10, 0, 0, this.r); gr.addColorStop(0, `rgba(${TOX()},.45)`); gr.addColorStop(1, `rgba(${TOX()},0)`); c.fillStyle = gr; c.beginPath(); c.arc(0, 0, this.r, 0, TAU); c.fill(); c.restore(); break; }
       case 'leash': { const b = this.boss; if (!b) break; c.save(); c.strokeStyle = 'rgba(255,90,200,.9)'; c.lineWidth = 3; c.shadowColor = '#ff5ad0'; c.shadowBlur = 10; c.beginPath(); c.moveTo(b.x + Math.cos(b.dir) * b.r * 0.8, b.y - b.r * 1.3); const mx = (b.x + this.x) / 2, my = (b.y + this.y) / 2 - (this.hooked ? 10 : 40); c.quadraticCurveTo(mx, my, this.x, this.y - 16); c.stroke(); c.fillStyle = '#ffd0f0'; c.beginPath(); c.arc(this.x, this.y - 16, 5, 0, TAU); c.fill(); c.restore(); break; }
-      case 'kibble': { c.save(); c.translate(this.x, this.y); c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(0, 3, 26, 9, 0, 0, TAU); c.fill(); c.fillStyle = '#8a5a2a'; for (let i = 0; i < 16; i++) { const a = i * 2.4, d = (i % 5) * 4; c.beginPath(); c.arc(Math.cos(a) * d, Math.sin(a) * d * 0.5 - 2, 3, 0, TAU); c.fill(); } c.font = '13px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillStyle = '#ffb060'; c.fillText('CROQUETTES', 0, -16 + Math.sin(t * 4) * 2); c.restore(); break; }
+      case 'kibble': { c.save(); c.translate(this.x, this.y); c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(0, 3, 26, 9, 0, 0, TAU); c.fill(); c.fillStyle = '#8a5a2a'; for (let i = 0; i < 16; i++) { const a = i * 2.4, d = (i % 5) * 4; c.beginPath(); c.arc(Math.cos(a) * d, Math.sin(a) * d * 0.5 - 2, 3, 0, TAU); c.fill(); } c.font = `13px ${FD}`; c.textAlign = 'center'; c.fillStyle = '#ffb060'; c.fillText('CROQUETTES', 0, -16 + Math.sin(t * 4) * 2); c.restore(); break; }
     }
   }
 }
@@ -4578,7 +4586,7 @@ mixin(Game, {
     for (const [d] of this.downPlayers()) { const x = d.downX != null ? d.downX : d.x, y = d.downY != null ? d.downY : d.y; if (!inView(x, y, 120)) continue; c.save(); c.translate(x, y);
       if (!this.reviveUsed) { const k = (d.revT || 0) / REVIVE_T, pu = 0.45 + Math.sin(this.time * 5) * 0.2; c.save(); c.scale(1, 0.6); c.fillStyle = `rgba(127,209,139,${0.08 + k * 0.2})`; c.beginPath(); c.arc(0, 0, REVIVE_R, 0, TAU); c.fill(); c.strokeStyle = `rgba(127,209,139,${pu})`; c.lineWidth = 3; c.setLineDash([10, 8]); c.lineDashOffset = -this.time * 30; c.beginPath(); c.arc(0, 0, REVIVE_R, 0, TAU); c.stroke(); c.setLineDash([]); if (k > 0) { c.strokeStyle = '#7fd18b'; c.lineWidth = 7; c.beginPath(); c.arc(0, 0, REVIVE_R + 7, -Math.PI / 2, -Math.PI / 2 + TAU * k); c.stroke(); } c.restore(); }
       c.fillStyle = '#5a5a60'; RR(c, -9, -30, 18, 26, 6); c.fill(); c.fillStyle = '#3a3a40'; c.fillRect(-9, -8, 18, 4); c.strokeStyle = '#2a2a2e'; c.lineWidth = 2; c.beginPath(); c.moveTo(0, -25); c.lineTo(0, -12); c.moveTo(-5, -20); c.lineTo(5, -20); c.stroke();
-      c.font = '12px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillStyle = d === this.p2 ? '#7fb8ff' : '#ff8a72'; c.fillText(this.pName(d), 0, -38); c.restore(); }
+      c.font = `12px ${FD}`; c.textAlign = 'center'; c.fillStyle = d === this.p2 ? '#7fb8ff' : '#ff8a72'; c.fillText(this.pName(d), 0, -38); c.restore(); }
     { const bo = this.bossRef; if (bo && !bo.dead && (bo.state === 'windLeap' || bo.state === 'leap')) { const pulse = 0.5 + Math.sin(this.time * 18) * 0.25; c.strokeStyle = `rgba(${DZ()},${pulse + 0.2})`; c.lineWidth = 3; c.beginPath(); c.ellipse(bo.leapX, bo.leapY, bo.r + 70, (bo.r + 70) * 0.55, 0, 0, TAU); c.stroke(); c.fillStyle = `rgba(224,50,31,${pulse * 0.25})`; c.fill(); } }
     if (this.mode === 'secret' && this.npcShibas) for (const sh of this.npcShibas) if (!sh.caught && inView(sh.x, sh.y)) drawShibaSprite(c, sh.x, sh.y, 1.1, this.time + sh.x);
     if (this.buddy && inView(this.buddy.x, this.buddy.y)) { const b = this.buddy; c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(b.x, b.y + 2, 10, 4, 0, 0, TAU); c.fill(); drawShibaSprite(c, b.x, b.y - b.hop, 1, this.time * 1.6); }
@@ -5064,7 +5072,7 @@ mixin(Game, {
   // nom du boss à son arrivée : les lettres tombent du ciel une à une, rebondissent en éclaboussant, puis restent droites et lisibles
   drawBossTitle(title, cx, y, fs, t, rage) {
     const c = ctx, ch = [...title], gap = fs * 0.03, bounce = k => { const n = 7.5625, d = 2.75; if (k < 1 / d) return n * k * k; if (k < 2 / d) return n * (k -= 1.5 / d) * k + 0.75; if (k < 2.5 / d) return n * (k -= 2.25 / d) * k + 0.9375; return n * (k -= 2.625 / d) * k + 0.984375; };
-    c.save(); c.font = `${fs}px ${FH}`; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.lineJoin = 'round';
+    c.save(); c.font = `${fs}px ${FD}`; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.lineJoin = 'round';
     const ws = ch.map(l => c.measureText(l).width), tw = ws.reduce((a, w) => a + w, 0) + gap * (ch.length - 1); let x = cx - tw / 2;
     ch.forEach((l, i) => {
       const w = ws[i], k = clamp((t - 0.06 - i * 0.055) / 0.55, 0, 1); if (k <= 0 || l === ' ') { x += w + gap; return; }
@@ -5096,8 +5104,8 @@ mixin(Game, {
     const E = z.state === 'intro' && z.entry, ek = E ? 1 - Math.max(0, z.st) / E.T : 1;
     if (E) {
       // repère au sol : là où il va se tenir
-      { const ox = E.tx - z.x, oy = E.ty - z.y + (z.jumpZ || 0), pu = 0.5 + Math.sin(t * 12) * 0.3; c.save(); c.translate(ox, oy); c.scale(1, 0.55); c.strokeStyle = `rgba(${DZ()},${pu})`; c.lineWidth = 4; c.beginPath(); c.arc(0, 0, r * 1.6, 0, TAU); c.stroke(); c.restore(); c.fillStyle = `rgba(255,90,60,${pu})`; c.font = '22px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillText('!', ox, oy + 8); }
-      if (E.prop === 'metro' || E.prop === 'drawer' || E.prop === 'gore') { c.fillStyle = E.prop === 'gore' ? '#2a0a08' : '#0a0a0c'; c.beginPath(); c.ellipse(0, 0, r * 1.3, r * 0.5, 0, 0, TAU); c.fill(); c.strokeStyle = E.prop === 'metro' ? '#d0a020' : E.prop === 'drawer' ? '#9aa4a8' : '#5a1410'; c.lineWidth = 3; c.stroke(); if (E.prop === 'metro') { c.fillStyle = '#d0a020'; c.font = '14px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillText('M', 0, -r * 0.6); } }
+      { const ox = E.tx - z.x, oy = E.ty - z.y + (z.jumpZ || 0), pu = 0.5 + Math.sin(t * 12) * 0.3; c.save(); c.translate(ox, oy); c.scale(1, 0.55); c.strokeStyle = `rgba(${DZ()},${pu})`; c.lineWidth = 4; c.beginPath(); c.arc(0, 0, r * 1.6, 0, TAU); c.stroke(); c.restore(); c.fillStyle = `rgba(255,90,60,${pu})`; c.font = `22px ${FD}`; c.textAlign = 'center'; c.fillText('!', ox, oy + 8); }
+      if (E.prop === 'metro' || E.prop === 'drawer' || E.prop === 'gore') { c.fillStyle = E.prop === 'gore' ? '#2a0a08' : '#0a0a0c'; c.beginPath(); c.ellipse(0, 0, r * 1.3, r * 0.5, 0, 0, TAU); c.fill(); c.strokeStyle = E.prop === 'metro' ? '#d0a020' : E.prop === 'drawer' ? '#9aa4a8' : '#5a1410'; c.lineWidth = 3; c.stroke(); if (E.prop === 'metro') { c.fillStyle = '#d0a020'; c.font = `14px ${FD}`; c.textAlign = 'center'; c.fillText('M', 0, -r * 0.6); } }
       if (E.prop === 'tvset' && ek < 0.5) { c.fillStyle = '#4a3e36'; RR(c, -r * 0.7, -r * 1.1, r * 1.4, r * 1.0, 6); c.fill(); c.fillStyle = `rgba(160,230,220,${0.5 + Math.random() * 0.5})`; c.fillRect(-r * 0.55, -r * 0.98, r * 1.1, r * 0.72); }
       if (E.prop === 'cables') { c.strokeStyle = '#1a1818'; c.lineWidth = 2; for (const sx of [-r * 0.4, 0, r * 0.4]) { c.beginPath(); c.moveTo(sx, -r * 2.6 - (z.jumpZ || 0) * 0); c.lineTo(sx + Math.sin(t * 3 + sx) * 8, -900); c.stroke(); } }
       if (E.prop === 'gate' && ek < 0.6) { c.save(); c.translate(-r * 1.4, -r * 0.6); c.rotate(-Math.min(1, ek / 0.5) * 1.4); for (let i = 0; i < 8; i++) { c.fillStyle = i % 2 ? '#f0f0f0' : '#d02020'; c.fillRect(i * r * 0.36, -r * 0.08, r * 0.36, r * 0.16); } c.restore(); c.fillStyle = '#3a3a40'; c.fillRect(-r * 1.55, -r * 0.9, r * 0.3, r * 0.9); }
@@ -5117,7 +5125,7 @@ mixin(Game, {
     if (E) { // neige télé par-dessus le boss
       if (E.prop === 'snow' && ek < 0.85) { for (let i = 0; i < 90; i++) { c.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,.75)' : 'rgba(40,40,40,.75)'; c.fillRect(rand(-r * 1.2, r * 1.2), rand(-r * 3.2, 0), 3, 3); } }
     }
-    if (z.weakT > 0 && Math.sin(t * 22) > -0.3) { const wy = -r * 1.25; c.strokeStyle = '#ffd23a'; c.lineWidth = 2.5; c.beginPath(); c.arc(0, wy, r * 0.38, 0, TAU); c.stroke(); c.beginPath(); c.moveTo(-r * 0.55, wy); c.lineTo(-r * 0.2, wy); c.moveTo(r * 0.2, wy); c.lineTo(r * 0.55, wy); c.moveTo(0, wy - r * 0.55); c.lineTo(0, wy - r * 0.2); c.moveTo(0, wy + r * 0.2); c.lineTo(0, wy + r * 0.55); c.stroke(); c.fillStyle = '#ffd23a'; c.font = '13px Bangers, Impact, sans-serif'; c.textAlign = 'center'; c.fillText('×2', r * 0.65, wy - r * 0.4); }
+    if (z.weakT > 0 && Math.sin(t * 22) > -0.3) { const wy = -r * 1.25; c.strokeStyle = '#ffd23a'; c.lineWidth = 2.5; c.beginPath(); c.arc(0, wy, r * 0.38, 0, TAU); c.stroke(); c.beginPath(); c.moveTo(-r * 0.55, wy); c.lineTo(-r * 0.2, wy); c.moveTo(r * 0.2, wy); c.lineTo(r * 0.55, wy); c.moveTo(0, wy - r * 0.55); c.lineTo(0, wy - r * 0.2); c.moveTo(0, wy + r * 0.2); c.lineTo(0, wy + r * 0.55); c.stroke(); c.fillStyle = '#ffd23a'; c.font = `13px ${FD}`; c.textAlign = 'center'; c.fillText('×2', r * 0.65, wy - r * 0.4); }
     if (z.hitFlash > 0) { c.globalAlpha = 0.45; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, -r * 1.3, r * 1.05, r * 1.35, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     if (z.state === 'stunned') { c.fillStyle = '#f0b25a'; for (let i = 0; i < 3; i++) { const a = t * 4 + i * 2.1; c.fillRect(Math.cos(a) * 24 - 2, -r * 3.1 + Math.sin(a) * 6, 4, 4); } }
   },
@@ -5523,7 +5531,7 @@ mixin(Game, {
       else if (b.glow) { c.strokeStyle = `rgba(127,209,139,${0.6 + Math.sin(this.time * 6) * 0.35})`; c.lineWidth = 3; c.beginPath(); c.arc(b.x, b.y, b.r + 3, 0, TAU); c.stroke(); }
       else if (b.cd === 0) { c.strokeStyle = 'rgba(226,121,47,.9)'; c.lineWidth = 2.5; c.beginPath(); c.arc(b.x, b.y, b.r + 2, 0, TAU); c.stroke(); }
       if (b.icon) { if (b.n > 0) itemArt(c, b.icon, b.x, b.y, b.r * 1.25); else itemIcon(c, b.icon, b.x, b.y, b.r * 1.25, '#5a554c', false); }
-      else { c.textAlign = 'center'; c.fillStyle = '#d8d2c4'; c.font = `${b.label.length > 2 ? 10 : 15}px ${b.label.length > 2 ? FT : FD}`; c.fillText(b.label, b.x, b.y + (b.label.length > 2 ? 4 : 6)); }
+      else { c.textAlign = 'center'; c.fillStyle = '#d8d2c4'; c.font = `${b.label.length > 2 ? 13 : 16}px ${FD}`; c.fillText(b.label, b.x, b.y + (b.label.length > 2 ? 5 : 6)); }
       if (b.n != null) { c.fillStyle = b.n > 0 ? '#e2792f' : '#5a554c'; c.beginPath(); c.arc(b.x + b.r * 0.72, b.y - b.r * 0.72, 9, 0, TAU); c.fill(); c.fillStyle = '#0b0b0d'; c.font = `11px ${FD}`; c.fillText(String(b.n), b.x + b.r * 0.72, b.y - b.r * 0.72 + 4); }
     }
     const drawStick = (s, gx, gy, label) => {
@@ -5534,7 +5542,7 @@ mixin(Game, {
         if (s === inp.sticks.aim && v.l > clamp(+Settings.fireAt || 0.6, 0.3, 0.9)) { c.strokeStyle = 'rgba(226,121,47,.5)'; c.lineWidth = 2; c.beginPath(); c.arc(s.ox, s.oy, STICK_R, 0, TAU); c.stroke(); }
       } else {
         c.strokeStyle = 'rgba(216,210,196,.12)'; c.lineWidth = 2; c.beginPath(); c.arc(gx, gy, STICK_R, 0, TAU); c.stroke();
-        c.textAlign = 'center'; c.font = `11px ${FT}`; c.fillStyle = 'rgba(216,210,196,.3)'; c.fillText(label, gx, gy + 4);
+        c.textAlign = 'center'; c.font = `14px ${FD}`; c.fillStyle = 'rgba(216,210,196,.3)'; c.fillText(label, gx, gy + 5);
       }
     };
     { const hm = this.stickHome('move'), ha = this.stickHome('aim'); drawStick(inp.sticks.move, hm.x, hm.y, 'DÉPLACER'); drawStick(inp.sticks.aim, ha.x, ha.y, 'VISER · TIRER'); }
@@ -6039,7 +6047,7 @@ function buildMapStatic(open) {
   g.strokeStyle = '#5a5550'; g.lineWidth = 2; g.beginPath(); g.moveTo(380, 120); g.lineTo(370, 160); g.moveTo(380, 120); g.lineTo(390, 160); g.moveTo(374, 140); g.lineTo(386, 140); g.moveTo(380, 120); g.lineTo(380, 100); g.stroke();
   // 3 · parking : dalle de béton, voitures retournées
   box(498, 318, 156, 66); g.strokeStyle = 'rgba(200,190,150,.15)'; g.lineWidth = 2; for (let i = 0; i < 5; i++) { g.beginPath(); g.moveTo(538 + i * 24, 326); g.lineTo(538 + i * 24, 346); g.stroke(); }
-  g.font = 'bold 26px "Saira Stencil One", Impact, sans-serif'; g.textAlign = 'center'; g.fillStyle = '#2c4d7a'; g.fillText('P', 518, 352);
+  g.font = `bold 26px ${FD}`; g.textAlign = 'center'; g.fillStyle = '#2c4d7a'; g.fillText('P', 518, 352);
   const car = (x, y, a, col) => { g.save(); g.translate(x, y); g.rotate(a); g.fillStyle = col; g.fillRect(-18, -9, 36, 18); g.strokeStyle = ink; g.lineWidth = 2.5; g.strokeRect(-18, -9, 36, 18); g.fillStyle = '#0b0b0d'; g.fillRect(-8, -7, 14, 14); g.restore(); };
   car(530, 370, 0.4, '#3e2a24'); car(610, 366, -0.2, '#26323a'); car(470, 410, 1.2, '#2e2a1e'); car(300, 280, 0.1, '#33201c'); car(760, 330, -0.6, '#242a30');
   g.fillStyle = '#3a3a2a'; g.fillRect(640, 392, 22, 16); g.strokeStyle = ink; g.strokeRect(640, 392, 22, 16);
@@ -6055,7 +6063,7 @@ function buildMapStatic(open) {
   for (let k = 0; k < 2; k++) for (let j = 0; j < 6; j++) win(872 + j * 18, 350 + k * 18, r() < 0.25);
   g.fillStyle = '#0a0909'; g.fillRect(912, 376, 24, 20); g.strokeStyle = ink; g.lineWidth = 2; g.strokeRect(912, 376, 24, 20);
   g.fillStyle = '#8a1a14'; g.fillRect(918, 312, 12, 30); g.fillRect(909, 321, 30, 12); g.strokeStyle = ink; g.lineWidth = 2; g.strokeRect(918, 312, 12, 30);
-  g.strokeStyle = 'rgba(230,220,190,.35)'; g.lineWidth = 2; g.beginPath(); g.arc(964, 326, 13, 0, TAU); g.stroke(); g.font = 'bold 14px "Saira Stencil One", Impact, sans-serif'; g.textAlign = 'center'; g.fillStyle = 'rgba(230,220,190,.45)'; g.fillText('H', 964, 331);
+  g.strokeStyle = 'rgba(230,220,190,.35)'; g.lineWidth = 2; g.beginPath(); g.arc(964, 326, 13, 0, TAU); g.stroke(); g.font = `bold 14px ${FD}`; g.textAlign = 'center'; g.fillStyle = 'rgba(230,220,190,.45)'; g.fillText('H', 964, 331);
   // 6 · le paradis, perché dans les nuages
   g.fillStyle = open ? 'rgba(255,170,200,.18)' : 'rgba(120,110,120,.12)'; for (const [x, y, rr] of [[920, 96, 40], [878, 110, 28], [962, 112, 28], [920, 124, 32]]) { g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); }
   return cv;
@@ -6122,7 +6130,7 @@ function drawMapCanvas(g, game, t, portrait) {
     g.fillStyle = mg; g.strokeStyle = '#000'; g.lineWidth = 4; g.beginPath(); g.arc(n.x, n.y, 26 * sc, 0, TAU); g.fill(); g.stroke();
     g.strokeStyle = done ? '#7a6a58' : locked ? '#4a464a' : '#d0603a'; g.lineWidth = 2; g.beginPath(); g.arc(n.x, n.y, 21 * sc, 0, TAU); g.stroke();
     for (let k = 0; k < 4; k++) { const a = k * TAU / 4 + 0.78; g.fillStyle = '#6a6058'; g.beginPath(); g.arc(n.x + Math.cos(a) * 23.5 * sc, n.y + Math.sin(a) * 23.5 * sc, 1.6, 0, TAU); g.fill(); }
-    g.fillStyle = '#e8dfc8'; g.font = `${Math.round(24 * sc)}px "Saira Stencil One", Impact, sans-serif`;
+    g.fillStyle = '#e8dfc8'; g.font = `${Math.round(24 * sc)}px ${FD}`;
     if (done) { g.strokeStyle = '#b3221a'; g.lineWidth = 5; g.beginPath(); g.moveTo(n.x - 10, n.y - 10); g.lineTo(n.x + 10, n.y + 10); g.moveTo(n.x + 10, n.y - 10); g.lineTo(n.x - 10, n.y + 10); g.stroke(); }
     else if (i === MISSIONS && !open) { g.save(); g.translate(n.x, n.y + 2); g.scale(2, 2); lockIcon(g, 0, 0, '#8a8488'); g.restore(); g.strokeStyle = '#4a464a'; g.lineWidth = 3; g.setLineDash([5, 3]); g.beginPath(); g.moveTo(n.x - 40, n.y - 20); g.lineTo(n.x + 40, n.y + 20); g.moveTo(n.x + 40, n.y - 20); g.lineTo(n.x - 40, n.y + 20); g.stroke(); g.setLineDash([]); }
     else g.fillText(i === MISSIONS ? '?' : String(i + 1), n.x, n.y + 9 * sc);
@@ -6138,7 +6146,7 @@ function drawMapCanvas(g, game, t, portrait) {
   const v = g.createRadialGradient(500, 280, 250, 500, 280, 620); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.75)'); g.fillStyle = v; g.fillRect(0, 0, 1000, 560);
   // titre de la mission choisie
   const sn = MAP_NODES[hov != null ? hov : sel], si = hov != null ? hov : sel, ly = si === MISSIONS ? 58 : sn.y > 300 ? sn.y + 74 : sn.y - 120;
-  g.font = `44px ${FH}`; const hw = g.measureText(sn.name.toUpperCase()).width / 2 + 24, lx = si === MISSIONS ? 850 : clamp(sn.x, hw, 1000 - hw); /* le nom tient toujours dans la carte */
+  g.font = `44px ${FD}`; const hw = g.measureText(sn.name.toUpperCase()).width / 2 + 24, lx = si === MISSIONS ? 850 : clamp(sn.x, hw, 1000 - hw); /* le nom tient toujours dans la carte */
   g.textAlign = si === MISSIONS ? 'right' : 'center'; grungeTitle(g, sn.name.toUpperCase(), lx, ly, 44);
 }
 function reportHTML(r) {
@@ -7770,17 +7778,17 @@ function makeSouvenir(g0) {
   g.fillStyle = '#efe6cf'; g.fillRect(0, 0, W2, H2);
   g.fillStyle = 'rgba(120,90,50,.08)'; const rr = mulberry32(3); for (let i = 0; i < 900; i++) g.fillRect(rr() * W2, rr() * H2, 2, 2);
   g.fillStyle = '#d0141e'; g.fillRect(0, 0, W2, 92);
-  g.font = '64px Bangers, Impact, sans-serif'; g.textAlign = 'left'; g.fillStyle = '#ffcf33'; g.lineWidth = 6; g.strokeStyle = '#120c09'; g.strokeText('KE-DLA-D', 40, 68); g.fillText('KE-DLA-D', 40, 68); g.fillStyle = '#fff'; g.fillText('TV', 300, 68);
+  g.font = `64px ${FD}`; g.textAlign = 'left'; g.fillStyle = '#ffcf33'; g.lineWidth = 6; g.strokeStyle = '#120c09'; g.strokeText('KE-DLA-D', 40, 68); g.fillText('KE-DLA-D', 40, 68); g.fillStyle = '#fff'; g.fillText('TV', 300, 68);
   g.font = '22px "Special Elite", monospace'; g.textAlign = 'right'; g.fillStyle = '#fff'; g.fillText('ÉDITION SPÉCIALE · ' + new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase(), W2 - 40, 56);
   const pn = personalNews()[0] || { h: `${N} a survécu à la nuit`, t: '' };
-  g.textAlign = 'left'; g.fillStyle = '#120c09'; g.font = '58px Bangers, Impact, sans-serif';
+  g.textAlign = 'left'; g.fillStyle = '#120c09'; g.font = `58px ${FD}`;
   const lines = wrapLines(g, pn.h.toUpperCase(), 1120).slice(0, 2); lines.forEach((l, i) => g.fillText(l, 40, 160 + i * 60));
   const ty = 160 + lines.length * 60;
   const pc = document.createElement('canvas'); pc.width = 480; pc.height = 360; renderPortrait(pc, ch);
   g.save(); g.translate(40, ty); g.rotate(-0.02); g.fillStyle = '#fff'; g.fillRect(-10, -10, 520, 400); g.drawImage(pc, 0, 0, 500, 375); g.strokeStyle = '#120c09'; g.lineWidth = 4; g.strokeRect(0, 0, 500, 375); g.restore();
-  g.font = '24px "Comic Neue", sans-serif'; g.fillStyle = '#2a2018'; wrapLines(g, pn.t, 600).slice(0, 4).forEach((l, i) => g.fillText(l, 580, ty + 30 + i * 32));
+  g.font = `24px ${FT}`; g.fillStyle = '#2a2018'; wrapLines(g, pn.t, 600).slice(0, 4).forEach((l, i) => g.fillText(l, 580, ty + 30 + i * 32));
   const st = [['Score', fmt(r.score || g0.score)], ['Zombies', fmt(r.kills || g0.kills)], ['Shibas', String(r.shibas || 0)], [r.mode === 'survival' || r.mode === 'daily' ? 'Vagues' : 'Difficulté', r.mode === 'survival' || r.mode === 'daily' ? String(r.wave || 0) : (DIFFS[r.diff] || g0.diff).name]];
-  st.forEach(([k, v], i) => { const x = 580 + (i % 2) * 290, y = ty + 180 + Math.floor(i / 2) * 104; g.fillStyle = '#120c09'; g.fillRect(x, y, 270, 90); g.fillStyle = '#ffcf33'; g.font = '46px Bangers, Impact, sans-serif'; g.fillText(v, x + 16, y + 56); g.fillStyle = '#c6c0b2'; g.font = '16px "Special Elite", monospace'; g.fillText(k.toUpperCase(), x + 16, y + 80); });
+  st.forEach(([k, v], i) => { const x = 580 + (i % 2) * 290, y = ty + 180 + Math.floor(i / 2) * 104; g.fillStyle = '#120c09'; g.fillRect(x, y, 270, 90); g.fillStyle = '#ffcf33'; g.font = `46px ${FD}`; g.fillText(v, x + 16, y + 56); g.fillStyle = '#c6c0b2'; g.font = '16px "Special Elite", monospace'; g.fillText(k.toUpperCase(), x + 16, y + 80); });
   g.fillStyle = '#120c09'; g.fillRect(0, H2 - 40, W2, 40); g.fillStyle = '#efe6cf'; g.font = '18px "Special Elite", monospace'; g.textAlign = 'center'; g.fillText('COUVRE-FEU · UN JEU NADRAX PROD · L\'INFO QUI PIQUE… ET QUI MORD', W2 / 2, H2 - 14);
   return cv;
 }
@@ -7855,8 +7863,8 @@ function drawDuplex(g, i, t) {
   g.strokeStyle = `rgba(60,140,255,${0.6 + Math.sin(t * 2.5) * 0.3})`; g.lineWidth = 3; g.beginPath(); g.moveTo(0, 214); g.quadraticCurveTo(240, 196, W2, 210); g.stroke();
   g.fillStyle = '#fff'; g.save(); g.translate(250, 220); g.rotate(-0.06); g.fillRect(0, 0, 40, 26); g.fillStyle = '#c9ccd6'; for (let k = 0; k < 4; k++) g.fillRect(5, 5 + k * 5, 30, 1.5); g.restore();
   // logo de la chaîne, heure réelle, direct
-  g.textAlign = 'left'; g.font = '20px Bangers, Impact, sans-serif'; g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.5)'; g.strokeText('KE-DLA-D', 10, 28); g.fillStyle = '#fff'; g.fillText('KE-DLA-D', 10, 28); g.strokeText('TV.', 10, 48); g.fillText('TV.', 10, 48);
-  g.fillStyle = '#fff'; g.fillRect(98, 13, 44, 18); g.fillStyle = '#0a1a4a'; g.font = '15px Bangers, Impact, sans-serif'; g.fillText(clockStr(), 104, 27);
+  g.textAlign = 'left'; g.font = `20px ${FD}`; g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.5)'; g.strokeText('KE-DLA-D', 10, 28); g.fillStyle = '#fff'; g.fillText('KE-DLA-D', 10, 28); g.strokeText('TV.', 10, 48); g.fillText('TV.', 10, 48);
+  g.fillStyle = '#fff'; g.fillRect(98, 13, 44, 18); g.fillStyle = '#0a1a4a'; g.font = `15px ${FD}`; g.fillText(clockStr(), 104, 27);
   g.fillStyle = '#123a9e'; g.fillRect(142, 13, 52, 18); g.fillStyle = Math.sin(t * 4) > -0.2 ? '#fff' : '#9fb8ff'; g.fillText('DIRECT', 148, 27);
 }
 function paintSlide(el, t) { const i = +el.dataset.idx; if (!el.dataset.idx || isNaN(i)) return; drawDuplex(el.querySelector('canvas').getContext('2d'), i, t); }
@@ -8181,7 +8189,7 @@ function drawBeast(cv, k, known) {
   g.fillStyle = known ? 'rgba(0,0,0,.12)' : 'rgba(0,0,0,.25)'; for (let y = 6; y < H; y += 9) for (let x = (y / 9 % 2) * 4.5; x < W; x += 9) { g.beginPath(); g.arc(x, y, 1.6, 0, TAU); g.fill(); }
   const b = beastBuf; b.width = W; b.height = H; const bc = b.getContext('2d'), z = beastSprite(k), sc = Math.min(3.4, (H * 0.8) / (z.r * (z.type === 'dog' ? 2.6 : z.type === 'boss' ? 4 : 3.2)));
   bc.save(); bc.translate(W / 2, H * 0.9); bc.scale(sc, sc); const saved = ctx; ctx = bc; try { game.drawZombie(z); } catch (e) { } ctx = saved; bc.restore();
-  if (!known) { bc.globalCompositeOperation = 'source-in'; bc.fillStyle = '#0b090d'; bc.fillRect(0, 0, W, H); bc.globalCompositeOperation = 'source-over'; bc.fillStyle = '#5a5560'; bc.font = '64px Bangers, Impact, sans-serif'; bc.textAlign = 'center'; bc.fillText('?', W / 2, H * 0.58); }
+  if (!known) { bc.globalCompositeOperation = 'source-in'; bc.fillStyle = '#0b090d'; bc.fillRect(0, 0, W, H); bc.globalCompositeOperation = 'source-over'; bc.fillStyle = '#5a5560'; bc.font = `64px ${FD}`; bc.textAlign = 'center'; bc.fillText('?', W / 2, H * 0.58); }
   g.drawImage(b, 0, 0);
 }
 function drawBestiary() { for (const cv of document.querySelectorAll('canvas[data-beast]')) drawBeast(cv, cv.dataset.beast, !!cv.dataset.known); }
@@ -8313,6 +8321,11 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 71, d: '30 oct.', t: 'Une seule écriture', s: 'Tout le jeu parle maintenant d\'une même voix, façon affiche de film d\'horreur.', it: [
+    ['up', 'Titres', 'Tous les titres en lettres épaisses rouge sang, bords rongés, contour noir.'],
+    ['up', 'Boutons et étiquettes', 'Onglets, boutons, chiffres et petites étiquettes dans la même police, en clair. Les phrases restent à la machine à écrire. Seule la BD garde son lettrage.'],
+    ['fix', 'Plus de police au hasard', 'Certains textes de boutons s\'affichaient dans la police par défaut du navigateur : c\'est fini.']],
+    q: ['dragon', 'Dragon', 'Enfin une typographie à la hauteur de ma noirceur.'] },
   { v: 70, d: '30 oct.', t: 'Cinquième mission : l\'hôpital', s: 'La nuit ne s\'arrête plus à la Mairie : l\'hélicoptère se pose sur le toit de Saint-Lazare.', it: [
     ['new', 'Mission 5 · Hôpital Saint-Lazare', 'Après la Mairie, une BD inédite puis l\'hôpital : couloirs, chambres, morgue et le Chirurgien. Inès, l\'infirmière de garde, attend qu\'on la sorte de là.'],
     ['new', 'Le Hurleur', 'Un patient zombie qui garde ses distances puis hurle : la horde s\'excite et ta lampe grésille. Tire-lui dessus quand il ouvre la bouche pour le faire taire.'],
