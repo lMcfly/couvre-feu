@@ -2,6 +2,13 @@
 mixin(Game, {
   addLight(x, y, r, c, i, life) { this.netEmit(['light', Math.round(x), Math.round(y), Math.round(r), c, netR(i), netR(life)]); this.lights.push({ x, y, r, c, i, life, max: life, dead: false }); },
   spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
+  // cri du Hurleur : la horde alentour s'excite et les lampes grésillent
+  scream(z) {
+    this.netEmit(['scream', Math.round(z.x), Math.round(z.y)]); this.screamFx(z.x, z.y);
+    this.torchFlicker = Math.max(this.torchFlicker, 1.6);
+    for (const o of this.zombies) if (!o.dead && o !== z && o.type !== 'boss' && !o.mini && dist2(o.x, o.y, z.x, z.y) < 520 * 520) { o.aggro = true; o.frenzy = 4; }
+  },
+  screamFx(x, y) { this.audio.tone({ f: 1500, f2: 420, dur: 0.75, type: 'sawtooth', g: 0.08 }); this.shake(0.22); this.floatText(x, y - 46, 'AAAAAH !', '#9fe0ff'); for (const k of [0, 0.12, 0.24]) this.later(k, () => this.spawnP({ x, y: y - 20, life: 0.55, type: 'ring', size: 20, grow: 600, emissive: true, color: '#9fe0ff' })); },
   floatText(x, y, text, color) {
     this.netEmit(['text', Math.round(x), Math.round(y), text, color]);
     for (let k = 0; k < 6 && this.texts.some(t => Math.abs(t.x - x) < 56 && Math.abs(t.y - y) < 16); k++) y -= 17; // pas de texte posé sur un autre

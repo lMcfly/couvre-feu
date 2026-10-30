@@ -54,3 +54,45 @@ class SpatialHash {
   }
 }
 
+// titres façon affiche de film d'horreur : lettres épaisses rouge sang, contour noir, bords rongés et salis (rendus une fois puis gardés)
+const TITLE_CACHE = new Map();
+function grungeTitle(c, t, x, y, fs, o = {}) {
+  const sc = Math.max(1, Math.min(3, Math.hypot(c.getTransform().a, c.getTransform().b))), key = `${t}|${Math.round(fs * sc)}|${o.rage ? 1 : 0}`;
+  let e = TITLE_CACHE.get(key);
+  if (!e) {
+    const F = fs * sc, font = `${F}px ${FH}`, m = document.createElement('canvas').getContext('2d'); m.font = font;
+    const tw = m.measureText(t).width, cv = document.createElement('canvas'); cv.width = Math.ceil(tw + F * 0.5); cv.height = Math.ceil(F * 1.55);
+    const g = cv.getContext('2d'), bx = F * 0.25, by = F * 1.18; let h = 7; for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0; const r = mulberry32(h);
+    g.font = font; g.textAlign = 'left'; g.textBaseline = 'alphabetic'; g.lineJoin = 'round';
+    g.shadowColor = 'rgba(0,0,0,.85)'; g.shadowBlur = F * 0.18; g.shadowOffsetY = F * 0.06; g.lineWidth = F * 0.08; g.strokeStyle = '#140202'; g.strokeText(t, bx, by); g.shadowColor = 'transparent';
+    const gr = g.createLinearGradient(0, by - F * 0.9, 0, by + F * 0.04), S = o.rage ? ['#ffb04a', '#ff5a1e', '#c4140c', '#5a0404'] : ['#ff6a3a', '#e8261a', '#a8110b', '#4e0404'];
+    S.forEach((col, k) => gr.addColorStop([0, 0.36, 0.7, 1][k], col)); g.fillStyle = gr; g.fillText(t, bx, by);
+    g.globalCompositeOperation = 'source-atop';
+    for (let k = 0; k < 14; k++) { g.fillStyle = `rgba(30,0,0,${0.06 + r() * 0.12})`; g.beginPath(); g.ellipse(r() * cv.width, by - r() * F, F * (0.2 + r() * 0.5), F * (0.015 + r() * 0.04), (r() - 0.5) * 0.3, 0, TAU); g.fill(); } /* traînées de crasse */
+    g.strokeStyle = 'rgba(255,170,130,.18)'; g.lineWidth = Math.max(1, F * 0.012); for (let k = 0; k < 10; k++) { const sx = r() * cv.width, sy = by - r() * F * 0.85; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + (r() - 0.5) * F * 0.5, sy + (r() - 0.3) * F * 0.2); g.stroke(); }
+    g.globalCompositeOperation = 'destination-out';
+    for (let k = 0; k < tw / F * 70; k++) { const px = bx + r() * tw, py = by - r() * F * 0.95, rr = F * (r() < 0.85 ? 0.006 + r() * 0.018 : 0.03 + r() * 0.04); g.globalAlpha = 0.5 + r() * 0.5; g.beginPath(); g.arc(px, py, rr, 0, TAU); g.fill(); }
+    g.globalAlpha = 0.7; g.lineWidth = Math.max(1, F * 0.01); for (let k = 0; k < tw / F * 5; k++) { const sx = bx + r() * tw, sy = by - r() * F; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + (r() - 0.5) * F * 0.4, sy + r() * F * 0.12); g.stroke(); }
+    e = { cv, sc, ox: bx / sc, oy: by / sc, w: tw / sc };
+    if (!document.fonts || document.fonts.check(`20px ${FH}`)) { TITLE_CACHE.set(key, e); if (TITLE_CACHE.size > 120) TITLE_CACHE.delete(TITLE_CACHE.keys().next().value); } /* police pas encore chargée : on ne garde pas le brouillon */
+  }
+  const dx = c.textAlign === 'center' ? -e.w / 2 : c.textAlign === 'right' ? -e.w : 0;
+  c.drawImage(e.cv, x + dx - e.ox, y - e.oy, e.cv.width / e.sc, e.cv.height / e.sc);
+}
+// textures de l'interface, fabriquées au lancement : usure pour les titres, métal sale et éclaboussures pour les panneaux
+(function uiTextures() {
+  try {
+    const mk = (w, h) => { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; return [cv, cv.getContext('2d')]; }, r = mulberry32(4242);
+    const [a, ga] = mk(256, 256); ga.fillStyle = '#fff'; ga.fillRect(0, 0, 256, 256); ga.globalCompositeOperation = 'destination-out';
+    for (let k = 0; k < 900; k++) { ga.globalAlpha = 0.4 + r() * 0.6; ga.beginPath(); ga.arc(r() * 256, r() * 256, r() < 0.9 ? 0.5 + r() * 1.3 : 2 + r() * 3, 0, TAU); ga.fill(); }
+    ga.lineWidth = 1; for (let k = 0; k < 40; k++) { const x = r() * 256, y = r() * 256; ga.globalAlpha = 0.5; ga.beginPath(); ga.moveTo(x, y); ga.lineTo(x + (r() - 0.5) * 40, y + (r() - 0.5) * 10); ga.stroke(); }
+    const [b, gb] = mk(512, 512);
+    for (let k = 0; k < 5000; k++) { gb.fillStyle = r() < 0.5 ? `rgba(0,0,0,${r() * 0.22})` : `rgba(255,235,210,${r() * 0.035})`; gb.fillRect(r() * 512, r() * 512, 1 + r() * 2, 1 + r() * 2); }
+    gb.strokeStyle = 'rgba(255,240,220,.05)'; for (let k = 0; k < 70; k++) { const x = r() * 512, y = r() * 512; gb.lineWidth = 0.5 + r(); gb.beginPath(); gb.moveTo(x, y); gb.lineTo(x + (r() - 0.5) * 120, y + (r() - 0.5) * 30); gb.stroke(); }
+    for (let s = 0; s < 3; s++) { const cx = r() * 512, cy = r() * 512, R = 30 + r() * 50; // éclaboussure : une tache, des gouttes projetées, des traînées
+      gb.fillStyle = 'rgba(105,8,6,.42)'; gb.beginPath(); for (let k = 0; k <= 24; k++) { const an = k / 24 * TAU, rr = R * (0.55 + r() * 0.45); k ? gb.lineTo(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr) : gb.moveTo(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr); } gb.fill();
+      for (let k = 0; k < 60; k++) { const an = r() * TAU, d = R * (0.9 + r() * 2.2); gb.fillStyle = `rgba(${90 + r() * 40},6,5,${0.25 + r() * 0.35})`; gb.beginPath(); gb.arc(cx + Math.cos(an) * d, cy + Math.sin(an) * d, r() * 3 + 0.5, 0, TAU); gb.fill(); }
+      for (let k = 0; k < 3; k++) { const x = cx + (r() - 0.5) * R, len = 30 + r() * 90; const gr = gb.createLinearGradient(0, cy, 0, cy + len); gr.addColorStop(0, 'rgba(105,8,6,.4)'); gr.addColorStop(1, 'rgba(105,8,6,0)'); gb.fillStyle = gr; gb.fillRect(x, cy, 2 + r() * 3, len); } }
+    const R = document.documentElement.style; R.setProperty('--grunge', `url(${a.toDataURL()})`); R.setProperty('--grime', `url(${b.toDataURL()})`);
+  } catch (e) { }
+})();

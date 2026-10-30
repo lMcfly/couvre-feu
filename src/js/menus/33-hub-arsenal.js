@@ -182,6 +182,6 @@ function drawStartArt(t = 0) {
     g.fillStyle = kind === 'facile' ? `rgba(220,255,150,${0.8 * Math.sin(p * Math.PI)})` : kind === 'normal' ? `rgba(255,150,60,${1 - p})` : `rgba(255,30,80,${1 - p})`; g.fillRect(px, py, 2, 2); }
   if (kind === 'cauchemar') { const v = g.createLinearGradient(0, 0, 0, 150); v.addColorStop(0, 'rgba(60,0,10,.0)'); v.addColorStop(1, 'rgba(120,0,20,.25)'); g.fillStyle = v; g.fillRect(0, 0, 360, 150); }
 }
-(function startArtLoop() { if (game.state === 'title' && !$('launch-modal').hidden) drawStartArt(performance.now() / 1000); requestAnimationFrame(startArtLoop); })();
+(function startArtLoop() { if (game.state === 'title' && !$('launch-modal').hidden && !$('launch-modal').classList.contains('camp')) drawStartArt(performance.now() / 1000); requestAnimationFrame(startArtLoop); })();
 function refreshStartDiff() { const card = document.querySelector('.start-card'); card.dataset.diff = game.diffKey; if (!readSave()) $('start-kicker').textContent = `Nouvelle nuit · ${START_FLAVOR[game.diffKey]}`; }
 for (const b of document.querySelectorAll('#diff button')) b.addEventListener('click', () => setTimeout(refreshStartDiff, 0));

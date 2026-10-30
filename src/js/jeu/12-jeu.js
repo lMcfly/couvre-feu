@@ -77,9 +77,9 @@ class Game {
   fillPauseStats() {
     const st = this.stats || {}, t = Math.floor(this.runTime || 0), acc = st.shots ? Math.round(100 * st.hits / st.shots) : 0, p = this.player;
     const zn = this.activeZone >= 0 ? ZONES[this.activeZone] : null;
-    $('pause-where').textContent = this.mode === 'training' ? (this.train && this.train.tut ? 'Didacticiel' : "Camp d'entraînement") : this.endless ? `Nuit sans fin · nuit ${this.endless.night}` : this.dailyMod ? `Défi du jour · ${this.dailyMod.name}` : this.mode === 'survival' ? `Mode survie · vague ${this.surv ? this.surv.wave : 0}` : this.mode === 'secret' ? 'Le Paradis des Shibas' : this.mode === 'hospital' ? 'Secteur 5 · Hôpital Saint-Lazare' : `${zn ? zn.sub + ' · ' + zn.name : this.safeName || 'Campagne'} · ${this.diff.name}${this.p2 ? ' · duo' : ''}`;
+    $('pause-where').textContent = this.mode === 'training' ? (this.train && this.train.tut ? 'Didacticiel' : "Camp d'entraînement") : this.endless ? `Nuit sans fin · nuit ${this.endless.night}` : this.dailyMod ? `Défi du jour · ${this.dailyMod.name}` : this.mode === 'survival' ? `Mode survie · vague ${this.surv ? this.surv.wave : 0}` : this.mode === 'secret' ? 'Le Paradis des Shibas' : this.mode === 'hospital' ? (this.hcamp ? 'Mission 5 · Hôpital Saint-Lazare' : 'Secteur 5 · Hôpital Saint-Lazare') : `${zn ? zn.sub + ' · ' + zn.name : this.safeName || 'Campagne'} · ${this.diff.name}${this.p2 ? ' · duo' : ''}`;
     const cells = [['Score', fmt(Math.floor(this.score))], ['Zombies abattus', fmt(this.kills)], ['Temps', `${Math.floor(t / 60)} min ${String(t % 60).padStart(2, '0')}`], ['Précision', acc + ' %'], ['Multiplicateur max', '×' + (this.maxMult || 1).toFixed(1)], ['Argent', '$ ' + fmt(p ? p.money : 0)]];
-    if (this.mode === 'story') cells.push(['Shibas', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`], ['Vies', `${this.lives} / ${this.diff.lives}`], ['Survivants sauvés', String(this.run ? this.run.saved : 0)]);
+    if (this.isCampaign()) cells.push(['Shibas', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`], ['Vies', `${this.lives} / ${this.diff.lives}`], ['Survivants sauvés', String(this.run ? this.run.saved : 0)]);
     if (this.mode === 'training' && this.train) cells.push(['Cibles abattues', String(this.train.hits)]);
     $('pause-stats').innerHTML = cells.map(([a, b]) => `<div><b>${b}</b><span>${a}</span></div>`).join('');
     $('pause-main').hidden = false; $('pause-settings').hidden = true;
@@ -160,7 +160,7 @@ class Game {
     if (this.slowT > 0) { this.slowT -= realDt; if (!W8.open) { dt *= 0.28; pdt = realDt * 0.45; } }
     if (!p.dead) p.update(pdt, inp);
     else if (this.p1Down > 0) { /* à terre : attend d'être relevé par son allié ou la fin de la manche */ }
-    else { this.deathT -= dt; if (this.deathT <= 0) { if (this.lives > 0) { if (this.mode === 'secret' || this.mode === 'hospital') this.respawnSecret(); else this.respawn(); } else if (this.mode === 'survival' || this.mode === 'secret' || this.mode === 'hospital' || this.endless) { this.showEnd(false); return; } else { this.comic.show('gameover', () => this.showEnd(false)); return; } } }
+    else { this.deathT -= dt; if (this.deathT <= 0) { if (this.lives > 0) { if (this.mode === 'secret' || this.mode === 'hospital') this.respawnSecret(); else this.respawn(); } else if (this.mode === 'survival' || this.mode === 'secret' || (this.mode === 'hospital' && !this.hcamp) || this.endless) { this.showEnd(false); return; } else { this.comic.show('gameover', () => this.showEnd(false)); return; } } }
     if (this.p2) this.updateRevive(pdt);
     if (this.p2) { const q = this.p2, i2 = this.input.pollP2(this); if (i2.pause && !inp.pause) { this.pause(); return; } if (!q.dead) { q.update(pdt, i2); if (!p.dead && !this.net && dist2(q.x, q.y, p.x, p.y) > 720 * 720) { q.x = p.x - 30; q.y = p.y + 20; this.toast('J2 ramené près du J1', '#9fd6e6'); } } }
     // progression
@@ -168,11 +168,7 @@ class Game {
     for (let k = 0; k < 4; k++) if (!this.zoneEntered[k] && px > ZONES[k].x0 + (k === 0 ? 0 : 50) && px < ZONES[k].x1) this.enterZone(k);
     for (let s = 0; s < 3; s++) if (!this.safeEntered[s] && px > SAFES[s].x0 + 40 && px < SAFES[s].x1) this.enterSafe(s);
     if (this.endless && px > EXIT.x0 + 50 && this.level.obj[3].dead) { this.nextNight(); return; }
-    if (this.mode === 'story' && px > EXIT.x0 + 50 && this.level.obj[3].dead) {
-      this.unlock(WIN_ACH[this.charKey]); if (this.diffKey === 'cauchemar') this.unlock('nightmare');
-      Settings.survival = true; clearSave(); if (this.shibaFound.size >= SHIBAS_TOTAL) Settings.paradise = true; Settings.save(); refreshSurvivalBtn();
-      this.comic.show('epilogue', () => this.showEnd(true)); return;
-    }
+    if (this.mode === 'story' && px > EXIT.x0 + 50 && this.level.obj[3].dead) { this.toHospital(); return; }
     if (this.mode === 'survival') this.updateSurvival(dt);
     if (this.mode === 'training') this.updateTraining(dt);
     if (this.mode === 'secret') this.updateShibaNPC(dt);

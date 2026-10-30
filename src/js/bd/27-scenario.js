@@ -104,7 +104,7 @@ const ACTS = {
     : { draw: g => { bgNight(g, 31, ['#1a1030', '#3a1a2a']); zombieC(g, 90, 360, 0.85, {}); zombieC(g, 420, 360, 0.85, { flip: true }); fiona(g, 250, 360, 1.0, { mood: 'deadpan', hand: 'frites' }); S(g, '#7a0f0c', () => { E(g, 300, 196, 9, 6); E(g, 312, 204, 7, 5); }, 2); }, cap: 'Fiona a été mordue. Franchement, personne n\'a vu la différence.', capPos: 'b', bubbles: [{ t: 'J\'me sens comme d\'habitude, hein.', x: 4, y: 8, tail: 'br', w: 34 }] }
   ] },
   epilogue: { label: 'Épilogue', title: 'L\'aube', panels: ch => [
-    { draw: g => { bgDawn(g); helicopter(g, 290, 130, 1.05); sfx(g, 'TCHOP TCHOP TCHOP', 250, 330, 32, -0.04, '#fff3c0'); }, cap: 'L\'aube. L\'hélicoptère décolle au-dessus des toits.' },
+    { draw: g => { bgDawn(g); helicopter(g, 290, 130, 1.05); sfx(g, 'TCHOP TCHOP TCHOP', 250, 330, 32, -0.04, '#fff3c0'); }, cap: 'L\'aube. L\'hélicoptère décolle enfin du toit de l\'hôpital.' },
     ch === 'pedro'
       ? { draw: g => { bgHeli(g); npc(g, 370, 380, 1.0, { flip: true, coat: '#3b4a3a', head: 'pilot', prop: 'burrito' }); pedro(g, 130, 400, 1.0, { mood: 'happy' }); }, cap: 'Sous son siège, le pilote gardait un sachet.', bubbles: [{ t: 'Tiens. C\'est tout ce qu\'on a.', x: 56, y: 16, tail: 'br', w: 34 }, { t: '¿Un burrito? ¡Te quiero, amigo!', x: 3, y: 64, tail: 'tr', w: 40 }] }
       : { draw: g => { bgCamp(g); npc(g, 370, 360, 1.0, { flip: true, coat: '#f2f2ee', head: 'doctor', prop: 'clipboard', skin: '#e0b896' }); fiona(g, 140, 360, 0.95, { mood: 'annoyed' }); }, cap: 'Au camp de réfugiés, un médecin la regarde de travers.', bubbles: [{ t: 'Celle-là, en quarantaine. Elle est infectée.', x: 50, y: 16, tail: 'br', w: 40 }, { t: 'Mais j\'suis d\'Roubaix !', x: 3, y: 64, tail: 'tr', w: 36 }] },
@@ -222,7 +222,7 @@ function newPanels(key, ch) {
       { draw: g => { speedBg(g, '#5a0f0c'); H(g, 250, 560, 1.5, { mood: 'angry', hand: 'gun' }); }, cap: 'Dernier secteur. L\'hélicoptère n\'attendra pas.', capPos: 'b', bubbles: [{ t: T.boss, x: 3, y: 5, tail: 'br', w: 40 }] }
     ];
     case 'epilogue': return [
-      { draw: g => { bgDawn(g); helicopter(g, 290, 130, 1.05); sfx(g, 'TCHOP TCHOP TCHOP', 250, 330, 32, -0.04, '#fff3c0'); }, cap: 'L\'aube. L\'hélicoptère décolle au-dessus des toits.' },
+      { draw: g => { bgDawn(g); helicopter(g, 290, 130, 1.05); sfx(g, 'TCHOP TCHOP TCHOP', 250, 330, 32, -0.04, '#fff3c0'); }, cap: 'L\'aube. L\'hélicoptère décolle enfin du toit de l\'hôpital.' },
       { draw: g => { bgHeli(g); npc(g, 370, 380, 1.0, { flip: true, coat: '#3b4a3a', head: 'pilot' }); H(g, 130, 400, 1.0, { mood: 'happy', hand: prop }); }, cap: 'Dans l\'hélicoptère, le pilote jette un œil en arrière.', bubbles: [{ t: T.pilot, x: 54, y: 16, tail: 'br', w: 38 }, { t: T.pilotReply, x: 3, y: 64, tail: 'tr', w: 40 }] },
       { draw: g => { bgDawn(g, 51); H(g, 240, 560, 1.5, { mood: 'happy', hand: prop }); }, cap: T.end, capPos: 'b' }
     ];
@@ -268,10 +268,24 @@ function bgParadise(g) {
 }
 const PARADISE_LINES = { pedro: '¡Qué lindos! Mi corazón… ¡ay caramba!', fiona: 'Ch\'est mignon tout plein. J\'vais pleurer, mais pas devant eux.', zeus: 'Même l\'Olympe n\'est pas aussi beau.', dobby: 'Dobby a plein de nouveaux amis !', chewie: 'Franchement… je kiffe trop.', dragon: 'Bon. D\'accord. Ils sont mignons. Ne le répétez pas.' };
 ACTS.paradise = { label: 'Fin secrète', title: 'Le Paradis des Shibas', panels: ch => [
-  { draw: g => { bgParadise(g); hero(ch, g, 240, 380, 0.85, { mood: 'happy' }); shibaC(g, 70, 330, 0.9, {}); shibaC(g, 400, 335, 0.85, { flip: true }); shibaC(g, 140, 300, 0.6, {}); shibaC(g, 340, 300, 0.6, { flip: true }); }, cap: 'Les 12 shibas sauvés gambadent enfin en paix.', capPos: 'b', bubbles: [{ t: PARADISE_LINES[ch], x: 3, y: 4, tail: 'br', w: 42 }] },
+  { draw: g => { bgParadise(g); hero(ch, g, 240, 380, 0.85, { mood: 'happy' }); shibaC(g, 70, 330, 0.9, {}); shibaC(g, 400, 335, 0.85, { flip: true }); shibaC(g, 140, 300, 0.6, {}); shibaC(g, 340, 300, 0.6, { flip: true }); }, cap: `Les ${SHIBAS_TOTAL} shibas sauvés gambadent enfin en paix.`, capPos: 'b', bubbles: [{ t: PARADISE_LINES[ch], x: 3, y: 4, tail: 'br', w: 42 }] },
   { draw: g => { bgParadise(g); shibanophileC(g, 240, 380, 0.8, { sad: true }); shibaC(g, 360, 330, 0.9, { flip: true }); sfx(g, 'LÈCHE LÈCHE', 380, 120, 26, 0.1, '#ff8fb8'); }, cap: 'Vaincu, le Shibanophile avoue tout : il n\'a jamais eu le droit d\'avoir un chien.', capPos: 'b', bubbles: [{ t: 'Snif… il est tout doux, en fait…', x: 4, y: 6, tail: 'br', w: 36 }] },
   { draw: g => { bgParadise(g); for (let i = 0; i < 6; i++) shibaC(g, 50 + i * 76, 330 + (i % 2) * 14, 0.7, { flip: i % 2 === 1 }); hero(ch, g, 240, 300, 0.6, { mood: 'happy', hand: PROP[ch] }); sfx(g, 'WOUF !', 240, 70, 52, -0.06, '#ffd23a'); }, cap: 'Fin. Pour de vrai, cette fois. Merci d\'avoir sauvé les shibas.', capPos: 'b' }
 ] };
+// ---------- acte V : l'hôpital Saint-Lazare (mission 5), commun à tous les personnages
+const ACT5_LINES = {
+  pedro: ['¿Un hospital? J\'espère qu\'ils ont des burritos à la cafétéria.', '¡Vamos! Un docteur zombie, il ne manquait plus que ça.'],
+  fiona: ['Un hôpital ? Ils vont encore vouloir m\'mettre en quarantaine.', 'Allez. Les urgences, j\'connais : j\'suis du Nord.'],
+  zeus: ['Un hôpital. Pourvu qu\'il y ait des plantes dans le hall.', 'Même les dieux détestent les salles d\'attente.'],
+  dobby: ['Dobby n\'aime pas les hôpitaux : toutes les chaussettes y sont blanches.', 'Dobby va être très courageux. Encore une fois.'],
+  chewie: ['L\'hosto ? Grave, j\'avais une carie à faire voir.', 'On y va. Même les couloirs qui sentent l\'éther, je kiffe.'],
+  dragon: ['Un hôpital. Enfin un endroit aussi sinistre que mon antre.', 'Un Chirurgien ? Il va découvrir le vrai Maléfique.']
+};
+ACTS.act5 = { label: 'Acte V', title: 'L\'hôpital Saint-Lazare', panels: ch => { const L = ACT5_LINES[ch] || ACT5_LINES.pedro; return [
+  { draw: g => { bgHeli(g); npc(g, 370, 380, 1.0, { flip: true, coat: '#3b4a3a', head: 'pilot' }); hero(ch, g, 130, 400, 1.0, { mood: 'shock' }); }, cap: 'L\'hélicoptère quitte la Mairie. La radio crache un nouvel ordre.', bubbles: [{ t: 'On se pose sur le toit de l\'hôpital Saint-Lazare. Une infirmière y est bloquée.', x: 50, y: 14, tail: 'br', w: 44 }, { t: L[0], x: 3, y: 64, tail: 'tr', w: 42 }] },
+  { draw: g => { bgHospital(g); sfx(g, 'KRRZZT', 400, 170, 26, 0.1, '#9fe0ff'); }, cap: 'Sur le toit, personne. Des néons qui grésillent et une odeur d\'éther.', capPos: 'b', bubbles: [{ t: '… ici Inès… urgences… il y a quelqu\'un ?', x: 4, y: 6, tail: 'none', w: 38, cls: 'radio' }] },
+  { draw: g => { speedBg(g, '#0f4a44'); hero(ch, g, 250, 560, 1.5, { mood: 'angry', hand: 'gun' }); }, cap: 'Mission 5. Descendre jusqu\'à la morgue. Quelqu\'un y opère encore.', capPos: 'b', bubbles: [{ t: L[1], x: 3, y: 5, tail: 'br', w: 40 }] }
+]; } };
 for (const key of ['intro', 'act2', 'act3', 'act4', 'epilogue', 'gameover']) { const orig = ACTS[key].panels; ACTS[key].panels = ch => NEW_STORY[ch] ? newPanels(key, ch) : orig(ch); }
 const PORTRAIT_BG = { pedro: bgTruck, fiona: bgFriterie, zeus: g => bgBalcony(g, false), dobby: g => bgHome(g, false), chewie: bgKebab, dragon: g => bgLair(g, false) };
 const HEAD_CROP = { pedro: [135, 18, 210], fiona: [148, 44, 184], zeus: [148, 36, 184], dobby: [130, 96, 220], chewie: [132, 4, 216], dragon: [146, 34, 188] };

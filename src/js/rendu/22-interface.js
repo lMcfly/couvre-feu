@@ -68,7 +68,7 @@ mixin(Game, {
     if (this.mode !== 'training') { const m = this.mult, y = small ? 34 : 46; c.font = `${small ? 28 : 40}px ${FD}`; c.textAlign = 'right'; c.fillStyle = '#d8d2c4'; c.fillText(fmt(this.score), cw / 2 + 6, y);
       c.textAlign = 'left'; c.font = `${(small ? 22 : 30) + this.multPulse * 10}px ${FD}`; c.fillStyle = m >= 8 ? '#ff4a2c' : m >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText(m.toFixed(1) + '×', cw / 2 + 20, y);
       c.textAlign = 'center'; c.font = `12px ${FT}`; c.fillStyle = '#8b867b'; let sub = `${fmt(this.kills)} abattus`;
-      if (this.mode !== 'training') sub += '   ' + '■'.repeat(Math.max(0, this.lives)) + '□'.repeat(Math.max(0, this.diff.lives - this.lives)); if (this.mode === 'story') sub += `   shibas ${this.shibaFound.size}/${SHIBAS_TOTAL}`;
+      if (this.mode !== 'training') sub += '   ' + '■'.repeat(Math.max(0, this.lives)) + '□'.repeat(Math.max(0, this.diff.lives - this.lives)); if (this.isCampaign()) sub += `   shibas ${this.shibaFound.size}/${SHIBAS_TOTAL}`;
       c.fillText(sub, cw / 2, y + 20); }
     // panneaux joueurs
     this.drawPanel(p, 1, cw, ch, S, coop ? (this.netGuest ? 'TOI' : 'J1') : '');
@@ -76,7 +76,7 @@ mixin(Game, {
     // objectif
     const ob = this.objective(); const zn = this.activeZone >= 0 ? ZONES[this.activeZone] : null;
     if (ob.text && !(this.train && this.train.tut)) {
-      c.textAlign = 'left'; c.font = `12px ${FT}`; c.fillStyle = '#8b867b'; c.fillText(this.mode === 'secret' ? 'NIVEAU SECRET · LE PARADIS DES SHIBAS' : this.mode === 'hospital' ? 'SECTEUR 5 · HÔPITAL SAINT-LAZARE' : this.mode === 'training' ? "CAMP D'ENTRAÎNEMENT" : this.mode === 'survival' ? 'MODE SURVIE · PLACE DE LA MAIRIE' : zn ? `${zn.sub.toUpperCase()} · ${zn.name.toUpperCase()}` : (this.safeName || '').toUpperCase(), 22, small ? 92 : 136);
+      c.textAlign = 'left'; c.font = `12px ${FT}`; c.fillStyle = '#8b867b'; c.fillText(this.mode === 'secret' ? 'NIVEAU SECRET · LE PARADIS DES SHIBAS' : this.mode === 'hospital' ? (this.hcamp ? 'MISSION 5 · HÔPITAL SAINT-LAZARE' : 'SECTEUR 5 · HÔPITAL SAINT-LAZARE') : this.mode === 'training' ? "CAMP D'ENTRAÎNEMENT" : this.mode === 'survival' ? 'MODE SURVIE · PLACE DE LA MAIRIE' : zn ? `${zn.sub.toUpperCase()} · ${zn.name.toUpperCase()}` : (this.safeName || '').toUpperCase(), 22, small ? 92 : 136);
       c.font = `${small ? 13 : 15}px ${FT}`; c.fillStyle = '#d8d2c4'; wrapText(c, ob.text, 22, small ? 110 : 156, Math.min(380, cw * 0.32), 19);
       if (ob.progress != null) { c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(22, small ? 136 : 196, 240, 5); c.fillStyle = '#7fd18b'; c.fillRect(22, small ? 136 : 196, 240 * ob.progress, 5); }
     }
@@ -197,7 +197,7 @@ mixin(Game, {
     const c = ctx, p = this.player, t = this.time;
     c.textAlign = 'left'; c.font = `20px ${FD}`; c.fillStyle = '#f0b25a'; c.fillText('$ ' + fmt(p.money), 16, 30);
     for (let i = 0; i < this.diff.lives; i++) { c.fillStyle = i < this.lives ? '#b0231c' : 'rgba(255,255,255,.12)'; c.fillRect(16 + i * 14, 38, 9, 9); }
-    if (this.mode === 'story') { const sx = 16 + this.diff.lives * 14 + 10; itemIcon(c, 'shiba', sx + 7, 42, 16, '#d9873a'); c.font = `11px ${FT}`; c.textAlign = 'left'; c.fillStyle = '#ffb46a'; c.fillText(`${this.shibaFound.size}/${SHIBAS_TOTAL}`, sx + 18, 47); }
+    if (this.isCampaign()) { const sx = 16 + this.diff.lives * 14 + 10; itemIcon(c, 'shiba', sx + 7, 42, 16, '#d9873a'); c.font = `11px ${FT}`; c.textAlign = 'left'; c.fillStyle = '#ffb46a'; c.fillText(`${this.shibaFound.size}/${SHIBAS_TOTAL}`, sx + 18, 47); }
     const bw = Math.min(190, cw * 0.28);
     c.fillStyle = 'rgba(255,255,255,.08)'; c.fillRect(16, 56, bw, 9);
     c.fillStyle = 'rgba(240,220,200,.5)'; c.fillRect(16, 56, bw * Math.max(0, p.hpTrail) / p.maxHp, 9);
@@ -262,10 +262,10 @@ mixin(Game, {
     // bannière
     if (this.bannerObj && !this.cine && !(this.wheel && this.wheel.k > 0)) {
       const b = this.bannerObj, a = Math.min(1, b.t * 2, (3.6 - b.t) * 3); c.globalAlpha = a; c.textAlign = 'center';
-      const y = ch * 0.3; c.fillStyle = 'rgba(0,0,0,.55)'; c.fillRect(0, y - 52, cw, 84);
-      c.fillStyle = '#b0231c'; c.fillRect(cw / 2 - 40, y - 52, 80, 3);
-      c.font = `${small ? 30 : 44}px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(b.title.toUpperCase(), cw / 2, y);
-      c.font = `${small ? 13 : 16}px ${FT}`; c.fillStyle = '#c6c0b2'; c.fillText(b.sub, cw / 2, y + 24); c.globalAlpha = 1;
+      const y = ch * 0.3; c.fillStyle = 'rgba(0,0,0,.55)'; c.fillRect(0, y - 54, cw, 94);
+      c.fillStyle = '#b0231c'; c.fillRect(cw / 2 - 40, y - 54, 80, 3);
+      grungeTitle(c, b.title.toUpperCase(), cw / 2, y + 2, small ? 34 : 50);
+      c.font = `${small ? 13 : 16}px ${FT}`; c.fillStyle = '#c6c0b2'; c.fillText(b.sub, cw / 2, y + 30); c.globalAlpha = 1;
     }
     // bande fine en haut pour les petits événements : au tactile sous le bouton pause, entre les barres de vie et le score et au-dessus de l'objectif ; sur PC sous le score
     if (this.notices.length && !this.cine && !(this.wheel && this.wheel.k > 0) && !(this._achB > 50)) { /* au tactile, attend qu'une carte de succès sur deux lignes soit partie */
@@ -329,7 +329,7 @@ mixin(Game, {
       let sb = null;
       if (this.speech) { const s = this.speech; c.font = `${small ? 12 : 14}px ${FT}`; const lines = wrapLines(c, s.msg, small ? 190 : 240), lh = small ? 15 : 17; sb = { s, lines, lh, w: Math.max(...lines.map(l => c.measureText(l).width)) + 20, h: lines.length * lh + 12 }; }
       const PH = 21, stackH = (sb ? sb.h + 14 : 0) + this.pops.length * PH + 8, headY = sp.y - 44 / HUDK;
-      const bnr = this.bannerObj && !this.cine && !(this.wheel && this.wheel.k > 0) ? [ch * 0.3 - 58, ch * 0.3 + 38] : null;
+      const bnr = this.bannerObj && !this.cine && !(this.wheel && this.wheel.k > 0) ? [ch * 0.3 - 60, ch * 0.3 + 44] : null;
       const below = (bnr && headY - stackH < bnr[1] && headY > bnr[0]) || headY - stackH < 8;
       let cur = below ? sp.y + 34 / HUDK + (this.hint ? 30 : 0) + (this.denyMsg ? 26 : 0) : headY;
       if (sb) {

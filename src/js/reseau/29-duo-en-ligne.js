@@ -88,7 +88,7 @@ const Net = {
 setInterval(() => { if (game && game.net) Net.ping(); }, 1000);
 // ---------- synchronisation de la partie (hôte → invité, invité → hôte)
 const NET_EDGES = ['firePressed', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'cycleUp', 'cycleDown'];
-const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap'];
+const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap', 'scream'];
 const NET_PK = ['x', 'y', 'aim', 'hp', 'maxHp', 'dead', 'rollT', 'rollDir', 'cur', 'vx', 'vy', 'inv', 'walkT', 'muzzleT', 'meleeT', 'recoil', 'playDead', 'hidden', 'battery', 'stamina', 'armor', 'grenades', 'mines', 'decoys', 'money', 'reloadT', 'charging', 'charge', 'spCd', 'spMax', 'flashCd', 'exhausted', 'hpTrail', 'char', 'downX', 'downY', 'revT', 'slowT', 'dazeT', 'carry'];
 const NET_ZS = ['type', 'r', 'skin', 'cloth', 'pants', 'costume', 'spawnMax', 'spawnKind', 'seed', 'mini', 'mk', 'bkind', 'ultimate', 'title', 'maxHp', 'target'];
 const NET_BOSS = ['state', 'st', 'phase', 'weakT', 'rageT', 'jumpZ', 'echoA', 'ramA', 'bladeA', 'entry', 'dir', 'hp', 'maxHp', 'r'];
@@ -158,7 +158,7 @@ mixin(Game, {
       hz: this.hazards.filter(h => !h.dead).map(h => { const o = netFlat(h); o.hid = h.hid; if (h.boss) o.bn = h.boss.nid; if (h.ob) o.ob = netFlat(h.ob); if (h.hooked) o.hk = h.hooked === this.p2 ? 2 : 1; return o; }),
       pk: flat(this.pickups), ca: this.level.obstacles.filter(o => (o.kind === 'car' || o.kind === 'machine' || o.kind === 'generator') && near(o)).map(o => [o.oid, Math.round(o.hp) || 0, o.wreck ? 1 : 0, netR(o.burning || 0), netR(o.alarm || 0), o.broken || o.on ? 1 : 0, o.charges | 0]),
       G: { sc: Math.floor(this.score), mu: netR(this.mult), ki: this.kills, li: this.lives, bo: this.bossRef && !this.bossRef.dead ? this.bossRef.nid : 0, bk: netR(this.blackoutT || 0), ff: netR(this.flashFx || 0), tf: netR(this.torchFlicker || 0), th: this.audio.themeName, mi: this.bossRef && !this.bossRef.dead ? 1 : 0.5,
-        ci: this.cine ? [this.cine.b.nid, netR(this.cine.t)] : 0, ob: this.objective().text, st: this.state, md: this.mode, az: this.activeZone, sn: this.safeName || '', sf: this.shibaFound ? this.shibaFound.size : 0, mo: Math.floor(this.player.money || 0),
+        ci: this.cine ? [this.cine.b.nid, netR(this.cine.t)] : 0, ob: this.objective().text, st: this.state, md: this.mode, hc: this.hcamp ? 1 : 0, az: this.activeZone, sn: this.safeName || '', sf: this.shibaFound ? this.shibaFound.size : 0, mo: Math.floor(this.player.money || 0),
         svv: this.survivors.filter(v => !v.dead).map(v => netFlat(v)), ev: this.event ? netFlat(this.event) : 0, bu: this.buddy ? netFlat(this.buddy) : 0, p1d: netR(this.p1Down || 0), rv: this.reviveUsed ? 1 : 0, sv: this.surv ? [this.surv.wave, this.surv.state, netR(this.surv.t)] : 0 } };
     // ce qui change rarement (armes, objectifs, éclairage) n'est renvoyé que s'il a changé, ou une fois par seconde
     const L = { W: q.weapons.map(w => [w.owned ? 1 : 0, w.ammo, w.reserve, w.lvl ? netFlat(w.lvl) : 0]), oj: this.mode === 'story' ? this.level.obj.map(o => o ? netFlat(o) : 0) : 0, lp: this.level.lamps.map(l => l.on ? 1 : 0).join('') }, Ls = JSON.stringify(L);
@@ -216,8 +216,9 @@ mixin(Game, {
     if (G.th && G.th !== this.audio.themeName) this.audio.setTheme(G.th);
     this.bossRef = G.bo ? this.zmap.get(G.bo) || null : null; this.p1Down = G.p1d; this.reviveUsed = !!G.rv; if (G.sv && this.surv) { this.surv.wave = G.sv[0]; this.surv.state = G.sv[1]; this.surv.t = G.sv[2]; }
     if (G.ci) { const b = this.zmap.get(G.ci[0]); if (b) { this.cine = this.cine && this.cine.b === b ? this.cine : { b, t: G.ci[1], t0: performance.now() }; } } else if (this.cine) { this.cine = null; this.bannerObj = null; }
-    // campagne : objectifs, survivants, éclairage, événement, shiba compagnon
-    if (G.md === 'story') {
+    // campagne : objectifs, survivants, éclairage, événement, shiba compagnon (l'hôpital de la mission 5 compris)
+    if (G.md === 'hospital' && G.hc && !this.level.hosp) this.netGuestHospital();
+    if (G.md === 'story' || G.hc) {
       this.activeZone = G.az; this.safeName = G.sn || null; if (!this.shibaFound || this.shibaFound.size !== G.sf) this.shibaFound = new Set(Array.from({ length: G.sf }, (_, i) => 'n' + i));
       if (S.L && L.oj) L.oj.forEach((o, k) => { if (o && this.level.obj[k]) Object.assign(this.level.obj[k], o); });
       this.survivors = (G.svv || []).map(o => Object.assign(Object.create(Survivor.prototype), o, { g: this }));
@@ -229,6 +230,12 @@ mixin(Game, {
     const N = this.netG; N.hostSt = G.st;
     if (G.st === 'playing' || G.st === 'paused' || G.st === 'end') { netWait(null); if (this.state === 'comic' && G.st === 'playing') this.comic.finish(); }
     else if (this.state !== 'comic') netWait(G.st === 'comic' ? 'Ton ami lit la BD…' : G.st === 'map' ? 'Ton ami regarde la carte et prépare la prochaine mission…' : G.st === 'shop' ? 'Ton ami fait ses achats au marché noir…' : 'En attente de ton ami…');
+  },
+  // l'hôte est passé à la mission 5 : l'invité bâtit le même hôpital
+  netGuestHospital() {
+    this.resetWorld(); this.mode = 'hospital'; this.hcamp = true; this.buildHospital(); this.activeZone = 0; this.level.setGate(ZONES[0].x1, true);
+    this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.oidMap = new Map(this.level.obstacles.map(o => [o.oid, o])); this.netG.hz = new Map();
+    this.player.x = 190; this.player.y = 640; this._meSync = false;
   },
   netFx(e) {
     const [k, ...a] = e;
@@ -242,6 +249,7 @@ mixin(Game, {
       case 'banner': this.banner(a[0], a[1]); break;
       case 'notice': this.notice(a[0], a[1], a[2]); break;
       case 'text': this.floatText(...a); break;
+      case 'scream': this.screamFx(a[0], a[1]); break;
       case 'slow': this.slowT = a[0]; this.slowMax = a[0]; this.slowLabel = a[1]; break;
       case 'boom': { const [x, y, R] = a; for (let i = 0; i < 26; i++) { const an = rand(0, TAU), s = rand(40, R * 2.4); this.spawnP({ x, y, z: rand(4, 20), vx: Math.cos(an) * s, vy: Math.sin(an) * s, vz: rand(20, 120), life: rand(0.3, 0.7), type: 'fire', size: rand(8, 16), emissive: true, drag: 3.5 }); } for (let i = 0; i < 14; i++) { const an = rand(0, TAU), s = rand(20, R); this.spawnP({ x, y, z: 10, vx: Math.cos(an) * s, vy: Math.sin(an) * s, life: rand(1, 2.2), type: 'smoke', size: rand(10, 18), grow: 22, drag: 1.5 }); } break; }
       case 'die': { const z = this.zmap.get(a[0]); if (z) { z.x = a[1]; z.y = a[2]; z.dead = true; try { this.bakeCorpse(z); } catch (er) { } for (let i = 0; i < (z.type === 'brute' ? 6 : 3); i++) this.spawnP({ x: z.x, y: z.y, z: 14, vx: rand(-160, 160), vy: rand(-160, 160), vz: rand(60, 220), grav: 700, life: 2, type: 'gib', size: rand(3, 5), bake: true, color: '#5a1410' }); this.zmap.delete(a[0]); this.zombies = [...this.zmap.values()]; } break; }

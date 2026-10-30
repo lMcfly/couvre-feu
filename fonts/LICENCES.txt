@@ -1,6 +1,7 @@
 Polices hébergées avec Couvre-Feu (sous-ensembles latin et latin étendu, au format woff2) :
 - Bangers (Vernon Adams) : SIL Open Font License 1.1
 - Comic Neue (Craig Rozynski) : SIL Open Font License 1.1
+- Anton (Vernon Adams) : SIL Open Font License 1.1
 - Saira Stencil One (Omnibus-Type) : SIL Open Font License 1.1
 - Special Elite (Astigmatic) : Apache License 2.0
 Sources : Google Fonts (https://fonts.google.com).

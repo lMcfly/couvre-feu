@@ -34,7 +34,7 @@ const ACH = [
   ['boss', 'Abominable', 'Vaincre l\'Abomination.'],
   ['nightmare', 'Insomniaque', 'Terminer le jeu en Cauchemar.'],
   ['wave10', 'Ça ne s\'arrête jamais', 'Atteindre la vague 10 en mode Survie.'],
-  ['shibas', 'Brigade canine', 'Trouver les 12 shibas cachés dans une même partie.'],
+  ['shibas', 'Brigade canine', 'Trouver les 15 shibas cachés dans une même partie.'],
   ['ultimate', 'Le paradis retrouvé', 'Vaincre le Shibanophile dans le Paradis des Shibas.']
 ];
 const Ach = {

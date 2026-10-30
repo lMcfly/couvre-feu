@@ -68,18 +68,57 @@ function writeSave(g, s) {
   const data = { v: 1, char: g.charKey, diff: g.diffKey, safe: s, shibaSeed: g.shibaSeed || 0, cp: { ...cp, weapons: cp.weapons.map(w => ({ ...w, reserve: w.reserve === Infinity ? -1 : w.reserve })) }, lives: g.lives, maxMult: g.maxMult, runTime: g.runTime, stats: g.stats, run: g.run, date: Date.now() };
   memSave = JSON.parse(JSON.stringify(data)); try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { }
 }
-function validSave(d) { return !!d && d.v === 1 && !!CHARS[d.char] && !!DIFFS[d.diff] && Number.isInteger(d.safe) && d.safe >= 0 && d.safe <= 2 && d.cp && Array.isArray(d.cp.weapons) && d.cp.weapons.length === WEAPONS.length; }
+function validSave(d) { return !!d && d.v === 1 && !!CHARS[d.char] && !!DIFFS[d.diff] && Number.isInteger(d.safe) && d.safe >= 0 && d.safe <= 3 && d.cp && Array.isArray(d.cp.weapons) && d.cp.weapons.length === WEAPONS.length; }
 function readSave() { try { const t = localStorage.getItem(SAVE_KEY); if (t) { const d = JSON.parse(t); return validSave(d) ? d : null; } } catch (e) { } return validSave(memSave) ? memSave : null; }
 function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); } catch (e) { } }
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
-function saveLine(d) { return `${CHARS[d.char].name} · ${DIFFS[d.diff].name} · mission ${d.safe + 2} sur 4 · ${fmt(d.cp.score || 0)} pts · ${(d.cp.shibas || []).length}/${SHIBAS_TOTAL} shibas`; }
+// code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
+const b64u = {
+  enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
+  dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
+};
+async function deflate(u8, pack) { const cs = pack ? new CompressionStream('deflate-raw') : new DecompressionStream('deflate-raw'); return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(cs)).arrayBuffer()); }
+async function encodeProfile() {
+  const s = {}; for (const k of PROFILE_KEYS) if (Settings[k] != null) s[k] = Settings[k];
+  const raw = new TextEncoder().encode(JSON.stringify({ v: 2, s, a: Ach.get(), sc: Scores.list(), sv: readSave() }));
+  if (typeof CompressionStream === 'function') try { return 'CF2.' + b64u.enc(await deflate(raw, true)); } catch (e) { }
+  return 'CF2U.' + b64u.enc(raw);
+}
+async function decodeProfile(code) {
+  const t = String(code).replace(/\s+/g, '');
+  try {
+    if (t.startsWith('CF1.')) { const sv = decodeSave(t); return sv ? { v: 2, s: {}, a: {}, sc: [], sv } : null; } /* ancien code : la partie en cours seule */
+    const raw = t.startsWith('CF2.') ? await deflate(b64u.dec(t.slice(4)), false) : t.startsWith('CF2U.') ? b64u.dec(t.slice(5)) : null; if (!raw) return null;
+    const d = JSON.parse(new TextDecoder().decode(raw)); return d && d.v === 2 && typeof d.s === 'object' ? d : null;
+  } catch (e) { return null; }
+}
+// la progression ne fait que monter : on garde le meilleur des deux appareils
+function mergeProgress(a, b) {
+  if (b == null) return a; if (a == null) return b;
+  if (typeof a === 'number' && typeof b === 'number') return Math.max(a, b);
+  if (typeof a === 'boolean' || typeof b === 'boolean') return !!a || !!b;
+  if (Array.isArray(a) && Array.isArray(b)) return [...new Set([...a, ...b])];
+  if (typeof a === 'object' && typeof b === 'object') { const o = { ...a }; for (const k of Object.keys(b)) o[k] = mergeProgress(a[k], b[k]); return o; }
+  return a;
+}
+function applyProfile(d) {
+  const s = d.s || {};
+  for (const k of PROFILE_KEYS) { if (s[k] == null) continue; Settings[k] = k === 'daily' ? (!Settings.daily || s.daily.d > Settings.daily.d ? s.daily : s.daily.d === Settings.daily.d ? { d: s.daily.d, best: Math.max(s.daily.best || 0, Settings.daily.best || 0) } : Settings.daily) : mergeProgress(Settings[k], s[k]); }
+  Settings.save(); Ach.set(mergeProgress(Ach.get(), d.a || {}));
+  for (const e of d.sc || []) if (e && e.name && typeof e.score === 'number') Scores.add(e);
+  const sv = validSave(d.sv) ? d.sv : null, cur = readSave(); if (sv && (!cur || (sv.date || 0) >= (cur.date || 0))) { memSave = sv; try { localStorage.setItem(SAVE_KEY, JSON.stringify(sv)); } catch (e) { } } /* la partie la plus récente gagne */
+  return { lv: levelInfo(Settings.xp || 0).lv, ach: ACH.filter(a => Ach.get()[a[0]]).length, run: !!readSave() };
+}
+function saveLine(d) { return `${CHARS[d.char].name} · ${DIFFS[d.diff].name} · mission ${d.safe + 2} sur ${MISSIONS} · ${fmt(d.cp.score || 0)} pts · ${(d.cp.shibas || []).length}/${SHIBAS_TOTAL} shibas`; }
 function newStats() { return { shots: 0, hits: 0, dmg: 0, deaths: 0 }; }
-const SHIBAS_PER = 3, SHIBAS_TOTAL = 12;
+const SHIBAS_PER = 3, SHIBAS_TOTAL = SHIBAS_PER * MISSIONS;
 const BESTIARY = [
   { k: 'walker', name: 'Le Traînard', type: 'Zombie ordinaire', m: 1, txt: 'Ancien usager de la ligne 4. Attend toujours son bus, mais accepte un mollet en dédommagement.', tip: 'Lent, mais jamais seul. Recule en tirant.' },
   { k: 'runner', name: 'Le Coureur', type: 'Zombie rapide', m: 2, txt: 'Inscrit au semi-marathon la veille de l\'épidémie. Il n\'a jamais franchi la ligne d\'arrivée, alors il court encore.', tip: 'Fragile : une rafale suffit. Ne lui tourne jamais le dos.' },
   { k: 'dog', name: 'Le Chien zombie', type: 'Chasse en meute', m: 3, txt: 'Toujours aussi content de te voir. Juste un peu plus affamé. Ne rapporte plus les bâtons, seulement les tibias.', tip: 'Il s\'accroupit et grogne avant de bondir : roule pile à ce moment.' },
+  { k: 'screamer', name: 'Le Hurleur', type: 'Cri d\'alerte', m: 3, txt: 'Patient de la chambre 12, en attente de son résultat d\'examen depuis l\'épidémie. Il a perdu patience. Et la voix, presque.', tip: 'Quand il ouvre grand la bouche, tire : touché, il se tait. Sinon la horde s\'excite et ta lampe grésille.' },
   { k: 'bomber', name: 'Le Gonflé', type: 'Explosif', m: 2, txt: 'A mangé le kebab de la gare après minuit. Les gaz ont fait le reste.', tip: 'Abats-le de loin : il explose au contact.' },
   { k: 'spitter', name: 'Le Cracheur', type: 'Tir d\'acide', m: 3, txt: 'Champion régional de crachat de noyaux de cerise. Il a juste changé de munitions.', tip: 'Il recule pour viser. Zigzague et colle-le.' },
   { k: 'riot', name: 'Le CRS', type: 'Bouclier', m: 3, txt: 'Son bouclier a survécu à trois manifs et une apocalypse. Son sens de l\'humour, non.', tip: 'Le bouclier arrête les balles : contourne-le, ou une grenade.' },

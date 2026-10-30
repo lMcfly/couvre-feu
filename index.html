@@ -17,6 +17,7 @@
 <link rel="preload" href="fonts/special-elite-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/saira-stencil-one-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/comic-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/anton-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>/* polices hébergées avec le jeu (licences libres OFL / Apache 2.0, voir fonts/LICENCES.txt) */
 @font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/bangers-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;}
 @font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/bangers-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
@@ -25,6 +26,7 @@
 @font-face { font-family: 'Saira Stencil One'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/saira-stencil-one-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 @font-face { font-family: 'Special Elite'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/special-elite-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;}
 @font-face { font-family: 'Special Elite'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/special-elite-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face { font-family: 'Anton'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/anton-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 </style>
 <style>
 /* Layout : canvas plein écran ; les menus sont des avis préfectoraux tapés à la machine, posés sur la nuit */
@@ -1046,6 +1048,66 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .fiche-style .acc-pick{display:flex;flex-wrap:wrap;gap:6px}
 @media (max-width:760px){.fiche{grid-template-columns:1fr}.fiche-grid{grid-template-columns:1fr}}
 
+/* écran Campagne : plein écran animé, titre, missions et difficulté par-dessus la ville */
+.camp-cv,.camp-hero,.camp-track{display:none}
+#launch-modal.camp{padding:0;background:#050407;align-items:stretch;justify-content:stretch;--camp:#e2792f;--camp-rgb:226,121,47}
+#launch-modal.camp[data-diff="facile"]{--camp:#e8a07a;--camp-rgb:232,160,122}
+#launch-modal.camp[data-diff="cauchemar"]{--camp:#e0203e;--camp-rgb:224,32,62}
+#launch-modal.camp .launch-wrap{position:relative;width:100%;max-width:none;height:100%;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);grid-template-rows:auto minmax(0,1fr) auto;gap:14px 32px;padding:max(18px,env(safe-area-inset-top)) max(30px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(30px,env(safe-area-inset-left));overflow:hidden}
+#launch-modal.camp .camp-cv{display:block;position:absolute;inset:0;width:100%;height:100%}
+#launch-modal.camp .launch-wrap>:not(.camp-cv){position:relative}
+#launch-modal.camp .launch-head{grid-column:1/-1;grid-row:1}
+#launch-modal.camp .launch-head .eyebrow{color:var(--camp);letter-spacing:.3em}
+#launch-modal.camp .camp-hero{display:block;grid-column:1;grid-row:2;align-self:start;padding-top:2vh;animation:campIn .7s cubic-bezier(.2,.8,.2,1) both}
+.camp-eb{margin:0 0 6px;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--camp)}
+.camp-title{margin:0;font-family:var(--display);line-height:.86;color:var(--bone);text-shadow:0 4px 0 #000,0 0 40px rgba(var(--camp-rgb),.35)}
+.camp-title span{display:block;font-size:clamp(22px,3.2vw,46px);letter-spacing:.22em;color:#b9b2a4}
+.camp-title em{display:block;font-style:normal;font-size:clamp(52px,8.6vw,132px);letter-spacing:.01em;animation:campFlick 7s steps(1) infinite}
+.camp-sub{margin:12px 0 0;font-size:14px;color:#c9c2b3;max-width:42ch;text-shadow:0 2px 6px #000}
+#launch-modal.camp .start-card{grid-column:2;grid-row:2;align-self:center;background:rgba(10,9,12,.74);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-color:rgba(var(--camp-rgb),.55);box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03) inset;animation:campIn .7s .15s cubic-bezier(.2,.8,.2,1) both}
+#launch-modal.camp .start-art{display:none}
+#launch-modal.camp .start-card{border-top:3px solid var(--camp)}
+#launch-modal.camp .camp-track{display:grid;grid-column:1/-1;grid-row:3;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;list-style:none;margin:0;padding:0}
+.camp-m{position:relative;display:flex;flex-direction:column;gap:3px;min-width:0;padding:12px 12px 10px;background:rgba(10,9,12,.72);border:1px solid rgba(255,255,255,.08);border-top:3px solid #3a3438;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:campUp .6s var(--d,0s) cubic-bezier(.2,.8,.2,1) both}
+.camp-m .camp-n{font-family:var(--display);font-size:30px;line-height:1;color:#6f6a66}
+.camp-m b{font-family:var(--display);font-weight:400;font-size:16px;line-height:1.1;color:var(--bone)}
+.camp-m small{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ash)}
+.camp-sh{display:flex;gap:3px;margin-top:2px}.camp-sh img{width:18px;height:18px}.camp-sh img.off{opacity:.22;filter:grayscale(1)}
+.camp-m.done{border-top-color:#6e120e}.camp-m.done .camp-n{color:#8a2a22;text-decoration:line-through;text-decoration-thickness:3px}
+.camp-m.cur{border-color:rgba(var(--camp-rgb),.6);border-top-color:var(--camp);background:rgba(28,16,10,.8);box-shadow:0 0 28px rgba(var(--camp-rgb),.25)}
+.camp-m.cur .camp-n{color:var(--camp)}.camp-m.cur small{color:var(--camp)}
+.camp-m.cur::after{content:"";position:absolute;inset:-1px;border:1px solid var(--camp);opacity:0;animation:campPulse 2s ease-in-out infinite;pointer-events:none}
+.camp-m.secret{border-top-style:dashed;border-top-color:#5a4a5a}.camp-m.secret .camp-n{color:#5a4a5a}
+.camp-m.secret.open{border-top-color:#ff8fb8}.camp-m.secret.open .camp-n,.camp-m.secret.open small{color:#ff8fb8}
+@keyframes campIn{from{opacity:0;transform:translateY(14px)}}
+@keyframes campUp{from{opacity:0;transform:translateY(26px)}}
+@keyframes campPulse{50%{opacity:.9;inset:-5px}}
+@keyframes campFlick{0%,100%{opacity:1}41%{opacity:.82}42%{opacity:1}43%{opacity:.6}44%{opacity:1}77%{opacity:.9}78%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.camp-title em,.camp-m,.camp-m.cur::after,#launch-modal.camp .camp-hero,#launch-modal.camp .start-card{animation:none}}
+/* téléphone ou fenêtre basse : tout tient sur un écran, les missions en bandeau compact */
+@media (max-height:560px){
+  #launch-modal.camp .launch-wrap{grid-template-columns:minmax(0,1fr) minmax(250px,300px);gap:8px 18px;padding-top:max(10px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  #launch-modal.camp .camp-hero{padding-top:0}
+  .camp-eb{font-size:10px;margin-bottom:2px}
+  .camp-title span{font-size:clamp(14px,2.6vw,22px)}.camp-title em{font-size:clamp(34px,7vw,62px)}
+  .camp-sub{font-size:11px;margin-top:6px}
+  #launch-modal.camp .camp-track{gap:5px}
+  .camp-m{padding:6px 7px 5px;gap:1px}.camp-m .camp-n{font-size:18px}.camp-m b{font-size:11px}.camp-m small{font-size:8.5px;letter-spacing:.04em}
+  .camp-sh img{width:12px;height:12px}
+}
+@media (max-width:760px) and (orientation:portrait){#launch-modal.camp .launch-wrap{grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto;overflow-y:auto}#launch-modal.camp .start-card{grid-column:1;grid-row:3}#launch-modal.camp .camp-track{grid-template-columns:repeat(3,minmax(0,1fr));grid-row:4}}
+#launch-modal.camp .launch-head .eyebrow{visibility:hidden}
+@media (max-height:560px){#launch-modal.camp #save-summary{display:none}}
+
+/* grands titres façon affiche d'horreur : lettres épaisses rouge sang, contour noir, bords rongés (texture --grunge fabriquée au lancement) */
+:root{--horror:Anton,Impact,"Arial Narrow",sans-serif}
+.hub-brand b,h2,.mode.big b,.camp-title em,.start-title,.sheet-head h3{font-family:var(--horror);font-weight:400;text-transform:uppercase;letter-spacing:.015em;padding:0 .06em .08em 0;background:linear-gradient(180deg,#ff6a3a 0%,#e8261a 36%,#a8110b 70%,#4e0404 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-mask-image:var(--grunge);mask-image:var(--grunge);-webkit-mask-size:200px;mask-size:200px;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .035em 0 #160202) drop-shadow(0 .06em .14em rgba(0,0,0,.85))}
+.hub-brand b span{-webkit-text-fill-color:transparent}
+.hub-brand b{font-size:28px}.mode.big b{font-size:32px;letter-spacing:.02em}
+.camp-title em{text-shadow:none;letter-spacing:.01em}
+/* panneaux en métal sale, tachés de sang */
+.sheet-card,.hub-card,.start-card,.camp-m{background-image:var(--grime),linear-gradient(180deg,rgba(24,20,20,.9),rgba(12,10,11,.92));background-size:512px 512px,100% 100%}
+#launch-modal.camp .start-card,#launch-modal.camp .camp-m{background-image:var(--grime),linear-gradient(180deg,rgba(24,18,18,.82),rgba(10,8,9,.86))}
 </style>
 
 <canvas id="game" aria-label="Couvre-Feu, zone de jeu"></canvas>
@@ -1113,7 +1175,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
         <p class="hw-chip" id="hw-chip" hidden></p>
         <div class="folders" id="folders">
           <p class="eyebrow">Jouer</p>
-          <button type="button" class="mode big folder" data-folder="campagne"><b>Campagne</b><small>Solo ou duo · 4 missions dans la ville</small></button>
+          <button type="button" class="mode big folder" data-folder="campagne"><b>Campagne</b><small>Solo ou duo · 5 missions, de la gare à l'hôpital</small></button>
           <button type="button" class="mode big folder" data-folder="arcade"><b>Arcade</b><small>Survie · Nuit sans fin · Défi · Hôpital</small></button>
           <button type="button" class="mode big folder" data-folder="entrainement"><b>Entraînement</b><small>Camp de tir · didacticiel</small></button>
         </div>
@@ -1225,12 +1287,12 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
       <p class="hint long-hint">Ce sont les touches par défaut : le bouton « Touches » permet de toutes les changer. Sur téléphone, les commandes tactiles s'activent toutes seules. Joue en mode paysage. Tire sur une voiture pour déclencher son alarme : la horde converge vers elle. Les voitures marquées d'une fuite d'essence explosent.</p>
     </details></div>
       <div data-to="save" class="set-save">
-      <p class="hint long-hint">La partie se sauvegarde toute seule à chaque point de sauvegarde, dans ce navigateur. Pour la reprendre sur un autre appareil ou un autre navigateur, copie le code ci-dessous puis colle-le là-bas.</p>
+      <p class="hint long-hint">La partie se sauvegarde toute seule à chaque point de sauvegarde. Pour passer du PC au téléphone (ou l'inverse), copie ton code de transfert puis colle-le sur l'autre appareil : niveau, tenues, succès, shibas, scores et partie en cours suivent. Rien n'est perdu : on garde le meilleur des deux.</p>
       <p id="save-info"></p>
-      <div class="row"><button type="button" class="btn" id="btn-save-copy">Copier le code de sauvegarde</button><button type="button" class="btn" id="btn-save-delete">Supprimer la sauvegarde</button><button type="button" class="btn" id="btn-wipe">Tout remettre à zéro</button></div>
-      <textarea id="save-code" rows="3" readonly hidden aria-label="Code de sauvegarde"></textarea>
+      <div class="row"><button type="button" class="btn primary" id="btn-save-copy">Copier mon code de transfert</button><button type="button" class="btn" id="btn-save-delete">Supprimer la sauvegarde</button><button type="button" class="btn" id="btn-wipe">Tout remettre à zéro</button></div>
+      <textarea id="save-code" rows="3" readonly hidden aria-label="Code de transfert"></textarea>
       <label class="label" for="save-import">Charger un code</label>
-      <textarea id="save-import" rows="3" placeholder="Colle ici un code de sauvegarde"></textarea>
+      <textarea id="save-import" rows="3" placeholder="Colle ici le code de l'autre appareil"></textarea>
       <div class="row"><button type="button" class="btn" id="btn-save-import">Charger ce code</button></div>
       <p class="hint" id="save-msg" aria-live="polite"></p></div>
     </div></div>
@@ -1304,7 +1366,9 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 </section>
 
 <div id="photo-modal" class="photo-modal" hidden role="dialog" aria-label="Photo souvenir"><div class="photo-card"><img id="photo-img" alt="Une de KE-DLA-D TV avec ta partie"><div class="row center"><a class="btn primary" id="photo-dl">Télécharger</a><button type="button" class="btn" id="photo-share">Partager</button><button type="button" class="btn" id="photo-close">Fermer</button></div></div></div>
-<div id="launch-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="launch-h"><div class="launch-wrap"><div class="launch-head"><p class="eyebrow" id="launch-mode">Campagne</p><button type="button" class="btn sm launch-x" id="launch-close" aria-label="Fermer">Retour</button></div><h2 id="launch-h" class="sr-only">Lancer une partie</h2>
+<div id="launch-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="launch-h"><div class="launch-wrap"><canvas id="camp-cv" class="camp-cv" aria-hidden="true"></canvas><div class="launch-head"><p class="eyebrow" id="launch-mode">Campagne</p><button type="button" class="btn sm launch-x" id="launch-close" aria-label="Fermer">Retour</button></div><h2 id="launch-h" class="sr-only">Lancer une partie</h2>
+      <div class="camp-hero"><p class="camp-eb">Campagne · 5 missions</p><p class="camp-title"><span>Opération</span><em>Couvre-Feu</em></p><p class="camp-sub" id="camp-sub"></p></div>
+      <ol class="camp-track" id="camp-track" aria-label="Les missions de la campagne"></ol>
       <section class="hub-card start-card">
         <div class="start-art"><canvas id="start-cv" width="360" height="150" aria-hidden="true"></canvas><div class="start-badge" aria-hidden="true">☠</div></div>
         <div class="start-body">
@@ -1324,7 +1388,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
       </section>
 </div></div>
 <div id="join-modal" class="photo-modal hub-modal join-modal" hidden role="dialog" aria-labelledby="join-h"><div class="join-wrap"><p class="eyebrow">Campagne à deux</p><h2 id="join-h">Connexion des manettes</h2><p class="join-hint" id="join-hint"></p><div class="join-slots" id="join-slots"></div><div class="row center"><button type="button" class="btn" id="join-back">Retour</button><button type="button" class="btn primary big" id="join-go" disabled>Lancer la partie</button></div></div></div>
-<div id="secret-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="secret-h"><div class="secret-wrap"><canvas id="secret-cv" width="480" height="240" aria-hidden="true"></canvas><p class="eyebrow">Niveau secret</p><h2 id="secret-h">Le Paradis des Shibas</h2><p>Les 12 shibas sont sauvés. Le Shibanophile t'attend sur la Place de la Mairie : protège les 9 shibas du paradis.</p><div class="row center"><button type="button" class="btn" id="secret-close">Retour</button><button type="button" class="btn primary big" id="btn-paradise-title">Entrer au Paradis</button></div></div></div>
+<div id="secret-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="secret-h"><div class="secret-wrap"><canvas id="secret-cv" width="480" height="240" aria-hidden="true"></canvas><p class="eyebrow">Niveau secret</p><h2 id="secret-h">Le Paradis des Shibas</h2><p>Les 15 shibas sont sauvés. Le Shibanophile t'attend sur la Place de la Mairie : protège les 9 shibas du paradis.</p><div class="row center"><button type="button" class="btn" id="secret-close">Retour</button><button type="button" class="btn primary big" id="btn-paradise-title">Entrer au Paradis</button></div></div></div>
 <div class="rotate-overlay" id="rotate-overlay" role="alert"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="20" y="6" width="24" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="32" cy="43" r="2.5" fill="currentColor"/><path d="M50 52a18 18 0 0 1-30 6" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M18 52l2 7 7-2" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Tourne ton téléphone</b><p>Couvre-Feu se joue en mode paysage.</p></div>
 <div id="fs-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="fs-h"><div class="fs-wrap"><div class="fs-ico" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p class="eyebrow">Couvre-Feu</p><h2 id="fs-h">Jouer en plein écran ?</h2><p id="fs-txt">Pour une meilleure immersion, le jeu passe en plein écran.</p><div class="row center"><button type="button" class="btn" id="fs-no">Non merci</button><button type="button" class="btn primary big" id="fs-yes">Plein écran</button></div><label class="fs-never"><input type="checkbox" id="fs-never"> Ne plus me demander</label></div></div>
 <div id="wn-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="wn-ph"><div class="wn-pop" id="wn-pop"></div></div>
@@ -1422,6 +1486,7 @@ function shade(hex, f) { const n = parseInt(hex.slice(1), 16); let r = n >> 16, 
 const fmt = n => Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const fmtTime = s => { s = Math.floor(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 const FD = '"Saira Stencil One", Impact, sans-serif';
+const FH = 'Anton, Impact, sans-serif'; // grands titres : lettres épaisses, rouges et rongées
 const FT = '"Special Elite", "Courier New", monospace';
 
 // ============================================================ réglages et scores
@@ -1460,7 +1525,7 @@ const ACH = [
   ['boss', 'Abominable', 'Vaincre l\'Abomination.'],
   ['nightmare', 'Insomniaque', 'Terminer le jeu en Cauchemar.'],
   ['wave10', 'Ça ne s\'arrête jamais', 'Atteindre la vague 10 en mode Survie.'],
-  ['shibas', 'Brigade canine', 'Trouver les 12 shibas cachés dans une même partie.'],
+  ['shibas', 'Brigade canine', 'Trouver les 15 shibas cachés dans une même partie.'],
   ['ultimate', 'Le paradis retrouvé', 'Vaincre le Shibanophile dans le Paradis des Shibas.']
 ];
 const Ach = {
@@ -1551,6 +1616,8 @@ const SAFES = [
   { x0: 8600, x1: 9000, name: 'Poste de secours' }
 ];
 const EXIT = { x0: 10400, x1: 10600 };
+// la campagne : les quatre secteurs de la ville, puis l'hôpital (mission 5)
+const MISSION_NAMES = [...ZONES.map(z => z.name), 'Hôpital Saint-Lazare'], MISSIONS = MISSION_NAMES.length;
 const BOUNDS = [2600, 3000, 5600, 6000, 8600, 9000, 10400];
 // centre de la Place de la Mairie et hélicoptère d'évacuation
 const PLAZA = ZONES[3].x0 + 700, HELI = EXIT.x0 + 100;
@@ -1568,24 +1635,26 @@ const ZTYPES = {
   spitter: { hp: 45, speed: [55, 66], dmg: 6, r: 13, money: 14, score: 260, kb: 0.9 },
   riot: { hp: 90, speed: [44, 54], dmg: 14, r: 15, money: 18, score: 320, kb: 0.4 },
   dog: { hp: 30, speed: [172, 198], dmg: 9, r: 11, money: 6, score: 180, kb: 1.3 },
+  screamer: { hp: 58, speed: [50, 62], dmg: 8, r: 13, money: 16, score: 300, kb: 0.9 },
   boss: { hp: 5600, speed: [70, 70], dmg: 38, r: 36, money: 1200, score: 15000, kb: 0.04 }
 };
 const ZCFG = [
   { pop: 30, interval: 1.0, seed: 16, w: { walker: 75, runner: 18, bomber: 7 } },
   { pop: 36, interval: 0.85, seed: 22, w: { walker: 62, runner: 20, bomber: 7, spitter: 6, brute: 3, riot: 2, dog: 4 } },
-  { pop: 60, interval: 0.6, seed: 26, w: { walker: 45, runner: 25, bomber: 10, spitter: 12, brute: 8, riot: 9, dog: 6 } },
-  { pop: 14, interval: 1.2, seed: 0, w: { walker: 50, runner: 32, bomber: 10, riot: 8 } }
+  { pop: 60, interval: 0.6, seed: 26, w: { walker: 45, runner: 25, bomber: 10, spitter: 12, brute: 8, riot: 9, dog: 6, screamer: 4 } },
+  { pop: 14, interval: 1.2, seed: 0, w: { walker: 50, runner: 32, bomber: 10, riot: 8, screamer: 5 } }
 ];
 const HORDE_W = { walker: 50, runner: 38, bomber: 8, brute: 4, riot: 3, dog: 5 };
-const HOSP_W = { walker: 64, runner: 16, dog: 9, spitter: 6, bomber: 5 };
+const HOSP_W = { walker: 58, runner: 15, dog: 9, spitter: 6, bomber: 5, screamer: 9 };
 // Halloween : du 25 octobre au 2 novembre, chaque année (?halloween pour forcer, ?nohalloween pour couper)
 const HALLOWEEN = (() => { try { const q = location.search; if (/[?&]nohalloween\b/.test(q)) return false; if (/[?&]halloween\b/.test(q)) return true; } catch (e) { } const d = new Date(), m = d.getMonth(), j = d.getDate(); return (m === 9 && j >= 25) || (m === 10 && j <= 2); })();
 const HW_GOAL = 31, COSTUMES = ['citrouille', 'drap', 'sorciere'];
 const hwCount = () => { const y = new Date().getFullYear(); return Settings.hw && Settings.hw.y === y ? Settings.hw.n : 0; };
 const SURVIVORS = [
   { name: 'Gérard', who: 'cheminot retraité', coat: '#5a4a3a', line: 'Merci ! J\'ai connu pire : la grève de 95.' },
-  { name: 'Mme Lefebvre', who: 'boulangère', coat: '#9a5a7a', line: 'Passez à la boutique, je vous ferai un pain au chocolat. Ou une chocolatine, je juge pas.' },
-  { name: 'Kévin', who: 'livreur à vélo', coat: '#2f8f6b', line: 'Ma commande est froide, mais moi je suis vivant. Cinq étoiles !' }
+  { name: 'Mme Lefebvre', who: 'boulangère', f: true, coat: '#9a5a7a', line: 'Passez à la boutique, je vous ferai un pain au chocolat. Ou une chocolatine, je juge pas.' },
+  { name: 'Kévin', who: 'livreur à vélo', coat: '#2f8f6b', line: 'Ma commande est froide, mais moi je suis vivant. Cinq étoiles !' },
+  { name: 'Inès', who: 'infirmière de garde', f: true, coat: '#6fa8bf', line: 'Trois gardes d\'affilée et une invasion de zombies. Je veux une prime.' }
 ];
 const WEAPONS = [
   { id: 'pistol', name: 'Pistolet', type: 'bullet', dmg: 20, rate: 0.2, mag: 12, reload: 1.0, spread: 0.035, pellets: 1, speed: 1500, pierce: 0, infinite: true, price: 0, ammoPrice: 0, ammoPack: 0, tier: 0.6, shake: 0.08, desc: 'Munitions infinies. Maintiens le clic pour charger un tir perçant.' },
@@ -1675,6 +1744,48 @@ class SpatialHash {
   }
 }
 
+// titres façon affiche de film d'horreur : lettres épaisses rouge sang, contour noir, bords rongés et salis (rendus une fois puis gardés)
+const TITLE_CACHE = new Map();
+function grungeTitle(c, t, x, y, fs, o = {}) {
+  const sc = Math.max(1, Math.min(3, Math.hypot(c.getTransform().a, c.getTransform().b))), key = `${t}|${Math.round(fs * sc)}|${o.rage ? 1 : 0}`;
+  let e = TITLE_CACHE.get(key);
+  if (!e) {
+    const F = fs * sc, font = `${F}px ${FH}`, m = document.createElement('canvas').getContext('2d'); m.font = font;
+    const tw = m.measureText(t).width, cv = document.createElement('canvas'); cv.width = Math.ceil(tw + F * 0.5); cv.height = Math.ceil(F * 1.55);
+    const g = cv.getContext('2d'), bx = F * 0.25, by = F * 1.18; let h = 7; for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0; const r = mulberry32(h);
+    g.font = font; g.textAlign = 'left'; g.textBaseline = 'alphabetic'; g.lineJoin = 'round';
+    g.shadowColor = 'rgba(0,0,0,.85)'; g.shadowBlur = F * 0.18; g.shadowOffsetY = F * 0.06; g.lineWidth = F * 0.08; g.strokeStyle = '#140202'; g.strokeText(t, bx, by); g.shadowColor = 'transparent';
+    const gr = g.createLinearGradient(0, by - F * 0.9, 0, by + F * 0.04), S = o.rage ? ['#ffb04a', '#ff5a1e', '#c4140c', '#5a0404'] : ['#ff6a3a', '#e8261a', '#a8110b', '#4e0404'];
+    S.forEach((col, k) => gr.addColorStop([0, 0.36, 0.7, 1][k], col)); g.fillStyle = gr; g.fillText(t, bx, by);
+    g.globalCompositeOperation = 'source-atop';
+    for (let k = 0; k < 14; k++) { g.fillStyle = `rgba(30,0,0,${0.06 + r() * 0.12})`; g.beginPath(); g.ellipse(r() * cv.width, by - r() * F, F * (0.2 + r() * 0.5), F * (0.015 + r() * 0.04), (r() - 0.5) * 0.3, 0, TAU); g.fill(); } /* traînées de crasse */
+    g.strokeStyle = 'rgba(255,170,130,.18)'; g.lineWidth = Math.max(1, F * 0.012); for (let k = 0; k < 10; k++) { const sx = r() * cv.width, sy = by - r() * F * 0.85; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + (r() - 0.5) * F * 0.5, sy + (r() - 0.3) * F * 0.2); g.stroke(); }
+    g.globalCompositeOperation = 'destination-out';
+    for (let k = 0; k < tw / F * 70; k++) { const px = bx + r() * tw, py = by - r() * F * 0.95, rr = F * (r() < 0.85 ? 0.006 + r() * 0.018 : 0.03 + r() * 0.04); g.globalAlpha = 0.5 + r() * 0.5; g.beginPath(); g.arc(px, py, rr, 0, TAU); g.fill(); }
+    g.globalAlpha = 0.7; g.lineWidth = Math.max(1, F * 0.01); for (let k = 0; k < tw / F * 5; k++) { const sx = bx + r() * tw, sy = by - r() * F; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + (r() - 0.5) * F * 0.4, sy + r() * F * 0.12); g.stroke(); }
+    e = { cv, sc, ox: bx / sc, oy: by / sc, w: tw / sc };
+    if (!document.fonts || document.fonts.check(`20px ${FH}`)) { TITLE_CACHE.set(key, e); if (TITLE_CACHE.size > 120) TITLE_CACHE.delete(TITLE_CACHE.keys().next().value); } /* police pas encore chargée : on ne garde pas le brouillon */
+  }
+  const dx = c.textAlign === 'center' ? -e.w / 2 : c.textAlign === 'right' ? -e.w : 0;
+  c.drawImage(e.cv, x + dx - e.ox, y - e.oy, e.cv.width / e.sc, e.cv.height / e.sc);
+}
+// textures de l'interface, fabriquées au lancement : usure pour les titres, métal sale et éclaboussures pour les panneaux
+(function uiTextures() {
+  try {
+    const mk = (w, h) => { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; return [cv, cv.getContext('2d')]; }, r = mulberry32(4242);
+    const [a, ga] = mk(256, 256); ga.fillStyle = '#fff'; ga.fillRect(0, 0, 256, 256); ga.globalCompositeOperation = 'destination-out';
+    for (let k = 0; k < 900; k++) { ga.globalAlpha = 0.4 + r() * 0.6; ga.beginPath(); ga.arc(r() * 256, r() * 256, r() < 0.9 ? 0.5 + r() * 1.3 : 2 + r() * 3, 0, TAU); ga.fill(); }
+    ga.lineWidth = 1; for (let k = 0; k < 40; k++) { const x = r() * 256, y = r() * 256; ga.globalAlpha = 0.5; ga.beginPath(); ga.moveTo(x, y); ga.lineTo(x + (r() - 0.5) * 40, y + (r() - 0.5) * 10); ga.stroke(); }
+    const [b, gb] = mk(512, 512);
+    for (let k = 0; k < 5000; k++) { gb.fillStyle = r() < 0.5 ? `rgba(0,0,0,${r() * 0.22})` : `rgba(255,235,210,${r() * 0.035})`; gb.fillRect(r() * 512, r() * 512, 1 + r() * 2, 1 + r() * 2); }
+    gb.strokeStyle = 'rgba(255,240,220,.05)'; for (let k = 0; k < 70; k++) { const x = r() * 512, y = r() * 512; gb.lineWidth = 0.5 + r(); gb.beginPath(); gb.moveTo(x, y); gb.lineTo(x + (r() - 0.5) * 120, y + (r() - 0.5) * 30); gb.stroke(); }
+    for (let s = 0; s < 3; s++) { const cx = r() * 512, cy = r() * 512, R = 30 + r() * 50; // éclaboussure : une tache, des gouttes projetées, des traînées
+      gb.fillStyle = 'rgba(105,8,6,.42)'; gb.beginPath(); for (let k = 0; k <= 24; k++) { const an = k / 24 * TAU, rr = R * (0.55 + r() * 0.45); k ? gb.lineTo(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr) : gb.moveTo(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr); } gb.fill();
+      for (let k = 0; k < 60; k++) { const an = r() * TAU, d = R * (0.9 + r() * 2.2); gb.fillStyle = `rgba(${90 + r() * 40},6,5,${0.25 + r() * 0.35})`; gb.beginPath(); gb.arc(cx + Math.cos(an) * d, cy + Math.sin(an) * d, r() * 3 + 0.5, 0, TAU); gb.fill(); }
+      for (let k = 0; k < 3; k++) { const x = cx + (r() - 0.5) * R, len = 30 + r() * 90; const gr = gb.createLinearGradient(0, cy, 0, cy + len); gr.addColorStop(0, 'rgba(105,8,6,.4)'); gr.addColorStop(1, 'rgba(105,8,6,0)'); gb.fillStyle = gr; gb.fillRect(x, cy, 2 + r() * 3, len); } }
+    const R = document.documentElement.style; R.setProperty('--grunge', `url(${a.toDataURL()})`); R.setProperty('--grime', `url(${b.toDataURL()})`);
+  } catch (e) { }
+})();
 // ============================================================ audio (Web Audio, tout est synthétisé)
 const MUSIC_THEMES = {
   gare: { base: 36.7, tempo: 1.55, beat: 1, scale: [146.83, 155.56, 174.61, 196, 207.65, 233.08, 261.63] },
@@ -2433,10 +2544,10 @@ class Zombie {
     this.walkT = rand(0, 10); this.hitFlash = 0; this.burn = 0; this.flameCd = 0; this.stun = 0; this.dead = false;
     this.side = Math.random() < 0.5 ? 1 : -1; this.groanT = rand(2, 10); this.stuckT = 0; this.detour = 0; this.lx = x; this.ly = y;
     this.aggro = !!spawnKind; this.wx = null; this.wt = 0; this.lunge = 0;
-    this.skin = type === 'runner' ? '#8f7466' : type === 'brute' ? '#5f6b55' : type === 'bomber' ? '#86a05e' : type === 'spitter' ? '#6c8d6c' : pick(SKINS);
-    this.cloth = type === 'brute' ? '#2c2f2b' : type === 'bomber' ? '#4e5236' : pick(CLOTHS);
+    this.skin = type === 'screamer' ? '#a3a89a' : type === 'runner' ? '#8f7466' : type === 'brute' ? '#5f6b55' : type === 'bomber' ? '#86a05e' : type === 'spitter' ? '#6c8d6c' : pick(SKINS);
+    this.cloth = type === 'screamer' ? '#6f93a0' : type === 'brute' ? '#2c2f2b' : type === 'bomber' ? '#4e5236' : pick(CLOTHS);
     this.pants = shade(pick(CLOTHS), -0.35);
-    this.shootCd = rand(1.5, 3); this.spitWind = 0; this.bState = 'walk'; this.bT = 0; this.bCd = rand(1, 3);
+    this.shootCd = rand(1.5, 3); this.spitWind = 0; this.bState = 'walk'; this.bT = 0; this.bCd = rand(1, 3); this.frenzy = 0;
     if (type === 'dog') { this.skin = pick(['#6b5a48', '#5a5048', '#7a6a52', '#4a4440']); this.bCd = rand(0.6, 1.4); }
     this.costume = HALLOWEEN && g.mode !== 'training' && (type === 'walker' || type === 'runner') && Math.random() < 0.3 ? pick(COSTUMES) : null;
   }
@@ -2449,6 +2560,7 @@ class Zombie {
     }
     if (this.g.stats && this.g.state === 'playing') this.g.stats.dmg += Math.max(0, Math.min(a, this.hp));
     this.hp -= a; this.hitFlash = 0.08; this.aggro = true;
+    if (this.type === 'screamer' && this.bState === 'scream' && this.hp > 0) { this.bState = 'stun'; this.bT = 0.8; this.bCd = rand(4, 6); this.g.floatText(this.x, this.y - 42, 'CHUT !', '#9fe0ff'); } /* touché pendant qu'il prend son souffle : le cri est coupé */
     this.g.bleed(this.x, this.y, dx, dy, Math.min(8, 2 + a / 10));
     if (src !== 'fire') this.g.audio.flesh(0.6);
     if (this.hp <= 0) this.die(src);
@@ -2507,12 +2619,21 @@ class Zombie {
         else if (this.bState === 'stun') { this.bT -= dt; spd = 0; if (this.bT <= 0) this.bState = 'walk'; }
         else { this.bCd -= dt; if (mode === 'chase' && pd < 330 && pd > 90 && this.bCd <= 0 && g.level.lineClear(this.x, this.y, p.x, p.y)) { this.bState = 'wind'; this.bT = 0.7; } }
         break;
+      case 'screamer': // garde ses distances, prend son souffle puis hurle
+        if (this.bState === 'scream') { this.bT -= dt; spd = 0; if (this.bT <= 0) { this.bState = 'walk'; this.bCd = rand(6, 9); g.scream(this); } }
+        else if (this.bState === 'stun') { this.bT -= dt; spd = 0; if (this.bT <= 0) this.bState = 'walk'; }
+        else if (mode === 'chase') {
+          if (pd < 230) { ux = -ux; uy = -uy; spd *= 0.75; } else if (pd < 380) spd *= 0.25;
+          this.bCd -= dt; if (this.bCd <= 0 && pd < 470 && this.stun <= 0 && g.level.lineClear(this.x, this.y, p.x, p.y)) { this.bState = 'scream'; this.bT = 0.9; g.audio.tone({ f: 260, f2: 820, dur: 0.9, type: 'sawtooth', g: 0.05 }); }
+        }
+        break;
       case 'dog':
         if (this.bState === 'crouch') { this.bT -= dt; spd = 0; this.cdx = pdx / pd; this.cdy = pdy / pd; if (this.bT <= 0) { this.bState = 'leap'; this.bT = 0.3; g.audio.tone({ f: 260, f2: 90, dur: 0.18, type: 'sawtooth', g: 0.12 }); } }
         else if (this.bState === 'leap') { this.bT -= dt; ux = this.cdx; uy = this.cdy; spd = 560; leaping = true; if (this.bT <= 0) { this.bState = 'walk'; this.bCd = rand(1.4, 2.2); } }
         else { this.bCd -= dt; if (mode === 'chase' && pd < 200 && pd > 55 && this.bCd <= 0 && this.stun <= 0 && g.level.lineClear(this.x, this.y, p.x, p.y)) { this.bState = 'crouch'; this.bT = 0.42; this.cdx = pdx / pd; this.cdy = pdy / pd; g.audio.tone({ f: 95, f2: 70, dur: 0.4, type: 'sawtooth', g: 0.1 }); } }
         break;
     }
+    if (this.frenzy > 0) { this.frenzy -= dt; spd *= 1.35; } // excité par le cri d'un Hurleur
     // comportement de foule : séparation
     let sx = 0, sy = 0;
     const near = g.hash.query(this.x, this.y, this.r + 40, g._qs);
@@ -3030,10 +3151,10 @@ class Pickup {
       }
       case 'key': case 'fuel': g.onObjectivePickup(this, p); g.audio.pickup(); break;
       case 'shiba': {
-        g.shibaFound.add(this.zone + '-' + this.val); const n = g.shibaFound.size;
+        g.shibaFound.add(this.sid || this.zone + '-' + this.val); const n = g.shibaFound.size;
         g.notice('Shiba sauvé', `${n} / ${SHIBAS_TOTAL}${n === SHIBAS_TOTAL ? ' · le Paradis t\'attend' : ''}`, '#ffb46a'); g.audio.bark(this.x, this.y, true); g.audio.pickup();
         for (let i = 0; i < 16; i++) g.spawnP({ x: this.x, y: this.y, z: 10, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(80, 200), grav: 400, life: 0.9, type: 'spark', size: 2, emissive: true, color: '#ffd27a' });
-        if (n === SHIBAS_TOTAL) g.unlock('shibas'); if (g.mode === 'story') g.adoptBuddy(this.x, this.y); break;
+        if (n === SHIBAS_TOTAL) g.unlock('shibas'); if (g.isCampaign()) g.adoptBuddy(this.x, this.y); break;
       }
       case 'battery': p.battery = Math.min(100, p.battery + 35); g.toast(`+35 % de pile · lampe à ${Math.round(p.battery)} %`, '#efe3a2'); g.audio.pickup(); break;
       case 'fetish': {
@@ -3045,17 +3166,17 @@ class Pickup {
   }
 }
 class Survivor {
-  constructor(g, x, y, zone, idx) { const d = SURVIVORS[idx]; this.g = g; this.x = x; this.y = y; this.r = 12; this.zone = zone; this.hp = 60; this.state = 'idle'; this.dead = false; this.name = d.name; this.who = d.who; this.coat = d.coat; this.line = d.line; this.walkT = 0; this.hurtT = 0; this.dir = 0; }
+  constructor(g, x, y, zone, idx) { const d = SURVIVORS[idx]; this.g = g; this.x = x; this.y = y; this.r = 12; this.zone = zone; this.hp = 60; this.state = 'idle'; this.dead = false; this.name = d.name; this.who = d.who; this.coat = d.coat; this.line = d.line; this.f = !!d.f; this.walkT = 0; this.hurtT = 0; this.dir = 0; }
   update(dt) {
     const g = this.g, p = g.player; if (this.hurtT > 0) this.hurtT -= dt;
-    if (this.state === 'idle') { if (!p.dead && dist2(p.x, p.y, this.x, this.y) < 44 * 44) { this.state = 'follow'; g.toast(`${this.name} (${this.who}) te suit : ramène-le au point de sauvegarde`, '#7fd18b'); g.audio.pickup(); } }
+    if (this.state === 'idle') { if (!p.dead && dist2(p.x, p.y, this.x, this.y) < 44 * 44) { this.state = 'follow'; g.toast(`${this.name} (${this.who}) te suit : ${g.mode === 'hospital' ? `garde-l${this.f ? 'a' : 'e'} en vie jusqu'à la chute du Chirurgien` : `ramène-l${this.f ? 'a' : 'e'} au point de sauvegarde`}`, '#7fd18b'); g.audio.pickup(); } }
     else if (!p.dead) {
       const dx = p.x - this.x, dy = p.y - this.y, d = Math.hypot(dx, dy) || 1;
       if (d > 46) { const sp = Math.min(240, (d - 40) * 4); this.x += dx / d * sp * dt; this.y += dy / d * sp * dt; this.walkT += dt * 9; this.dir = Math.atan2(dy, dx); }
       g.collideWorld(this);
     }
     for (const z of g.hash.query(this.x, this.y, 50, g._q)) if (!z.dead && z.spawnT <= 0 && dist2(z.x, z.y, this.x, this.y) < (z.r + this.r + 4) ** 2) { this.hp -= 12 * dt * g.diff.dmg; this.hurtT = 0.2; }
-    if (this.hp <= 0) { this.dead = true; if (g.run.sv) g.run.sv[this.zone] = 3; g.bleed(this.x, this.y, 0, 0, 12); g.splat(this.x, this.y, 16); g.toast(`${this.name} n'a pas survécu.`, '#b0231c'); }
+    if (this.hp <= 0) { this.dead = true; if (g.run.sv) g.run.sv[this.zone] = 3; g.bleed(this.x, this.y, 0, 0, 12); g.splat(this.x, this.y, 16); g.toast(`${this.name} n'a pas survécu`, '#b0231c'); }
   }
 }
 class Particle {
@@ -3150,18 +3271,57 @@ function writeSave(g, s) {
   const data = { v: 1, char: g.charKey, diff: g.diffKey, safe: s, shibaSeed: g.shibaSeed || 0, cp: { ...cp, weapons: cp.weapons.map(w => ({ ...w, reserve: w.reserve === Infinity ? -1 : w.reserve })) }, lives: g.lives, maxMult: g.maxMult, runTime: g.runTime, stats: g.stats, run: g.run, date: Date.now() };
   memSave = JSON.parse(JSON.stringify(data)); try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { }
 }
-function validSave(d) { return !!d && d.v === 1 && !!CHARS[d.char] && !!DIFFS[d.diff] && Number.isInteger(d.safe) && d.safe >= 0 && d.safe <= 2 && d.cp && Array.isArray(d.cp.weapons) && d.cp.weapons.length === WEAPONS.length; }
+function validSave(d) { return !!d && d.v === 1 && !!CHARS[d.char] && !!DIFFS[d.diff] && Number.isInteger(d.safe) && d.safe >= 0 && d.safe <= 3 && d.cp && Array.isArray(d.cp.weapons) && d.cp.weapons.length === WEAPONS.length; }
 function readSave() { try { const t = localStorage.getItem(SAVE_KEY); if (t) { const d = JSON.parse(t); return validSave(d) ? d : null; } } catch (e) { } return validSave(memSave) ? memSave : null; }
 function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); } catch (e) { } }
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
-function saveLine(d) { return `${CHARS[d.char].name} · ${DIFFS[d.diff].name} · mission ${d.safe + 2} sur 4 · ${fmt(d.cp.score || 0)} pts · ${(d.cp.shibas || []).length}/${SHIBAS_TOTAL} shibas`; }
+// code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
+const b64u = {
+  enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
+  dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
+};
+async function deflate(u8, pack) { const cs = pack ? new CompressionStream('deflate-raw') : new DecompressionStream('deflate-raw'); return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(cs)).arrayBuffer()); }
+async function encodeProfile() {
+  const s = {}; for (const k of PROFILE_KEYS) if (Settings[k] != null) s[k] = Settings[k];
+  const raw = new TextEncoder().encode(JSON.stringify({ v: 2, s, a: Ach.get(), sc: Scores.list(), sv: readSave() }));
+  if (typeof CompressionStream === 'function') try { return 'CF2.' + b64u.enc(await deflate(raw, true)); } catch (e) { }
+  return 'CF2U.' + b64u.enc(raw);
+}
+async function decodeProfile(code) {
+  const t = String(code).replace(/\s+/g, '');
+  try {
+    if (t.startsWith('CF1.')) { const sv = decodeSave(t); return sv ? { v: 2, s: {}, a: {}, sc: [], sv } : null; } /* ancien code : la partie en cours seule */
+    const raw = t.startsWith('CF2.') ? await deflate(b64u.dec(t.slice(4)), false) : t.startsWith('CF2U.') ? b64u.dec(t.slice(5)) : null; if (!raw) return null;
+    const d = JSON.parse(new TextDecoder().decode(raw)); return d && d.v === 2 && typeof d.s === 'object' ? d : null;
+  } catch (e) { return null; }
+}
+// la progression ne fait que monter : on garde le meilleur des deux appareils
+function mergeProgress(a, b) {
+  if (b == null) return a; if (a == null) return b;
+  if (typeof a === 'number' && typeof b === 'number') return Math.max(a, b);
+  if (typeof a === 'boolean' || typeof b === 'boolean') return !!a || !!b;
+  if (Array.isArray(a) && Array.isArray(b)) return [...new Set([...a, ...b])];
+  if (typeof a === 'object' && typeof b === 'object') { const o = { ...a }; for (const k of Object.keys(b)) o[k] = mergeProgress(a[k], b[k]); return o; }
+  return a;
+}
+function applyProfile(d) {
+  const s = d.s || {};
+  for (const k of PROFILE_KEYS) { if (s[k] == null) continue; Settings[k] = k === 'daily' ? (!Settings.daily || s.daily.d > Settings.daily.d ? s.daily : s.daily.d === Settings.daily.d ? { d: s.daily.d, best: Math.max(s.daily.best || 0, Settings.daily.best || 0) } : Settings.daily) : mergeProgress(Settings[k], s[k]); }
+  Settings.save(); Ach.set(mergeProgress(Ach.get(), d.a || {}));
+  for (const e of d.sc || []) if (e && e.name && typeof e.score === 'number') Scores.add(e);
+  const sv = validSave(d.sv) ? d.sv : null, cur = readSave(); if (sv && (!cur || (sv.date || 0) >= (cur.date || 0))) { memSave = sv; try { localStorage.setItem(SAVE_KEY, JSON.stringify(sv)); } catch (e) { } } /* la partie la plus récente gagne */
+  return { lv: levelInfo(Settings.xp || 0).lv, ach: ACH.filter(a => Ach.get()[a[0]]).length, run: !!readSave() };
+}
+function saveLine(d) { return `${CHARS[d.char].name} · ${DIFFS[d.diff].name} · mission ${d.safe + 2} sur ${MISSIONS} · ${fmt(d.cp.score || 0)} pts · ${(d.cp.shibas || []).length}/${SHIBAS_TOTAL} shibas`; }
 function newStats() { return { shots: 0, hits: 0, dmg: 0, deaths: 0 }; }
-const SHIBAS_PER = 3, SHIBAS_TOTAL = 12;
+const SHIBAS_PER = 3, SHIBAS_TOTAL = SHIBAS_PER * MISSIONS;
 const BESTIARY = [
   { k: 'walker', name: 'Le Traînard', type: 'Zombie ordinaire', m: 1, txt: 'Ancien usager de la ligne 4. Attend toujours son bus, mais accepte un mollet en dédommagement.', tip: 'Lent, mais jamais seul. Recule en tirant.' },
   { k: 'runner', name: 'Le Coureur', type: 'Zombie rapide', m: 2, txt: 'Inscrit au semi-marathon la veille de l\'épidémie. Il n\'a jamais franchi la ligne d\'arrivée, alors il court encore.', tip: 'Fragile : une rafale suffit. Ne lui tourne jamais le dos.' },
   { k: 'dog', name: 'Le Chien zombie', type: 'Chasse en meute', m: 3, txt: 'Toujours aussi content de te voir. Juste un peu plus affamé. Ne rapporte plus les bâtons, seulement les tibias.', tip: 'Il s\'accroupit et grogne avant de bondir : roule pile à ce moment.' },
+  { k: 'screamer', name: 'Le Hurleur', type: 'Cri d\'alerte', m: 3, txt: 'Patient de la chambre 12, en attente de son résultat d\'examen depuis l\'épidémie. Il a perdu patience. Et la voix, presque.', tip: 'Quand il ouvre grand la bouche, tire : touché, il se tait. Sinon la horde s\'excite et ta lampe grésille.' },
   { k: 'bomber', name: 'Le Gonflé', type: 'Explosif', m: 2, txt: 'A mangé le kebab de la gare après minuit. Les gaz ont fait le reste.', tip: 'Abats-le de loin : il explose au contact.' },
   { k: 'spitter', name: 'Le Cracheur', type: 'Tir d\'acide', m: 3, txt: 'Champion régional de crachat de noyaux de cerise. Il a juste changé de munitions.', tip: 'Il recule pour viser. Zigzague et colle-le.' },
   { k: 'riot', name: 'Le CRS', type: 'Bouclier', m: 3, txt: 'Son bouclier a survécu à trois manifs et une apocalypse. Son sens de l\'humour, non.', tip: 'Le bouclier arrête les balles : contourne-le, ou une grenade.' },
@@ -3276,9 +3436,9 @@ class Game {
   fillPauseStats() {
     const st = this.stats || {}, t = Math.floor(this.runTime || 0), acc = st.shots ? Math.round(100 * st.hits / st.shots) : 0, p = this.player;
     const zn = this.activeZone >= 0 ? ZONES[this.activeZone] : null;
-    $('pause-where').textContent = this.mode === 'training' ? (this.train && this.train.tut ? 'Didacticiel' : "Camp d'entraînement") : this.endless ? `Nuit sans fin · nuit ${this.endless.night}` : this.dailyMod ? `Défi du jour · ${this.dailyMod.name}` : this.mode === 'survival' ? `Mode survie · vague ${this.surv ? this.surv.wave : 0}` : this.mode === 'secret' ? 'Le Paradis des Shibas' : this.mode === 'hospital' ? 'Secteur 5 · Hôpital Saint-Lazare' : `${zn ? zn.sub + ' · ' + zn.name : this.safeName || 'Campagne'} · ${this.diff.name}${this.p2 ? ' · duo' : ''}`;
+    $('pause-where').textContent = this.mode === 'training' ? (this.train && this.train.tut ? 'Didacticiel' : "Camp d'entraînement") : this.endless ? `Nuit sans fin · nuit ${this.endless.night}` : this.dailyMod ? `Défi du jour · ${this.dailyMod.name}` : this.mode === 'survival' ? `Mode survie · vague ${this.surv ? this.surv.wave : 0}` : this.mode === 'secret' ? 'Le Paradis des Shibas' : this.mode === 'hospital' ? (this.hcamp ? 'Mission 5 · Hôpital Saint-Lazare' : 'Secteur 5 · Hôpital Saint-Lazare') : `${zn ? zn.sub + ' · ' + zn.name : this.safeName || 'Campagne'} · ${this.diff.name}${this.p2 ? ' · duo' : ''}`;
     const cells = [['Score', fmt(Math.floor(this.score))], ['Zombies abattus', fmt(this.kills)], ['Temps', `${Math.floor(t / 60)} min ${String(t % 60).padStart(2, '0')}`], ['Précision', acc + ' %'], ['Multiplicateur max', '×' + (this.maxMult || 1).toFixed(1)], ['Argent', '$ ' + fmt(p ? p.money : 0)]];
-    if (this.mode === 'story') cells.push(['Shibas', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`], ['Vies', `${this.lives} / ${this.diff.lives}`], ['Survivants sauvés', String(this.run ? this.run.saved : 0)]);
+    if (this.isCampaign()) cells.push(['Shibas', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`], ['Vies', `${this.lives} / ${this.diff.lives}`], ['Survivants sauvés', String(this.run ? this.run.saved : 0)]);
     if (this.mode === 'training' && this.train) cells.push(['Cibles abattues', String(this.train.hits)]);
     $('pause-stats').innerHTML = cells.map(([a, b]) => `<div><b>${b}</b><span>${a}</span></div>`).join('');
     $('pause-main').hidden = false; $('pause-settings').hidden = true;
@@ -3359,7 +3519,7 @@ class Game {
     if (this.slowT > 0) { this.slowT -= realDt; if (!W8.open) { dt *= 0.28; pdt = realDt * 0.45; } }
     if (!p.dead) p.update(pdt, inp);
     else if (this.p1Down > 0) { /* à terre : attend d'être relevé par son allié ou la fin de la manche */ }
-    else { this.deathT -= dt; if (this.deathT <= 0) { if (this.lives > 0) { if (this.mode === 'secret' || this.mode === 'hospital') this.respawnSecret(); else this.respawn(); } else if (this.mode === 'survival' || this.mode === 'secret' || this.mode === 'hospital' || this.endless) { this.showEnd(false); return; } else { this.comic.show('gameover', () => this.showEnd(false)); return; } } }
+    else { this.deathT -= dt; if (this.deathT <= 0) { if (this.lives > 0) { if (this.mode === 'secret' || this.mode === 'hospital') this.respawnSecret(); else this.respawn(); } else if (this.mode === 'survival' || this.mode === 'secret' || (this.mode === 'hospital' && !this.hcamp) || this.endless) { this.showEnd(false); return; } else { this.comic.show('gameover', () => this.showEnd(false)); return; } } }
     if (this.p2) this.updateRevive(pdt);
     if (this.p2) { const q = this.p2, i2 = this.input.pollP2(this); if (i2.pause && !inp.pause) { this.pause(); return; } if (!q.dead) { q.update(pdt, i2); if (!p.dead && !this.net && dist2(q.x, q.y, p.x, p.y) > 720 * 720) { q.x = p.x - 30; q.y = p.y + 20; this.toast('J2 ramené près du J1', '#9fd6e6'); } } }
     // progression
@@ -3367,11 +3527,7 @@ class Game {
     for (let k = 0; k < 4; k++) if (!this.zoneEntered[k] && px > ZONES[k].x0 + (k === 0 ? 0 : 50) && px < ZONES[k].x1) this.enterZone(k);
     for (let s = 0; s < 3; s++) if (!this.safeEntered[s] && px > SAFES[s].x0 + 40 && px < SAFES[s].x1) this.enterSafe(s);
     if (this.endless && px > EXIT.x0 + 50 && this.level.obj[3].dead) { this.nextNight(); return; }
-    if (this.mode === 'story' && px > EXIT.x0 + 50 && this.level.obj[3].dead) {
-      this.unlock(WIN_ACH[this.charKey]); if (this.diffKey === 'cauchemar') this.unlock('nightmare');
-      Settings.survival = true; clearSave(); if (this.shibaFound.size >= SHIBAS_TOTAL) Settings.paradise = true; Settings.save(); refreshSurvivalBtn();
-      this.comic.show('epilogue', () => this.showEnd(true)); return;
-    }
+    if (this.mode === 'story' && px > EXIT.x0 + 50 && this.level.obj[3].dead) { this.toHospital(); return; }
     if (this.mode === 'survival') this.updateSurvival(dt);
     if (this.mode === 'training') this.updateTraining(dt);
     if (this.mode === 'secret') this.updateShibaNPC(dt);
@@ -3457,7 +3613,7 @@ mixin(Game, {
   },
   newGameCore() {
     this.resetModes(); this.shibaSeed = Math.floor(Math.random() * 1e6); this.keysOpen = false; this.audio.init(); this.diff = DIFFS[this.diffKey]; this.activeZone = -1; this.shibaFound = new Set(); this.resetWorld();
-    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats(); this.shibaFound = new Set(); this.missionFor = -1;
+    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0, 0, 0] }; this.stats = newStats(); this.shibaFound = new Set(); this.missionFor = -1;
     this.player = new Player(this, 140, 600); this.lives = this.diff.lives; this.score = 0; this.mult = 1; this.maxMult = 1; this.kills = 0; this.runTime = 0;
     this.zoneEntered = [false, false, false, false]; this.safeEntered = [false, false, false]; this.safeName = null; this.savedScore = false;
     this.checkpoint = this.makeCheckpoint(140, 600); this.state = 'playing'; this.deathT = 0;
@@ -3466,15 +3622,17 @@ mixin(Game, {
   loadSave(d) {
     this.keysOpen = false; this.audio.init(); this.charKey = d.char; this.diffKey = d.diff; Settings.char = d.char; Settings.save(); wardIdx = Math.max(0, CHAR_KEYS.indexOf(d.char)); renderWardrobe(); for (const x of document.querySelectorAll('#diff button')) x.setAttribute('aria-pressed', x.dataset.diff === d.diff ? 'true' : 'false');
     this.diff = DIFFS[d.diff]; this.activeZone = -1; this.shibaFound = new Set(d.cp.shibas || []); this.endless = null; this.coop = false; this.p2 = null; this.p1Down = 0; this.seedOff = 0; this.shibaSeed = d.shibaSeed || 0; this.resetWorld();
-    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0], ...(d.run || {}) }; this.stats = { ...newStats(), ...(d.stats || {}) }; this.missionFor = d.safe;
+    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0, 0, 0], ...(d.run || {}) }; this.stats = { ...newStats(), ...(d.stats || {}) }; this.missionFor = d.safe;
     const s = d.safe, cp = { ...d.cp, weapons: d.cp.weapons.map((w, i) => ({ ...w, reserve: WEAPONS[i].infinite || w.reserve === -1 || w.reserve == null ? (WEAPONS[i].infinite ? Infinity : 0) : w.reserve })) };
     this.checkpoint = cp;
     const p = this.player = new Player(this, cp.x, cp.y);
     p.money = cp.money; p.armor = cp.armor; p.grenades = cp.grenades; p.mines = cp.mines; p.decoys = cp.decoys; p.cur = cp.cur; p.weapons.forEach((w, i) => w.restore(cp.weapons[i]));
     this.lives = d.lives; this.score = cp.score || 0; this.kills = cp.kills || 0; this.mult = 1; this.maxMult = d.maxMult || 1; this.runTime = d.runTime || 0; this.savedScore = false; this.deathT = 0;
-    this.zoneEntered = [0, 1, 2, 3].map(k => k <= s); this.safeEntered = [0, 1, 2].map(i => i <= s); this.safeName = SAFES[s].name; this.prologueSeen = true;
+    this.prologueSeen = true; this.cam.x = cp.x; this.cam.y = cp.y; this.input.mdown = false;
+    if (s >= SAFES.length) { this.showMap({ current: s + 1, resumed: true, onGo: () => this.newHospitalMission() }); return; } /* la ville est finie : reprise à l'entrée de l'hôpital */
+    this.zoneEntered = [0, 1, 2, 3].map(k => k <= s); this.safeEntered = [0, 1, 2].map(i => i <= s); this.safeName = SAFES[s].name;
     this.level.setGate(SAFES[s].x0, true); for (let k = 0; k <= s; k++) this.level.obj[k].done = true;
-    this.cam.x = cp.x; this.cam.y = cp.y; this.input.mdown = false; this.showMap({ current: s + 1, resumed: true });
+    this.showMap({ current: s + 1, resumed: true });
   },
   newSecret(keep) {
     this.keysOpen = false; this.audio.init(); const prev = keep && this.player ? this.player : null; this.resetModes();
@@ -3484,7 +3642,7 @@ mixin(Game, {
     if (prev) { p.money = prev.money; p.armor = prev.armor; p.weapons.forEach((w, i) => w.restore(prev.weapons[i].snapshot())); p.cur = prev.cur; }
     else { p.armor = 2; for (const w of p.weapons) { w.owned = true; w.ammo = w.magSize(); if (!w.def.infinite) w.reserve = w.def.ammoPack * 2; } }
     p.grenades = Math.max(p.grenades, 5); p.mines = Math.max(p.mines, 3); p.decoys = Math.max(p.decoys, 3);
-    this.secretCp = { armor: p.armor, cur: p.cur, weapons: p.weapons.map(w => w.snapshot()), grenades: p.grenades, mines: p.mines, decoys: p.decoys };
+    this.secretCp = this.invSnap(p);
     this.lives = this.diff.lives; this.score = 0; this.mult = 1; this.maxMult = 1; this.kills = 0; this.runTime = 0; this.savedScore = false; this.deathT = 0;
     this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.safeName = null; this.checkpoint = null;
     this.activeZone = 3; this.zoneHit = false; this.level.setGate(ZONES[3].x0, true); this.level.setGate(EXIT.x0, true);
@@ -3505,7 +3663,7 @@ mixin(Game, {
     const p = this.player = new Player(this, 150, 600);
     p.armor = 2; for (const w of p.weapons) { w.owned = true; w.ammo = w.magSize(); if (!w.def.infinite) w.reserve = w.def.ammoPack * 2; }
     p.grenades = Math.max(p.grenades, 4); p.mines = Math.max(p.mines, 2); p.decoys = Math.max(p.decoys, 2);
-    this.secretCp = { armor: p.armor, cur: p.cur, weapons: p.weapons.map(w => w.snapshot()), grenades: p.grenades, mines: p.mines, decoys: p.decoys };
+    this.secretCp = this.invSnap(p);
     this.lives = this.diff.lives; this.score = 0; this.mult = 1; this.maxMult = 1; this.kills = 0; this.runTime = 0; this.savedScore = false; this.deathT = 0;
     this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.safeName = null; this.checkpoint = null;
     this.activeZone = 0; this.zoneHit = false; this.level.setGate(ZONES[0].x1, true);
@@ -3518,7 +3676,7 @@ mixin(Game, {
     const L = this.level, H = HOSP;
     L.obstacles = L.obstacles.filter(o => o.zone !== 0); L.spawners = L.spawners.filter(s => s.zone !== 0); L.chests = (L.chests || []).filter(c => c.zone !== 0);
     for (const l of L.lamps) if (l.zone === 0) l.on = false;
-    this.pickups = this.pickups.filter(pk => pk.zone !== 0);
+    this.pickups = []; this.survivors = []; /* rien de la ville ne reste dans l'hôpital */
     const A = o => { o.zone = 0; return L.add(o); }, wall = (x, y, w, h) => A({ x, y, w, h, z: 46, kind: 'hwall', blood: Math.random() < 0.3 ? Math.round(rand(4, Math.max(5, w - 14))) : 0 });
     for (const y of [H.top, H.bot]) { let x = H.x0; for (const d of H.doors) { wall(x, y, d - 42 - x, 18); x = d + 42; } wall(x, y, H.morgue - x, 18); }
     for (const x of H.cols) { wall(x, ST, 18, H.top - ST); wall(x, H.bot + 18, 18, SB - H.bot - 18); }
@@ -3531,6 +3689,34 @@ mixin(Game, {
     for (const [kd, x, y] of [['med', H.doors[0], 260], ['ammo', H.doors[1], 960], ['med', H.doors[2], 960], ['ammo', H.doors[3], 260], ['grenade', H.doors[3], 960], ['ammo', H.morgue - 60, 600]]) { const pk = new Pickup(this, kd, x, y, 0); pk.zone = 0; pk.life = Infinity; this.pickups.push(pk); }
     L.hosp = true; L.rebuildGrid(); L.ground.chunks.clear();
   },
+  // inventaire gardé pour réapparaître (Paradis, hôpital)
+  invSnap(p) { return { money: p.money, armor: p.armor, cur: p.cur, weapons: p.weapons.map(w => w.snapshot()), grenades: p.grenades, mines: p.mines, decoys: p.decoys }; },
+  // ---------- mission 5 de la campagne : l'hôpital, avec tout ce que l'équipe a gagné en ville
+  newHospitalMission() {
+    const prev = this.player, buddy = this.buddy, reports = this.mapReports, q = this.p2;
+    this.resetWorld(); this.mapReports = reports; this.audio.init();
+    this.mode = 'hospital'; this.hcamp = true; this.missionFor = 4; this.missionStart = this.snapStats(); this.event = null;
+    const p = this.player = new Player(this, 150, 600);
+    p.money = prev.money; p.armor = prev.armor; p.grenades = prev.grenades; p.mines = prev.mines; p.decoys = prev.decoys; p.weapons.forEach((w, i) => w.restore(prev.weapons[i].snapshot())); p.cur = prev.cur;
+    this.secretCp = this.invSnap(p); this.checkpoint = this.makeCheckpoint(150, 600); this.deathT = 0;
+    this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.safeName = null;
+    this.activeZone = 0; this.zoneHit = false; this.level.setGate(ZONES[0].x1, true);
+    this.buildHospital(); this.level.obj[0] = { type: 'hospital', spawned: false, dead: false }; this.hospitalExtras();
+    for (let i = 0, t = 0; i < Math.round(18 * this.diff.pop) && t < 200; t++) { const x = rand(600, 2000), y = rand(ST + 40, SB - 40); if (this.level.pointObstacle(x, y)) continue; const z = new Zombie(this, this.director.pickType(HOSP_W), x, y, null); z.aggro = false; this.zombies.push(z); i++; }
+    if (buddy) this.buddy = { ...buddy, x: 120, y: 630, vx: 0, vy: 0 };
+    if (q) { q.x = 130; q.y = 650; q.dead = false; q.hp = q.maxHp; q.battery = 100; q.inv = 2; q.downX = q.downY = null; q.revT = 0; this.p2 = q; this.p1Down = 0; }
+    this.state = 'playing'; this.cam.x = p.x; this.cam.y = p.y; this.showScreen(null); this.input.mdown = false;
+    this.banner('Mission 5 · Hôpital Saint-Lazare', 'Descends jusqu\'à la morgue et retrouve l\'infirmière'); this.audio.setTheme('parking');
+  },
+  // shibas et survivante cachés dans les chambres de l'hôpital (mêmes cachettes pour toute la partie)
+  hospitalExtras() {
+    const H = HOSP, rs = mulberry32(7919 + 4 * 97 + (this.shibaSeed || 0)), rooms = [];
+    for (let i = 0; i < H.cols.length - 2; i++) for (const top of [true, false]) rooms.push({ x0: H.cols[i] + 30, x1: H.cols[i + 1] - 30, y0: top ? ST + 40 : H.bot + 60, y1: top ? H.top - 30 : SB - 40 });
+    for (let i = rooms.length - 1; i > 0; i--) { const j = Math.floor(rs() * (i + 1)); [rooms[i], rooms[j]] = [rooms[j], rooms[i]]; }
+    const spot = R => { for (let t = 0; t < 40; t++) { const x = Math.round(R.x0 + rs() * (R.x1 - R.x0)), y = Math.round(R.y0 + rs() * (R.y1 - R.y0)); if (!this.level.pointObstacle(x, y) && !this.level.pointObstacle(x + 14, y + 14) && !this.level.pointObstacle(x - 14, y - 14)) return [x, y]; } return null; };
+    for (let i = 0; i < SHIBAS_PER; i++) { const s = spot(rooms[i]); if (!s || this.shibaFound.has('4-' + i)) continue; const pk = new Pickup(this, 'shiba', s[0], s[1], i); pk.zone = 0; pk.sid = '4-' + i; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); }
+    const s = spot(rooms[SHIBAS_PER]); if (s && this.run.sv[4] !== 2) this.survivors.push(new Survivor(this, s[0], s[1], 4, MISSION_SURV[4]));
+  },
   updateHospital() {
     const o = this.level.obj[0], p = this.player; if (!o || o.spawned || p.dead) return;
     if (p.x > HOSP.morgue + 60) {
@@ -3542,7 +3728,7 @@ mixin(Game, {
   },
   respawnSecret() {
     const hosp = this.mode === 'hospital', cp = this.secretCp, p = new Player(this, hosp ? (this.level.obj[0].spawned ? HOSP.morgue + 90 : 150) : PLAZA, hosp ? 600 : 820);
-    p.armor = cp.armor; p.cur = cp.cur; p.weapons.forEach((w, i) => w.restore(cp.weapons[i])); p.grenades = cp.grenades; p.mines = cp.mines; p.decoys = cp.decoys; p.inv = 2;
+    p.armor = cp.armor; p.cur = cp.cur; p.weapons.forEach((w, i) => w.restore(cp.weapons[i])); p.grenades = cp.grenades; p.mines = cp.mines; p.decoys = cp.decoys; p.money = cp.money || 0; p.inv = 2;
     this.player = p; this.mult = 1; for (const z of this.zombies) if (!z.dead && z.type !== 'boss' && dist2(z.x, z.y, p.x, p.y) < 300 * 300) z.dead = true; compact(this.zombies);
     this.banner('Encore debout', `${this.lives} vie${this.lives > 1 ? 's' : ''} restante${this.lives > 1 ? 's' : ''}`);
   },
@@ -3603,7 +3789,7 @@ mixin(Game, {
     }
   },
   // une partie ne doit rien hériter du mode joué avant (duo, nuit sans fin, entraînement)
-  resetModes() { this.reviveUsed = false; this.net = null; this.netGuest = false; this.netGuestEnd = false; this.hwTip = false; this.dogTip = false; this.endless = null; this.coop = false; this.p2 = null; this.p1Down = 0; this.train = null; this.dailyMod = null; this.seedOff = 0; },
+  resetModes() { this.hcamp = false; this.reviveUsed = false; this.net = null; this.netGuest = false; this.netGuestEnd = false; this.hwTip = false; this.dogTip = false; this.endless = null; this.coop = false; this.p2 = null; this.p1Down = 0; this.train = null; this.dailyMod = null; this.seedOff = 0; },
   newCoop() {
     const L = this.input.padList(), cpads = this.coopPads; this.newGame(); this.coop = true; this.coopPads = cpads; this.p2 = this.makeP2(140, 660);
     this.later(0.5, () => this.toast(cpads ? `J1 : ${cpads.p1 === 'kb' ? 'clavier et souris' : 'manette ' + (cpads.p1 + 1)} · J2 : manette ${cpads.p2 + 1}` : L.length ? `J2 : ${L.length >= 2 ? '2e manette' : 'manette'} · J1 : ${L.length >= 2 ? '1re manette ou clavier' : 'clavier et souris'}` : 'J2 : branche une manette et appuie sur un bouton', '#9fd6e6'));
@@ -3688,12 +3874,12 @@ mixin(Game, {
     r.shibas = [...this.shibaFound].filter(id => id.startsWith(k + '-')).length; return r;
   },
   showMap({ current, report = null, onGo = null, resumed = false }) {
-    this.state = 'map'; this.audio.flame(false); this.mapGo = onGo; this.mapCur = current; this.mapSel = Math.min(current, 3);
+    this.state = 'map'; this.audio.flame(false); this.mapGo = onGo; this.mapCur = current; this.mapSel = Math.min(current, MISSIONS - 1);
     $('map-eyebrow').textContent = `Carte de l'aventure · ${CHARS[this.charKey].name} · ${this.diff.name}`;
     $('map-shibas').innerHTML = `<img src="${iconURL('shiba')}" alt="">${this.shibaFound.size}/${SHIBAS_TOTAL}`; $('map-score').textContent = `${fmt(this.score)} pts`;
     this.mapHover = null; this.mapReports = this.mapReports || {}; if (report) this.mapReports[report.k] = report; $('map-tip').classList.remove('show');
     const nb = report ? newBeastsHTML(this.takeActBeasts()) : '';
-    $('map-report').innerHTML = report ? reportHTML(report) + nb : resumed ? '<p class="hint">Partie reprise au dernier point de sauvegarde.</p>' : '<p class="hint">Trouve les 3 shibas cachés de chaque mission : ils aboient quand tu t\'approches. Les 12 débloquent un niveau secret.</p>';
+    $('map-report').innerHTML = report ? reportHTML(report) + nb : resumed ? '<p class="hint">Partie reprise au dernier point de sauvegarde.</p>' : `<p class="hint">Trouve les 3 shibas cachés de chaque mission : ils aboient quand tu t\'approches. Les ${SHIBAS_TOTAL} débloquent un niveau secret.</p>`;
     $('btn-map-go').textContent = `Entrer · mission ${current + 1}`;
     const pc = this._mapPortrait || (this._mapPortrait = document.createElement('canvas')); pc.width = pc.height = 160; renderHead(pc, this.charKey, '#0c0a09');
     this.mapInfo(); this.showScreen('scr-map'); $('btn-map-go').focus(); if (nb) drawBestiary();
@@ -3707,17 +3893,17 @@ mixin(Game, {
     const tip = $('map-tip'); if (i == null) { tip.classList.remove('show'); return; }
     const cur = this.mapCur, open = this.shibaFound.size >= SHIBAS_TOTAL, ic = iconURL('shiba');
     let h;
-    if (i === 4) {
+    if (i === MISSIONS) {
       h = `<h4>Le Paradis des Shibas</h4><span class="st lock">${open ? 'Débloqué' : 'Verrouillé'}</span><dl><dt>Accès</dt><dd>${open ? 'S\'ouvre après la victoire finale' : `Trouver les ${SHIBAS_TOTAL} shibas cachés`}</dd><dt>Shibas</dt><dd><b class="${open ? 'ok' : 'wait'}">${this.shibaFound.size} / ${SHIBAS_TOTAL}</b></dd><dt>Menace</dt><dd>${open ? 'Le Shibanophile, le zombie qui déteste les shibas' : '???'}</dd><dt>À protéger</dt><dd>${open ? '9 shibas du paradis' : '???'}</dd></dl>`;
     } else {
       const st = i < cur ? ['done', 'Terminée'] : i === cur ? ['cur', 'Mission en cours'] : ['todo', 'À venir'];
       let shib = ''; for (let k = 0; k < SHIBAS_PER; k++) shib += `<img src="${ic}" class="${this.shibaFound.has(i + '-' + k) ? '' : 'off'}" alt="">`;
-      const n = [...this.shibaFound].filter(id => id.startsWith(i + '-')).length, svs = this.run.sv || [0, 0, 0];
+      const n = [...this.shibaFound].filter(id => id.startsWith(i + '-')).length, svs = this.run.sv || [], si = MISSION_SURV[i];
       let sv;
-      if (i === 3) sv = '<span class="ko">Aucun signalé</span>';
-      else { const d = SURVIVORS[i], v = svs[i]; sv = `${d.name}, ${d.who} · ` + (v === 2 ? '<span class="ok">Sauvé</span>' : v === 3 ? '<span class="ko">Perdu</span>' : i < cur ? '<span class="ko">Non secouru</span>' : '<span class="wait">À secourir</span>'); }
+      if (si < 0) sv = '<span class="ko">Aucun signalé</span>';
+      else { const d = SURVIVORS[si], v = svs[i], e = d.f ? 'e' : ''; sv = `${d.name}, ${d.who} · ` + (v === 2 ? `<span class="ok">Sauvé${e}</span>` : v === 3 ? `<span class="ko">Perdu${e}</span>` : i < cur ? `<span class="ko">Non secouru${e}</span>` : '<span class="wait">À secourir</span>'); }
       const rep = this.mapReports && this.mapReports[i];
-      h = `<h4>${i + 1} · ${ZONES[i].name}</h4><span class="st ${st[0]}">${st[1]}</span><dl><dt>Objectif</dt><dd>${MAP_INFO[i].obj}</dd><dt>Survivant</dt><dd>${sv}</dd><dt>Shibas</dt><dd><span class="sh">${shib}</span>${n}/${SHIBAS_PER}</dd><dt>Menace</dt><dd>${MAP_INFO[i].threat}</dd>${rep ? `<dt>Bilan</dt><dd>${fmt(rep.score)} pts · ${fmt(rep.kills)} zombies</dd>` : ''}</dl>`;
+      h = `<h4>${i + 1} · ${MISSION_NAMES[i]}</h4><span class="st ${st[0]}">${st[1]}</span><dl><dt>Objectif</dt><dd>${MAP_INFO[i].obj}</dd><dt>Survivant</dt><dd>${sv}</dd><dt>Shibas</dt><dd><span class="sh">${shib}</span>${n}/${SHIBAS_PER}</dd><dt>Menace</dt><dd>${MAP_INFO[i].threat}</dd>${rep ? `<dt>Bilan</dt><dd>${fmt(rep.score)} pts · ${fmt(rep.kills)} zombies</dd>` : ''}</dl>`;
     }
     tip.innerHTML = h;
     const n = MAP_NODES[i], cv = $('map-cv'), fw = cv.clientWidth, fh = cv.clientHeight, sc = Math.min(fw / 1000, fh / 560), nx = (fw - 1000 * sc) / 2 + n.x * sc, ny = (fh - 560 * sc) / 2 + n.y * sc;
@@ -3727,9 +3913,9 @@ mixin(Game, {
   },
   mapInfo() {
     const i = this.mapSel, cur = this.mapCur, found = z => [...this.shibaFound].filter(id => id.startsWith(z + '-')).length;
-    $('map-info').textContent = i === 4
-      ? (this.shibaFound.size >= SHIBAS_TOTAL ? 'Le Paradis des Shibas · débloqué : il t\'attend après la Place de la Mairie.' : `Le Paradis des Shibas · niveau secret verrouillé. Trouve les ${SHIBAS_TOTAL} shibas (${this.shibaFound.size} pour l'instant).`)
-      : `Mission ${i + 1} · ${ZONES[i].name} · ${i < cur ? 'terminée' : i === cur ? 'mission en cours' : 'à venir'} · shibas ${found(i)}/${SHIBAS_PER}`;
+    $('map-info').textContent = i === MISSIONS
+      ? (this.shibaFound.size >= SHIBAS_TOTAL ? 'Le Paradis des Shibas · débloqué : il t\'attend après l\'hôpital.' : `Le Paradis des Shibas · niveau secret verrouillé. Trouve les ${SHIBAS_TOTAL} shibas (${this.shibaFound.size} pour l'instant).`)
+      : `Mission ${i + 1} · ${MISSION_NAMES[i]} · ${i < cur ? 'terminée' : i === cur ? 'mission en cours' : 'à venir'} · shibas ${found(i)}/${SHIBAS_PER}`;
   },
   mapContinue() { if (this.state !== 'map') return; const f = this.mapGo; this.mapGo = null; this.state = 'playing'; this.showScreen(null); this.input.mdown = false; if (f) f(); },
   seedZone(k) {
@@ -3825,15 +4011,41 @@ mixin(Game, {
       sv.dead = true;
       if (dist2(sv.x, sv.y, p.x, p.y) < 320 * 320) {
         const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; if (this.run.sv) this.run.sv[sv.zone] = 2;
-        this.later(1.2, () => { this.notice(`${sv.name} est sauvé`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); });
+        this.later(1.2, () => { this.notice(`${sv.name} est sauvé${sv.f ? 'e' : ''}`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); });
         if (this.run.saved >= 3) this.unlock('samaritan');
-      } else { if (this.run.sv) this.run.sv[sv.zone] = 3; this.later(1.2, () => this.toast(`${sv.name} est resté dehors…`, '#a39e93')); }
+      } else { if (this.run.sv) this.run.sv[sv.zone] = 3; this.later(1.2, () => this.toast(`${sv.name} est resté${sv.f ? 'e' : ''} dehors`, '#a39e93')); }
     }
     this.checkpoint = this.makeCheckpoint(SAFES[s].x0 + 200, 600); this.checkpoint.safe = s;
     this.notice('Sauvegardé', SAFES[s].name);
     if (this.endless) { this.later(0.8, () => this.openMutations()); return; }
     const report = this.missionReport(s); writeSave(this, s);
     this.comic.show(['act2', 'act3', 'act4'][s], () => this.showMap({ current: s + 1, report }));
+  },
+  // la campagne continue à l'hôpital (mission 5)
+  isCampaign() { return this.mode === 'story' || (this.mode === 'hospital' && !!this.hcamp); },
+  // l'hélicoptère de la Mairie : fin de la mission 4, cap sur l'hôpital
+  toHospital() {
+    this.event = null; this.newManche('la fin de l\'acte');
+    const st = this.missionStart || { kills: 0 }, xp = this.gainXP(150 + (this.kills - (st.kills || 0)) * 2 + (this.cleared && this.cleared[3] ? 120 : 0)); this.later(1.8, () => this.toast(`+${xp} XP · mission 4 terminée`, '#9fd6e6'));
+    if (!this.zoneHit && this.activeZone === 3) this.unlock('scratch');
+    for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
+    const p = this.player; p.hp = p.maxHp; p.battery = 100; this.activeZone = -1;
+    this.checkpoint = this.makeCheckpoint(150, 600); this.checkpoint.safe = SAFES.length;
+    const report = this.missionReport(3); writeSave(this, SAFES.length);
+    this.comic.show('act5', () => this.showMap({ current: 4, report, onGo: () => this.newHospitalMission() }));
+  },
+  // le Chirurgien est tombé : l'équipe s'envole du toit de l'hôpital
+  finishCampaign() {
+    const p = this.player;
+    for (const sv of this.survivors) {
+      if (sv.dead || sv.state !== 'follow') continue;
+      sv.dead = true; const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; this.run.sv[sv.zone] = 2;
+      this.notice(`${sv.name} est sauvé${sv.f ? 'e' : ''}`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); if (this.run.saved >= 3) this.unlock('samaritan');
+    }
+    const xp = this.gainXP(200 + (this.kills - ((this.missionStart || {}).kills || 0)) * 2); this.toast(`+${xp} XP · mission 5 terminée`, '#9fd6e6');
+    this.unlock(WIN_ACH[this.charKey]); if (this.diffKey === 'cauchemar') this.unlock('nightmare');
+    Settings.survival = true; clearSave(); if (this.shibaFound.size >= SHIBAS_TOTAL) Settings.paradise = true; Settings.save(); refreshSurvivalBtn();
+    this.later(2.4, () => { if (this.state === 'playing') this.comic.show('epilogue', () => this.showEnd(true)); });
   },
   respawn() {
     const cp = this.checkpoint, kz = this.activeZone;
@@ -3871,13 +4083,13 @@ mixin(Game, {
     if (this.net === 'host') Net.send({ t: 'end', sc: Math.floor(this.score), ki: this.kills, wv: this.surv ? this.surv.wave : 0, rt: Math.floor(this.runTime), vi: victory === true ? 1 : 0 }, true);
     this.state = 'end'; this.audio.flame(false);
     for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
-    const secret = victory === 'secret' || this.mode === 'secret', hosp = this.mode === 'hospital';
+    const secret = victory === 'secret' || this.mode === 'secret', hosp = this.mode === 'hospital' && !this.hcamp, camp = this.isCampaign();
     let bonus = 0; if (victory) { bonus = Math.round((10000 + this.lives * 4000) * this.diff.score); this.score += bonus; }
     this.lastVictory = victory; const surv = this.mode === 'survival', wave = surv ? this.surv.wave : 0; $('btn-again').textContent = this.netGuest ? 'En attente de l\'hôte…' : 'Rejouer';
-    $('end-eyebrow').textContent = secret ? 'Rapport final · Le Paradis des Shibas' : surv ? 'Rapport de survie · Place de la Mairie' : victory ? 'Rapport d\'évacuation · Place de la Mairie' : 'Rapport de fin de nuit';
+    $('end-eyebrow').textContent = secret ? 'Rapport final · Le Paradis des Shibas' : surv ? 'Rapport de survie · Place de la Mairie' : victory ? 'Rapport d\'évacuation · Hôpital Saint-Lazare' : 'Rapport de fin de nuit';
     $('end-title').textContent = secret ? (victory ? 'Paradis sauvé' : 'Le paradis est tombé') : surv ? 'Fin de la survie' : victory ? 'Évacué' : 'Fin de la nuit';
     $('end-stamp').textContent = secret ? (victory ? 'Ami des shibas' : 'Porté disparu') : surv ? `Vague ${wave}` : victory ? 'Survivant' : 'Porté disparu';
-    $('btn-paradise').hidden = !(this.mode === 'story' && victory && this.shibaFound.size >= SHIBAS_TOTAL);
+    $('btn-paradise').hidden = !(camp && victory && this.shibaFound.size >= SHIBAS_TOTAL);
     $('end-stamp').style.color = $('end-stamp').style.borderColor = victory ? '#7fd18b' : '';
     if (hosp) { $('end-eyebrow').textContent = 'Rapport médical · Hôpital Saint-Lazare'; $('end-title').textContent = victory ? 'Le Chirurgien est tombé' : 'Admis aux urgences'; $('end-stamp').textContent = victory ? 'Sorti guéri' : 'Porté disparu'; }
     $('btn-survival').hidden = !(victory || surv) || hosp; $('end-credits').hidden = !victory || hosp; if (victory && !hosp) fillCreditsOnce($('end-credits')); $('btn-survival').textContent = surv ? 'Relancer la Survie' : 'Mode Survie';
@@ -3886,9 +4098,9 @@ mixin(Game, {
     if (surv) stats.splice(1, 0, ['Vagues tenues', String(Math.max(0, wave - 1))]);
     if (!surv && !secret) stats.push(['Survivants sauvés', String(this.run.saved)]);
     const st = this.stats; stats.push(['Dégâts infligés', fmt(Math.round(st.dmg))], ['Tirs', fmt(st.shots)], ['Précision', st.shots ? Math.round(100 * st.hits / st.shots) + ' %' : '–'], ['Morts', String(st.deaths)]);
-    if (this.mode === 'story') stats.push(['Shibas trouvés', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`]);
+    if (camp) stats.push(['Shibas trouvés', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`]);
     if (this.achCards.length) { stats.push(['Succès débloqués', this.achCards.map(a => a.name).join(' · ')]); this.achCards = []; }
-    { const mode = this.dailyMod ? 'daily' : this.mode; Settings.lastRun = { char: this.charKey, mode, win: !!victory, kills: this.kills, score: Math.floor(this.score), zone: Math.max(0, this.missionFor == null ? this.activeZone : this.missionFor), wave, shibas: this.shibaFound.size, diff: this.diffKey, mod: this.dailyMod ? this.dailyMod.name : '', date: Date.now() };
+    { const mode = this.dailyMod ? 'daily' : camp ? 'story' : this.mode; Settings.lastRun = { char: this.charKey, mode, win: !!victory, kills: this.kills, score: Math.floor(this.score), zone: Math.max(0, this.missionFor == null ? this.activeZone : this.missionFor), wave, shibas: this.shibaFound.size, diff: this.diffKey, mod: this.dailyMod ? this.dailyMod.name : '', date: Date.now() };
       Settings.bestKills = Math.max(Settings.bestKills || 0, this.kills);
       if (this.mode !== 'training') for (const q of this.players()) { const cs = cstat(q.char); cs.games++; if (victory) cs.wins++; cs.kills += this.kills; cs.best = Math.max(cs.best, Math.floor(this.score)); cs.time += Math.floor(this.runTime || 0); }
       { this.levelUps = 0; const xp = this.gainXP(this.kills * 2 + this.score / 250 + (victory ? 600 : 0) + this.shibaFound.size * 40), L = levelInfo(Settings.xp); stats.push(['Expérience', `+${fmt(xp)} XP · niveau ${L.lv}${this.levelUps ? ' (niveau supérieur !)' : ''}`]); }
@@ -3905,7 +4117,7 @@ mixin(Game, {
   saveScore() {
     if (this.savedScore) return; this.savedScore = true;
     const name = ($('end-name').value || 'Survivant').trim().slice(0, 16) || 'Survivant'; Settings.name = name; Settings.save();
-    const entry = { name, char: CHARS[this.charKey].name, score: Math.floor(this.score), diff: (this.endless ? `Nuit sans fin ${this.endless.night} · ` : this.dailyMod ? 'Défi · ' : this.mode === 'survival' ? 'Survie · ' : this.mode === 'secret' ? 'Paradis · ' : this.mode === 'hospital' ? 'Hôpital · ' : '') + this.diff.name, kills: this.kills, time: Math.floor(this.runTime), win: !!this.lastVictory, wave: this.mode === 'survival' ? this.surv.wave : 0, date: Date.now() };
+    const entry = { name, char: CHARS[this.charKey].name, score: Math.floor(this.score), diff: (this.endless ? `Nuit sans fin ${this.endless.night} · ` : this.dailyMod ? 'Défi · ' : this.mode === 'survival' ? 'Survie · ' : this.mode === 'secret' ? 'Paradis · ' : this.mode === 'hospital' && !this.hcamp ? 'Hôpital · ' : '') + this.diff.name, kills: this.kills, time: Math.floor(this.runTime), win: !!this.lastVictory, wave: this.mode === 'survival' ? this.surv.wave : 0, date: Date.now() };
     const top = Scores.add(entry); $('end-scores').innerHTML = scoreTable(top, entry.date); $('btn-save').disabled = true; $('btn-again').focus();
     { const best = top.find(r => nameKey(r.name) === nameKey(name)); if (best && best.date !== entry.date && best.score >= entry.score) this.toast(`Ton record tient toujours : ${fmt(Math.floor(best.score))} pts`, '#f0b25a'); }
     if (Online.on() && this.mode !== 'training') { entry.mode = this.endless ? 'endless' : this.dailyMod ? 'daily' : this.coop ? 'coop' : this.mode; Online.send(entry).then(ok => this.toast(ok ? 'Score envoyé au classement en ligne' : 'Hors ligne : score envoyé à la prochaine connexion', ok ? '#7fd18b' : '#8b867b')); }
@@ -4201,7 +4413,7 @@ mixin(Game, {
       const pts = Math.round(6000 * this.diff.score); this.score += pts; this.player.money += 400; this.unlock('boss');
       for (const kd of ['med', 'ammo', 'grenade']) this.pickups.push(new Pickup(this, kd, b.x + rand(-30, 30), b.y + rand(-20, 20), 0));
       this.later(1.2, () => this.toast(`${b.title.toLowerCase().replace(/^./, m => m.toUpperCase())} vaincu : +${fmt(pts)} points, +$400`, '#ffd23a'));
-      if (this.mode === 'hospital') { this.level.obj[0].dead = true; Settings.hospital = true; Settings.save(); for (const z of this.zombies) if (!z.dead) z.burn = Math.max(z.burn, 0.01); this.later(3.2, () => { if (this.mode === 'hospital' && this.state === 'playing') this.showEnd(true); }); }
+      if (this.mode === 'hospital') { this.level.obj[0].dead = true; Settings.hospital = true; Settings.save(); for (const z of this.zombies) if (!z.dead) z.burn = Math.max(z.burn, 0.01); if (this.hcamp) this.later(1.6, () => { if (this.state === 'playing') this.finishCampaign(); }); else this.later(3.2, () => { if (this.mode === 'hospital' && this.state === 'playing') this.showEnd(true); }); }
       return;
     }
     this.slowMo(1.8, b.title || 'K.O.');
@@ -4232,6 +4444,13 @@ mixin(Game, {
 mixin(Game, {
   addLight(x, y, r, c, i, life) { this.netEmit(['light', Math.round(x), Math.round(y), Math.round(r), c, netR(i), netR(life)]); this.lights.push({ x, y, r, c, i, life, max: life, dead: false }); },
   spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
+  // cri du Hurleur : la horde alentour s'excite et les lampes grésillent
+  scream(z) {
+    this.netEmit(['scream', Math.round(z.x), Math.round(z.y)]); this.screamFx(z.x, z.y);
+    this.torchFlicker = Math.max(this.torchFlicker, 1.6);
+    for (const o of this.zombies) if (!o.dead && o !== z && o.type !== 'boss' && !o.mini && dist2(o.x, o.y, z.x, z.y) < 520 * 520) { o.aggro = true; o.frenzy = 4; }
+  },
+  screamFx(x, y) { this.audio.tone({ f: 1500, f2: 420, dur: 0.75, type: 'sawtooth', g: 0.08 }); this.shake(0.22); this.floatText(x, y - 46, 'AAAAAH !', '#9fe0ff'); for (const k of [0, 0.12, 0.24]) this.later(k, () => this.spawnP({ x, y: y - 20, life: 0.55, type: 'ring', size: 20, grow: 600, emissive: true, color: '#9fe0ff' })); },
   floatText(x, y, text, color) {
     this.netEmit(['text', Math.round(x), Math.round(y), text, color]);
     for (let k = 0; k < 6 && this.texts.some(t => Math.abs(t.x - x) < 56 && Math.abs(t.y - y) < 16); k++) y -= 17; // pas de texte posé sur un autre
@@ -4406,7 +4625,7 @@ mixin(Game, {
     c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
     // points qui montent ; estompés quand ils passent sous la bannière, pour ne pas se mélanger à son texte
     { const bn = this.bannerObj && !this.cine ? (H / DPR / HUDK) * 0.3 : null;
-      for (const t of this.texts) { let a = Math.min(1, t.life * 2); if (bn != null) { const sy = this.w2h(t.x, t.y).y; if (sy > bn - 62 && sy < bn + 42) a *= 0.12; } c.globalAlpha = a; c.font = `15px ${FD}`; c.textAlign = 'center'; c.fillStyle = t.color; c.fillText(t.text, t.x, t.y); } c.globalAlpha = 1; }
+      for (const t of this.texts) { let a = Math.min(1, t.life * 2); if (bn != null) { const sy = this.w2h(t.x, t.y).y; if (sy > bn - 64 && sy < bn + 48) a *= 0.12; } c.globalAlpha = a; c.font = `15px ${FD}`; c.textAlign = 'center'; c.fillStyle = t.color; c.fillText(t.text, t.x, t.y); } c.globalAlpha = 1; }
     // écran
     c.setTransform(1, 0, 0, 1, 0, 0);
     this.drawScreenFx(c);
@@ -4417,9 +4636,9 @@ mixin(Game, {
       this.drawHUD();
       const ck = this.cine ? Math.min(1, this.cineK || 0) : (this.cineK || 0);
       if (ck > 0.01) { const bh = Math.round(H * 0.12 * ck); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#000'; c.fillRect(0, 0, W, bh); c.fillRect(0, H - bh, W, bh);
-        if (this.cine) { const b = this.cine.b, u = Math.min(1, this.cine.t / 0.45), title = (b.title || '').toUpperCase(), sub = (b.cfg && b.cfg.sub) || (b.ultimate ? 'Le zombie qui déteste les shibas' : 'Elle se recolle, morceau par morceau'), fs = Math.round(Math.min(bh * 0.62, W / 14));
-          c.save(); c.translate(W * 0.5 + (1 - u) * W * 0.6, bh * 0.56); c.rotate(-0.025); c.font = `${fs}px Bangers, Impact, sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round'; c.lineWidth = fs * 0.16; c.strokeStyle = INK; c.strokeText(title, 0, 0); c.fillStyle = b.phase >= 2 ? '#ff6a45' : '#ffd23a'; c.fillText(title, 0, 0); c.restore();
-          c.save(); c.globalAlpha = ck * u; c.font = `italic ${Math.round(fs * 0.42)}px ${FT}`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillStyle = '#d8d2c4'; c.fillText('« ' + sub + ' »', 24 * DPR, H - bh / 2); c.restore(); }
+        if (this.cine) { const b = this.cine.b, u = Math.min(1, this.cine.t / 0.45), title = (b.title || '').toUpperCase(), sub = (b.cfg && b.cfg.sub) || (b.ultimate ? 'Le zombie qui déteste les shibas' : 'Elle se recolle, morceau par morceau'), fs = Math.round(Math.min(H * 0.14, W * 0.9 / Math.max(6, title.length * 0.52)));
+          this.drawBossTitle(title, W / 2, bh + fs * 0.92, fs, this.cine.t, b.phase >= 2);
+          c.save(); c.globalAlpha = ck * u; c.font = `italic ${Math.round(Math.min(bh * 0.34, 20 * DPR))}px ${FT}`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillStyle = '#d8d2c4'; c.fillText('« ' + sub + ' »', 24 * DPR, H - bh / 2); c.restore(); }
         if (this.cine && this.cine.t > 0.5) { c.globalAlpha = ck * (0.55 + Math.sin(this.time * 4) * 0.25); c.fillStyle = '#d8d2c4'; c.font = `${Math.round(13 * DPR)}px ${FT}`; c.textAlign = 'right'; c.fillText(this.input.touchMode ? 'Touche l\'écran pour passer ›' : 'Une touche pour passer ›', W - 24 * DPR, H - bh / 2 + 5 * DPR); c.globalAlpha = 1; } }
     }
   },
@@ -4524,7 +4743,7 @@ mixin(Game, {
     for (const z of this.zombies) {
       if (z.spawnT > 0 || !inView(z.x, z.y)) continue; const sa = Math.sin(z.dir); if (sa < -0.3) continue;
       const ca = Math.cos(z.dir), r = z.r, hx = z.x + ca * r * 0.25, hy = z.y - r * 1.95 + Math.sin(z.walkT * 0.5);
-      const a = z.type === 'runner' ? 0.85 : z.type === 'boss' ? 1 : 0.5; c.fillStyle = z.type === 'bomber' || z.type === 'spitter' ? `rgba(170,255,90,${a})` : `rgba(255,55,35,${a})`;
+      const a = z.type === 'runner' || z.frenzy > 0 ? 0.85 : z.type === 'boss' ? 1 : 0.5; c.fillStyle = z.type === 'bomber' || z.type === 'spitter' ? `rgba(170,255,90,${a})` : z.type === 'screamer' ? `rgba(160,225,255,${a})` : `rgba(255,55,35,${a})`;
       const ex = r * 0.2, es = z.type === 'boss' ? 3.4 : 1.5;
       c.fillRect(hx - ex + ca * 2 - es / 2, hy - es / 2, es, es); c.fillRect(hx + ex + ca * 2 - es / 2, hy - es / 2, es, es);
       if (z.type === 'bomber') { c.fillStyle = `rgba(150,255,80,${0.35 + Math.sin(t * 8 + z.walkT) * 0.15})`; for (const [bx, by] of [[-5, -14], [4, -10], [0, -20]]) { c.beginPath(); c.arc(z.x + bx, z.y + by, 3, 0, TAU); c.fill(); } }
@@ -4662,7 +4881,7 @@ mixin(Game, {
       case 'fire': c.globalAlpha = Math.min(1, k * 1.5) * 0.8; c.fillStyle = k > 0.6 ? '#ffd27a' : k > 0.3 ? '#ff7a1a' : '#a3200f'; c.beginPath(); c.arc(p.x, p.y - p.z, p.size * (0.6 + k * 0.5), 0, TAU); c.fill(); break;
       case 'spark': c.globalAlpha = k; c.strokeStyle = p.color || '#ffcf80'; c.lineWidth = p.size; c.beginPath(); c.moveTo(p.x, p.y - p.z); c.lineTo(p.x - p.vx * 0.03, p.y - p.z - p.vy * 0.03); c.stroke(); break;
       case 'acid': c.globalAlpha = k; c.fillStyle = ACID(); c.fillRect(p.x - 1.5, p.y - p.z - 1.5, 3, 3); break;
-      case 'ring': c.globalAlpha = k * 0.8; c.strokeStyle = '#ffb060'; c.lineWidth = 5 * k + 1; c.beginPath(); c.ellipse(p.x, p.y, p.size, p.size * 0.8, 0, 0, TAU); c.stroke(); break;
+      case 'ring': c.globalAlpha = k * 0.8; c.strokeStyle = p.color || '#ffb060'; c.lineWidth = 5 * k + 1; c.beginPath(); c.ellipse(p.x, p.y, p.size, p.size * 0.8, 0, 0, TAU); c.stroke(); break;
     }
   }
 });
@@ -4783,13 +5002,19 @@ mixin(Game, {
     c.fillStyle = 'rgba(80,10,8,.55)'; c.fillRect(-r * 0.3 + (z.seed || 0), -r * 1.2, r * 0.35, r * 0.3);
     const hy = -r * (z.type === 'spitter' ? 2.2 : 1.95) + Math.sin(t * 0.5);
     c.fillStyle = z.skin; c.beginPath(); c.arc(ca * r * 0.25, hy, r * (z.type === 'brute' ? 0.45 : 0.52), 0, TAU); c.fill();
+    if (z.type === 'screamer') { // bouche qui s'ouvre et ondes du cri qui montent
+      const k = z.bState === 'scream' ? 1 - z.bT / 0.9 : 0, mx = ca * r * 0.42, my = hy + r * 0.16;
+      c.fillStyle = '#e8e4da'; c.fillRect(-r * 0.12, -r * 1.55, r * 0.24, r * 0.5);
+      if (sa > -0.4) { c.fillStyle = '#1a0806'; c.beginPath(); c.ellipse(mx, my, r * (0.12 + k * 0.14), r * (0.08 + k * 0.3), 0, 0, TAU); c.fill(); }
+      if (k > 0) { c.strokeStyle = `rgba(160,225,255,${0.2 + k * 0.55})`; c.lineWidth = 2; for (let i = 0; i < 3; i++) { c.beginPath(); c.arc(mx, my - r * 0.2, r * (0.7 + i * 0.55) * (0.6 + k * 0.6), 0, TAU); c.stroke(); } c.translate(rand(-1, 1), 0); }
+    }
     if (z.type === 'spitter' && z.spitWind > 0) { c.fillStyle = ACID(); c.beginPath(); c.arc(ca * r * 0.6, hy + 3, 3 + (0.45 - z.spitWind) * 6, 0, TAU); c.fill(); }
     if (sa >= 0) arms();
     if (z.costume) drawCostume(c, z.costume, ca * r * 0.25, hy, r, z.walkT);
     if (z.hitFlash > 0) { c.globalAlpha = 0.6; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 0.85, r * 1.15, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     if (z.burn > 0) { c.globalAlpha = 0.35; c.fillStyle = '#ff7a22'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 0.9, r * 1.2, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     c.restore();
-    if ((z.type === 'brute' || z.type === 'spitter') && z.hp < z.maxHp && z.spawnT <= 0) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(z.x - 16, z.y - r * 2.9, 32, 4); c.fillStyle = '#b0231c'; c.fillRect(z.x - 16, z.y - r * 2.9, 32 * z.hp / z.maxHp, 4); }
+    if ((z.type === 'brute' || z.type === 'spitter' || z.type === 'screamer') && z.hp < z.maxHp && z.spawnT <= 0) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(z.x - 16, z.y - r * 2.9, 32, 4); c.fillStyle = '#b0231c'; c.fillRect(z.x - 16, z.y - r * 2.9, 32 * z.hp / z.maxHp, 4); }
   },
   drawDog(z, ca, sa) {
     const c = ctx, r = z.r, t = z.walkT, crouch = z.bState === 'crouch', leap = z.bState === 'leap';
@@ -4836,6 +5061,22 @@ mixin(Game, {
 });
 // ============================================================ rendu : boss
 mixin(Game, {
+  // nom du boss à son arrivée : les lettres tombent du ciel une à une, rebondissent en éclaboussant, puis restent droites et lisibles
+  drawBossTitle(title, cx, y, fs, t, rage) {
+    const c = ctx, ch = [...title], gap = fs * 0.03, bounce = k => { const n = 7.5625, d = 2.75; if (k < 1 / d) return n * k * k; if (k < 2 / d) return n * (k -= 1.5 / d) * k + 0.75; if (k < 2.5 / d) return n * (k -= 2.25 / d) * k + 0.9375; return n * (k -= 2.625 / d) * k + 0.984375; };
+    c.save(); c.font = `${fs}px ${FH}`; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.lineJoin = 'round';
+    const ws = ch.map(l => c.measureText(l).width), tw = ws.reduce((a, w) => a + w, 0) + gap * (ch.length - 1); let x = cx - tw / 2;
+    ch.forEach((l, i) => {
+      const w = ws[i], k = clamp((t - 0.06 - i * 0.055) / 0.55, 0, 1); if (k <= 0 || l === ' ') { x += w + gap; return; }
+      const r = mulberry32(i * 31 + 7), e = bounce(k), ly = lerp(-fs * (1.2 + r() * 0.8), y, e), rot = (r() - 0.5) * 1.4 * (1 - e) + (r() - 0.5) * 0.06;
+      c.save(); c.translate(x + w / 2, ly); c.rotate(rot);
+      grungeTitle(c, l, -w / 2, 0, fs, { rage });
+      c.restore();
+      const s = (k - 0.364) / 0.25; if (s > 0 && s < 1) { c.fillStyle = `rgba(150,12,14,${1 - s})`; for (let j = 0; j < 5; j++) { const a = Math.PI + (j / 4) * Math.PI, d = s * fs * (0.3 + r() * 0.35); c.beginPath(); c.arc(x + w / 2 + Math.cos(a) * d, y + Math.sin(a) * d * 0.6 + s * s * fs * 0.4, fs * 0.035 * (1 - s * 0.5), 0, TAU); c.fill(); } }
+      x += w + gap;
+    });
+    c.restore();
+  },
   drawBossGlow(z) {
     const c = ctx, r = z.r, t = this.time; c.save(); c.globalCompositeOperation = 'lighter'; c.translate(z.x, z.y - (z.jumpZ || 0));
     const glow = (x, y, rr, col, a) => { const gr = c.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(1, `rgba(${col},0)`); c.fillStyle = gr; c.beginPath(); c.arc(x, y, rr, 0, TAU); c.fill(); };
@@ -5112,7 +5353,7 @@ mixin(Game, {
     if (this.mode !== 'training') { const m = this.mult, y = small ? 34 : 46; c.font = `${small ? 28 : 40}px ${FD}`; c.textAlign = 'right'; c.fillStyle = '#d8d2c4'; c.fillText(fmt(this.score), cw / 2 + 6, y);
       c.textAlign = 'left'; c.font = `${(small ? 22 : 30) + this.multPulse * 10}px ${FD}`; c.fillStyle = m >= 8 ? '#ff4a2c' : m >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText(m.toFixed(1) + '×', cw / 2 + 20, y);
       c.textAlign = 'center'; c.font = `12px ${FT}`; c.fillStyle = '#8b867b'; let sub = `${fmt(this.kills)} abattus`;
-      if (this.mode !== 'training') sub += '   ' + '■'.repeat(Math.max(0, this.lives)) + '□'.repeat(Math.max(0, this.diff.lives - this.lives)); if (this.mode === 'story') sub += `   shibas ${this.shibaFound.size}/${SHIBAS_TOTAL}`;
+      if (this.mode !== 'training') sub += '   ' + '■'.repeat(Math.max(0, this.lives)) + '□'.repeat(Math.max(0, this.diff.lives - this.lives)); if (this.isCampaign()) sub += `   shibas ${this.shibaFound.size}/${SHIBAS_TOTAL}`;
       c.fillText(sub, cw / 2, y + 20); }
     // panneaux joueurs
     this.drawPanel(p, 1, cw, ch, S, coop ? (this.netGuest ? 'TOI' : 'J1') : '');
@@ -5120,7 +5361,7 @@ mixin(Game, {
     // objectif
     const ob = this.objective(); const zn = this.activeZone >= 0 ? ZONES[this.activeZone] : null;
     if (ob.text && !(this.train && this.train.tut)) {
-      c.textAlign = 'left'; c.font = `12px ${FT}`; c.fillStyle = '#8b867b'; c.fillText(this.mode === 'secret' ? 'NIVEAU SECRET · LE PARADIS DES SHIBAS' : this.mode === 'hospital' ? 'SECTEUR 5 · HÔPITAL SAINT-LAZARE' : this.mode === 'training' ? "CAMP D'ENTRAÎNEMENT" : this.mode === 'survival' ? 'MODE SURVIE · PLACE DE LA MAIRIE' : zn ? `${zn.sub.toUpperCase()} · ${zn.name.toUpperCase()}` : (this.safeName || '').toUpperCase(), 22, small ? 92 : 136);
+      c.textAlign = 'left'; c.font = `12px ${FT}`; c.fillStyle = '#8b867b'; c.fillText(this.mode === 'secret' ? 'NIVEAU SECRET · LE PARADIS DES SHIBAS' : this.mode === 'hospital' ? (this.hcamp ? 'MISSION 5 · HÔPITAL SAINT-LAZARE' : 'SECTEUR 5 · HÔPITAL SAINT-LAZARE') : this.mode === 'training' ? "CAMP D'ENTRAÎNEMENT" : this.mode === 'survival' ? 'MODE SURVIE · PLACE DE LA MAIRIE' : zn ? `${zn.sub.toUpperCase()} · ${zn.name.toUpperCase()}` : (this.safeName || '').toUpperCase(), 22, small ? 92 : 136);
       c.font = `${small ? 13 : 15}px ${FT}`; c.fillStyle = '#d8d2c4'; wrapText(c, ob.text, 22, small ? 110 : 156, Math.min(380, cw * 0.32), 19);
       if (ob.progress != null) { c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(22, small ? 136 : 196, 240, 5); c.fillStyle = '#7fd18b'; c.fillRect(22, small ? 136 : 196, 240 * ob.progress, 5); }
     }
@@ -5241,7 +5482,7 @@ mixin(Game, {
     const c = ctx, p = this.player, t = this.time;
     c.textAlign = 'left'; c.font = `20px ${FD}`; c.fillStyle = '#f0b25a'; c.fillText('$ ' + fmt(p.money), 16, 30);
     for (let i = 0; i < this.diff.lives; i++) { c.fillStyle = i < this.lives ? '#b0231c' : 'rgba(255,255,255,.12)'; c.fillRect(16 + i * 14, 38, 9, 9); }
-    if (this.mode === 'story') { const sx = 16 + this.diff.lives * 14 + 10; itemIcon(c, 'shiba', sx + 7, 42, 16, '#d9873a'); c.font = `11px ${FT}`; c.textAlign = 'left'; c.fillStyle = '#ffb46a'; c.fillText(`${this.shibaFound.size}/${SHIBAS_TOTAL}`, sx + 18, 47); }
+    if (this.isCampaign()) { const sx = 16 + this.diff.lives * 14 + 10; itemIcon(c, 'shiba', sx + 7, 42, 16, '#d9873a'); c.font = `11px ${FT}`; c.textAlign = 'left'; c.fillStyle = '#ffb46a'; c.fillText(`${this.shibaFound.size}/${SHIBAS_TOTAL}`, sx + 18, 47); }
     const bw = Math.min(190, cw * 0.28);
     c.fillStyle = 'rgba(255,255,255,.08)'; c.fillRect(16, 56, bw, 9);
     c.fillStyle = 'rgba(240,220,200,.5)'; c.fillRect(16, 56, bw * Math.max(0, p.hpTrail) / p.maxHp, 9);
@@ -5306,10 +5547,10 @@ mixin(Game, {
     // bannière
     if (this.bannerObj && !this.cine && !(this.wheel && this.wheel.k > 0)) {
       const b = this.bannerObj, a = Math.min(1, b.t * 2, (3.6 - b.t) * 3); c.globalAlpha = a; c.textAlign = 'center';
-      const y = ch * 0.3; c.fillStyle = 'rgba(0,0,0,.55)'; c.fillRect(0, y - 52, cw, 84);
-      c.fillStyle = '#b0231c'; c.fillRect(cw / 2 - 40, y - 52, 80, 3);
-      c.font = `${small ? 30 : 44}px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(b.title.toUpperCase(), cw / 2, y);
-      c.font = `${small ? 13 : 16}px ${FT}`; c.fillStyle = '#c6c0b2'; c.fillText(b.sub, cw / 2, y + 24); c.globalAlpha = 1;
+      const y = ch * 0.3; c.fillStyle = 'rgba(0,0,0,.55)'; c.fillRect(0, y - 54, cw, 94);
+      c.fillStyle = '#b0231c'; c.fillRect(cw / 2 - 40, y - 54, 80, 3);
+      grungeTitle(c, b.title.toUpperCase(), cw / 2, y + 2, small ? 34 : 50);
+      c.font = `${small ? 13 : 16}px ${FT}`; c.fillStyle = '#c6c0b2'; c.fillText(b.sub, cw / 2, y + 30); c.globalAlpha = 1;
     }
     // bande fine en haut pour les petits événements : au tactile sous le bouton pause, entre les barres de vie et le score et au-dessus de l'objectif ; sur PC sous le score
     if (this.notices.length && !this.cine && !(this.wheel && this.wheel.k > 0) && !(this._achB > 50)) { /* au tactile, attend qu'une carte de succès sur deux lignes soit partie */
@@ -5373,7 +5614,7 @@ mixin(Game, {
       let sb = null;
       if (this.speech) { const s = this.speech; c.font = `${small ? 12 : 14}px ${FT}`; const lines = wrapLines(c, s.msg, small ? 190 : 240), lh = small ? 15 : 17; sb = { s, lines, lh, w: Math.max(...lines.map(l => c.measureText(l).width)) + 20, h: lines.length * lh + 12 }; }
       const PH = 21, stackH = (sb ? sb.h + 14 : 0) + this.pops.length * PH + 8, headY = sp.y - 44 / HUDK;
-      const bnr = this.bannerObj && !this.cine && !(this.wheel && this.wheel.k > 0) ? [ch * 0.3 - 58, ch * 0.3 + 38] : null;
+      const bnr = this.bannerObj && !this.cine && !(this.wheel && this.wheel.k > 0) ? [ch * 0.3 - 60, ch * 0.3 + 44] : null;
       const below = (bnr && headY - stackH < bnr[1] && headY > bnr[0]) || headY - stackH < 8;
       let cur = below ? sp.y + 34 / HUDK + (this.hint ? 30 : 0) + (this.denyMsg ? 26 : 0) : headY;
       if (sb) {
@@ -5752,14 +5993,16 @@ function drawShibaSprite(c, x, y, sc, t) {
   c.restore();
 }
 function lockIcon(c, x, y, col) { c.save(); c.fillStyle = col; c.strokeStyle = col; c.lineWidth = 2; c.beginPath(); c.arc(x, y - 4, 4, Math.PI, 0); c.stroke(); c.fillRect(x - 5.5, y - 4, 11, 8); c.restore(); }
-const MAP_NODES = [{ x: 150, y: 430, name: 'Avenue de la Gare' }, { x: 360, y: 250, name: 'Boulevard des Tanneurs' }, { x: 575, y: 420, name: 'Parking Saint-Roch' }, { x: 790, y: 270, name: 'Place de la Mairie' }, { x: 920, y: 110, name: 'Le Paradis des Shibas' }];
+const MAP_NODES = [{ x: 150, y: 430, name: 'Avenue de la Gare' }, { x: 360, y: 250, name: 'Boulevard des Tanneurs' }, { x: 575, y: 420, name: 'Parking Saint-Roch' }, { x: 790, y: 270, name: 'Place de la Mairie' }, { x: 930, y: 432, name: 'Hôpital Saint-Lazare' }, { x: 920, y: 110, name: 'Le Paradis des Shibas' }];
+const MISSION_SURV = [0, 1, 2, -1, 3]; // survivant à secourir dans chaque mission (-1 : aucun)
 const MAP_INFO = [
   { obj: 'Retrouver la clé du rideau de fer de la pharmacie', threat: 'Marcheurs, coureurs, kamikazes · alarmes de voitures' },
   { obj: 'Défendre la radio le temps d\'envoyer le signal', threat: 'Cracheurs, brutes, CRS-zombies · horde pendant la défense' },
   { obj: 'Porter le bidon d\'essence jusqu\'au groupe électrogène', threat: 'Brutes, cracheurs, CRS-zombies · la horde la plus dense' },
-  { obj: 'Abattre le boss qui garde la Place de la Mairie', threat: 'Le boss et sa garde rapprochée' }
+  { obj: 'Abattre le boss qui garde la Place de la Mairie', threat: 'Le boss et sa garde rapprochée' },
+  { obj: 'Traverser l\'hôpital jusqu\'à la morgue et abattre le Chirurgien', threat: 'Hurleurs, chiens zombies, cracheurs · couloirs étroits' }
 ];
-const MAP_ZOMBIES = (() => { const r = mulberry32(77), a = []; for (const [cx, cy, n] of [[240, 470, 3], [430, 300, 5], [300, 180, 3], [640, 470, 6], [520, 360, 3], [850, 320, 7], [700, 220, 4], [960, 250, 3]]) for (let i = 0; i < n; i++) a.push({ x: cx + (r() - 0.5) * 90, y: cy + (r() - 0.5) * 40, ph: r() * TAU, sp: 0.3 + r() * 0.5, amp: 6 + r() * 14, s: 0.8 + r() * 0.5 }); return a.sort((p, q) => p.y - q.y); })();
+const MAP_ZOMBIES = (() => { const r = mulberry32(77), a = []; for (const [cx, cy, n] of [[240, 470, 3], [430, 300, 5], [300, 180, 3], [640, 470, 6], [520, 360, 3], [850, 320, 7], [700, 220, 4], [960, 250, 3], [905, 478, 5]]) for (let i = 0; i < n; i++) a.push({ x: cx + (r() - 0.5) * 90, y: cy + (r() - 0.5) * 40, ph: r() * TAU, sp: 0.3 + r() * 0.5, amp: 6 + r() * 14, s: 0.8 + r() * 0.5 }); return a.sort((p, q) => p.y - q.y); })();
 const MAP_FIRES = [[95, 330, 1.2], [236, 344, 0.8], [292, 150, 0.9], [452, 160, 0.7], [632, 342, 1], [708, 186, 0.9], [868, 190, 1.3], [498, 452, 0.6]];
 let mapStatic = null, mapStaticKey = '';
 function buildMapStatic(open) {
@@ -5775,7 +6018,7 @@ function buildMapStatic(open) {
   // routes : l'itinéraire suit une avenue défoncée
   const road = (i, j) => { const A = MAP_NODES[i], B = MAP_NODES[j]; g.beginPath(); g.moveTo(A.x, A.y); g.quadraticCurveTo((A.x + B.x) / 2, Math.min(A.y, B.y) - 50, B.x, B.y); };
   g.lineCap = 'round'; g.lineJoin = 'round';
-  for (let i = 0; i < 4; i++) { road(i, i + 1); g.strokeStyle = '#060606'; g.lineWidth = 34; g.stroke(); road(i, i + 1); g.strokeStyle = '#211d1b'; g.lineWidth = 28; g.stroke(); road(i, i + 1); g.setLineDash([10, 14]); g.strokeStyle = 'rgba(160,140,90,.18)'; g.lineWidth = 2; g.stroke(); g.setLineDash([]); }
+  for (let i = 0; i < MISSIONS; i++) { road(i, i + 1); g.strokeStyle = '#060606'; g.lineWidth = 34; g.stroke(); road(i, i + 1); g.strokeStyle = '#211d1b'; g.lineWidth = 28; g.stroke(); road(i, i + 1); g.setLineDash([10, 14]); g.strokeStyle = 'rgba(160,140,90,.18)'; g.lineWidth = 2; g.stroke(); g.setLineDash([]); }
   // fissures et sang
   g.strokeStyle = 'rgba(0,0,0,.7)'; g.lineWidth = 1.5; for (let i = 0; i < 40; i++) { let x = r() * 1000, y = 80 + r() * 420; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 4; k++) { x += (r() - 0.5) * 30; y += (r() - 0.5) * 20; g.lineTo(x, y); } g.stroke(); }
   for (let i = 0; i < 18; i++) { const x = 60 + r() * 900, y = 100 + r() * 380, s = 3 + r() * 8; g.fillStyle = `rgba(${60 + r() * 30},6,5,${0.45 + r() * 0.25})`; g.beginPath(); g.ellipse(x, y, s, s * 0.6, r() * 3, 0, TAU); g.fill(); for (let k = 0; k < 4; k++) { g.beginPath(); g.arc(x + (r() - 0.5) * s * 3, y + (r() - 0.5) * s * 2, 1 + r() * 2, 0, TAU); g.fill(); } }
@@ -5807,7 +6050,13 @@ function buildMapStatic(open) {
   g.strokeStyle = '#4a4440'; g.lineWidth = 2; g.beginPath(); g.moveTo(790, 128); g.lineTo(790, 100); g.stroke();
   // sacs de sable et barricades
   for (const [x, y] of [[180, 410], [395, 230], [600, 405], [820, 255]]) { g.fillStyle = '#3a3226'; for (let i = 0; i < 4; i++) { g.beginPath(); g.ellipse(x + i * 10, y, 6, 4, 0, 0, TAU); g.fill(); g.strokeStyle = ink; g.lineWidth = 1; g.stroke(); } }
-  // 5 · le paradis, perché dans les nuages
+  // 5 · l'hôpital : façade blanche salie, croix rouge et hélistation sur le toit
+  box(862, 334, 126, 62); g.fillStyle = '#3a3836'; g.fillRect(866, 338, 118, 6);
+  for (let k = 0; k < 2; k++) for (let j = 0; j < 6; j++) win(872 + j * 18, 350 + k * 18, r() < 0.25);
+  g.fillStyle = '#0a0909'; g.fillRect(912, 376, 24, 20); g.strokeStyle = ink; g.lineWidth = 2; g.strokeRect(912, 376, 24, 20);
+  g.fillStyle = '#8a1a14'; g.fillRect(918, 312, 12, 30); g.fillRect(909, 321, 30, 12); g.strokeStyle = ink; g.lineWidth = 2; g.strokeRect(918, 312, 12, 30);
+  g.strokeStyle = 'rgba(230,220,190,.35)'; g.lineWidth = 2; g.beginPath(); g.arc(964, 326, 13, 0, TAU); g.stroke(); g.font = 'bold 14px "Saira Stencil One", Impact, sans-serif'; g.textAlign = 'center'; g.fillStyle = 'rgba(230,220,190,.45)'; g.fillText('H', 964, 331);
+  // 6 · le paradis, perché dans les nuages
   g.fillStyle = open ? 'rgba(255,170,200,.18)' : 'rgba(120,110,120,.12)'; for (const [x, y, rr] of [[920, 96, 40], [878, 110, 28], [962, 112, 28], [920, 124, 32]]) { g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); }
   return cv;
 }
@@ -5846,23 +6095,27 @@ function drawMapCanvas(g, game, t, portrait) {
   // fumée qui monte
   for (const [x, y, s] of MAP_FIRES) for (let i = 0; i < 3; i++) { const p = (t * 0.08 + i / 3 + x * 0.003) % 1, sx = x + p * 50 + Math.sin(t + i) * 6, sy = y - 20 - p * 120 * s, rr = (10 + p * 34) * s; g.fillStyle = `rgba(20,18,18,${0.45 * (1 - p)})`; g.beginPath(); g.arc(sx, sy, rr, 0, TAU); g.fill(); }
   // zombies qui titubent (pas sur les missions déjà nettoyées)
-  for (const z of MAP_ZOMBIES) { const zone = z.x < 255 ? 0 : z.x < 470 ? 1 : z.x < 690 ? 2 : 3; if (zone < cur) continue; mapZombie(g, z.x + Math.sin(t * z.sp + z.ph) * z.amp, z.y, z.s * 1.5, t, z.ph); }
+  for (const z of MAP_ZOMBIES) { const zone = z.y > 400 && z.x > 860 ? 4 : z.x < 255 ? 0 : z.x < 470 ? 1 : z.x < 690 ? 2 : 3; if (zone < cur) continue; mapZombie(g, z.x + Math.sin(t * z.sp + z.ph) * z.amp, z.y, z.s * 1.5, t, z.ph); }
   // shibas fantômes au paradis quand il est ouvert
   if (open) for (let i = 0; i < 3; i++) drawShibaSprite(g, 890 + i * 28, 96 + Math.sin(t * 3 + i) * 3, 0.45, t);
   // chemin de sang : pointillés qui avancent
   const path = (i, j, on) => { const A = MAP_NODES[i], B = MAP_NODES[j]; g.beginPath(); g.moveTo(A.x, A.y); g.quadraticCurveTo((A.x + B.x) / 2, Math.min(A.y, B.y) - 50, B.x, B.y); g.setLineDash(on ? [14, 12] : [3, 11]); g.lineDashOffset = on ? -t * 14 : 0; g.lineWidth = on ? 6 : 4; g.strokeStyle = on ? (i < cur ? '#5e1410' : '#b3221a') : 'rgba(140,120,130,.35)'; g.shadowColor = on && i >= cur ? 'rgba(255,40,20,.6)' : 'transparent'; g.shadowBlur = 10; g.stroke(); g.shadowBlur = 0; g.setLineDash([]); g.lineDashOffset = 0; };
-  for (let i = 0; i < 3; i++) path(i, i + 1, true); path(3, 4, open);
+  for (let i = 0; i < MISSIONS - 1; i++) path(i, i + 1, true); path(MISSIONS - 1, MISSIONS, open);
+  // l'hélicoptère attend sur le toit de l'hôpital, pales en marche quand c'est la dernière mission
+  { const x = 964, y = 322, sp = cur >= MISSIONS - 1 ? t * 26 : 0.4; g.fillStyle = '#1c1f22'; g.beginPath(); g.ellipse(x, y, 11, 6, 0, 0, TAU); g.fill(); g.fillRect(x + 6, y - 2, 14, 3); g.strokeStyle = '#000'; g.lineWidth = 1.5; g.stroke();
+    g.strokeStyle = 'rgba(200,200,190,.55)'; g.lineWidth = 2; for (let k = 0; k < 2; k++) { const a = sp + k * Math.PI / 2; g.beginPath(); g.moveTo(x - Math.cos(a) * 16, y - 7 - Math.sin(a) * 4); g.lineTo(x + Math.cos(a) * 16, y - 7 + Math.sin(a) * 4); g.stroke(); }
+    if (cur >= MISSIONS - 1 && Math.sin(t * 5) > 0) { g.fillStyle = 'rgba(255,60,40,.9)'; g.fillRect(x + 19, y - 3, 2, 2); } }
   // pluie
   g.strokeStyle = 'rgba(160,170,190,.18)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 90; i++) { const x = (i * 97 + t * 60) % 1040 - 20, y = (i * 53 + t * 520) % 600 - 20; g.moveTo(x, y); g.lineTo(x - 4, y + 12); } g.stroke();
   // brouillard rasant
   for (let i = 0; i < 4; i++) { const x = ((t * (8 + i * 3) + i * 300) % 1400) - 200, y = 150 + i * 100; const f = g.createRadialGradient(x, y, 10, x, y, 220); f.addColorStop(0, 'rgba(70,60,70,.14)'); f.addColorStop(1, 'rgba(70,60,70,0)'); g.fillStyle = f; g.fillRect(x - 220, y - 220, 440, 440); }
   // obscurité, sauf autour de la lampe du joueur
-  const pn = MAP_NODES[Math.min(cur, 3)];
+  const pn = MAP_NODES[Math.min(cur, MISSIONS - 1)];
   const dk = g.createRadialGradient(pn.x, pn.y - 30, 40, pn.x, pn.y - 30, 520); dk.addColorStop(0, 'rgba(0,0,0,0)'); dk.addColorStop(0.5, 'rgba(0,0,0,.12)'); dk.addColorStop(1, 'rgba(0,0,0,.42)'); g.fillStyle = dk; g.fillRect(0, 0, 1000, 560);
   g.globalCompositeOperation = 'lighter'; const lamp = g.createRadialGradient(pn.x, pn.y - 30, 5, pn.x, pn.y - 30, 130 + Math.sin(t * 2) * 6); lamp.addColorStop(0, 'rgba(255,220,160,.22)'); lamp.addColorStop(1, 'rgba(255,220,160,0)'); g.fillStyle = lamp; g.fillRect(pn.x - 140, pn.y - 170, 280, 280); g.globalCompositeOperation = 'source-over';
   // étapes : médaillons de métal
   MAP_NODES.forEach((n, i) => {
-    const done = i < cur, locked = i === 4 ? !open : i > cur, focus = i === sel || i === hov;
+    const done = i < cur, locked = i === MISSIONS ? !open : i > cur, focus = i === sel || i === hov;
     if (i === cur || focus) { g.strokeStyle = i === cur ? `rgba(255,90,40,${0.55 + Math.sin(t * 4) * 0.3})` : 'rgba(230,220,200,.5)'; g.lineWidth = 3; g.beginPath(); g.arc(n.x, n.y, 34 + Math.sin(t * 4) * 3, 0, TAU); g.stroke(); }
     const sc = focus ? 1.12 : 1;
     const mg = g.createLinearGradient(n.x, n.y - 26, n.x, n.y + 26); mg.addColorStop(0, done ? '#4a4038' : locked ? '#2c2a2c' : '#8a2a1a'); mg.addColorStop(1, done ? '#221c18' : locked ? '#121112' : '#3a0e08');
@@ -5871,8 +6124,8 @@ function drawMapCanvas(g, game, t, portrait) {
     for (let k = 0; k < 4; k++) { const a = k * TAU / 4 + 0.78; g.fillStyle = '#6a6058'; g.beginPath(); g.arc(n.x + Math.cos(a) * 23.5 * sc, n.y + Math.sin(a) * 23.5 * sc, 1.6, 0, TAU); g.fill(); }
     g.fillStyle = '#e8dfc8'; g.font = `${Math.round(24 * sc)}px "Saira Stencil One", Impact, sans-serif`;
     if (done) { g.strokeStyle = '#b3221a'; g.lineWidth = 5; g.beginPath(); g.moveTo(n.x - 10, n.y - 10); g.lineTo(n.x + 10, n.y + 10); g.moveTo(n.x + 10, n.y - 10); g.lineTo(n.x - 10, n.y + 10); g.stroke(); }
-    else if (i === 4 && !open) { g.save(); g.translate(n.x, n.y + 2); g.scale(2, 2); lockIcon(g, 0, 0, '#8a8488'); g.restore(); g.strokeStyle = '#4a464a'; g.lineWidth = 3; g.setLineDash([5, 3]); g.beginPath(); g.moveTo(n.x - 40, n.y - 20); g.lineTo(n.x + 40, n.y + 20); g.moveTo(n.x + 40, n.y - 20); g.lineTo(n.x - 40, n.y + 20); g.stroke(); g.setLineDash([]); }
-    else g.fillText(i === 4 ? '?' : String(i + 1), n.x, n.y + 9 * sc);
+    else if (i === MISSIONS && !open) { g.save(); g.translate(n.x, n.y + 2); g.scale(2, 2); lockIcon(g, 0, 0, '#8a8488'); g.restore(); g.strokeStyle = '#4a464a'; g.lineWidth = 3; g.setLineDash([5, 3]); g.beginPath(); g.moveTo(n.x - 40, n.y - 20); g.lineTo(n.x + 40, n.y + 20); g.moveTo(n.x + 40, n.y - 20); g.lineTo(n.x - 40, n.y + 20); g.stroke(); g.setLineDash([]); }
+    else g.fillText(i === MISSIONS ? '?' : String(i + 1), n.x, n.y + 9 * sc);
   });
   // pion du personnage
   const by = pn.y - 76 + Math.sin(t * 3) * 4;
@@ -5884,13 +6137,14 @@ function drawMapCanvas(g, game, t, portrait) {
   // vignette et grain
   const v = g.createRadialGradient(500, 280, 250, 500, 280, 620); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.75)'); g.fillStyle = v; g.fillRect(0, 0, 1000, 560);
   // titre de la mission choisie
-  const sn = MAP_NODES[hov != null ? hov : sel], si = hov != null ? hov : sel, ly = si === 4 ? 58 : sn.y > 300 ? sn.y + 74 : sn.y - 120, lx = si === 4 ? 850 : clamp(sn.x, 200, 800);
-  g.font = '40px "Saira Stencil One", Impact, sans-serif'; g.textAlign = si === 4 ? 'right' : 'center'; g.lineWidth = 7; g.strokeStyle = '#000'; g.strokeText(sn.name.toUpperCase(), lx, ly); g.fillStyle = '#e8dfc8'; g.fillText(sn.name.toUpperCase(), lx, ly);
+  const sn = MAP_NODES[hov != null ? hov : sel], si = hov != null ? hov : sel, ly = si === MISSIONS ? 58 : sn.y > 300 ? sn.y + 74 : sn.y - 120;
+  g.font = `44px ${FH}`; const hw = g.measureText(sn.name.toUpperCase()).width / 2 + 24, lx = si === MISSIONS ? 850 : clamp(sn.x, hw, 1000 - hw); /* le nom tient toujours dans la carte */
+  g.textAlign = si === MISSIONS ? 'right' : 'center'; grungeTitle(g, sn.name.toUpperCase(), lx, ly, 44);
 }
 function reportHTML(r) {
   const acc = r.shots > 0 ? Math.round(100 * r.hits / r.shots) + ' %' : '–';
   const items = [['Score de la mission', fmt(r.score)], ['Zombies abattus', fmt(r.kills)], ['Dégâts infligés', fmt(Math.round(r.dmg))], ['Tirs', fmt(r.shots)], ['Précision', acc], ['Shibas trouvés', `${r.shibas} / ${SHIBAS_PER}`], ['Survivants sauvés', String(r.saved)], ['Morts', String(r.deaths)], ['Temps', fmtTime(r.time)]];
-  return `<div class="report"><h3>Bilan · mission ${r.k + 1}</h3><p class="rep-zone">${ZONES[r.k].name}</p><dl class="rep">${items.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
+  return `<div class="report"><h3>Bilan · mission ${r.k + 1}</h3><p class="rep-zone">${MISSION_NAMES[r.k]}</p><dl class="rep">${items.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
 }
 function wrapText(c, text, x, y, maxW, lh) { const words = text.split(' '); let line = ''; for (const w of words) { const test = line ? line + ' ' + w : w; if (c.measureText(test).width > maxW && line) { c.fillText(line, x, y); line = w; y += lh; } else line = test; } if (line) c.fillText(line, x, y); }
 function scoreTable(list, hiDate) {
@@ -6017,6 +6271,15 @@ function bgCamp(g) {
   const r = mulberry32(17), gr = g.createLinearGradient(0, 0, 0, 360); gr.addColorStop(0, '#7c848e'); gr.addColorStop(1, '#c4c9cc'); g.fillStyle = gr; g.fillRect(0, 0, 480, 360);
   for (const [x, w] of [[10, 170], [200, 150], [360, 140]]) { S(g, '#efeee8', () => { g.moveTo(x, 290); g.lineTo(x + w / 2, 170); g.lineTo(x + w, 290); g.closePath(); }); S(g, '#c0201a', () => { g.rect(x + w / 2 - 5, 210, 10, 34); g.rect(x + w / 2 - 17, 222, 34, 10); }, 2); }
   g.fillStyle = '#5a5246'; g.fillRect(0, 290, 480, 70); g.strokeStyle = INK; g.lineWidth = 4; g.beginPath(); g.moveTo(0, 290); g.lineTo(480, 290); g.stroke(); rain(g, r, 0.4);
+}
+function bgHospital(g) {
+  bgNight(g, 37, ['#0e1a24', '#24323a']);
+  S(g, '#d9d6cc', () => g.rect(70, 92, 340, 220)); g.fillStyle = 'rgba(40,50,48,.35)'; g.fillRect(70, 92, 340, 220);
+  const r = mulberry32(43); for (let y = 112; y < 270; y += 38) for (let x = 88; x < 392; x += 40) { const lit = r() < 0.22; S(g, lit ? '#bff0d8' : '#1a2226', () => g.rect(x, y, 24, 24), 2); if (lit) glowAt(g, x + 12, y + 12, 26, '170,240,210'); }
+  S(g, '#2a2f30', () => g.rect(205, 250, 70, 62)); S(g, '#9fd3e8', () => g.rect(213, 258, 54, 24), 2);
+  glowAt(g, 240, 60, 90, '255,60,50'); S(g, '#d8241c', () => { g.rect(228, 30, 24, 64); g.rect(208, 50, 64, 24); }, 4);
+  S(g, '#3a3f40', () => g.rect(60, 84, 360, 12)); helicopter(g, 380, 62, 0.42);
+  sfx(g, 'URGENCES', 240, 246, 24, 0, '#ff5a4a');
 }
 function bgHeli(g) {
   g.fillStyle = '#2b3328'; g.fillRect(0, 0, 480, 360);
@@ -6366,7 +6629,7 @@ const ACTS = {
     : { draw: g => { bgNight(g, 31, ['#1a1030', '#3a1a2a']); zombieC(g, 90, 360, 0.85, {}); zombieC(g, 420, 360, 0.85, { flip: true }); fiona(g, 250, 360, 1.0, { mood: 'deadpan', hand: 'frites' }); S(g, '#7a0f0c', () => { E(g, 300, 196, 9, 6); E(g, 312, 204, 7, 5); }, 2); }, cap: 'Fiona a été mordue. Franchement, personne n\'a vu la différence.', capPos: 'b', bubbles: [{ t: 'J\'me sens comme d\'habitude, hein.', x: 4, y: 8, tail: 'br', w: 34 }] }
   ] },
   epilogue: { label: 'Épilogue', title: 'L\'aube', panels: ch => [
-    { draw: g => { bgDawn(g); helicopter(g, 290, 130, 1.05); sfx(g, 'TCHOP TCHOP TCHOP', 250, 330, 32, -0.04, '#fff3c0'); }, cap: 'L\'aube. L\'hélicoptère décolle au-dessus des toits.' },
+    { draw: g => { bgDawn(g); helicopter(g, 290, 130, 1.05); sfx(g, 'TCHOP TCHOP TCHOP', 250, 330, 32, -0.04, '#fff3c0'); }, cap: 'L\'aube. L\'hélicoptère décolle enfin du toit de l\'hôpital.' },
     ch === 'pedro'
       ? { draw: g => { bgHeli(g); npc(g, 370, 380, 1.0, { flip: true, coat: '#3b4a3a', head: 'pilot', prop: 'burrito' }); pedro(g, 130, 400, 1.0, { mood: 'happy' }); }, cap: 'Sous son siège, le pilote gardait un sachet.', bubbles: [{ t: 'Tiens. C\'est tout ce qu\'on a.', x: 56, y: 16, tail: 'br', w: 34 }, { t: '¿Un burrito? ¡Te quiero, amigo!', x: 3, y: 64, tail: 'tr', w: 40 }] }
       : { draw: g => { bgCamp(g); npc(g, 370, 360, 1.0, { flip: true, coat: '#f2f2ee', head: 'doctor', prop: 'clipboard', skin: '#e0b896' }); fiona(g, 140, 360, 0.95, { mood: 'annoyed' }); }, cap: 'Au camp de réfugiés, un médecin la regarde de travers.', bubbles: [{ t: 'Celle-là, en quarantaine. Elle est infectée.', x: 50, y: 16, tail: 'br', w: 40 }, { t: 'Mais j\'suis d\'Roubaix !', x: 3, y: 64, tail: 'tr', w: 36 }] },
@@ -6484,7 +6747,7 @@ function newPanels(key, ch) {
       { draw: g => { speedBg(g, '#5a0f0c'); H(g, 250, 560, 1.5, { mood: 'angry', hand: 'gun' }); }, cap: 'Dernier secteur. L\'hélicoptère n\'attendra pas.', capPos: 'b', bubbles: [{ t: T.boss, x: 3, y: 5, tail: 'br', w: 40 }] }
     ];
     case 'epilogue': return [
-      { draw: g => { bgDawn(g); helicopter(g, 290, 130, 1.05); sfx(g, 'TCHOP TCHOP TCHOP', 250, 330, 32, -0.04, '#fff3c0'); }, cap: 'L\'aube. L\'hélicoptère décolle au-dessus des toits.' },
+      { draw: g => { bgDawn(g); helicopter(g, 290, 130, 1.05); sfx(g, 'TCHOP TCHOP TCHOP', 250, 330, 32, -0.04, '#fff3c0'); }, cap: 'L\'aube. L\'hélicoptère décolle enfin du toit de l\'hôpital.' },
       { draw: g => { bgHeli(g); npc(g, 370, 380, 1.0, { flip: true, coat: '#3b4a3a', head: 'pilot' }); H(g, 130, 400, 1.0, { mood: 'happy', hand: prop }); }, cap: 'Dans l\'hélicoptère, le pilote jette un œil en arrière.', bubbles: [{ t: T.pilot, x: 54, y: 16, tail: 'br', w: 38 }, { t: T.pilotReply, x: 3, y: 64, tail: 'tr', w: 40 }] },
       { draw: g => { bgDawn(g, 51); H(g, 240, 560, 1.5, { mood: 'happy', hand: prop }); }, cap: T.end, capPos: 'b' }
     ];
@@ -6530,10 +6793,24 @@ function bgParadise(g) {
 }
 const PARADISE_LINES = { pedro: '¡Qué lindos! Mi corazón… ¡ay caramba!', fiona: 'Ch\'est mignon tout plein. J\'vais pleurer, mais pas devant eux.', zeus: 'Même l\'Olympe n\'est pas aussi beau.', dobby: 'Dobby a plein de nouveaux amis !', chewie: 'Franchement… je kiffe trop.', dragon: 'Bon. D\'accord. Ils sont mignons. Ne le répétez pas.' };
 ACTS.paradise = { label: 'Fin secrète', title: 'Le Paradis des Shibas', panels: ch => [
-  { draw: g => { bgParadise(g); hero(ch, g, 240, 380, 0.85, { mood: 'happy' }); shibaC(g, 70, 330, 0.9, {}); shibaC(g, 400, 335, 0.85, { flip: true }); shibaC(g, 140, 300, 0.6, {}); shibaC(g, 340, 300, 0.6, { flip: true }); }, cap: 'Les 12 shibas sauvés gambadent enfin en paix.', capPos: 'b', bubbles: [{ t: PARADISE_LINES[ch], x: 3, y: 4, tail: 'br', w: 42 }] },
+  { draw: g => { bgParadise(g); hero(ch, g, 240, 380, 0.85, { mood: 'happy' }); shibaC(g, 70, 330, 0.9, {}); shibaC(g, 400, 335, 0.85, { flip: true }); shibaC(g, 140, 300, 0.6, {}); shibaC(g, 340, 300, 0.6, { flip: true }); }, cap: `Les ${SHIBAS_TOTAL} shibas sauvés gambadent enfin en paix.`, capPos: 'b', bubbles: [{ t: PARADISE_LINES[ch], x: 3, y: 4, tail: 'br', w: 42 }] },
   { draw: g => { bgParadise(g); shibanophileC(g, 240, 380, 0.8, { sad: true }); shibaC(g, 360, 330, 0.9, { flip: true }); sfx(g, 'LÈCHE LÈCHE', 380, 120, 26, 0.1, '#ff8fb8'); }, cap: 'Vaincu, le Shibanophile avoue tout : il n\'a jamais eu le droit d\'avoir un chien.', capPos: 'b', bubbles: [{ t: 'Snif… il est tout doux, en fait…', x: 4, y: 6, tail: 'br', w: 36 }] },
   { draw: g => { bgParadise(g); for (let i = 0; i < 6; i++) shibaC(g, 50 + i * 76, 330 + (i % 2) * 14, 0.7, { flip: i % 2 === 1 }); hero(ch, g, 240, 300, 0.6, { mood: 'happy', hand: PROP[ch] }); sfx(g, 'WOUF !', 240, 70, 52, -0.06, '#ffd23a'); }, cap: 'Fin. Pour de vrai, cette fois. Merci d\'avoir sauvé les shibas.', capPos: 'b' }
 ] };
+// ---------- acte V : l'hôpital Saint-Lazare (mission 5), commun à tous les personnages
+const ACT5_LINES = {
+  pedro: ['¿Un hospital? J\'espère qu\'ils ont des burritos à la cafétéria.', '¡Vamos! Un docteur zombie, il ne manquait plus que ça.'],
+  fiona: ['Un hôpital ? Ils vont encore vouloir m\'mettre en quarantaine.', 'Allez. Les urgences, j\'connais : j\'suis du Nord.'],
+  zeus: ['Un hôpital. Pourvu qu\'il y ait des plantes dans le hall.', 'Même les dieux détestent les salles d\'attente.'],
+  dobby: ['Dobby n\'aime pas les hôpitaux : toutes les chaussettes y sont blanches.', 'Dobby va être très courageux. Encore une fois.'],
+  chewie: ['L\'hosto ? Grave, j\'avais une carie à faire voir.', 'On y va. Même les couloirs qui sentent l\'éther, je kiffe.'],
+  dragon: ['Un hôpital. Enfin un endroit aussi sinistre que mon antre.', 'Un Chirurgien ? Il va découvrir le vrai Maléfique.']
+};
+ACTS.act5 = { label: 'Acte V', title: 'L\'hôpital Saint-Lazare', panels: ch => { const L = ACT5_LINES[ch] || ACT5_LINES.pedro; return [
+  { draw: g => { bgHeli(g); npc(g, 370, 380, 1.0, { flip: true, coat: '#3b4a3a', head: 'pilot' }); hero(ch, g, 130, 400, 1.0, { mood: 'shock' }); }, cap: 'L\'hélicoptère quitte la Mairie. La radio crache un nouvel ordre.', bubbles: [{ t: 'On se pose sur le toit de l\'hôpital Saint-Lazare. Une infirmière y est bloquée.', x: 50, y: 14, tail: 'br', w: 44 }, { t: L[0], x: 3, y: 64, tail: 'tr', w: 42 }] },
+  { draw: g => { bgHospital(g); sfx(g, 'KRRZZT', 400, 170, 26, 0.1, '#9fe0ff'); }, cap: 'Sur le toit, personne. Des néons qui grésillent et une odeur d\'éther.', capPos: 'b', bubbles: [{ t: '… ici Inès… urgences… il y a quelqu\'un ?', x: 4, y: 6, tail: 'none', w: 38, cls: 'radio' }] },
+  { draw: g => { speedBg(g, '#0f4a44'); hero(ch, g, 250, 560, 1.5, { mood: 'angry', hand: 'gun' }); }, cap: 'Mission 5. Descendre jusqu\'à la morgue. Quelqu\'un y opère encore.', capPos: 'b', bubbles: [{ t: L[1], x: 3, y: 5, tail: 'br', w: 40 }] }
+]; } };
 for (const key of ['intro', 'act2', 'act3', 'act4', 'epilogue', 'gameover']) { const orig = ACTS[key].panels; ACTS[key].panels = ch => NEW_STORY[ch] ? newPanels(key, ch) : orig(ch); }
 const PORTRAIT_BG = { pedro: bgTruck, fiona: bgFriterie, zeus: g => bgBalcony(g, false), dobby: g => bgHome(g, false), chewie: bgKebab, dragon: g => bgLair(g, false) };
 const HEAD_CROP = { pedro: [135, 18, 210], fiona: [148, 44, 184], zeus: [148, 36, 184], dobby: [130, 96, 220], chewie: [132, 4, 216], dragon: [146, 34, 188] };
@@ -6627,7 +6904,7 @@ class Comic {
   next() { if (this.g.state !== 'comic') return; if (this.idx < this.strip.children.length - 1) { this.idx++; this.reveal(); this.g.audio.ui(); } else this.finish(); }
   finish() { const g = this.g; if (g.state !== 'comic') return; g.showScreen(null); g.state = 'playing'; g.input.mdown = false; const d = this.done; this.done = null; if (d) d(); }
 }
-const fontsReady = (document.fonts && document.fonts.load) ? Promise.all([document.fonts.load('40px Bangers'), document.fonts.load('700 16px "Comic Neue"')]).catch(() => { }) : Promise.resolve();
+const fontsReady = (document.fonts && document.fonts.load) ? Promise.all([document.fonts.load('40px Bangers'), document.fonts.load('700 16px "Comic Neue"'), document.fonts.load('40px Anton')]).catch(() => { }) : Promise.resolve();
 
 // ============================================================ duo en ligne
 // L'hôte fait tourner la partie ; l'invité envoie ses commandes et affiche ce que l'hôte lui renvoie.
@@ -6719,7 +6996,7 @@ const Net = {
 setInterval(() => { if (game && game.net) Net.ping(); }, 1000);
 // ---------- synchronisation de la partie (hôte → invité, invité → hôte)
 const NET_EDGES = ['firePressed', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'cycleUp', 'cycleDown'];
-const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap'];
+const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap', 'scream'];
 const NET_PK = ['x', 'y', 'aim', 'hp', 'maxHp', 'dead', 'rollT', 'rollDir', 'cur', 'vx', 'vy', 'inv', 'walkT', 'muzzleT', 'meleeT', 'recoil', 'playDead', 'hidden', 'battery', 'stamina', 'armor', 'grenades', 'mines', 'decoys', 'money', 'reloadT', 'charging', 'charge', 'spCd', 'spMax', 'flashCd', 'exhausted', 'hpTrail', 'char', 'downX', 'downY', 'revT', 'slowT', 'dazeT', 'carry'];
 const NET_ZS = ['type', 'r', 'skin', 'cloth', 'pants', 'costume', 'spawnMax', 'spawnKind', 'seed', 'mini', 'mk', 'bkind', 'ultimate', 'title', 'maxHp', 'target'];
 const NET_BOSS = ['state', 'st', 'phase', 'weakT', 'rageT', 'jumpZ', 'echoA', 'ramA', 'bladeA', 'entry', 'dir', 'hp', 'maxHp', 'r'];
@@ -6789,7 +7066,7 @@ mixin(Game, {
       hz: this.hazards.filter(h => !h.dead).map(h => { const o = netFlat(h); o.hid = h.hid; if (h.boss) o.bn = h.boss.nid; if (h.ob) o.ob = netFlat(h.ob); if (h.hooked) o.hk = h.hooked === this.p2 ? 2 : 1; return o; }),
       pk: flat(this.pickups), ca: this.level.obstacles.filter(o => (o.kind === 'car' || o.kind === 'machine' || o.kind === 'generator') && near(o)).map(o => [o.oid, Math.round(o.hp) || 0, o.wreck ? 1 : 0, netR(o.burning || 0), netR(o.alarm || 0), o.broken || o.on ? 1 : 0, o.charges | 0]),
       G: { sc: Math.floor(this.score), mu: netR(this.mult), ki: this.kills, li: this.lives, bo: this.bossRef && !this.bossRef.dead ? this.bossRef.nid : 0, bk: netR(this.blackoutT || 0), ff: netR(this.flashFx || 0), tf: netR(this.torchFlicker || 0), th: this.audio.themeName, mi: this.bossRef && !this.bossRef.dead ? 1 : 0.5,
-        ci: this.cine ? [this.cine.b.nid, netR(this.cine.t)] : 0, ob: this.objective().text, st: this.state, md: this.mode, az: this.activeZone, sn: this.safeName || '', sf: this.shibaFound ? this.shibaFound.size : 0, mo: Math.floor(this.player.money || 0),
+        ci: this.cine ? [this.cine.b.nid, netR(this.cine.t)] : 0, ob: this.objective().text, st: this.state, md: this.mode, hc: this.hcamp ? 1 : 0, az: this.activeZone, sn: this.safeName || '', sf: this.shibaFound ? this.shibaFound.size : 0, mo: Math.floor(this.player.money || 0),
         svv: this.survivors.filter(v => !v.dead).map(v => netFlat(v)), ev: this.event ? netFlat(this.event) : 0, bu: this.buddy ? netFlat(this.buddy) : 0, p1d: netR(this.p1Down || 0), rv: this.reviveUsed ? 1 : 0, sv: this.surv ? [this.surv.wave, this.surv.state, netR(this.surv.t)] : 0 } };
     // ce qui change rarement (armes, objectifs, éclairage) n'est renvoyé que s'il a changé, ou une fois par seconde
     const L = { W: q.weapons.map(w => [w.owned ? 1 : 0, w.ammo, w.reserve, w.lvl ? netFlat(w.lvl) : 0]), oj: this.mode === 'story' ? this.level.obj.map(o => o ? netFlat(o) : 0) : 0, lp: this.level.lamps.map(l => l.on ? 1 : 0).join('') }, Ls = JSON.stringify(L);
@@ -6847,8 +7124,9 @@ mixin(Game, {
     if (G.th && G.th !== this.audio.themeName) this.audio.setTheme(G.th);
     this.bossRef = G.bo ? this.zmap.get(G.bo) || null : null; this.p1Down = G.p1d; this.reviveUsed = !!G.rv; if (G.sv && this.surv) { this.surv.wave = G.sv[0]; this.surv.state = G.sv[1]; this.surv.t = G.sv[2]; }
     if (G.ci) { const b = this.zmap.get(G.ci[0]); if (b) { this.cine = this.cine && this.cine.b === b ? this.cine : { b, t: G.ci[1], t0: performance.now() }; } } else if (this.cine) { this.cine = null; this.bannerObj = null; }
-    // campagne : objectifs, survivants, éclairage, événement, shiba compagnon
-    if (G.md === 'story') {
+    // campagne : objectifs, survivants, éclairage, événement, shiba compagnon (l'hôpital de la mission 5 compris)
+    if (G.md === 'hospital' && G.hc && !this.level.hosp) this.netGuestHospital();
+    if (G.md === 'story' || G.hc) {
       this.activeZone = G.az; this.safeName = G.sn || null; if (!this.shibaFound || this.shibaFound.size !== G.sf) this.shibaFound = new Set(Array.from({ length: G.sf }, (_, i) => 'n' + i));
       if (S.L && L.oj) L.oj.forEach((o, k) => { if (o && this.level.obj[k]) Object.assign(this.level.obj[k], o); });
       this.survivors = (G.svv || []).map(o => Object.assign(Object.create(Survivor.prototype), o, { g: this }));
@@ -6860,6 +7138,12 @@ mixin(Game, {
     const N = this.netG; N.hostSt = G.st;
     if (G.st === 'playing' || G.st === 'paused' || G.st === 'end') { netWait(null); if (this.state === 'comic' && G.st === 'playing') this.comic.finish(); }
     else if (this.state !== 'comic') netWait(G.st === 'comic' ? 'Ton ami lit la BD…' : G.st === 'map' ? 'Ton ami regarde la carte et prépare la prochaine mission…' : G.st === 'shop' ? 'Ton ami fait ses achats au marché noir…' : 'En attente de ton ami…');
+  },
+  // l'hôte est passé à la mission 5 : l'invité bâtit le même hôpital
+  netGuestHospital() {
+    this.resetWorld(); this.mode = 'hospital'; this.hcamp = true; this.buildHospital(); this.activeZone = 0; this.level.setGate(ZONES[0].x1, true);
+    this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.oidMap = new Map(this.level.obstacles.map(o => [o.oid, o])); this.netG.hz = new Map();
+    this.player.x = 190; this.player.y = 640; this._meSync = false;
   },
   netFx(e) {
     const [k, ...a] = e;
@@ -6873,6 +7157,7 @@ mixin(Game, {
       case 'banner': this.banner(a[0], a[1]); break;
       case 'notice': this.notice(a[0], a[1], a[2]); break;
       case 'text': this.floatText(...a); break;
+      case 'scream': this.screamFx(a[0], a[1]); break;
       case 'slow': this.slowT = a[0]; this.slowMax = a[0]; this.slowLabel = a[1]; break;
       case 'boom': { const [x, y, R] = a; for (let i = 0; i < 26; i++) { const an = rand(0, TAU), s = rand(40, R * 2.4); this.spawnP({ x, y, z: rand(4, 20), vx: Math.cos(an) * s, vy: Math.sin(an) * s, vz: rand(20, 120), life: rand(0.3, 0.7), type: 'fire', size: rand(8, 16), emissive: true, drag: 3.5 }); } for (let i = 0; i < 14; i++) { const an = rand(0, TAU), s = rand(20, R); this.spawnP({ x, y, z: 10, vx: Math.cos(an) * s, vy: Math.sin(an) * s, life: rand(1, 2.2), type: 'smoke', size: rand(10, 18), grow: 22, drag: 1.5 }); } break; }
       case 'die': { const z = this.zmap.get(a[0]); if (z) { z.x = a[1]; z.y = a[2]; z.dead = true; try { this.bakeCorpse(z); } catch (er) { } for (let i = 0; i < (z.type === 'brute' ? 6 : 3); i++) this.spawnP({ x: z.x, y: z.y, z: 14, vx: rand(-160, 160), vy: rand(-160, 160), vz: rand(60, 220), grav: 700, life: 2, type: 'gib', size: rand(3, 5), bake: true, color: '#5a1410' }); this.zmap.delete(a[0]); this.zombies = [...this.zmap.values()]; } break; }
@@ -7436,7 +7721,7 @@ function drawStartArt(t = 0) {
     g.fillStyle = kind === 'facile' ? `rgba(220,255,150,${0.8 * Math.sin(p * Math.PI)})` : kind === 'normal' ? `rgba(255,150,60,${1 - p})` : `rgba(255,30,80,${1 - p})`; g.fillRect(px, py, 2, 2); }
   if (kind === 'cauchemar') { const v = g.createLinearGradient(0, 0, 0, 150); v.addColorStop(0, 'rgba(60,0,10,.0)'); v.addColorStop(1, 'rgba(120,0,20,.25)'); g.fillStyle = v; g.fillRect(0, 0, 360, 150); }
 }
-(function startArtLoop() { if (game.state === 'title' && !$('launch-modal').hidden) drawStartArt(performance.now() / 1000); requestAnimationFrame(startArtLoop); })();
+(function startArtLoop() { if (game.state === 'title' && !$('launch-modal').hidden && !$('launch-modal').classList.contains('camp')) drawStartArt(performance.now() / 1000); requestAnimationFrame(startArtLoop); })();
 function refreshStartDiff() { const card = document.querySelector('.start-card'); card.dataset.diff = game.diffKey; if (!readSave()) $('start-kicker').textContent = `Nouvelle nuit · ${START_FLAVOR[game.diffKey]}`; }
 for (const b of document.querySelectorAll('#diff button')) b.addEventListener('click', () => setTimeout(refreshStartDiff, 0));
 // ---------- flash info de l'accueil : 20 actus en BD, une nouvelle toutes les 4 s
@@ -7463,8 +7748,8 @@ function personalNews() {
   if (r.mode === 'daily') out.push({ h: `Défi du jour : ${fmt(r.score)} points pour ${N}`, t: `Épreuve « ${r.mod} ». ${r.kills} zombies abattus avant la fin.`, loc: 'la place de la Mairie', draw: g => { bgPlaza(g); body(g, 'determined'); sfx(g, 'DÉFI !', 380, 80, 46, 0.08); } });
   else if (r.mode === 'survival') out.push({ h: `Survie : ${N} tient ${r.wave} vague${r.wave > 1 ? 's' : ''}`, t: `${r.kills} zombies abattus sur la Place de la Mairie. Les voisins n'ont pas fermé l'œil.`, loc: 'la place de la Mairie', draw: g => { bgPlaza(g); body(g, 'determined'); sfx(g, 'TENU !', 380, 80, 46, 0.08); } });
   else if (r.mode === 'secret') out.push({ h: r.win ? `Le Shibanophile vaincu par ${N}` : `${N} recule devant le Shibanophile`, t: r.win ? 'Les shibas du paradis organisent une fête. Croquettes à volonté.' : 'Les shibas attendent toujours leur héros.', loc: 'le Paradis des Shibas', draw: g => { bgParadise(g); body(g, r.win ? 'happy' : 'shock'); shibaC(g, 400, 330, 1.2, { flip: true }); } });
-  else if (r.win) out.push({ h: `${N} évacué${e} de la Place de la Mairie !`, t: `${r.kills} zombies abattus et ${fmt(r.score)} points. La Mairie salue un${e} « survivant${e} têtu${e} ».`, loc: 'la place de la Mairie', draw: g => { bgHeli(g); body(g, 'happy'); sfx(g, 'SAUVÉ' + (e ? 'E' : '') + ' !', 370, 80, 46, 0.08); } });
-  else out.push({ h: `Disparition : ${N} aperçu${e} ${['avenue de la Gare', 'boulevard des Tanneurs', 'au parking Saint-Roch', 'place de la Mairie'][z]}`, t: `Dernier signe de vie : ${r.kills} zombies au compteur. Les recherches continuent.`, loc: ZONES[z].name.toLowerCase(), draw: g => { ZONE_BG[z](g); body(g, 'shock'); zombieC(g, 400, 430, 0.85, { flip: true }); sfx(g, 'AVIS DE RECHERCHE', 240, 70, 36, -0.04, '#ff6a4a'); } });
+  else if (r.win) out.push({ h: `${N} évacué${e} du toit de l'hôpital Saint-Lazare !`, t: `${r.kills} zombies abattus et ${fmt(r.score)} points. La Mairie salue un${e} « survivant${e} têtu${e} ».`, loc: 'l\'hôpital Saint-Lazare', draw: g => { bgHeli(g); body(g, 'happy'); sfx(g, 'SAUVÉ' + (e ? 'E' : '') + ' !', 370, 80, 46, 0.08); } });
+  else out.push({ h: `Disparition : ${N} aperçu${e} ${['avenue de la Gare', 'boulevard des Tanneurs', 'au parking Saint-Roch', 'place de la Mairie', 'à l\'hôpital Saint-Lazare'][z]}`, t: `Dernier signe de vie : ${r.kills} zombies au compteur. Les recherches continuent.`, loc: MISSION_NAMES[z].toLowerCase(), draw: g => { ZONE_BG[z](g); body(g, 'shock'); zombieC(g, 400, 430, 0.85, { flip: true }); sfx(g, 'AVIS DE RECHERCHE', 240, 70, 36, -0.04, '#ff6a4a'); } });
   if (r.shibas > 0 && r.mode === 'story') out.push({ h: `${r.shibas} shiba${r.shibas > 1 ? 's' : ''} sauvé${r.shibas > 1 ? 's' : ''} par ${N}`, t: 'Les éleveurs remercient le héros. Les shibas, eux, réclament une croquette.', loc: 'le refuge canin', draw: g => { bgDawn(g); body(g, 'happy'); shibaC(g, 400, 340, 1.3, { flip: true }); } });
   if (Settings.bestKills && r.kills >= Settings.bestKills && r.kills > 0) out.push({ h: `Record : ${r.kills} zombies abattus en une nuit`, t: `${N} entre dans l'histoire de Couvre-Feu. Le précédent record ne tient plus.`, loc: 'la rédaction', draw: g => { speedBg(g, '#5a1a14'); body(g, 'happy'); sfx(g, 'RECORD', 380, 80, 52, 0.08); } });
   return out;
@@ -7611,9 +7896,9 @@ function refreshHub() {
   $('hub-shibas').innerHTML = `<img src="${iconURL('shiba')}" alt=""> ${Settings.paradise ? SHIBAS_TOTAL : d ? (d.cp.shibas || []).length : 0}/${SHIBAS_TOTAL}`; $('hub-shibas').classList.toggle('gold', !!Settings.paradise); $('hub-shibas').title = Settings.paradise ? 'Tous les shibas sont sauvés : un endroit secret s\'est ouvert' : 'Shibas sauvés';
   const todo = ACH.filter(a => !u[a[0]]).slice(0, 3);
   document.querySelector('.start-card').dataset.diff = game.diffKey;
-  const pct = d ? Math.round((d.safe + 1) / 4 * 100) : 0, next = d ? Math.min(3, d.safe + 1) : 0;
-  $('story-act').textContent = d ? `Mission ${next + 1} sur 4` : 'Mission 1 sur 4'; $('story-zone').textContent = ZONES[next].name + (d ? ` · ${CHARS[d.char].name}` : '');
-  $('start-kicker').textContent = d ? `Reprendre · ${CHARS[d.char].name} · ${DIFFS[d.diff].name}` : `Nouvelle nuit · ${START_FLAVOR[game.diffKey] || ''}`; $('start-title').textContent = d ? ZONES[next].name : 'Opération Couvre-Feu';
+  const pct = d ? Math.round((d.safe + 1) / MISSIONS * 100) : 0, next = d ? Math.min(MISSIONS - 1, d.safe + 1) : 0;
+  $('story-act').textContent = d ? `Mission ${next + 1} sur ${MISSIONS}` : `Mission 1 sur ${MISSIONS}`; $('story-zone').textContent = MISSION_NAMES[next] + (d ? ` · ${CHARS[d.char].name}` : '');
+  $('start-kicker').textContent = d ? `Reprendre · ${CHARS[d.char].name} · ${DIFFS[d.diff].name}` : `Nouvelle nuit · ${START_FLAVOR[game.diffKey] || ''}`; $('start-title').textContent = d ? MISSION_NAMES[next] : 'Opération Couvre-Feu';
   $('btn-start').classList.toggle('primary', !d); $('btn-start').textContent = d ? 'Nouvelle partie' : 'Prendre la route';
 }
 $('story-card').addEventListener('click', () => { const d = readSave(); if (d) game.loadSave(d); else openLaunch('story'); });
@@ -7718,21 +8003,22 @@ function refreshContinue() {
   const d = readSave(), b = $('btn-continue'), sm = $('save-summary');
   b.hidden = !d; sm.hidden = !d; if (d) sm.textContent = `Sauvegarde : ${saveLine(d)}. Commencer une nouvelle nuit la remplacera au premier point de sauvegarde.`;
   $('save-info').textContent = d ? `Sauvegarde actuelle : ${saveLine(d)}.` : 'Aucune sauvegarde pour l\'instant : elle se crée au premier point de sauvegarde.';
-  $('btn-save-copy').disabled = !d; $('btn-save-delete').disabled = !d; $('btn-save-delete').dataset.confirm = '';  $('btn-save-delete').textContent = 'Supprimer la sauvegarde';
+  $('btn-save-delete').disabled = !d; $('btn-save-delete').dataset.confirm = '';  $('btn-save-delete').textContent = 'Supprimer la sauvegarde';
 }
 $('btn-continue').addEventListener('click', () => { const d = readSave(); closeHubModals(); if (d) game.loadSave(d); });
 
-$('btn-save-copy').addEventListener('click', () => {
-  const d = readSave(); if (!d) return; const code = encodeSave(d), ta = $('save-code'); ta.value = code; ta.hidden = false;
-  const done = () => { $('save-msg').textContent = 'Code copié. Colle-le dans « Charger un code » sur l\'autre appareil.'; };
+$('btn-save-copy').addEventListener('click', async () => {
+  const code = await encodeProfile(), ta = $('save-code'); ta.value = code; ta.hidden = false;
+  const done = () => { $('save-msg').textContent = 'Code copié. Sur l\'autre appareil : Paramètres › Sauvegarde › « Charger un code ».'; };
   const fallback = () => { ta.focus(); ta.select(); $('save-msg').textContent = 'Le code est sélectionné ci-dessus : copie-le avec Ctrl+C (ou un appui long sur téléphone).'; };
   try { navigator.clipboard.writeText(code).then(done, fallback); } catch (e) { fallback(); }
 });
-$('btn-save-import').addEventListener('click', () => {
-  const d = decodeSave($('save-import').value);
-  if (!d) { $('save-msg').textContent = 'Ce code n\'est pas valide. Vérifie qu\'il est complet, de « CF1. » jusqu\'au dernier caractère.'; return; }
-  memSave = d; try { localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) { }
-  $('save-import').value = ''; refreshContinue(); $('save-msg').textContent = `Sauvegarde chargée : ${saveLine(d)}. Appuie sur « Continuer ».`; $('btn-continue').focus();
+$('btn-save-import').addEventListener('click', async () => {
+  const d = await decodeProfile($('save-import').value);
+  if (!d) { $('save-msg').textContent = 'Ce code n\'est pas valide. Vérifie qu\'il est complet, de « CF » jusqu\'au dernier caractère.'; return; }
+  const r = applyProfile(d); $('save-import').value = '';
+  refreshSurvivalBtn(); renderWardrobe();
+  $('save-msg').textContent = `Progression chargée : niveau ${r.lv}, ${r.ach} succès${r.run ? ', partie en cours prête : appuie sur « Continuer »' : ''}.`;
 });
 $('btn-wipe').addEventListener('click', e => {
   const b = e.currentTarget; if (!b.dataset.confirm) { b.dataset.confirm = '1'; b.textContent = 'Confirmer : niveaux, succès, scores et sauvegarde effacés'; return; }
@@ -7778,8 +8064,8 @@ const LAUNCH = {
 let launchMode = 'story';
 function launchText() {
   const L = LAUNCH[launchMode], d = readSave();
-  $('launch-mode').textContent = L.eb;
-  if (launchMode === 'story') { refreshStartDiff(); refreshContinue(); return; }
+  $('launch-mode').textContent = L.eb; campRefresh(launchMode === 'story');
+  if (launchMode === 'story') { refreshStartDiff(); refreshContinue(); if (!d) $('start-title').textContent = `Mission 1 · ${MISSION_NAMES[0]}`; return; }
   $('start-title').textContent = L.title; $('start-kicker').textContent = launchMode === 'daily' ? `${todayMod().name} · ${todayMod().desc}` : L.kick;
   $('btn-continue').hidden = true; $('save-summary').hidden = true; $('btn-start').textContent = L.go; $('btn-start').classList.add('primary');
 }
@@ -8027,6 +8313,14 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 70, d: '30 oct.', t: 'Cinquième mission : l\'hôpital', s: 'La nuit ne s\'arrête plus à la Mairie : l\'hélicoptère se pose sur le toit de Saint-Lazare.', it: [
+    ['new', 'Mission 5 · Hôpital Saint-Lazare', 'Après la Mairie, une BD inédite puis l\'hôpital : couloirs, chambres, morgue et le Chirurgien. Inès, l\'infirmière de garde, attend qu\'on la sorte de là.'],
+    ['new', 'Le Hurleur', 'Un patient zombie qui garde ses distances puis hurle : la horde s\'excite et ta lampe grésille. Tire-lui dessus quand il ouvre la bouche pour le faire taire.'],
+    ['up', '15 shibas', 'Trois shibas par mission, cachés jusque dans les chambres de l\'hôpital. Il en faut 15 pour le Paradis des Shibas.'],
+    ['new', 'Écran Campagne', 'La ville brûle en grand derrière toi : projecteurs, hélico, horde, pluie et éclairs, avec tes cinq missions et tes shibas d\'un coup d\'œil.'],
+    ['up', 'Titres en relief', 'Les grands titres dégoulinent et prennent de l\'épaisseur. À l\'arrivée d\'un boss, son nom tombe du ciel lettre par lettre.'],
+    ['new', 'Code de transfert', 'Paramètres › Sauvegarde : un code pour passer du PC au téléphone avec ton niveau, tes tenues, tes succès, tes shibas, tes scores et ta partie en cours. On garde le meilleur des deux appareils.']],
+    q: ['zeus', 'Zeus', 'Un hôpital sans une seule plante verte. C\'est ça, le vrai cauchemar.'] },
   { v: 69, d: '29 oct.', t: 'Le centre de l\'écran respire', s: 'Les petits événements passent en haut, dans une bande fine, et tout le texte s\'affiche en entier.', it: [
     ['new', 'Bandes fines en haut', 'Arme trouvée, shiba ou survivant sauvé, sauvegarde : une bande discrète sous le bouton pause. La grande bannière reste pour les boss, les vagues et les nouveaux secteurs.'],
     ['fix', 'Plus de texte coupé', 'Messages, succès et descriptions du marché noir s\'affichent en entier, sans points de suspension.'],
@@ -8040,7 +8334,7 @@ const WN = [
     q: ['fiona', 'Fiona', 'Enfin je peux lire ce que je ramasse. Pas que ça change grand-chose.'] },
   { v: 67, d: '29 oct.', t: 'Grand ménage sous le capot', s: 'Rien ne change à l\'écran… sauf que tout va plus vite.', it: [
     ['up', 'Démarrage 4× plus rapide', 'Les portraits ne sont plus dessinés tant que tu n\'ouvres pas leur écran : le jeu est prêt en un clin d\'œil, même sur un vieux téléphone.'],
-    ['up', 'Code rangé', 'Le jeu est maintenant découpé en 39 fichiers par thème, avec des vérifications automatiques avant chaque mise en ligne.'],
+    ['up', 'Code rangé', 'Le jeu est maintenant découpé en fichiers par thème, avec des vérifications automatiques avant chaque mise en ligne.'],
     ['fix', 'Moins de bugs à venir', 'Un garde-fou bloque les erreurs qui avaient cassé le duo et les grenades avant qu\'elles n\'arrivent chez toi.']],
     q: ['zeus', 'Zeus', 'Un jardin bien rangé pousse mieux. Le code, c\'est pareil.'] },
   { v: 65, d: '29 oct.', t: 'L\'arsenal passe à l\'écran', s: 'Chaque arme se montre en action, l\'accueil prend vie, et les grenades tombent enfin où tu vises.', it: [
@@ -8148,6 +8442,108 @@ function maybeWhatsNew(tries) {
   showWhatsNew();
 }
 window.__wn = { show: showWhatsNew, open: openNews, WN };
+// ---------- écran Campagne : la ville en feu en plein écran, les cinq missions, la difficulté
+const CAMP_THEME = {
+  facile: { sky: ['#140f26', '#3a2648', '#a85a5e'], moon: '#f1e4c0', glow: '255,170,120', win: '255,214,140', ground: '#120e18', beam: '255,236,200' },
+  normal: { sky: ['#0a0508', '#2a0c08', '#8a3010'], moon: '#c2432c', glow: '255,120,40', win: '255,180,80', ground: '#0d0907', beam: '255,226,180' },
+  cauchemar: { sky: ['#050104', '#22040e', '#6a0618'], moon: '#d0141e', glow: '255,30,60', win: '255,60,80', ground: '#0b0306', beam: '255,190,200' }
+};
+const camp = { on: false, key: '', W: 0, H: 0, k: 1, layers: null, hero: null, heroKey: '', grain: null, t0: 0 };
+// pâtés d'immeubles d'une couche de parallaxe, en deux exemplaires côte à côte pour défiler sans couture
+function campSkyline(W, H, seed, base, hMin, hMax, col, winCol, winP) {
+  const cv = document.createElement('canvas'); cv.width = W * 2; cv.height = H; const g = cv.getContext('2d'), r = mulberry32(seed), roofs = [];
+  for (let rep = 0; rep < 2; rep++) {
+    const r2 = mulberry32(seed); let x = rep * W;
+    while (x < (rep + 1) * W) {
+      const w = (0.04 + r2() * 0.07) * W, h = hMin + r2() * (hMax - hMin), y = base - h; g.fillStyle = col; g.fillRect(x, y, w + 1, H - y);
+      if (r2() < 0.3) g.fillRect(x + w * 0.4, y - h * 0.12, w * 0.12, h * 0.12);
+      if (r2() < 0.25) { g.fillRect(x + w * 0.2, y - 10, 2, 10); }
+      const ws = Math.max(3, W * 0.004); for (let wy = y + ws * 2; wy < base - ws; wy += ws * 2.6) for (let wx = x + ws; wx < x + w - ws; wx += ws * 2.2) if (r2() < winP) { g.fillStyle = `rgba(${winCol},${0.35 + r2() * 0.5})`; g.fillRect(wx, wy, ws, ws * 1.3); }
+      if (rep === 0 && r2() < 0.28) roofs.push([x + w * (0.2 + r2() * 0.6), y]);
+      x += w;
+    }
+  }
+  return { cv, roofs };
+}
+function campBuild() {
+  const cv = $('camp-cv'), k = Math.min(1.5, window.devicePixelRatio || 1), W = Math.max(320, Math.round(cv.clientWidth * k)), H = Math.max(240, Math.round(cv.clientHeight * k)), th = CAMP_THEME[game.diffKey] || CAMP_THEME.normal;
+  cv.width = W; cv.height = H; camp.W = W; camp.H = H; camp.k = k; camp.key = `${W}x${H}:${game.diffKey}`;
+  const street = H * 0.8;
+  camp.layers = [
+    { ...campSkyline(W, H, 11, street - H * 0.05, H * 0.18, H * 0.42, '#0b0a10', th.win, 0.05), sp: 4 },
+    { ...campSkyline(W, H, 23, street, H * 0.12, H * 0.32, '#060508', th.win, 0.08), sp: 11 }
+  ];
+  const n = document.createElement('canvas'); n.width = n.height = 160; const ng = n.getContext('2d'), r = mulberry32(5);
+  for (let i = 0; i < 1400; i++) { ng.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.5)' : 'rgba(255,240,220,.06)'; ng.fillRect(r() * 160, r() * 160, 1, 1); }
+  camp.grain = n; camp.heroKey = '';
+}
+// le personnage choisi, en ombre chinoise bordée de lumière
+function campHero() {
+  const ch = game.charKey; if (camp.hero && camp.heroKey === ch) return camp.hero;
+  const cv = document.createElement('canvas'); cv.width = 600; cv.height = 760; const g = cv.getContext('2d'); g.setTransform(2, 0, 0, 2, 0, 0);
+  shadedFigure(g, c => hero(ch, c, 150, 372, 1, { mood: ch === 'fiona' ? 'deadpan' : 'determined', hand: 'gun' }), { lx: 0.8, ly: 0.2 });
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-atop'; const sh = g.createLinearGradient(0, 0, 600, 0); sh.addColorStop(0, 'rgba(4,3,6,.78)'); sh.addColorStop(0.7, 'rgba(4,3,6,.55)'); sh.addColorStop(1, 'rgba(4,3,6,.2)'); g.fillStyle = sh; g.fillRect(0, 0, 600, 760);
+  camp.hero = cv; camp.heroKey = ch; return cv;
+}
+function campFire(g, x, y, s, t, th) {
+  const fl = 0.8 + Math.sin(t * 9 + x) * 0.12, R = 55 * s * fl, h = g.createRadialGradient(x, y, 2, x, y, R);
+  h.addColorStop(0, `rgba(${th.glow},.4)`); h.addColorStop(1, `rgba(${th.glow},0)`); g.fillStyle = h; g.fillRect(x - R, y - R, R * 2, R * 2);
+  for (let i = 0; i < 4; i++) { const fx = x + Math.sin(t * 6 + i * 2 + x) * 6 * s, fh = (22 + i * 5) * s * (0.8 + Math.sin(t * 13 + i * 3) * 0.2); g.fillStyle = i < 2 ? 'rgba(255,110,30,.8)' : 'rgba(255,210,120,.75)'; g.beginPath(); g.moveTo(fx - 9 * s, y); g.quadraticCurveTo(fx - 6 * s, y - fh * 0.6, fx, y - fh); g.quadraticCurveTo(fx + 6 * s, y - fh * 0.6, fx + 9 * s, y); g.fill(); }
+  for (let i = 0; i < 6; i++) { const p = (t * 0.5 + i / 6 + x * 0.01) % 1; g.fillStyle = `rgba(255,170,80,${1 - p})`; g.fillRect(x + Math.sin(p * 9 + i) * 20 * s, y - p * 140 * s, 2.4 * s, 2.4 * s); }
+}
+function campDraw(t) {
+  const cv = $('camp-cv'), g = cv.getContext('2d'); if (`${Math.round(cv.clientWidth * camp.k)}x${Math.round(cv.clientHeight * camp.k)}:${game.diffKey}` !== camp.key) campBuild();
+  const W = camp.W, H = camp.H, th = CAMP_THEME[game.diffKey] || CAMP_THEME.normal, street = H * 0.8, u = H / 600;
+  const sky = g.createLinearGradient(0, 0, 0, street); sky.addColorStop(0, th.sky[0]); sky.addColorStop(0.62, th.sky[1]); sky.addColorStop(1, th.sky[2]); g.fillStyle = sky; g.fillRect(0, 0, W, H);
+  // lune et nuages qui passent devant
+  const mx = W * 0.6, my = H * 0.16, mr = 40 * u, mg = g.createRadialGradient(mx, my, mr * 0.5, mx, my, mr * 4); mg.addColorStop(0, `rgba(${th.glow},.28)`); mg.addColorStop(1, `rgba(${th.glow},0)`); g.fillStyle = mg; g.fillRect(mx - mr * 4, my - mr * 4, mr * 8, mr * 8);
+  g.fillStyle = th.moon; g.beginPath(); g.arc(mx, my, mr, 0, TAU); g.fill(); g.fillStyle = 'rgba(0,0,0,.18)'; for (const [dx, dy, rr] of [[-0.3, -0.2, 0.22], [0.25, 0.3, 0.16], [0.1, -0.35, 0.1]]) { g.beginPath(); g.arc(mx + dx * mr, my + dy * mr, rr * mr, 0, TAU); g.fill(); }
+  for (let i = 0; i < 5; i++) { const x = ((t * (6 + i * 2) * u + i * W * 0.31) % (W * 1.5)) - W * 0.25, y = H * (0.12 + i * 0.07); g.fillStyle = 'rgba(8,6,10,.55)'; g.beginPath(); g.ellipse(x, y, 160 * u, 18 * u, 0, 0, TAU); g.ellipse(x + 90 * u, y - 8 * u, 90 * u, 16 * u, 0, 0, TAU); g.fill(); }
+  // projecteurs qui balaient le ciel
+  g.globalCompositeOperation = 'lighter';
+  for (const [bx, ph] of [[0.22, 0], [0.86, 2.1]]) { const a = -Math.PI / 2 + Math.sin(t * 0.35 + ph) * 0.5, x0 = W * bx, L = H * 1.1, sp = 0.07; g.fillStyle = `rgba(${th.beam},.07)`; g.beginPath(); g.moveTo(x0, street); g.lineTo(x0 + Math.cos(a - sp) * L, street + Math.sin(a - sp) * L); g.lineTo(x0 + Math.cos(a + sp) * L, street + Math.sin(a + sp) * L); g.closePath(); g.fill(); }
+  g.globalCompositeOperation = 'source-over';
+  // ville en parallaxe et toits en feu
+  for (const [i, L] of camp.layers.entries()) { const off = (t * L.sp * u) % W; g.drawImage(L.cv, -off, 0); if (i === 1) for (const [rx, ry] of L.roofs) { let x = rx - off; if (x < -60) x += W; campFire(g, x, ry, u * 0.9, t, th); } }
+  // l'hélicoptère passe de temps en temps, projecteur braqué sur la ville
+  { const T = 17, p = (t % T) / T; if (p < 0.55) { const q = p / 0.55, x = W * 1.1 - q * W * 1.3, y = H * 0.24 + Math.sin(q * 6) * 10 * u, s = u * 1.1;
+    g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(255,240,200,.06)'; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 70 * s, street); g.lineTo(x + 50 * s, street); g.closePath(); g.fill(); g.globalCompositeOperation = 'source-over';
+    g.fillStyle = '#050406'; g.beginPath(); g.ellipse(x, y, 24 * s, 11 * s, 0, 0, TAU); g.fill(); g.fillRect(x + 14 * s, y - 3 * s, 30 * s, 5 * s); g.fillRect(x + 40 * s, y - 10 * s, 4 * s, 12 * s);
+    g.strokeStyle = 'rgba(20,18,22,.8)'; g.lineWidth = 2 * s; const ro = t * 40; g.beginPath(); g.moveTo(x - Math.cos(ro) * 38 * s, y - 14 * s); g.lineTo(x + Math.cos(ro) * 38 * s, y - 14 * s); g.stroke();
+    if (Math.sin(t * 8) > 0) { g.fillStyle = 'rgba(255,50,40,.95)'; g.beginPath(); g.arc(x + 44 * s, y - 10 * s, 2.5 * s, 0, TAU); g.fill(); } } }
+  // la rue et la horde qui titube
+  g.fillStyle = th.ground; g.fillRect(0, street, W, H - street); g.fillStyle = 'rgba(255,255,255,.04)'; g.fillRect(0, street, W, 2 * u);
+  for (let i = 0; i < 14; i++) { const sp = 8 + (i % 4) * 3, x = ((i * W * 0.137 + t * sp * u) % (W * 1.2)) - W * 0.1, y = street + (6 + (i % 3) * 9) * u; mapZombie(g, x, y, u * (2.1 + (i % 3) * 0.3), t + i, i * 1.3); }
+  // le personnage, sur le trottoir, qui respire
+  { const hc = campHero(), hh = H * 0.46, hw = hh * hc.width / hc.height, x = W * 0.32, y = street + 10 * u + Math.sin(t * 1.6) * 1.5 * u;
+    const rim = g.createRadialGradient(x, y - hh * 0.5, 10, x, y - hh * 0.5, hh * 0.75); rim.addColorStop(0, `rgba(${th.glow},.22)`); rim.addColorStop(1, `rgba(${th.glow},0)`); g.fillStyle = rim; g.fillRect(x - hh, y - hh * 1.3, hh * 2, hh * 1.4);
+    g.fillStyle = 'rgba(0,0,0,.55)'; g.beginPath(); g.ellipse(x, y - 4 * u, hw * 0.32, 8 * u, 0, 0, TAU); g.fill(); g.drawImage(hc, x - hw / 2, y - hh, hw, hh); }
+  // brume au ras du sol, pluie, éclairs
+  for (let i = 0; i < 3; i++) { const x = ((t * (14 + i * 6) * u + i * W * 0.4) % (W * 1.6)) - W * 0.3, f = g.createRadialGradient(x, street, 10, x, street, 320 * u); f.addColorStop(0, 'rgba(90,80,96,.16)'); f.addColorStop(1, 'rgba(90,80,96,0)'); g.fillStyle = f; g.fillRect(x - 320 * u, street - 320 * u, 640 * u, 640 * u); }
+  g.strokeStyle = 'rgba(170,180,210,.16)'; g.lineWidth = Math.max(1, u); g.beginPath(); for (let i = 0; i < 110; i++) { const x = ((i * 97.3 + t * 90 * u) % (W + 60)) - 30, y = ((i * 53.7 + t * 700 * u) % (H + 60)) - 30; g.moveTo(x, y); g.lineTo(x - 6 * u, y + 18 * u); } g.stroke();
+  { const lt = t % 11; if (lt < 0.32) { const on = lt < 0.06 || (lt > 0.14 && lt < 0.22); if (on) { g.fillStyle = 'rgba(210,215,255,.13)'; g.fillRect(0, 0, W, H); const r = mulberry32(Math.floor(t / 11)), bx = W * (0.15 + r() * 0.7); g.strokeStyle = 'rgba(235,235,255,.75)'; g.lineWidth = 2 * u; g.beginPath(); let x = bx, y = 0; g.moveTo(x, y); while (y < H * 0.5) { x += (r() - 0.5) * 50 * u; y += (20 + r() * 30) * u; g.lineTo(x, y); } g.stroke(); } } }
+  // vignette et grain
+  const v = g.createRadialGradient(W * 0.45, H * 0.45, H * 0.3, W * 0.5, H * 0.5, Math.max(W, H) * 0.75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.72)'); g.fillStyle = v; g.fillRect(0, 0, W, H);
+  g.globalAlpha = 0.5; g.fillStyle = g.createPattern(camp.grain, 'repeat'); g.save(); g.translate((t * 997) % 160, (t * 613) % 160); g.fillRect(-160, -160, W + 320, H + 320); g.restore(); g.globalAlpha = 1;
+}
+// les cinq missions et le niveau secret, d'après la sauvegarde
+function campTrack() {
+  const d = readSave(), cur = d ? d.safe + 1 : 0, found = new Set(d ? d.cp.shibas || [] : []), ic = iconURL('shiba');
+  const li = MISSION_NAMES.map((name, i) => {
+    const st = i < cur ? 'done' : i === cur ? 'cur' : 'todo', lab = { done: 'Terminée', cur: d ? 'Reprendre ici' : 'Première mission', todo: 'À venir' }[st];
+    let sh = ''; for (let k = 0; k < SHIBAS_PER; k++) sh += `<img src="${ic}" class="${found.has(i + '-' + k) ? '' : 'off'}" alt="">`;
+    return `<li class="camp-m ${st}" style="--d:${0.12 + i * 0.07}s"><span class="camp-n">${i + 1}</span><b>${name}</b><small>${lab}</small><span class="camp-sh" aria-label="${[...found].filter(id => id.startsWith(i + '-')).length} shibas sur ${SHIBAS_PER}">${sh}</span></li>`;
+  });
+  li.push(`<li class="camp-m secret ${Settings.paradise ? 'open' : ''}" style="--d:${0.12 + MISSIONS * 0.07}s"><span class="camp-n">?</span><b>Le Paradis des Shibas</b><small>${Settings.paradise ? 'Débloqué' : `Secret · les ${SHIBAS_TOTAL} shibas`}</small></li>`);
+  $('camp-track').innerHTML = li.join('');
+  $('camp-sub').textContent = d ? `${CHARS[d.char].name} · ${DIFFS[d.diff].name} · mission ${cur + 1} sur ${MISSIONS} · ${found.size}/${SHIBAS_TOTAL} shibas` : `${CHARS[game.charKey].name} · de la gare à l'hôpital, une seule nuit`;
+}
+function campRefresh(on) {
+  const m = $('launch-modal'); m.classList.toggle('camp', on); camp.on = on; if (!on) return;
+  m.dataset.diff = game.diffKey; campTrack();
+  if (!camp.loop) { camp.loop = true; camp.t0 = performance.now(); let reduce = false; try { reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { }
+    const tick = () => { if (!camp.on || m.hidden) { camp.loop = false; return; } campDraw(reduce ? 4 : (performance.now() - camp.t0) / 1000 + 3); requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
+}
 // ---------- ouverture du studio
 let splashDoneAt = Infinity;
 // ---------- appel, changement d'appli, écran verrouillé : pause et son coupé, reprise propre au retour

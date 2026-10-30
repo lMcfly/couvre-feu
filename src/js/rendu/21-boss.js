@@ -1,5 +1,21 @@
 // ============================================================ rendu : boss
 mixin(Game, {
+  // nom du boss à son arrivée : les lettres tombent du ciel une à une, rebondissent en éclaboussant, puis restent droites et lisibles
+  drawBossTitle(title, cx, y, fs, t, rage) {
+    const c = ctx, ch = [...title], gap = fs * 0.03, bounce = k => { const n = 7.5625, d = 2.75; if (k < 1 / d) return n * k * k; if (k < 2 / d) return n * (k -= 1.5 / d) * k + 0.75; if (k < 2.5 / d) return n * (k -= 2.25 / d) * k + 0.9375; return n * (k -= 2.625 / d) * k + 0.984375; };
+    c.save(); c.font = `${fs}px ${FH}`; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.lineJoin = 'round';
+    const ws = ch.map(l => c.measureText(l).width), tw = ws.reduce((a, w) => a + w, 0) + gap * (ch.length - 1); let x = cx - tw / 2;
+    ch.forEach((l, i) => {
+      const w = ws[i], k = clamp((t - 0.06 - i * 0.055) / 0.55, 0, 1); if (k <= 0 || l === ' ') { x += w + gap; return; }
+      const r = mulberry32(i * 31 + 7), e = bounce(k), ly = lerp(-fs * (1.2 + r() * 0.8), y, e), rot = (r() - 0.5) * 1.4 * (1 - e) + (r() - 0.5) * 0.06;
+      c.save(); c.translate(x + w / 2, ly); c.rotate(rot);
+      grungeTitle(c, l, -w / 2, 0, fs, { rage });
+      c.restore();
+      const s = (k - 0.364) / 0.25; if (s > 0 && s < 1) { c.fillStyle = `rgba(150,12,14,${1 - s})`; for (let j = 0; j < 5; j++) { const a = Math.PI + (j / 4) * Math.PI, d = s * fs * (0.3 + r() * 0.35); c.beginPath(); c.arc(x + w / 2 + Math.cos(a) * d, y + Math.sin(a) * d * 0.6 + s * s * fs * 0.4, fs * 0.035 * (1 - s * 0.5), 0, TAU); c.fill(); } }
+      x += w + gap;
+    });
+    c.restore();
+  },
   drawBossGlow(z) {
     const c = ctx, r = z.r, t = this.time; c.save(); c.globalCompositeOperation = 'lighter'; c.translate(z.x, z.y - (z.jumpZ || 0));
     const glow = (x, y, rr, col, a) => { const gr = c.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(1, `rgba(${col},0)`); c.fillStyle = gr; c.beginPath(); c.arc(x, y, rr, 0, TAU); c.fill(); };

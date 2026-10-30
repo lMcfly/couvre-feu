@@ -267,14 +267,16 @@ function drawShibaSprite(c, x, y, sc, t) {
   c.restore();
 }
 function lockIcon(c, x, y, col) { c.save(); c.fillStyle = col; c.strokeStyle = col; c.lineWidth = 2; c.beginPath(); c.arc(x, y - 4, 4, Math.PI, 0); c.stroke(); c.fillRect(x - 5.5, y - 4, 11, 8); c.restore(); }
-const MAP_NODES = [{ x: 150, y: 430, name: 'Avenue de la Gare' }, { x: 360, y: 250, name: 'Boulevard des Tanneurs' }, { x: 575, y: 420, name: 'Parking Saint-Roch' }, { x: 790, y: 270, name: 'Place de la Mairie' }, { x: 920, y: 110, name: 'Le Paradis des Shibas' }];
+const MAP_NODES = [{ x: 150, y: 430, name: 'Avenue de la Gare' }, { x: 360, y: 250, name: 'Boulevard des Tanneurs' }, { x: 575, y: 420, name: 'Parking Saint-Roch' }, { x: 790, y: 270, name: 'Place de la Mairie' }, { x: 930, y: 432, name: 'Hôpital Saint-Lazare' }, { x: 920, y: 110, name: 'Le Paradis des Shibas' }];
+const MISSION_SURV = [0, 1, 2, -1, 3]; // survivant à secourir dans chaque mission (-1 : aucun)
 const MAP_INFO = [
   { obj: 'Retrouver la clé du rideau de fer de la pharmacie', threat: 'Marcheurs, coureurs, kamikazes · alarmes de voitures' },
   { obj: 'Défendre la radio le temps d\'envoyer le signal', threat: 'Cracheurs, brutes, CRS-zombies · horde pendant la défense' },
   { obj: 'Porter le bidon d\'essence jusqu\'au groupe électrogène', threat: 'Brutes, cracheurs, CRS-zombies · la horde la plus dense' },
-  { obj: 'Abattre le boss qui garde la Place de la Mairie', threat: 'Le boss et sa garde rapprochée' }
+  { obj: 'Abattre le boss qui garde la Place de la Mairie', threat: 'Le boss et sa garde rapprochée' },
+  { obj: 'Traverser l\'hôpital jusqu\'à la morgue et abattre le Chirurgien', threat: 'Hurleurs, chiens zombies, cracheurs · couloirs étroits' }
 ];
-const MAP_ZOMBIES = (() => { const r = mulberry32(77), a = []; for (const [cx, cy, n] of [[240, 470, 3], [430, 300, 5], [300, 180, 3], [640, 470, 6], [520, 360, 3], [850, 320, 7], [700, 220, 4], [960, 250, 3]]) for (let i = 0; i < n; i++) a.push({ x: cx + (r() - 0.5) * 90, y: cy + (r() - 0.5) * 40, ph: r() * TAU, sp: 0.3 + r() * 0.5, amp: 6 + r() * 14, s: 0.8 + r() * 0.5 }); return a.sort((p, q) => p.y - q.y); })();
+const MAP_ZOMBIES = (() => { const r = mulberry32(77), a = []; for (const [cx, cy, n] of [[240, 470, 3], [430, 300, 5], [300, 180, 3], [640, 470, 6], [520, 360, 3], [850, 320, 7], [700, 220, 4], [960, 250, 3], [905, 478, 5]]) for (let i = 0; i < n; i++) a.push({ x: cx + (r() - 0.5) * 90, y: cy + (r() - 0.5) * 40, ph: r() * TAU, sp: 0.3 + r() * 0.5, amp: 6 + r() * 14, s: 0.8 + r() * 0.5 }); return a.sort((p, q) => p.y - q.y); })();
 const MAP_FIRES = [[95, 330, 1.2], [236, 344, 0.8], [292, 150, 0.9], [452, 160, 0.7], [632, 342, 1], [708, 186, 0.9], [868, 190, 1.3], [498, 452, 0.6]];
 let mapStatic = null, mapStaticKey = '';
 function buildMapStatic(open) {
@@ -290,7 +292,7 @@ function buildMapStatic(open) {
   // routes : l'itinéraire suit une avenue défoncée
   const road = (i, j) => { const A = MAP_NODES[i], B = MAP_NODES[j]; g.beginPath(); g.moveTo(A.x, A.y); g.quadraticCurveTo((A.x + B.x) / 2, Math.min(A.y, B.y) - 50, B.x, B.y); };
   g.lineCap = 'round'; g.lineJoin = 'round';
-  for (let i = 0; i < 4; i++) { road(i, i + 1); g.strokeStyle = '#060606'; g.lineWidth = 34; g.stroke(); road(i, i + 1); g.strokeStyle = '#211d1b'; g.lineWidth = 28; g.stroke(); road(i, i + 1); g.setLineDash([10, 14]); g.strokeStyle = 'rgba(160,140,90,.18)'; g.lineWidth = 2; g.stroke(); g.setLineDash([]); }
+  for (let i = 0; i < MISSIONS; i++) { road(i, i + 1); g.strokeStyle = '#060606'; g.lineWidth = 34; g.stroke(); road(i, i + 1); g.strokeStyle = '#211d1b'; g.lineWidth = 28; g.stroke(); road(i, i + 1); g.setLineDash([10, 14]); g.strokeStyle = 'rgba(160,140,90,.18)'; g.lineWidth = 2; g.stroke(); g.setLineDash([]); }
   // fissures et sang
   g.strokeStyle = 'rgba(0,0,0,.7)'; g.lineWidth = 1.5; for (let i = 0; i < 40; i++) { let x = r() * 1000, y = 80 + r() * 420; g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 4; k++) { x += (r() - 0.5) * 30; y += (r() - 0.5) * 20; g.lineTo(x, y); } g.stroke(); }
   for (let i = 0; i < 18; i++) { const x = 60 + r() * 900, y = 100 + r() * 380, s = 3 + r() * 8; g.fillStyle = `rgba(${60 + r() * 30},6,5,${0.45 + r() * 0.25})`; g.beginPath(); g.ellipse(x, y, s, s * 0.6, r() * 3, 0, TAU); g.fill(); for (let k = 0; k < 4; k++) { g.beginPath(); g.arc(x + (r() - 0.5) * s * 3, y + (r() - 0.5) * s * 2, 1 + r() * 2, 0, TAU); g.fill(); } }
@@ -322,7 +324,13 @@ function buildMapStatic(open) {
   g.strokeStyle = '#4a4440'; g.lineWidth = 2; g.beginPath(); g.moveTo(790, 128); g.lineTo(790, 100); g.stroke();
   // sacs de sable et barricades
   for (const [x, y] of [[180, 410], [395, 230], [600, 405], [820, 255]]) { g.fillStyle = '#3a3226'; for (let i = 0; i < 4; i++) { g.beginPath(); g.ellipse(x + i * 10, y, 6, 4, 0, 0, TAU); g.fill(); g.strokeStyle = ink; g.lineWidth = 1; g.stroke(); } }
-  // 5 · le paradis, perché dans les nuages
+  // 5 · l'hôpital : façade blanche salie, croix rouge et hélistation sur le toit
+  box(862, 334, 126, 62); g.fillStyle = '#3a3836'; g.fillRect(866, 338, 118, 6);
+  for (let k = 0; k < 2; k++) for (let j = 0; j < 6; j++) win(872 + j * 18, 350 + k * 18, r() < 0.25);
+  g.fillStyle = '#0a0909'; g.fillRect(912, 376, 24, 20); g.strokeStyle = ink; g.lineWidth = 2; g.strokeRect(912, 376, 24, 20);
+  g.fillStyle = '#8a1a14'; g.fillRect(918, 312, 12, 30); g.fillRect(909, 321, 30, 12); g.strokeStyle = ink; g.lineWidth = 2; g.strokeRect(918, 312, 12, 30);
+  g.strokeStyle = 'rgba(230,220,190,.35)'; g.lineWidth = 2; g.beginPath(); g.arc(964, 326, 13, 0, TAU); g.stroke(); g.font = 'bold 14px "Saira Stencil One", Impact, sans-serif'; g.textAlign = 'center'; g.fillStyle = 'rgba(230,220,190,.45)'; g.fillText('H', 964, 331);
+  // 6 · le paradis, perché dans les nuages
   g.fillStyle = open ? 'rgba(255,170,200,.18)' : 'rgba(120,110,120,.12)'; for (const [x, y, rr] of [[920, 96, 40], [878, 110, 28], [962, 112, 28], [920, 124, 32]]) { g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); }
   return cv;
 }
@@ -361,23 +369,27 @@ function drawMapCanvas(g, game, t, portrait) {
   // fumée qui monte
   for (const [x, y, s] of MAP_FIRES) for (let i = 0; i < 3; i++) { const p = (t * 0.08 + i / 3 + x * 0.003) % 1, sx = x + p * 50 + Math.sin(t + i) * 6, sy = y - 20 - p * 120 * s, rr = (10 + p * 34) * s; g.fillStyle = `rgba(20,18,18,${0.45 * (1 - p)})`; g.beginPath(); g.arc(sx, sy, rr, 0, TAU); g.fill(); }
   // zombies qui titubent (pas sur les missions déjà nettoyées)
-  for (const z of MAP_ZOMBIES) { const zone = z.x < 255 ? 0 : z.x < 470 ? 1 : z.x < 690 ? 2 : 3; if (zone < cur) continue; mapZombie(g, z.x + Math.sin(t * z.sp + z.ph) * z.amp, z.y, z.s * 1.5, t, z.ph); }
+  for (const z of MAP_ZOMBIES) { const zone = z.y > 400 && z.x > 860 ? 4 : z.x < 255 ? 0 : z.x < 470 ? 1 : z.x < 690 ? 2 : 3; if (zone < cur) continue; mapZombie(g, z.x + Math.sin(t * z.sp + z.ph) * z.amp, z.y, z.s * 1.5, t, z.ph); }
   // shibas fantômes au paradis quand il est ouvert
   if (open) for (let i = 0; i < 3; i++) drawShibaSprite(g, 890 + i * 28, 96 + Math.sin(t * 3 + i) * 3, 0.45, t);
   // chemin de sang : pointillés qui avancent
   const path = (i, j, on) => { const A = MAP_NODES[i], B = MAP_NODES[j]; g.beginPath(); g.moveTo(A.x, A.y); g.quadraticCurveTo((A.x + B.x) / 2, Math.min(A.y, B.y) - 50, B.x, B.y); g.setLineDash(on ? [14, 12] : [3, 11]); g.lineDashOffset = on ? -t * 14 : 0; g.lineWidth = on ? 6 : 4; g.strokeStyle = on ? (i < cur ? '#5e1410' : '#b3221a') : 'rgba(140,120,130,.35)'; g.shadowColor = on && i >= cur ? 'rgba(255,40,20,.6)' : 'transparent'; g.shadowBlur = 10; g.stroke(); g.shadowBlur = 0; g.setLineDash([]); g.lineDashOffset = 0; };
-  for (let i = 0; i < 3; i++) path(i, i + 1, true); path(3, 4, open);
+  for (let i = 0; i < MISSIONS - 1; i++) path(i, i + 1, true); path(MISSIONS - 1, MISSIONS, open);
+  // l'hélicoptère attend sur le toit de l'hôpital, pales en marche quand c'est la dernière mission
+  { const x = 964, y = 322, sp = cur >= MISSIONS - 1 ? t * 26 : 0.4; g.fillStyle = '#1c1f22'; g.beginPath(); g.ellipse(x, y, 11, 6, 0, 0, TAU); g.fill(); g.fillRect(x + 6, y - 2, 14, 3); g.strokeStyle = '#000'; g.lineWidth = 1.5; g.stroke();
+    g.strokeStyle = 'rgba(200,200,190,.55)'; g.lineWidth = 2; for (let k = 0; k < 2; k++) { const a = sp + k * Math.PI / 2; g.beginPath(); g.moveTo(x - Math.cos(a) * 16, y - 7 - Math.sin(a) * 4); g.lineTo(x + Math.cos(a) * 16, y - 7 + Math.sin(a) * 4); g.stroke(); }
+    if (cur >= MISSIONS - 1 && Math.sin(t * 5) > 0) { g.fillStyle = 'rgba(255,60,40,.9)'; g.fillRect(x + 19, y - 3, 2, 2); } }
   // pluie
   g.strokeStyle = 'rgba(160,170,190,.18)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 90; i++) { const x = (i * 97 + t * 60) % 1040 - 20, y = (i * 53 + t * 520) % 600 - 20; g.moveTo(x, y); g.lineTo(x - 4, y + 12); } g.stroke();
   // brouillard rasant
   for (let i = 0; i < 4; i++) { const x = ((t * (8 + i * 3) + i * 300) % 1400) - 200, y = 150 + i * 100; const f = g.createRadialGradient(x, y, 10, x, y, 220); f.addColorStop(0, 'rgba(70,60,70,.14)'); f.addColorStop(1, 'rgba(70,60,70,0)'); g.fillStyle = f; g.fillRect(x - 220, y - 220, 440, 440); }
   // obscurité, sauf autour de la lampe du joueur
-  const pn = MAP_NODES[Math.min(cur, 3)];
+  const pn = MAP_NODES[Math.min(cur, MISSIONS - 1)];
   const dk = g.createRadialGradient(pn.x, pn.y - 30, 40, pn.x, pn.y - 30, 520); dk.addColorStop(0, 'rgba(0,0,0,0)'); dk.addColorStop(0.5, 'rgba(0,0,0,.12)'); dk.addColorStop(1, 'rgba(0,0,0,.42)'); g.fillStyle = dk; g.fillRect(0, 0, 1000, 560);
   g.globalCompositeOperation = 'lighter'; const lamp = g.createRadialGradient(pn.x, pn.y - 30, 5, pn.x, pn.y - 30, 130 + Math.sin(t * 2) * 6); lamp.addColorStop(0, 'rgba(255,220,160,.22)'); lamp.addColorStop(1, 'rgba(255,220,160,0)'); g.fillStyle = lamp; g.fillRect(pn.x - 140, pn.y - 170, 280, 280); g.globalCompositeOperation = 'source-over';
   // étapes : médaillons de métal
   MAP_NODES.forEach((n, i) => {
-    const done = i < cur, locked = i === 4 ? !open : i > cur, focus = i === sel || i === hov;
+    const done = i < cur, locked = i === MISSIONS ? !open : i > cur, focus = i === sel || i === hov;
     if (i === cur || focus) { g.strokeStyle = i === cur ? `rgba(255,90,40,${0.55 + Math.sin(t * 4) * 0.3})` : 'rgba(230,220,200,.5)'; g.lineWidth = 3; g.beginPath(); g.arc(n.x, n.y, 34 + Math.sin(t * 4) * 3, 0, TAU); g.stroke(); }
     const sc = focus ? 1.12 : 1;
     const mg = g.createLinearGradient(n.x, n.y - 26, n.x, n.y + 26); mg.addColorStop(0, done ? '#4a4038' : locked ? '#2c2a2c' : '#8a2a1a'); mg.addColorStop(1, done ? '#221c18' : locked ? '#121112' : '#3a0e08');
@@ -386,8 +398,8 @@ function drawMapCanvas(g, game, t, portrait) {
     for (let k = 0; k < 4; k++) { const a = k * TAU / 4 + 0.78; g.fillStyle = '#6a6058'; g.beginPath(); g.arc(n.x + Math.cos(a) * 23.5 * sc, n.y + Math.sin(a) * 23.5 * sc, 1.6, 0, TAU); g.fill(); }
     g.fillStyle = '#e8dfc8'; g.font = `${Math.round(24 * sc)}px "Saira Stencil One", Impact, sans-serif`;
     if (done) { g.strokeStyle = '#b3221a'; g.lineWidth = 5; g.beginPath(); g.moveTo(n.x - 10, n.y - 10); g.lineTo(n.x + 10, n.y + 10); g.moveTo(n.x + 10, n.y - 10); g.lineTo(n.x - 10, n.y + 10); g.stroke(); }
-    else if (i === 4 && !open) { g.save(); g.translate(n.x, n.y + 2); g.scale(2, 2); lockIcon(g, 0, 0, '#8a8488'); g.restore(); g.strokeStyle = '#4a464a'; g.lineWidth = 3; g.setLineDash([5, 3]); g.beginPath(); g.moveTo(n.x - 40, n.y - 20); g.lineTo(n.x + 40, n.y + 20); g.moveTo(n.x + 40, n.y - 20); g.lineTo(n.x - 40, n.y + 20); g.stroke(); g.setLineDash([]); }
-    else g.fillText(i === 4 ? '?' : String(i + 1), n.x, n.y + 9 * sc);
+    else if (i === MISSIONS && !open) { g.save(); g.translate(n.x, n.y + 2); g.scale(2, 2); lockIcon(g, 0, 0, '#8a8488'); g.restore(); g.strokeStyle = '#4a464a'; g.lineWidth = 3; g.setLineDash([5, 3]); g.beginPath(); g.moveTo(n.x - 40, n.y - 20); g.lineTo(n.x + 40, n.y + 20); g.moveTo(n.x + 40, n.y - 20); g.lineTo(n.x - 40, n.y + 20); g.stroke(); g.setLineDash([]); }
+    else g.fillText(i === MISSIONS ? '?' : String(i + 1), n.x, n.y + 9 * sc);
   });
   // pion du personnage
   const by = pn.y - 76 + Math.sin(t * 3) * 4;
@@ -399,13 +411,14 @@ function drawMapCanvas(g, game, t, portrait) {
   // vignette et grain
   const v = g.createRadialGradient(500, 280, 250, 500, 280, 620); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.75)'); g.fillStyle = v; g.fillRect(0, 0, 1000, 560);
   // titre de la mission choisie
-  const sn = MAP_NODES[hov != null ? hov : sel], si = hov != null ? hov : sel, ly = si === 4 ? 58 : sn.y > 300 ? sn.y + 74 : sn.y - 120, lx = si === 4 ? 850 : clamp(sn.x, 200, 800);
-  g.font = '40px "Saira Stencil One", Impact, sans-serif'; g.textAlign = si === 4 ? 'right' : 'center'; g.lineWidth = 7; g.strokeStyle = '#000'; g.strokeText(sn.name.toUpperCase(), lx, ly); g.fillStyle = '#e8dfc8'; g.fillText(sn.name.toUpperCase(), lx, ly);
+  const sn = MAP_NODES[hov != null ? hov : sel], si = hov != null ? hov : sel, ly = si === MISSIONS ? 58 : sn.y > 300 ? sn.y + 74 : sn.y - 120;
+  g.font = `44px ${FH}`; const hw = g.measureText(sn.name.toUpperCase()).width / 2 + 24, lx = si === MISSIONS ? 850 : clamp(sn.x, hw, 1000 - hw); /* le nom tient toujours dans la carte */
+  g.textAlign = si === MISSIONS ? 'right' : 'center'; grungeTitle(g, sn.name.toUpperCase(), lx, ly, 44);
 }
 function reportHTML(r) {
   const acc = r.shots > 0 ? Math.round(100 * r.hits / r.shots) + ' %' : '–';
   const items = [['Score de la mission', fmt(r.score)], ['Zombies abattus', fmt(r.kills)], ['Dégâts infligés', fmt(Math.round(r.dmg))], ['Tirs', fmt(r.shots)], ['Précision', acc], ['Shibas trouvés', `${r.shibas} / ${SHIBAS_PER}`], ['Survivants sauvés', String(r.saved)], ['Morts', String(r.deaths)], ['Temps', fmtTime(r.time)]];
-  return `<div class="report"><h3>Bilan · mission ${r.k + 1}</h3><p class="rep-zone">${ZONES[r.k].name}</p><dl class="rep">${items.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
+  return `<div class="report"><h3>Bilan · mission ${r.k + 1}</h3><p class="rep-zone">${MISSION_NAMES[r.k]}</p><dl class="rep">${items.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></div>`;
 }
 function wrapText(c, text, x, y, maxW, lh) { const words = text.split(' '); let line = ''; for (const w of words) { const test = line ? line + ' ' + w : w; if (c.measureText(test).width > maxW && line) { c.fillText(line, x, y); line = w; y += lh; } else line = test; } if (line) c.fillText(line, x, y); }
 function scoreTable(list, hiDate) {

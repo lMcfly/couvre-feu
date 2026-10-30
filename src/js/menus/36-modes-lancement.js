@@ -31,8 +31,8 @@ const LAUNCH = {
 let launchMode = 'story';
 function launchText() {
   const L = LAUNCH[launchMode], d = readSave();
-  $('launch-mode').textContent = L.eb;
-  if (launchMode === 'story') { refreshStartDiff(); refreshContinue(); return; }
+  $('launch-mode').textContent = L.eb; campRefresh(launchMode === 'story');
+  if (launchMode === 'story') { refreshStartDiff(); refreshContinue(); if (!d) $('start-title').textContent = `Mission 1 · ${MISSION_NAMES[0]}`; return; }
   $('start-title').textContent = L.title; $('start-kicker').textContent = launchMode === 'daily' ? `${todayMod().name} · ${todayMod().desc}` : L.kick;
   $('btn-continue').hidden = true; $('save-summary').hidden = true; $('btn-start').textContent = L.go; $('btn-start').classList.add('primary');
 }

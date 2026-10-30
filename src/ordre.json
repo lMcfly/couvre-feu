@@ -38,6 +38,7 @@
   "src/js/menus/36-modes-lancement.js",
   "src/js/menus/37-bestiaire-touches.js",
   "src/js/menus/38-nouveautes.js",
-  "src/js/demarrage/39-demarrage.js"
+  "src/js/menus/39-menu-campagne.js",
+  "src/js/demarrage/40-demarrage.js"
  ]
 }

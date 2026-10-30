@@ -17,9 +17,10 @@ src/
     rendu/      dessin du monde, des personnages, des boss et de l'interface en jeu
     bd/         les cases de BD : moteur, décors, personnages, scénario
     reseau/     Duo en ligne (mise en relation, WebRTC, synchronisation hôte → invité)
-    demarrage/  30 : création de l'objet game ; 39 : ouverture, hors ligne, plein écran, boucle d'images
+    demarrage/  30 : création de l'objet game ; 40 : ouverture, hors ligne, plein écran, boucle d'images
     menus/      curseur manette, réglages, accueil et perso, hub et arsenal, actus et photo,
-                boutons et panneaux de l'accueil, lancement des modes, bestiaire et touches, Nouveautés
+                boutons et panneaux de l'accueil, lancement des modes, bestiaire et touches, Nouveautés,
+                écran Campagne animé
 tools/
   build.js      assemble src/ → index.html
   check.js      vérifications sans dépendance (voir plus bas)

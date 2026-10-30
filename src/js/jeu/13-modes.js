@@ -6,7 +6,7 @@ mixin(Game, {
   },
   newGameCore() {
     this.resetModes(); this.shibaSeed = Math.floor(Math.random() * 1e6); this.keysOpen = false; this.audio.init(); this.diff = DIFFS[this.diffKey]; this.activeZone = -1; this.shibaFound = new Set(); this.resetWorld();
-    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats(); this.shibaFound = new Set(); this.missionFor = -1;
+    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0, 0, 0] }; this.stats = newStats(); this.shibaFound = new Set(); this.missionFor = -1;
     this.player = new Player(this, 140, 600); this.lives = this.diff.lives; this.score = 0; this.mult = 1; this.maxMult = 1; this.kills = 0; this.runTime = 0;
     this.zoneEntered = [false, false, false, false]; this.safeEntered = [false, false, false]; this.safeName = null; this.savedScore = false;
     this.checkpoint = this.makeCheckpoint(140, 600); this.state = 'playing'; this.deathT = 0;
@@ -15,15 +15,17 @@ mixin(Game, {
   loadSave(d) {
     this.keysOpen = false; this.audio.init(); this.charKey = d.char; this.diffKey = d.diff; Settings.char = d.char; Settings.save(); wardIdx = Math.max(0, CHAR_KEYS.indexOf(d.char)); renderWardrobe(); for (const x of document.querySelectorAll('#diff button')) x.setAttribute('aria-pressed', x.dataset.diff === d.diff ? 'true' : 'false');
     this.diff = DIFFS[d.diff]; this.activeZone = -1; this.shibaFound = new Set(d.cp.shibas || []); this.endless = null; this.coop = false; this.p2 = null; this.p1Down = 0; this.seedOff = 0; this.shibaSeed = d.shibaSeed || 0; this.resetWorld();
-    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0], ...(d.run || {}) }; this.stats = { ...newStats(), ...(d.stats || {}) }; this.missionFor = d.safe;
+    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0, 0, 0], ...(d.run || {}) }; this.stats = { ...newStats(), ...(d.stats || {}) }; this.missionFor = d.safe;
     const s = d.safe, cp = { ...d.cp, weapons: d.cp.weapons.map((w, i) => ({ ...w, reserve: WEAPONS[i].infinite || w.reserve === -1 || w.reserve == null ? (WEAPONS[i].infinite ? Infinity : 0) : w.reserve })) };
     this.checkpoint = cp;
     const p = this.player = new Player(this, cp.x, cp.y);
     p.money = cp.money; p.armor = cp.armor; p.grenades = cp.grenades; p.mines = cp.mines; p.decoys = cp.decoys; p.cur = cp.cur; p.weapons.forEach((w, i) => w.restore(cp.weapons[i]));
     this.lives = d.lives; this.score = cp.score || 0; this.kills = cp.kills || 0; this.mult = 1; this.maxMult = d.maxMult || 1; this.runTime = d.runTime || 0; this.savedScore = false; this.deathT = 0;
-    this.zoneEntered = [0, 1, 2, 3].map(k => k <= s); this.safeEntered = [0, 1, 2].map(i => i <= s); this.safeName = SAFES[s].name; this.prologueSeen = true;
+    this.prologueSeen = true; this.cam.x = cp.x; this.cam.y = cp.y; this.input.mdown = false;
+    if (s >= SAFES.length) { this.showMap({ current: s + 1, resumed: true, onGo: () => this.newHospitalMission() }); return; } /* la ville est finie : reprise à l'entrée de l'hôpital */
+    this.zoneEntered = [0, 1, 2, 3].map(k => k <= s); this.safeEntered = [0, 1, 2].map(i => i <= s); this.safeName = SAFES[s].name;
     this.level.setGate(SAFES[s].x0, true); for (let k = 0; k <= s; k++) this.level.obj[k].done = true;
-    this.cam.x = cp.x; this.cam.y = cp.y; this.input.mdown = false; this.showMap({ current: s + 1, resumed: true });
+    this.showMap({ current: s + 1, resumed: true });
   },
   newSecret(keep) {
     this.keysOpen = false; this.audio.init(); const prev = keep && this.player ? this.player : null; this.resetModes();
@@ -33,7 +35,7 @@ mixin(Game, {
     if (prev) { p.money = prev.money; p.armor = prev.armor; p.weapons.forEach((w, i) => w.restore(prev.weapons[i].snapshot())); p.cur = prev.cur; }
     else { p.armor = 2; for (const w of p.weapons) { w.owned = true; w.ammo = w.magSize(); if (!w.def.infinite) w.reserve = w.def.ammoPack * 2; } }
     p.grenades = Math.max(p.grenades, 5); p.mines = Math.max(p.mines, 3); p.decoys = Math.max(p.decoys, 3);
-    this.secretCp = { armor: p.armor, cur: p.cur, weapons: p.weapons.map(w => w.snapshot()), grenades: p.grenades, mines: p.mines, decoys: p.decoys };
+    this.secretCp = this.invSnap(p);
     this.lives = this.diff.lives; this.score = 0; this.mult = 1; this.maxMult = 1; this.kills = 0; this.runTime = 0; this.savedScore = false; this.deathT = 0;
     this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.safeName = null; this.checkpoint = null;
     this.activeZone = 3; this.zoneHit = false; this.level.setGate(ZONES[3].x0, true); this.level.setGate(EXIT.x0, true);
@@ -54,7 +56,7 @@ mixin(Game, {
     const p = this.player = new Player(this, 150, 600);
     p.armor = 2; for (const w of p.weapons) { w.owned = true; w.ammo = w.magSize(); if (!w.def.infinite) w.reserve = w.def.ammoPack * 2; }
     p.grenades = Math.max(p.grenades, 4); p.mines = Math.max(p.mines, 2); p.decoys = Math.max(p.decoys, 2);
-    this.secretCp = { armor: p.armor, cur: p.cur, weapons: p.weapons.map(w => w.snapshot()), grenades: p.grenades, mines: p.mines, decoys: p.decoys };
+    this.secretCp = this.invSnap(p);
     this.lives = this.diff.lives; this.score = 0; this.mult = 1; this.maxMult = 1; this.kills = 0; this.runTime = 0; this.savedScore = false; this.deathT = 0;
     this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.safeName = null; this.checkpoint = null;
     this.activeZone = 0; this.zoneHit = false; this.level.setGate(ZONES[0].x1, true);
@@ -67,7 +69,7 @@ mixin(Game, {
     const L = this.level, H = HOSP;
     L.obstacles = L.obstacles.filter(o => o.zone !== 0); L.spawners = L.spawners.filter(s => s.zone !== 0); L.chests = (L.chests || []).filter(c => c.zone !== 0);
     for (const l of L.lamps) if (l.zone === 0) l.on = false;
-    this.pickups = this.pickups.filter(pk => pk.zone !== 0);
+    this.pickups = []; this.survivors = []; /* rien de la ville ne reste dans l'hôpital */
     const A = o => { o.zone = 0; return L.add(o); }, wall = (x, y, w, h) => A({ x, y, w, h, z: 46, kind: 'hwall', blood: Math.random() < 0.3 ? Math.round(rand(4, Math.max(5, w - 14))) : 0 });
     for (const y of [H.top, H.bot]) { let x = H.x0; for (const d of H.doors) { wall(x, y, d - 42 - x, 18); x = d + 42; } wall(x, y, H.morgue - x, 18); }
     for (const x of H.cols) { wall(x, ST, 18, H.top - ST); wall(x, H.bot + 18, 18, SB - H.bot - 18); }
@@ -80,6 +82,34 @@ mixin(Game, {
     for (const [kd, x, y] of [['med', H.doors[0], 260], ['ammo', H.doors[1], 960], ['med', H.doors[2], 960], ['ammo', H.doors[3], 260], ['grenade', H.doors[3], 960], ['ammo', H.morgue - 60, 600]]) { const pk = new Pickup(this, kd, x, y, 0); pk.zone = 0; pk.life = Infinity; this.pickups.push(pk); }
     L.hosp = true; L.rebuildGrid(); L.ground.chunks.clear();
   },
+  // inventaire gardé pour réapparaître (Paradis, hôpital)
+  invSnap(p) { return { money: p.money, armor: p.armor, cur: p.cur, weapons: p.weapons.map(w => w.snapshot()), grenades: p.grenades, mines: p.mines, decoys: p.decoys }; },
+  // ---------- mission 5 de la campagne : l'hôpital, avec tout ce que l'équipe a gagné en ville
+  newHospitalMission() {
+    const prev = this.player, buddy = this.buddy, reports = this.mapReports, q = this.p2;
+    this.resetWorld(); this.mapReports = reports; this.audio.init();
+    this.mode = 'hospital'; this.hcamp = true; this.missionFor = 4; this.missionStart = this.snapStats(); this.event = null;
+    const p = this.player = new Player(this, 150, 600);
+    p.money = prev.money; p.armor = prev.armor; p.grenades = prev.grenades; p.mines = prev.mines; p.decoys = prev.decoys; p.weapons.forEach((w, i) => w.restore(prev.weapons[i].snapshot())); p.cur = prev.cur;
+    this.secretCp = this.invSnap(p); this.checkpoint = this.makeCheckpoint(150, 600); this.deathT = 0;
+    this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.safeName = null;
+    this.activeZone = 0; this.zoneHit = false; this.level.setGate(ZONES[0].x1, true);
+    this.buildHospital(); this.level.obj[0] = { type: 'hospital', spawned: false, dead: false }; this.hospitalExtras();
+    for (let i = 0, t = 0; i < Math.round(18 * this.diff.pop) && t < 200; t++) { const x = rand(600, 2000), y = rand(ST + 40, SB - 40); if (this.level.pointObstacle(x, y)) continue; const z = new Zombie(this, this.director.pickType(HOSP_W), x, y, null); z.aggro = false; this.zombies.push(z); i++; }
+    if (buddy) this.buddy = { ...buddy, x: 120, y: 630, vx: 0, vy: 0 };
+    if (q) { q.x = 130; q.y = 650; q.dead = false; q.hp = q.maxHp; q.battery = 100; q.inv = 2; q.downX = q.downY = null; q.revT = 0; this.p2 = q; this.p1Down = 0; }
+    this.state = 'playing'; this.cam.x = p.x; this.cam.y = p.y; this.showScreen(null); this.input.mdown = false;
+    this.banner('Mission 5 · Hôpital Saint-Lazare', 'Descends jusqu\'à la morgue et retrouve l\'infirmière'); this.audio.setTheme('parking');
+  },
+  // shibas et survivante cachés dans les chambres de l'hôpital (mêmes cachettes pour toute la partie)
+  hospitalExtras() {
+    const H = HOSP, rs = mulberry32(7919 + 4 * 97 + (this.shibaSeed || 0)), rooms = [];
+    for (let i = 0; i < H.cols.length - 2; i++) for (const top of [true, false]) rooms.push({ x0: H.cols[i] + 30, x1: H.cols[i + 1] - 30, y0: top ? ST + 40 : H.bot + 60, y1: top ? H.top - 30 : SB - 40 });
+    for (let i = rooms.length - 1; i > 0; i--) { const j = Math.floor(rs() * (i + 1)); [rooms[i], rooms[j]] = [rooms[j], rooms[i]]; }
+    const spot = R => { for (let t = 0; t < 40; t++) { const x = Math.round(R.x0 + rs() * (R.x1 - R.x0)), y = Math.round(R.y0 + rs() * (R.y1 - R.y0)); if (!this.level.pointObstacle(x, y) && !this.level.pointObstacle(x + 14, y + 14) && !this.level.pointObstacle(x - 14, y - 14)) return [x, y]; } return null; };
+    for (let i = 0; i < SHIBAS_PER; i++) { const s = spot(rooms[i]); if (!s || this.shibaFound.has('4-' + i)) continue; const pk = new Pickup(this, 'shiba', s[0], s[1], i); pk.zone = 0; pk.sid = '4-' + i; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); }
+    const s = spot(rooms[SHIBAS_PER]); if (s && this.run.sv[4] !== 2) this.survivors.push(new Survivor(this, s[0], s[1], 4, MISSION_SURV[4]));
+  },
   updateHospital() {
     const o = this.level.obj[0], p = this.player; if (!o || o.spawned || p.dead) return;
     if (p.x > HOSP.morgue + 60) {
@@ -91,7 +121,7 @@ mixin(Game, {
   },
   respawnSecret() {
     const hosp = this.mode === 'hospital', cp = this.secretCp, p = new Player(this, hosp ? (this.level.obj[0].spawned ? HOSP.morgue + 90 : 150) : PLAZA, hosp ? 600 : 820);
-    p.armor = cp.armor; p.cur = cp.cur; p.weapons.forEach((w, i) => w.restore(cp.weapons[i])); p.grenades = cp.grenades; p.mines = cp.mines; p.decoys = cp.decoys; p.inv = 2;
+    p.armor = cp.armor; p.cur = cp.cur; p.weapons.forEach((w, i) => w.restore(cp.weapons[i])); p.grenades = cp.grenades; p.mines = cp.mines; p.decoys = cp.decoys; p.money = cp.money || 0; p.inv = 2;
     this.player = p; this.mult = 1; for (const z of this.zombies) if (!z.dead && z.type !== 'boss' && dist2(z.x, z.y, p.x, p.y) < 300 * 300) z.dead = true; compact(this.zombies);
     this.banner('Encore debout', `${this.lives} vie${this.lives > 1 ? 's' : ''} restante${this.lives > 1 ? 's' : ''}`);
   },
@@ -152,7 +182,7 @@ mixin(Game, {
     }
   },
   // une partie ne doit rien hériter du mode joué avant (duo, nuit sans fin, entraînement)
-  resetModes() { this.reviveUsed = false; this.net = null; this.netGuest = false; this.netGuestEnd = false; this.hwTip = false; this.dogTip = false; this.endless = null; this.coop = false; this.p2 = null; this.p1Down = 0; this.train = null; this.dailyMod = null; this.seedOff = 0; },
+  resetModes() { this.hcamp = false; this.reviveUsed = false; this.net = null; this.netGuest = false; this.netGuestEnd = false; this.hwTip = false; this.dogTip = false; this.endless = null; this.coop = false; this.p2 = null; this.p1Down = 0; this.train = null; this.dailyMod = null; this.seedOff = 0; },
   newCoop() {
     const L = this.input.padList(), cpads = this.coopPads; this.newGame(); this.coop = true; this.coopPads = cpads; this.p2 = this.makeP2(140, 660);
     this.later(0.5, () => this.toast(cpads ? `J1 : ${cpads.p1 === 'kb' ? 'clavier et souris' : 'manette ' + (cpads.p1 + 1)} · J2 : manette ${cpads.p2 + 1}` : L.length ? `J2 : ${L.length >= 2 ? '2e manette' : 'manette'} · J1 : ${L.length >= 2 ? '1re manette ou clavier' : 'clavier et souris'}` : 'J2 : branche une manette et appuie sur un bouton', '#9fd6e6'));

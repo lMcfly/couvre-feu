@@ -1017,3 +1017,63 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .fiche-style .acc-pick{display:flex;flex-wrap:wrap;gap:6px}
 @media (max-width:760px){.fiche{grid-template-columns:1fr}.fiche-grid{grid-template-columns:1fr}}
 
+/* écran Campagne : plein écran animé, titre, missions et difficulté par-dessus la ville */
+.camp-cv,.camp-hero,.camp-track{display:none}
+#launch-modal.camp{padding:0;background:#050407;align-items:stretch;justify-content:stretch;--camp:#e2792f;--camp-rgb:226,121,47}
+#launch-modal.camp[data-diff="facile"]{--camp:#e8a07a;--camp-rgb:232,160,122}
+#launch-modal.camp[data-diff="cauchemar"]{--camp:#e0203e;--camp-rgb:224,32,62}
+#launch-modal.camp .launch-wrap{position:relative;width:100%;max-width:none;height:100%;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);grid-template-rows:auto minmax(0,1fr) auto;gap:14px 32px;padding:max(18px,env(safe-area-inset-top)) max(30px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(30px,env(safe-area-inset-left));overflow:hidden}
+#launch-modal.camp .camp-cv{display:block;position:absolute;inset:0;width:100%;height:100%}
+#launch-modal.camp .launch-wrap>:not(.camp-cv){position:relative}
+#launch-modal.camp .launch-head{grid-column:1/-1;grid-row:1}
+#launch-modal.camp .launch-head .eyebrow{color:var(--camp);letter-spacing:.3em}
+#launch-modal.camp .camp-hero{display:block;grid-column:1;grid-row:2;align-self:start;padding-top:2vh;animation:campIn .7s cubic-bezier(.2,.8,.2,1) both}
+.camp-eb{margin:0 0 6px;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--camp)}
+.camp-title{margin:0;font-family:var(--display);line-height:.86;color:var(--bone);text-shadow:0 4px 0 #000,0 0 40px rgba(var(--camp-rgb),.35)}
+.camp-title span{display:block;font-size:clamp(22px,3.2vw,46px);letter-spacing:.22em;color:#b9b2a4}
+.camp-title em{display:block;font-style:normal;font-size:clamp(52px,8.6vw,132px);letter-spacing:.01em;animation:campFlick 7s steps(1) infinite}
+.camp-sub{margin:12px 0 0;font-size:14px;color:#c9c2b3;max-width:42ch;text-shadow:0 2px 6px #000}
+#launch-modal.camp .start-card{grid-column:2;grid-row:2;align-self:center;background:rgba(10,9,12,.74);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-color:rgba(var(--camp-rgb),.55);box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03) inset;animation:campIn .7s .15s cubic-bezier(.2,.8,.2,1) both}
+#launch-modal.camp .start-art{display:none}
+#launch-modal.camp .start-card{border-top:3px solid var(--camp)}
+#launch-modal.camp .camp-track{display:grid;grid-column:1/-1;grid-row:3;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;list-style:none;margin:0;padding:0}
+.camp-m{position:relative;display:flex;flex-direction:column;gap:3px;min-width:0;padding:12px 12px 10px;background:rgba(10,9,12,.72);border:1px solid rgba(255,255,255,.08);border-top:3px solid #3a3438;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:campUp .6s var(--d,0s) cubic-bezier(.2,.8,.2,1) both}
+.camp-m .camp-n{font-family:var(--display);font-size:30px;line-height:1;color:#6f6a66}
+.camp-m b{font-family:var(--display);font-weight:400;font-size:16px;line-height:1.1;color:var(--bone)}
+.camp-m small{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ash)}
+.camp-sh{display:flex;gap:3px;margin-top:2px}.camp-sh img{width:18px;height:18px}.camp-sh img.off{opacity:.22;filter:grayscale(1)}
+.camp-m.done{border-top-color:#6e120e}.camp-m.done .camp-n{color:#8a2a22;text-decoration:line-through;text-decoration-thickness:3px}
+.camp-m.cur{border-color:rgba(var(--camp-rgb),.6);border-top-color:var(--camp);background:rgba(28,16,10,.8);box-shadow:0 0 28px rgba(var(--camp-rgb),.25)}
+.camp-m.cur .camp-n{color:var(--camp)}.camp-m.cur small{color:var(--camp)}
+.camp-m.cur::after{content:"";position:absolute;inset:-1px;border:1px solid var(--camp);opacity:0;animation:campPulse 2s ease-in-out infinite;pointer-events:none}
+.camp-m.secret{border-top-style:dashed;border-top-color:#5a4a5a}.camp-m.secret .camp-n{color:#5a4a5a}
+.camp-m.secret.open{border-top-color:#ff8fb8}.camp-m.secret.open .camp-n,.camp-m.secret.open small{color:#ff8fb8}
+@keyframes campIn{from{opacity:0;transform:translateY(14px)}}
+@keyframes campUp{from{opacity:0;transform:translateY(26px)}}
+@keyframes campPulse{50%{opacity:.9;inset:-5px}}
+@keyframes campFlick{0%,100%{opacity:1}41%{opacity:.82}42%{opacity:1}43%{opacity:.6}44%{opacity:1}77%{opacity:.9}78%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.camp-title em,.camp-m,.camp-m.cur::after,#launch-modal.camp .camp-hero,#launch-modal.camp .start-card{animation:none}}
+/* téléphone ou fenêtre basse : tout tient sur un écran, les missions en bandeau compact */
+@media (max-height:560px){
+  #launch-modal.camp .launch-wrap{grid-template-columns:minmax(0,1fr) minmax(250px,300px);gap:8px 18px;padding-top:max(10px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  #launch-modal.camp .camp-hero{padding-top:0}
+  .camp-eb{font-size:10px;margin-bottom:2px}
+  .camp-title span{font-size:clamp(14px,2.6vw,22px)}.camp-title em{font-size:clamp(34px,7vw,62px)}
+  .camp-sub{font-size:11px;margin-top:6px}
+  #launch-modal.camp .camp-track{gap:5px}
+  .camp-m{padding:6px 7px 5px;gap:1px}.camp-m .camp-n{font-size:18px}.camp-m b{font-size:11px}.camp-m small{font-size:8.5px;letter-spacing:.04em}
+  .camp-sh img{width:12px;height:12px}
+}
+@media (max-width:760px) and (orientation:portrait){#launch-modal.camp .launch-wrap{grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto;overflow-y:auto}#launch-modal.camp .start-card{grid-column:1;grid-row:3}#launch-modal.camp .camp-track{grid-template-columns:repeat(3,minmax(0,1fr));grid-row:4}}
+#launch-modal.camp .launch-head .eyebrow{visibility:hidden}
+@media (max-height:560px){#launch-modal.camp #save-summary{display:none}}
+
+/* grands titres façon affiche d'horreur : lettres épaisses rouge sang, contour noir, bords rongés (texture --grunge fabriquée au lancement) */
+:root{--horror:Anton,Impact,"Arial Narrow",sans-serif}
+.hub-brand b,h2,.mode.big b,.camp-title em,.start-title,.sheet-head h3{font-family:var(--horror);font-weight:400;text-transform:uppercase;letter-spacing:.015em;padding:0 .06em .08em 0;background:linear-gradient(180deg,#ff6a3a 0%,#e8261a 36%,#a8110b 70%,#4e0404 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-mask-image:var(--grunge);mask-image:var(--grunge);-webkit-mask-size:200px;mask-size:200px;filter:drop-shadow(0 0 1px #000) drop-shadow(0 .035em 0 #160202) drop-shadow(0 .06em .14em rgba(0,0,0,.85))}
+.hub-brand b span{-webkit-text-fill-color:transparent}
+.hub-brand b{font-size:28px}.mode.big b{font-size:32px;letter-spacing:.02em}
+.camp-title em{text-shadow:none;letter-spacing:.01em}
+/* panneaux en métal sale, tachés de sang */
+.sheet-card,.hub-card,.start-card,.camp-m{background-image:var(--grime),linear-gradient(180deg,rgba(24,20,20,.9),rgba(12,10,11,.92));background-size:512px 512px,100% 100%}
+#launch-modal.camp .start-card,#launch-modal.camp .camp-m{background-image:var(--grime),linear-gradient(180deg,rgba(24,18,18,.82),rgba(10,8,9,.86))}

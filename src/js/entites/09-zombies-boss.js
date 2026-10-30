@@ -10,10 +10,10 @@ class Zombie {
     this.walkT = rand(0, 10); this.hitFlash = 0; this.burn = 0; this.flameCd = 0; this.stun = 0; this.dead = false;
     this.side = Math.random() < 0.5 ? 1 : -1; this.groanT = rand(2, 10); this.stuckT = 0; this.detour = 0; this.lx = x; this.ly = y;
     this.aggro = !!spawnKind; this.wx = null; this.wt = 0; this.lunge = 0;
-    this.skin = type === 'runner' ? '#8f7466' : type === 'brute' ? '#5f6b55' : type === 'bomber' ? '#86a05e' : type === 'spitter' ? '#6c8d6c' : pick(SKINS);
-    this.cloth = type === 'brute' ? '#2c2f2b' : type === 'bomber' ? '#4e5236' : pick(CLOTHS);
+    this.skin = type === 'screamer' ? '#a3a89a' : type === 'runner' ? '#8f7466' : type === 'brute' ? '#5f6b55' : type === 'bomber' ? '#86a05e' : type === 'spitter' ? '#6c8d6c' : pick(SKINS);
+    this.cloth = type === 'screamer' ? '#6f93a0' : type === 'brute' ? '#2c2f2b' : type === 'bomber' ? '#4e5236' : pick(CLOTHS);
     this.pants = shade(pick(CLOTHS), -0.35);
-    this.shootCd = rand(1.5, 3); this.spitWind = 0; this.bState = 'walk'; this.bT = 0; this.bCd = rand(1, 3);
+    this.shootCd = rand(1.5, 3); this.spitWind = 0; this.bState = 'walk'; this.bT = 0; this.bCd = rand(1, 3); this.frenzy = 0;
     if (type === 'dog') { this.skin = pick(['#6b5a48', '#5a5048', '#7a6a52', '#4a4440']); this.bCd = rand(0.6, 1.4); }
     this.costume = HALLOWEEN && g.mode !== 'training' && (type === 'walker' || type === 'runner') && Math.random() < 0.3 ? pick(COSTUMES) : null;
   }
@@ -26,6 +26,7 @@ class Zombie {
     }
     if (this.g.stats && this.g.state === 'playing') this.g.stats.dmg += Math.max(0, Math.min(a, this.hp));
     this.hp -= a; this.hitFlash = 0.08; this.aggro = true;
+    if (this.type === 'screamer' && this.bState === 'scream' && this.hp > 0) { this.bState = 'stun'; this.bT = 0.8; this.bCd = rand(4, 6); this.g.floatText(this.x, this.y - 42, 'CHUT !', '#9fe0ff'); } /* touché pendant qu'il prend son souffle : le cri est coupé */
     this.g.bleed(this.x, this.y, dx, dy, Math.min(8, 2 + a / 10));
     if (src !== 'fire') this.g.audio.flesh(0.6);
     if (this.hp <= 0) this.die(src);
@@ -84,12 +85,21 @@ class Zombie {
         else if (this.bState === 'stun') { this.bT -= dt; spd = 0; if (this.bT <= 0) this.bState = 'walk'; }
         else { this.bCd -= dt; if (mode === 'chase' && pd < 330 && pd > 90 && this.bCd <= 0 && g.level.lineClear(this.x, this.y, p.x, p.y)) { this.bState = 'wind'; this.bT = 0.7; } }
         break;
+      case 'screamer': // garde ses distances, prend son souffle puis hurle
+        if (this.bState === 'scream') { this.bT -= dt; spd = 0; if (this.bT <= 0) { this.bState = 'walk'; this.bCd = rand(6, 9); g.scream(this); } }
+        else if (this.bState === 'stun') { this.bT -= dt; spd = 0; if (this.bT <= 0) this.bState = 'walk'; }
+        else if (mode === 'chase') {
+          if (pd < 230) { ux = -ux; uy = -uy; spd *= 0.75; } else if (pd < 380) spd *= 0.25;
+          this.bCd -= dt; if (this.bCd <= 0 && pd < 470 && this.stun <= 0 && g.level.lineClear(this.x, this.y, p.x, p.y)) { this.bState = 'scream'; this.bT = 0.9; g.audio.tone({ f: 260, f2: 820, dur: 0.9, type: 'sawtooth', g: 0.05 }); }
+        }
+        break;
       case 'dog':
         if (this.bState === 'crouch') { this.bT -= dt; spd = 0; this.cdx = pdx / pd; this.cdy = pdy / pd; if (this.bT <= 0) { this.bState = 'leap'; this.bT = 0.3; g.audio.tone({ f: 260, f2: 90, dur: 0.18, type: 'sawtooth', g: 0.12 }); } }
         else if (this.bState === 'leap') { this.bT -= dt; ux = this.cdx; uy = this.cdy; spd = 560; leaping = true; if (this.bT <= 0) { this.bState = 'walk'; this.bCd = rand(1.4, 2.2); } }
         else { this.bCd -= dt; if (mode === 'chase' && pd < 200 && pd > 55 && this.bCd <= 0 && this.stun <= 0 && g.level.lineClear(this.x, this.y, p.x, p.y)) { this.bState = 'crouch'; this.bT = 0.42; this.cdx = pdx / pd; this.cdy = pdy / pd; g.audio.tone({ f: 95, f2: 70, dur: 0.4, type: 'sawtooth', g: 0.1 }); } }
         break;
     }
+    if (this.frenzy > 0) { this.frenzy -= dt; spd *= 1.35; } // excité par le cri d'un Hurleur
     // comportement de foule : séparation
     let sx = 0, sy = 0;
     const near = g.hash.query(this.x, this.y, this.r + 40, g._qs);

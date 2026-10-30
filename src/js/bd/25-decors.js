@@ -74,6 +74,15 @@ function bgCamp(g) {
   for (const [x, w] of [[10, 170], [200, 150], [360, 140]]) { S(g, '#efeee8', () => { g.moveTo(x, 290); g.lineTo(x + w / 2, 170); g.lineTo(x + w, 290); g.closePath(); }); S(g, '#c0201a', () => { g.rect(x + w / 2 - 5, 210, 10, 34); g.rect(x + w / 2 - 17, 222, 34, 10); }, 2); }
   g.fillStyle = '#5a5246'; g.fillRect(0, 290, 480, 70); g.strokeStyle = INK; g.lineWidth = 4; g.beginPath(); g.moveTo(0, 290); g.lineTo(480, 290); g.stroke(); rain(g, r, 0.4);
 }
+function bgHospital(g) {
+  bgNight(g, 37, ['#0e1a24', '#24323a']);
+  S(g, '#d9d6cc', () => g.rect(70, 92, 340, 220)); g.fillStyle = 'rgba(40,50,48,.35)'; g.fillRect(70, 92, 340, 220);
+  const r = mulberry32(43); for (let y = 112; y < 270; y += 38) for (let x = 88; x < 392; x += 40) { const lit = r() < 0.22; S(g, lit ? '#bff0d8' : '#1a2226', () => g.rect(x, y, 24, 24), 2); if (lit) glowAt(g, x + 12, y + 12, 26, '170,240,210'); }
+  S(g, '#2a2f30', () => g.rect(205, 250, 70, 62)); S(g, '#9fd3e8', () => g.rect(213, 258, 54, 24), 2);
+  glowAt(g, 240, 60, 90, '255,60,50'); S(g, '#d8241c', () => { g.rect(228, 30, 24, 64); g.rect(208, 50, 64, 24); }, 4);
+  S(g, '#3a3f40', () => g.rect(60, 84, 360, 12)); helicopter(g, 380, 62, 0.42);
+  sfx(g, 'URGENCES', 240, 246, 24, 0, '#ff5a4a');
+}
 function bgHeli(g) {
   g.fillStyle = '#2b3328'; g.fillRect(0, 0, 480, 360);
   for (const x of [40, 260]) { g.save(); g.beginPath(); RR(g, x, 40, 180, 120, 18); g.clip(); bgDawn(g, 19); g.restore(); S(g, null, () => RR(g, x, 40, 180, 120, 18), 6); }

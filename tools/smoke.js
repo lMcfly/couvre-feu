@@ -23,10 +23,15 @@ const server = http.createServer((q, r) => { const u = decodeURIComponent(q.url.
       await p.evaluate(() => { document.getElementById('btn-settings').click(); document.querySelector('#opts-title [data-setcat="son"]').click(); });
       ok(`${dev} : réglages`, await p.evaluate(() => !document.querySelector('#opts-title [data-page="son"]').hidden));
       await p.evaluate(() => document.querySelector('#panel-settings .sheet-close').click());
+      await p.evaluate(() => openLaunch('story')); await p.waitForTimeout(500);
+      ok(`${dev} : écran Campagne`, await p.evaluate(() => { const m = document.getElementById('launch-modal'); return !m.hidden && m.classList.contains('camp') && document.querySelectorAll('#camp-track .camp-m').length === 6; }));
+      await p.evaluate(() => document.getElementById('launch-close').click());
       await p.evaluate(() => { const g = __cf; g.newGame(); for (let i = 0; i < 6 && g.state !== 'playing'; i++) { if (g.state === 'comic') g.comic.finish(); else if (g.state === 'map') g.mapContinue(); } });
       await p.waitForTimeout(400); await p.mouse.move(900, 300); await p.mouse.down(); await p.keyboard.down('KeyD'); await p.waitForTimeout(2500); await p.keyboard.up('KeyD'); await p.mouse.up();
       ok(`${dev} : campagne jouée`, await p.evaluate(() => __cf.state === 'playing' && __cf.player.x > 190), await p.evaluate(() => `x=${Math.round(__cf.player.x)}`));
       await p.evaluate(() => { __cf.player.money = 2000; __cf.shop.open(); }); ok(`${dev} : marché noir`, await p.evaluate(() => __cf.state === 'shop')); await p.evaluate(() => __cf.shop.close());
+      await p.evaluate(() => __cf.newHospitalMission()); await p.waitForTimeout(600);
+      ok(`${dev} : mission 5 à l'hôpital`, await p.evaluate(() => __cf.state === 'playing' && __cf.mode === 'hospital' && __cf.hcamp && __cf.survivors.length === 1));
       await p.evaluate(() => { __cf.newSurvival(false); }); await p.waitForTimeout(2500); ok(`${dev} : survie`, await p.evaluate(() => __cf.state === 'playing' && __cf.mode === 'survival'));
       await p.evaluate(() => __cf.pause()); ok(`${dev} : pause`, await p.evaluate(() => __cf.state === 'paused'));
       await p.context().close();

@@ -197,10 +197,10 @@ class Pickup {
       }
       case 'key': case 'fuel': g.onObjectivePickup(this, p); g.audio.pickup(); break;
       case 'shiba': {
-        g.shibaFound.add(this.zone + '-' + this.val); const n = g.shibaFound.size;
+        g.shibaFound.add(this.sid || this.zone + '-' + this.val); const n = g.shibaFound.size;
         g.notice('Shiba sauvé', `${n} / ${SHIBAS_TOTAL}${n === SHIBAS_TOTAL ? ' · le Paradis t\'attend' : ''}`, '#ffb46a'); g.audio.bark(this.x, this.y, true); g.audio.pickup();
         for (let i = 0; i < 16; i++) g.spawnP({ x: this.x, y: this.y, z: 10, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(80, 200), grav: 400, life: 0.9, type: 'spark', size: 2, emissive: true, color: '#ffd27a' });
-        if (n === SHIBAS_TOTAL) g.unlock('shibas'); if (g.mode === 'story') g.adoptBuddy(this.x, this.y); break;
+        if (n === SHIBAS_TOTAL) g.unlock('shibas'); if (g.isCampaign()) g.adoptBuddy(this.x, this.y); break;
       }
       case 'battery': p.battery = Math.min(100, p.battery + 35); g.toast(`+35 % de pile · lampe à ${Math.round(p.battery)} %`, '#efe3a2'); g.audio.pickup(); break;
       case 'fetish': {
@@ -212,17 +212,17 @@ class Pickup {
   }
 }
 class Survivor {
-  constructor(g, x, y, zone, idx) { const d = SURVIVORS[idx]; this.g = g; this.x = x; this.y = y; this.r = 12; this.zone = zone; this.hp = 60; this.state = 'idle'; this.dead = false; this.name = d.name; this.who = d.who; this.coat = d.coat; this.line = d.line; this.walkT = 0; this.hurtT = 0; this.dir = 0; }
+  constructor(g, x, y, zone, idx) { const d = SURVIVORS[idx]; this.g = g; this.x = x; this.y = y; this.r = 12; this.zone = zone; this.hp = 60; this.state = 'idle'; this.dead = false; this.name = d.name; this.who = d.who; this.coat = d.coat; this.line = d.line; this.f = !!d.f; this.walkT = 0; this.hurtT = 0; this.dir = 0; }
   update(dt) {
     const g = this.g, p = g.player; if (this.hurtT > 0) this.hurtT -= dt;
-    if (this.state === 'idle') { if (!p.dead && dist2(p.x, p.y, this.x, this.y) < 44 * 44) { this.state = 'follow'; g.toast(`${this.name} (${this.who}) te suit : ramène-le au point de sauvegarde`, '#7fd18b'); g.audio.pickup(); } }
+    if (this.state === 'idle') { if (!p.dead && dist2(p.x, p.y, this.x, this.y) < 44 * 44) { this.state = 'follow'; g.toast(`${this.name} (${this.who}) te suit : ${g.mode === 'hospital' ? `garde-l${this.f ? 'a' : 'e'} en vie jusqu'à la chute du Chirurgien` : `ramène-l${this.f ? 'a' : 'e'} au point de sauvegarde`}`, '#7fd18b'); g.audio.pickup(); } }
     else if (!p.dead) {
       const dx = p.x - this.x, dy = p.y - this.y, d = Math.hypot(dx, dy) || 1;
       if (d > 46) { const sp = Math.min(240, (d - 40) * 4); this.x += dx / d * sp * dt; this.y += dy / d * sp * dt; this.walkT += dt * 9; this.dir = Math.atan2(dy, dx); }
       g.collideWorld(this);
     }
     for (const z of g.hash.query(this.x, this.y, 50, g._q)) if (!z.dead && z.spawnT <= 0 && dist2(z.x, z.y, this.x, this.y) < (z.r + this.r + 4) ** 2) { this.hp -= 12 * dt * g.diff.dmg; this.hurtT = 0.2; }
-    if (this.hp <= 0) { this.dead = true; if (g.run.sv) g.run.sv[this.zone] = 3; g.bleed(this.x, this.y, 0, 0, 12); g.splat(this.x, this.y, 16); g.toast(`${this.name} n'a pas survécu.`, '#b0231c'); }
+    if (this.hp <= 0) { this.dead = true; if (g.run.sv) g.run.sv[this.zone] = 3; g.bleed(this.x, this.y, 0, 0, 12); g.splat(this.x, this.y, 16); g.toast(`${this.name} n'a pas survécu`, '#b0231c'); }
   }
 }
 class Particle {

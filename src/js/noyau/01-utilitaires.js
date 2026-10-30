@@ -33,5 +33,6 @@ function shade(hex, f) { const n = parseInt(hex.slice(1), 16); let r = n >> 16, 
 const fmt = n => Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const fmtTime = s => { s = Math.floor(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 const FD = '"Saira Stencil One", Impact, sans-serif';
+const FH = 'Anton, Impact, sans-serif'; // grands titres : lettres épaisses, rouges et rongées
 const FT = '"Special Elite", "Courier New", monospace';
 

@@ -8,12 +8,12 @@ mixin(Game, {
     r.shibas = [...this.shibaFound].filter(id => id.startsWith(k + '-')).length; return r;
   },
   showMap({ current, report = null, onGo = null, resumed = false }) {
-    this.state = 'map'; this.audio.flame(false); this.mapGo = onGo; this.mapCur = current; this.mapSel = Math.min(current, 3);
+    this.state = 'map'; this.audio.flame(false); this.mapGo = onGo; this.mapCur = current; this.mapSel = Math.min(current, MISSIONS - 1);
     $('map-eyebrow').textContent = `Carte de l'aventure · ${CHARS[this.charKey].name} · ${this.diff.name}`;
     $('map-shibas').innerHTML = `<img src="${iconURL('shiba')}" alt="">${this.shibaFound.size}/${SHIBAS_TOTAL}`; $('map-score').textContent = `${fmt(this.score)} pts`;
     this.mapHover = null; this.mapReports = this.mapReports || {}; if (report) this.mapReports[report.k] = report; $('map-tip').classList.remove('show');
     const nb = report ? newBeastsHTML(this.takeActBeasts()) : '';
-    $('map-report').innerHTML = report ? reportHTML(report) + nb : resumed ? '<p class="hint">Partie reprise au dernier point de sauvegarde.</p>' : '<p class="hint">Trouve les 3 shibas cachés de chaque mission : ils aboient quand tu t\'approches. Les 12 débloquent un niveau secret.</p>';
+    $('map-report').innerHTML = report ? reportHTML(report) + nb : resumed ? '<p class="hint">Partie reprise au dernier point de sauvegarde.</p>' : `<p class="hint">Trouve les 3 shibas cachés de chaque mission : ils aboient quand tu t\'approches. Les ${SHIBAS_TOTAL} débloquent un niveau secret.</p>`;
     $('btn-map-go').textContent = `Entrer · mission ${current + 1}`;
     const pc = this._mapPortrait || (this._mapPortrait = document.createElement('canvas')); pc.width = pc.height = 160; renderHead(pc, this.charKey, '#0c0a09');
     this.mapInfo(); this.showScreen('scr-map'); $('btn-map-go').focus(); if (nb) drawBestiary();
@@ -27,17 +27,17 @@ mixin(Game, {
     const tip = $('map-tip'); if (i == null) { tip.classList.remove('show'); return; }
     const cur = this.mapCur, open = this.shibaFound.size >= SHIBAS_TOTAL, ic = iconURL('shiba');
     let h;
-    if (i === 4) {
+    if (i === MISSIONS) {
       h = `<h4>Le Paradis des Shibas</h4><span class="st lock">${open ? 'Débloqué' : 'Verrouillé'}</span><dl><dt>Accès</dt><dd>${open ? 'S\'ouvre après la victoire finale' : `Trouver les ${SHIBAS_TOTAL} shibas cachés`}</dd><dt>Shibas</dt><dd><b class="${open ? 'ok' : 'wait'}">${this.shibaFound.size} / ${SHIBAS_TOTAL}</b></dd><dt>Menace</dt><dd>${open ? 'Le Shibanophile, le zombie qui déteste les shibas' : '???'}</dd><dt>À protéger</dt><dd>${open ? '9 shibas du paradis' : '???'}</dd></dl>`;
     } else {
       const st = i < cur ? ['done', 'Terminée'] : i === cur ? ['cur', 'Mission en cours'] : ['todo', 'À venir'];
       let shib = ''; for (let k = 0; k < SHIBAS_PER; k++) shib += `<img src="${ic}" class="${this.shibaFound.has(i + '-' + k) ? '' : 'off'}" alt="">`;
-      const n = [...this.shibaFound].filter(id => id.startsWith(i + '-')).length, svs = this.run.sv || [0, 0, 0];
+      const n = [...this.shibaFound].filter(id => id.startsWith(i + '-')).length, svs = this.run.sv || [], si = MISSION_SURV[i];
       let sv;
-      if (i === 3) sv = '<span class="ko">Aucun signalé</span>';
-      else { const d = SURVIVORS[i], v = svs[i]; sv = `${d.name}, ${d.who} · ` + (v === 2 ? '<span class="ok">Sauvé</span>' : v === 3 ? '<span class="ko">Perdu</span>' : i < cur ? '<span class="ko">Non secouru</span>' : '<span class="wait">À secourir</span>'); }
+      if (si < 0) sv = '<span class="ko">Aucun signalé</span>';
+      else { const d = SURVIVORS[si], v = svs[i], e = d.f ? 'e' : ''; sv = `${d.name}, ${d.who} · ` + (v === 2 ? `<span class="ok">Sauvé${e}</span>` : v === 3 ? `<span class="ko">Perdu${e}</span>` : i < cur ? `<span class="ko">Non secouru${e}</span>` : '<span class="wait">À secourir</span>'); }
       const rep = this.mapReports && this.mapReports[i];
-      h = `<h4>${i + 1} · ${ZONES[i].name}</h4><span class="st ${st[0]}">${st[1]}</span><dl><dt>Objectif</dt><dd>${MAP_INFO[i].obj}</dd><dt>Survivant</dt><dd>${sv}</dd><dt>Shibas</dt><dd><span class="sh">${shib}</span>${n}/${SHIBAS_PER}</dd><dt>Menace</dt><dd>${MAP_INFO[i].threat}</dd>${rep ? `<dt>Bilan</dt><dd>${fmt(rep.score)} pts · ${fmt(rep.kills)} zombies</dd>` : ''}</dl>`;
+      h = `<h4>${i + 1} · ${MISSION_NAMES[i]}</h4><span class="st ${st[0]}">${st[1]}</span><dl><dt>Objectif</dt><dd>${MAP_INFO[i].obj}</dd><dt>Survivant</dt><dd>${sv}</dd><dt>Shibas</dt><dd><span class="sh">${shib}</span>${n}/${SHIBAS_PER}</dd><dt>Menace</dt><dd>${MAP_INFO[i].threat}</dd>${rep ? `<dt>Bilan</dt><dd>${fmt(rep.score)} pts · ${fmt(rep.kills)} zombies</dd>` : ''}</dl>`;
     }
     tip.innerHTML = h;
     const n = MAP_NODES[i], cv = $('map-cv'), fw = cv.clientWidth, fh = cv.clientHeight, sc = Math.min(fw / 1000, fh / 560), nx = (fw - 1000 * sc) / 2 + n.x * sc, ny = (fh - 560 * sc) / 2 + n.y * sc;
@@ -47,9 +47,9 @@ mixin(Game, {
   },
   mapInfo() {
     const i = this.mapSel, cur = this.mapCur, found = z => [...this.shibaFound].filter(id => id.startsWith(z + '-')).length;
-    $('map-info').textContent = i === 4
-      ? (this.shibaFound.size >= SHIBAS_TOTAL ? 'Le Paradis des Shibas · débloqué : il t\'attend après la Place de la Mairie.' : `Le Paradis des Shibas · niveau secret verrouillé. Trouve les ${SHIBAS_TOTAL} shibas (${this.shibaFound.size} pour l'instant).`)
-      : `Mission ${i + 1} · ${ZONES[i].name} · ${i < cur ? 'terminée' : i === cur ? 'mission en cours' : 'à venir'} · shibas ${found(i)}/${SHIBAS_PER}`;
+    $('map-info').textContent = i === MISSIONS
+      ? (this.shibaFound.size >= SHIBAS_TOTAL ? 'Le Paradis des Shibas · débloqué : il t\'attend après l\'hôpital.' : `Le Paradis des Shibas · niveau secret verrouillé. Trouve les ${SHIBAS_TOTAL} shibas (${this.shibaFound.size} pour l'instant).`)
+      : `Mission ${i + 1} · ${MISSION_NAMES[i]} · ${i < cur ? 'terminée' : i === cur ? 'mission en cours' : 'à venir'} · shibas ${found(i)}/${SHIBAS_PER}`;
   },
   mapContinue() { if (this.state !== 'map') return; const f = this.mapGo; this.mapGo = null; this.state = 'playing'; this.showScreen(null); this.input.mdown = false; if (f) f(); },
   seedZone(k) {
@@ -145,15 +145,41 @@ mixin(Game, {
       sv.dead = true;
       if (dist2(sv.x, sv.y, p.x, p.y) < 320 * 320) {
         const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; if (this.run.sv) this.run.sv[sv.zone] = 2;
-        this.later(1.2, () => { this.notice(`${sv.name} est sauvé`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); });
+        this.later(1.2, () => { this.notice(`${sv.name} est sauvé${sv.f ? 'e' : ''}`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); });
         if (this.run.saved >= 3) this.unlock('samaritan');
-      } else { if (this.run.sv) this.run.sv[sv.zone] = 3; this.later(1.2, () => this.toast(`${sv.name} est resté dehors…`, '#a39e93')); }
+      } else { if (this.run.sv) this.run.sv[sv.zone] = 3; this.later(1.2, () => this.toast(`${sv.name} est resté${sv.f ? 'e' : ''} dehors`, '#a39e93')); }
     }
     this.checkpoint = this.makeCheckpoint(SAFES[s].x0 + 200, 600); this.checkpoint.safe = s;
     this.notice('Sauvegardé', SAFES[s].name);
     if (this.endless) { this.later(0.8, () => this.openMutations()); return; }
     const report = this.missionReport(s); writeSave(this, s);
     this.comic.show(['act2', 'act3', 'act4'][s], () => this.showMap({ current: s + 1, report }));
+  },
+  // la campagne continue à l'hôpital (mission 5)
+  isCampaign() { return this.mode === 'story' || (this.mode === 'hospital' && !!this.hcamp); },
+  // l'hélicoptère de la Mairie : fin de la mission 4, cap sur l'hôpital
+  toHospital() {
+    this.event = null; this.newManche('la fin de l\'acte');
+    const st = this.missionStart || { kills: 0 }, xp = this.gainXP(150 + (this.kills - (st.kills || 0)) * 2 + (this.cleared && this.cleared[3] ? 120 : 0)); this.later(1.8, () => this.toast(`+${xp} XP · mission 4 terminée`, '#9fd6e6'));
+    if (!this.zoneHit && this.activeZone === 3) this.unlock('scratch');
+    for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
+    const p = this.player; p.hp = p.maxHp; p.battery = 100; this.activeZone = -1;
+    this.checkpoint = this.makeCheckpoint(150, 600); this.checkpoint.safe = SAFES.length;
+    const report = this.missionReport(3); writeSave(this, SAFES.length);
+    this.comic.show('act5', () => this.showMap({ current: 4, report, onGo: () => this.newHospitalMission() }));
+  },
+  // le Chirurgien est tombé : l'équipe s'envole du toit de l'hôpital
+  finishCampaign() {
+    const p = this.player;
+    for (const sv of this.survivors) {
+      if (sv.dead || sv.state !== 'follow') continue;
+      sv.dead = true; const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; this.run.sv[sv.zone] = 2;
+      this.notice(`${sv.name} est sauvé${sv.f ? 'e' : ''}`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); if (this.run.saved >= 3) this.unlock('samaritan');
+    }
+    const xp = this.gainXP(200 + (this.kills - ((this.missionStart || {}).kills || 0)) * 2); this.toast(`+${xp} XP · mission 5 terminée`, '#9fd6e6');
+    this.unlock(WIN_ACH[this.charKey]); if (this.diffKey === 'cauchemar') this.unlock('nightmare');
+    Settings.survival = true; clearSave(); if (this.shibaFound.size >= SHIBAS_TOTAL) Settings.paradise = true; Settings.save(); refreshSurvivalBtn();
+    this.later(2.4, () => { if (this.state === 'playing') this.comic.show('epilogue', () => this.showEnd(true)); });
   },
   respawn() {
     const cp = this.checkpoint, kz = this.activeZone;
@@ -191,13 +217,13 @@ mixin(Game, {
     if (this.net === 'host') Net.send({ t: 'end', sc: Math.floor(this.score), ki: this.kills, wv: this.surv ? this.surv.wave : 0, rt: Math.floor(this.runTime), vi: victory === true ? 1 : 0 }, true);
     this.state = 'end'; this.audio.flame(false);
     for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
-    const secret = victory === 'secret' || this.mode === 'secret', hosp = this.mode === 'hospital';
+    const secret = victory === 'secret' || this.mode === 'secret', hosp = this.mode === 'hospital' && !this.hcamp, camp = this.isCampaign();
     let bonus = 0; if (victory) { bonus = Math.round((10000 + this.lives * 4000) * this.diff.score); this.score += bonus; }
     this.lastVictory = victory; const surv = this.mode === 'survival', wave = surv ? this.surv.wave : 0; $('btn-again').textContent = this.netGuest ? 'En attente de l\'hôte…' : 'Rejouer';
-    $('end-eyebrow').textContent = secret ? 'Rapport final · Le Paradis des Shibas' : surv ? 'Rapport de survie · Place de la Mairie' : victory ? 'Rapport d\'évacuation · Place de la Mairie' : 'Rapport de fin de nuit';
+    $('end-eyebrow').textContent = secret ? 'Rapport final · Le Paradis des Shibas' : surv ? 'Rapport de survie · Place de la Mairie' : victory ? 'Rapport d\'évacuation · Hôpital Saint-Lazare' : 'Rapport de fin de nuit';
     $('end-title').textContent = secret ? (victory ? 'Paradis sauvé' : 'Le paradis est tombé') : surv ? 'Fin de la survie' : victory ? 'Évacué' : 'Fin de la nuit';
     $('end-stamp').textContent = secret ? (victory ? 'Ami des shibas' : 'Porté disparu') : surv ? `Vague ${wave}` : victory ? 'Survivant' : 'Porté disparu';
-    $('btn-paradise').hidden = !(this.mode === 'story' && victory && this.shibaFound.size >= SHIBAS_TOTAL);
+    $('btn-paradise').hidden = !(camp && victory && this.shibaFound.size >= SHIBAS_TOTAL);
     $('end-stamp').style.color = $('end-stamp').style.borderColor = victory ? '#7fd18b' : '';
     if (hosp) { $('end-eyebrow').textContent = 'Rapport médical · Hôpital Saint-Lazare'; $('end-title').textContent = victory ? 'Le Chirurgien est tombé' : 'Admis aux urgences'; $('end-stamp').textContent = victory ? 'Sorti guéri' : 'Porté disparu'; }
     $('btn-survival').hidden = !(victory || surv) || hosp; $('end-credits').hidden = !victory || hosp; if (victory && !hosp) fillCreditsOnce($('end-credits')); $('btn-survival').textContent = surv ? 'Relancer la Survie' : 'Mode Survie';
@@ -206,9 +232,9 @@ mixin(Game, {
     if (surv) stats.splice(1, 0, ['Vagues tenues', String(Math.max(0, wave - 1))]);
     if (!surv && !secret) stats.push(['Survivants sauvés', String(this.run.saved)]);
     const st = this.stats; stats.push(['Dégâts infligés', fmt(Math.round(st.dmg))], ['Tirs', fmt(st.shots)], ['Précision', st.shots ? Math.round(100 * st.hits / st.shots) + ' %' : '–'], ['Morts', String(st.deaths)]);
-    if (this.mode === 'story') stats.push(['Shibas trouvés', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`]);
+    if (camp) stats.push(['Shibas trouvés', `${this.shibaFound.size} / ${SHIBAS_TOTAL}`]);
     if (this.achCards.length) { stats.push(['Succès débloqués', this.achCards.map(a => a.name).join(' · ')]); this.achCards = []; }
-    { const mode = this.dailyMod ? 'daily' : this.mode; Settings.lastRun = { char: this.charKey, mode, win: !!victory, kills: this.kills, score: Math.floor(this.score), zone: Math.max(0, this.missionFor == null ? this.activeZone : this.missionFor), wave, shibas: this.shibaFound.size, diff: this.diffKey, mod: this.dailyMod ? this.dailyMod.name : '', date: Date.now() };
+    { const mode = this.dailyMod ? 'daily' : camp ? 'story' : this.mode; Settings.lastRun = { char: this.charKey, mode, win: !!victory, kills: this.kills, score: Math.floor(this.score), zone: Math.max(0, this.missionFor == null ? this.activeZone : this.missionFor), wave, shibas: this.shibaFound.size, diff: this.diffKey, mod: this.dailyMod ? this.dailyMod.name : '', date: Date.now() };
       Settings.bestKills = Math.max(Settings.bestKills || 0, this.kills);
       if (this.mode !== 'training') for (const q of this.players()) { const cs = cstat(q.char); cs.games++; if (victory) cs.wins++; cs.kills += this.kills; cs.best = Math.max(cs.best, Math.floor(this.score)); cs.time += Math.floor(this.runTime || 0); }
       { this.levelUps = 0; const xp = this.gainXP(this.kills * 2 + this.score / 250 + (victory ? 600 : 0) + this.shibaFound.size * 40), L = levelInfo(Settings.xp); stats.push(['Expérience', `+${fmt(xp)} XP · niveau ${L.lv}${this.levelUps ? ' (niveau supérieur !)' : ''}`]); }
@@ -225,7 +251,7 @@ mixin(Game, {
   saveScore() {
     if (this.savedScore) return; this.savedScore = true;
     const name = ($('end-name').value || 'Survivant').trim().slice(0, 16) || 'Survivant'; Settings.name = name; Settings.save();
-    const entry = { name, char: CHARS[this.charKey].name, score: Math.floor(this.score), diff: (this.endless ? `Nuit sans fin ${this.endless.night} · ` : this.dailyMod ? 'Défi · ' : this.mode === 'survival' ? 'Survie · ' : this.mode === 'secret' ? 'Paradis · ' : this.mode === 'hospital' ? 'Hôpital · ' : '') + this.diff.name, kills: this.kills, time: Math.floor(this.runTime), win: !!this.lastVictory, wave: this.mode === 'survival' ? this.surv.wave : 0, date: Date.now() };
+    const entry = { name, char: CHARS[this.charKey].name, score: Math.floor(this.score), diff: (this.endless ? `Nuit sans fin ${this.endless.night} · ` : this.dailyMod ? 'Défi · ' : this.mode === 'survival' ? 'Survie · ' : this.mode === 'secret' ? 'Paradis · ' : this.mode === 'hospital' && !this.hcamp ? 'Hôpital · ' : '') + this.diff.name, kills: this.kills, time: Math.floor(this.runTime), win: !!this.lastVictory, wave: this.mode === 'survival' ? this.surv.wave : 0, date: Date.now() };
     const top = Scores.add(entry); $('end-scores').innerHTML = scoreTable(top, entry.date); $('btn-save').disabled = true; $('btn-again').focus();
     { const best = top.find(r => nameKey(r.name) === nameKey(name)); if (best && best.date !== entry.date && best.score >= entry.score) this.toast(`Ton record tient toujours : ${fmt(Math.floor(best.score))} pts`, '#f0b25a'); }
     if (Online.on() && this.mode !== 'training') { entry.mode = this.endless ? 'endless' : this.dailyMod ? 'daily' : this.coop ? 'coop' : this.mode; Online.send(entry).then(ok => this.toast(ok ? 'Score envoyé au classement en ligne' : 'Hors ligne : score envoyé à la prochaine connexion', ok ? '#7fd18b' : '#8b867b')); }

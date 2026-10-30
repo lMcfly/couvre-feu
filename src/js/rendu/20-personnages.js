@@ -115,13 +115,19 @@ mixin(Game, {
     c.fillStyle = 'rgba(80,10,8,.55)'; c.fillRect(-r * 0.3 + (z.seed || 0), -r * 1.2, r * 0.35, r * 0.3);
     const hy = -r * (z.type === 'spitter' ? 2.2 : 1.95) + Math.sin(t * 0.5);
     c.fillStyle = z.skin; c.beginPath(); c.arc(ca * r * 0.25, hy, r * (z.type === 'brute' ? 0.45 : 0.52), 0, TAU); c.fill();
+    if (z.type === 'screamer') { // bouche qui s'ouvre et ondes du cri qui montent
+      const k = z.bState === 'scream' ? 1 - z.bT / 0.9 : 0, mx = ca * r * 0.42, my = hy + r * 0.16;
+      c.fillStyle = '#e8e4da'; c.fillRect(-r * 0.12, -r * 1.55, r * 0.24, r * 0.5);
+      if (sa > -0.4) { c.fillStyle = '#1a0806'; c.beginPath(); c.ellipse(mx, my, r * (0.12 + k * 0.14), r * (0.08 + k * 0.3), 0, 0, TAU); c.fill(); }
+      if (k > 0) { c.strokeStyle = `rgba(160,225,255,${0.2 + k * 0.55})`; c.lineWidth = 2; for (let i = 0; i < 3; i++) { c.beginPath(); c.arc(mx, my - r * 0.2, r * (0.7 + i * 0.55) * (0.6 + k * 0.6), 0, TAU); c.stroke(); } c.translate(rand(-1, 1), 0); }
+    }
     if (z.type === 'spitter' && z.spitWind > 0) { c.fillStyle = ACID(); c.beginPath(); c.arc(ca * r * 0.6, hy + 3, 3 + (0.45 - z.spitWind) * 6, 0, TAU); c.fill(); }
     if (sa >= 0) arms();
     if (z.costume) drawCostume(c, z.costume, ca * r * 0.25, hy, r, z.walkT);
     if (z.hitFlash > 0) { c.globalAlpha = 0.6; c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 0.85, r * 1.15, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     if (z.burn > 0) { c.globalAlpha = 0.35; c.fillStyle = '#ff7a22'; c.beginPath(); c.ellipse(0, -r * 1.2, r * 0.9, r * 1.2, 0, 0, TAU); c.fill(); c.globalAlpha = 1; }
     c.restore();
-    if ((z.type === 'brute' || z.type === 'spitter') && z.hp < z.maxHp && z.spawnT <= 0) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(z.x - 16, z.y - r * 2.9, 32, 4); c.fillStyle = '#b0231c'; c.fillRect(z.x - 16, z.y - r * 2.9, 32 * z.hp / z.maxHp, 4); }
+    if ((z.type === 'brute' || z.type === 'spitter' || z.type === 'screamer') && z.hp < z.maxHp && z.spawnT <= 0) { c.fillStyle = 'rgba(0,0,0,.6)'; c.fillRect(z.x - 16, z.y - r * 2.9, 32, 4); c.fillStyle = '#b0231c'; c.fillRect(z.x - 16, z.y - r * 2.9, 32 * z.hp / z.maxHp, 4); }
   },
   drawDog(z, ca, sa) {
     const c = ctx, r = z.r, t = z.walkT, crouch = z.bState === 'crouch', leap = z.bState === 'leap';

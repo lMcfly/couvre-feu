@@ -74,5 +74,5 @@ class Comic {
   next() { if (this.g.state !== 'comic') return; if (this.idx < this.strip.children.length - 1) { this.idx++; this.reveal(); this.g.audio.ui(); } else this.finish(); }
   finish() { const g = this.g; if (g.state !== 'comic') return; g.showScreen(null); g.state = 'playing'; g.input.mdown = false; const d = this.done; this.done = null; if (d) d(); }
 }
-const fontsReady = (document.fonts && document.fonts.load) ? Promise.all([document.fonts.load('40px Bangers'), document.fonts.load('700 16px "Comic Neue"')]).catch(() => { }) : Promise.resolve();
+const fontsReady = (document.fonts && document.fonts.load) ? Promise.all([document.fonts.load('40px Bangers'), document.fonts.load('700 16px "Comic Neue"'), document.fonts.load('40px Anton')]).catch(() => { }) : Promise.resolve();
 

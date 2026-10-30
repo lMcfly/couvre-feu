@@ -8,9 +8,9 @@ function refreshHub() {
   $('hub-shibas').innerHTML = `<img src="${iconURL('shiba')}" alt=""> ${Settings.paradise ? SHIBAS_TOTAL : d ? (d.cp.shibas || []).length : 0}/${SHIBAS_TOTAL}`; $('hub-shibas').classList.toggle('gold', !!Settings.paradise); $('hub-shibas').title = Settings.paradise ? 'Tous les shibas sont sauvés : un endroit secret s\'est ouvert' : 'Shibas sauvés';
   const todo = ACH.filter(a => !u[a[0]]).slice(0, 3);
   document.querySelector('.start-card').dataset.diff = game.diffKey;
-  const pct = d ? Math.round((d.safe + 1) / 4 * 100) : 0, next = d ? Math.min(3, d.safe + 1) : 0;
-  $('story-act').textContent = d ? `Mission ${next + 1} sur 4` : 'Mission 1 sur 4'; $('story-zone').textContent = ZONES[next].name + (d ? ` · ${CHARS[d.char].name}` : '');
-  $('start-kicker').textContent = d ? `Reprendre · ${CHARS[d.char].name} · ${DIFFS[d.diff].name}` : `Nouvelle nuit · ${START_FLAVOR[game.diffKey] || ''}`; $('start-title').textContent = d ? ZONES[next].name : 'Opération Couvre-Feu';
+  const pct = d ? Math.round((d.safe + 1) / MISSIONS * 100) : 0, next = d ? Math.min(MISSIONS - 1, d.safe + 1) : 0;
+  $('story-act').textContent = d ? `Mission ${next + 1} sur ${MISSIONS}` : `Mission 1 sur ${MISSIONS}`; $('story-zone').textContent = MISSION_NAMES[next] + (d ? ` · ${CHARS[d.char].name}` : '');
+  $('start-kicker').textContent = d ? `Reprendre · ${CHARS[d.char].name} · ${DIFFS[d.diff].name}` : `Nouvelle nuit · ${START_FLAVOR[game.diffKey] || ''}`; $('start-title').textContent = d ? MISSION_NAMES[next] : 'Opération Couvre-Feu';
   $('btn-start').classList.toggle('primary', !d); $('btn-start').textContent = d ? 'Nouvelle partie' : 'Prendre la route';
 }
 $('story-card').addEventListener('click', () => { const d = readSave(); if (d) game.loadSave(d); else openLaunch('story'); });
@@ -115,21 +115,22 @@ function refreshContinue() {
   const d = readSave(), b = $('btn-continue'), sm = $('save-summary');
   b.hidden = !d; sm.hidden = !d; if (d) sm.textContent = `Sauvegarde : ${saveLine(d)}. Commencer une nouvelle nuit la remplacera au premier point de sauvegarde.`;
   $('save-info').textContent = d ? `Sauvegarde actuelle : ${saveLine(d)}.` : 'Aucune sauvegarde pour l\'instant : elle se crée au premier point de sauvegarde.';
-  $('btn-save-copy').disabled = !d; $('btn-save-delete').disabled = !d; $('btn-save-delete').dataset.confirm = '';  $('btn-save-delete').textContent = 'Supprimer la sauvegarde';
+  $('btn-save-delete').disabled = !d; $('btn-save-delete').dataset.confirm = '';  $('btn-save-delete').textContent = 'Supprimer la sauvegarde';
 }
 $('btn-continue').addEventListener('click', () => { const d = readSave(); closeHubModals(); if (d) game.loadSave(d); });
 
-$('btn-save-copy').addEventListener('click', () => {
-  const d = readSave(); if (!d) return; const code = encodeSave(d), ta = $('save-code'); ta.value = code; ta.hidden = false;
-  const done = () => { $('save-msg').textContent = 'Code copié. Colle-le dans « Charger un code » sur l\'autre appareil.'; };
+$('btn-save-copy').addEventListener('click', async () => {
+  const code = await encodeProfile(), ta = $('save-code'); ta.value = code; ta.hidden = false;
+  const done = () => { $('save-msg').textContent = 'Code copié. Sur l\'autre appareil : Paramètres › Sauvegarde › « Charger un code ».'; };
   const fallback = () => { ta.focus(); ta.select(); $('save-msg').textContent = 'Le code est sélectionné ci-dessus : copie-le avec Ctrl+C (ou un appui long sur téléphone).'; };
   try { navigator.clipboard.writeText(code).then(done, fallback); } catch (e) { fallback(); }
 });
-$('btn-save-import').addEventListener('click', () => {
-  const d = decodeSave($('save-import').value);
-  if (!d) { $('save-msg').textContent = 'Ce code n\'est pas valide. Vérifie qu\'il est complet, de « CF1. » jusqu\'au dernier caractère.'; return; }
-  memSave = d; try { localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) { }
-  $('save-import').value = ''; refreshContinue(); $('save-msg').textContent = `Sauvegarde chargée : ${saveLine(d)}. Appuie sur « Continuer ».`; $('btn-continue').focus();
+$('btn-save-import').addEventListener('click', async () => {
+  const d = await decodeProfile($('save-import').value);
+  if (!d) { $('save-msg').textContent = 'Ce code n\'est pas valide. Vérifie qu\'il est complet, de « CF » jusqu\'au dernier caractère.'; return; }
+  const r = applyProfile(d); $('save-import').value = '';
+  refreshSurvivalBtn(); renderWardrobe();
+  $('save-msg').textContent = `Progression chargée : niveau ${r.lv}, ${r.ach} succès${r.run ? ', partie en cours prête : appuie sur « Continuer »' : ''}.`;
 });
 $('btn-wipe').addEventListener('click', e => {
   const b = e.currentTarget; if (!b.dataset.confirm) { b.dataset.confirm = '1'; b.textContent = 'Confirmer : niveaux, succès, scores et sauvegarde effacés'; return; }

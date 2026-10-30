@@ -83,7 +83,7 @@ mixin(Game, {
     c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
     // points qui montent ; estompés quand ils passent sous la bannière, pour ne pas se mélanger à son texte
     { const bn = this.bannerObj && !this.cine ? (H / DPR / HUDK) * 0.3 : null;
-      for (const t of this.texts) { let a = Math.min(1, t.life * 2); if (bn != null) { const sy = this.w2h(t.x, t.y).y; if (sy > bn - 62 && sy < bn + 42) a *= 0.12; } c.globalAlpha = a; c.font = `15px ${FD}`; c.textAlign = 'center'; c.fillStyle = t.color; c.fillText(t.text, t.x, t.y); } c.globalAlpha = 1; }
+      for (const t of this.texts) { let a = Math.min(1, t.life * 2); if (bn != null) { const sy = this.w2h(t.x, t.y).y; if (sy > bn - 64 && sy < bn + 48) a *= 0.12; } c.globalAlpha = a; c.font = `15px ${FD}`; c.textAlign = 'center'; c.fillStyle = t.color; c.fillText(t.text, t.x, t.y); } c.globalAlpha = 1; }
     // écran
     c.setTransform(1, 0, 0, 1, 0, 0);
     this.drawScreenFx(c);
@@ -94,9 +94,9 @@ mixin(Game, {
       this.drawHUD();
       const ck = this.cine ? Math.min(1, this.cineK || 0) : (this.cineK || 0);
       if (ck > 0.01) { const bh = Math.round(H * 0.12 * ck); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#000'; c.fillRect(0, 0, W, bh); c.fillRect(0, H - bh, W, bh);
-        if (this.cine) { const b = this.cine.b, u = Math.min(1, this.cine.t / 0.45), title = (b.title || '').toUpperCase(), sub = (b.cfg && b.cfg.sub) || (b.ultimate ? 'Le zombie qui déteste les shibas' : 'Elle se recolle, morceau par morceau'), fs = Math.round(Math.min(bh * 0.62, W / 14));
-          c.save(); c.translate(W * 0.5 + (1 - u) * W * 0.6, bh * 0.56); c.rotate(-0.025); c.font = `${fs}px Bangers, Impact, sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round'; c.lineWidth = fs * 0.16; c.strokeStyle = INK; c.strokeText(title, 0, 0); c.fillStyle = b.phase >= 2 ? '#ff6a45' : '#ffd23a'; c.fillText(title, 0, 0); c.restore();
-          c.save(); c.globalAlpha = ck * u; c.font = `italic ${Math.round(fs * 0.42)}px ${FT}`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillStyle = '#d8d2c4'; c.fillText('« ' + sub + ' »', 24 * DPR, H - bh / 2); c.restore(); }
+        if (this.cine) { const b = this.cine.b, u = Math.min(1, this.cine.t / 0.45), title = (b.title || '').toUpperCase(), sub = (b.cfg && b.cfg.sub) || (b.ultimate ? 'Le zombie qui déteste les shibas' : 'Elle se recolle, morceau par morceau'), fs = Math.round(Math.min(H * 0.14, W * 0.9 / Math.max(6, title.length * 0.52)));
+          this.drawBossTitle(title, W / 2, bh + fs * 0.92, fs, this.cine.t, b.phase >= 2);
+          c.save(); c.globalAlpha = ck * u; c.font = `italic ${Math.round(Math.min(bh * 0.34, 20 * DPR))}px ${FT}`; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillStyle = '#d8d2c4'; c.fillText('« ' + sub + ' »', 24 * DPR, H - bh / 2); c.restore(); }
         if (this.cine && this.cine.t > 0.5) { c.globalAlpha = ck * (0.55 + Math.sin(this.time * 4) * 0.25); c.fillStyle = '#d8d2c4'; c.font = `${Math.round(13 * DPR)}px ${FT}`; c.textAlign = 'right'; c.fillText(this.input.touchMode ? 'Touche l\'écran pour passer ›' : 'Une touche pour passer ›', W - 24 * DPR, H - bh / 2 + 5 * DPR); c.globalAlpha = 1; } }
     }
   },
@@ -201,7 +201,7 @@ mixin(Game, {
     for (const z of this.zombies) {
       if (z.spawnT > 0 || !inView(z.x, z.y)) continue; const sa = Math.sin(z.dir); if (sa < -0.3) continue;
       const ca = Math.cos(z.dir), r = z.r, hx = z.x + ca * r * 0.25, hy = z.y - r * 1.95 + Math.sin(z.walkT * 0.5);
-      const a = z.type === 'runner' ? 0.85 : z.type === 'boss' ? 1 : 0.5; c.fillStyle = z.type === 'bomber' || z.type === 'spitter' ? `rgba(170,255,90,${a})` : `rgba(255,55,35,${a})`;
+      const a = z.type === 'runner' || z.frenzy > 0 ? 0.85 : z.type === 'boss' ? 1 : 0.5; c.fillStyle = z.type === 'bomber' || z.type === 'spitter' ? `rgba(170,255,90,${a})` : z.type === 'screamer' ? `rgba(160,225,255,${a})` : `rgba(255,55,35,${a})`;
       const ex = r * 0.2, es = z.type === 'boss' ? 3.4 : 1.5;
       c.fillRect(hx - ex + ca * 2 - es / 2, hy - es / 2, es, es); c.fillRect(hx + ex + ca * 2 - es / 2, hy - es / 2, es, es);
       if (z.type === 'bomber') { c.fillStyle = `rgba(150,255,80,${0.35 + Math.sin(t * 8 + z.walkT) * 0.15})`; for (const [bx, by] of [[-5, -14], [4, -10], [0, -20]]) { c.beginPath(); c.arc(z.x + bx, z.y + by, 3, 0, TAU); c.fill(); } }
@@ -339,7 +339,7 @@ mixin(Game, {
       case 'fire': c.globalAlpha = Math.min(1, k * 1.5) * 0.8; c.fillStyle = k > 0.6 ? '#ffd27a' : k > 0.3 ? '#ff7a1a' : '#a3200f'; c.beginPath(); c.arc(p.x, p.y - p.z, p.size * (0.6 + k * 0.5), 0, TAU); c.fill(); break;
       case 'spark': c.globalAlpha = k; c.strokeStyle = p.color || '#ffcf80'; c.lineWidth = p.size; c.beginPath(); c.moveTo(p.x, p.y - p.z); c.lineTo(p.x - p.vx * 0.03, p.y - p.z - p.vy * 0.03); c.stroke(); break;
       case 'acid': c.globalAlpha = k; c.fillStyle = ACID(); c.fillRect(p.x - 1.5, p.y - p.z - 1.5, 3, 3); break;
-      case 'ring': c.globalAlpha = k * 0.8; c.strokeStyle = '#ffb060'; c.lineWidth = 5 * k + 1; c.beginPath(); c.ellipse(p.x, p.y, p.size, p.size * 0.8, 0, 0, TAU); c.stroke(); break;
+      case 'ring': c.globalAlpha = k * 0.8; c.strokeStyle = p.color || '#ffb060'; c.lineWidth = 5 * k + 1; c.beginPath(); c.ellipse(p.x, p.y, p.size, p.size * 0.8, 0, 0, TAU); c.stroke(); break;
     }
   }
 });

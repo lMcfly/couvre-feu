@@ -1,5 +1,13 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 70, d: '30 oct.', t: 'Cinquième mission : l\'hôpital', s: 'La nuit ne s\'arrête plus à la Mairie : l\'hélicoptère se pose sur le toit de Saint-Lazare.', it: [
+    ['new', 'Mission 5 · Hôpital Saint-Lazare', 'Après la Mairie, une BD inédite puis l\'hôpital : couloirs, chambres, morgue et le Chirurgien. Inès, l\'infirmière de garde, attend qu\'on la sorte de là.'],
+    ['new', 'Le Hurleur', 'Un patient zombie qui garde ses distances puis hurle : la horde s\'excite et ta lampe grésille. Tire-lui dessus quand il ouvre la bouche pour le faire taire.'],
+    ['up', '15 shibas', 'Trois shibas par mission, cachés jusque dans les chambres de l\'hôpital. Il en faut 15 pour le Paradis des Shibas.'],
+    ['new', 'Écran Campagne', 'La ville brûle en grand derrière toi : projecteurs, hélico, horde, pluie et éclairs, avec tes cinq missions et tes shibas d\'un coup d\'œil.'],
+    ['up', 'Titres en relief', 'Les grands titres dégoulinent et prennent de l\'épaisseur. À l\'arrivée d\'un boss, son nom tombe du ciel lettre par lettre.'],
+    ['new', 'Code de transfert', 'Paramètres › Sauvegarde : un code pour passer du PC au téléphone avec ton niveau, tes tenues, tes succès, tes shibas, tes scores et ta partie en cours. On garde le meilleur des deux appareils.']],
+    q: ['zeus', 'Zeus', 'Un hôpital sans une seule plante verte. C\'est ça, le vrai cauchemar.'] },
   { v: 69, d: '29 oct.', t: 'Le centre de l\'écran respire', s: 'Les petits événements passent en haut, dans une bande fine, et tout le texte s\'affiche en entier.', it: [
     ['new', 'Bandes fines en haut', 'Arme trouvée, shiba ou survivant sauvé, sauvegarde : une bande discrète sous le bouton pause. La grande bannière reste pour les boss, les vagues et les nouveaux secteurs.'],
     ['fix', 'Plus de texte coupé', 'Messages, succès et descriptions du marché noir s\'affichent en entier, sans points de suspension.'],
@@ -13,7 +21,7 @@ const WN = [
     q: ['fiona', 'Fiona', 'Enfin je peux lire ce que je ramasse. Pas que ça change grand-chose.'] },
   { v: 67, d: '29 oct.', t: 'Grand ménage sous le capot', s: 'Rien ne change à l\'écran… sauf que tout va plus vite.', it: [
     ['up', 'Démarrage 4× plus rapide', 'Les portraits ne sont plus dessinés tant que tu n\'ouvres pas leur écran : le jeu est prêt en un clin d\'œil, même sur un vieux téléphone.'],
-    ['up', 'Code rangé', 'Le jeu est maintenant découpé en 39 fichiers par thème, avec des vérifications automatiques avant chaque mise en ligne.'],
+    ['up', 'Code rangé', 'Le jeu est maintenant découpé en fichiers par thème, avec des vérifications automatiques avant chaque mise en ligne.'],
     ['fix', 'Moins de bugs à venir', 'Un garde-fou bloque les erreurs qui avaient cassé le duo et les grenades avant qu\'elles n\'arrivent chez toi.']],
     q: ['zeus', 'Zeus', 'Un jardin bien rangé pousse mieux. Le code, c\'est pareil.'] },
   { v: 65, d: '29 oct.', t: 'L\'arsenal passe à l\'écran', s: 'Chaque arme se montre en action, l\'accueil prend vie, et les grenades tombent enfin où tu vises.', it: [

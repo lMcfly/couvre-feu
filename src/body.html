@@ -64,7 +64,7 @@
         <p class="hw-chip" id="hw-chip" hidden></p>
         <div class="folders" id="folders">
           <p class="eyebrow">Jouer</p>
-          <button type="button" class="mode big folder" data-folder="campagne"><b>Campagne</b><small>Solo ou duo · 4 missions dans la ville</small></button>
+          <button type="button" class="mode big folder" data-folder="campagne"><b>Campagne</b><small>Solo ou duo · 5 missions, de la gare à l'hôpital</small></button>
           <button type="button" class="mode big folder" data-folder="arcade"><b>Arcade</b><small>Survie · Nuit sans fin · Défi · Hôpital</small></button>
           <button type="button" class="mode big folder" data-folder="entrainement"><b>Entraînement</b><small>Camp de tir · didacticiel</small></button>
         </div>
@@ -176,12 +176,12 @@
       <p class="hint long-hint">Ce sont les touches par défaut : le bouton « Touches » permet de toutes les changer. Sur téléphone, les commandes tactiles s'activent toutes seules. Joue en mode paysage. Tire sur une voiture pour déclencher son alarme : la horde converge vers elle. Les voitures marquées d'une fuite d'essence explosent.</p>
     </details></div>
       <div data-to="save" class="set-save">
-      <p class="hint long-hint">La partie se sauvegarde toute seule à chaque point de sauvegarde, dans ce navigateur. Pour la reprendre sur un autre appareil ou un autre navigateur, copie le code ci-dessous puis colle-le là-bas.</p>
+      <p class="hint long-hint">La partie se sauvegarde toute seule à chaque point de sauvegarde. Pour passer du PC au téléphone (ou l'inverse), copie ton code de transfert puis colle-le sur l'autre appareil : niveau, tenues, succès, shibas, scores et partie en cours suivent. Rien n'est perdu : on garde le meilleur des deux.</p>
       <p id="save-info"></p>
-      <div class="row"><button type="button" class="btn" id="btn-save-copy">Copier le code de sauvegarde</button><button type="button" class="btn" id="btn-save-delete">Supprimer la sauvegarde</button><button type="button" class="btn" id="btn-wipe">Tout remettre à zéro</button></div>
-      <textarea id="save-code" rows="3" readonly hidden aria-label="Code de sauvegarde"></textarea>
+      <div class="row"><button type="button" class="btn primary" id="btn-save-copy">Copier mon code de transfert</button><button type="button" class="btn" id="btn-save-delete">Supprimer la sauvegarde</button><button type="button" class="btn" id="btn-wipe">Tout remettre à zéro</button></div>
+      <textarea id="save-code" rows="3" readonly hidden aria-label="Code de transfert"></textarea>
       <label class="label" for="save-import">Charger un code</label>
-      <textarea id="save-import" rows="3" placeholder="Colle ici un code de sauvegarde"></textarea>
+      <textarea id="save-import" rows="3" placeholder="Colle ici le code de l'autre appareil"></textarea>
       <div class="row"><button type="button" class="btn" id="btn-save-import">Charger ce code</button></div>
       <p class="hint" id="save-msg" aria-live="polite"></p></div>
     </div></div>
@@ -255,7 +255,9 @@
 </section>
 
 <div id="photo-modal" class="photo-modal" hidden role="dialog" aria-label="Photo souvenir"><div class="photo-card"><img id="photo-img" alt="Une de KE-DLA-D TV avec ta partie"><div class="row center"><a class="btn primary" id="photo-dl">Télécharger</a><button type="button" class="btn" id="photo-share">Partager</button><button type="button" class="btn" id="photo-close">Fermer</button></div></div></div>
-<div id="launch-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="launch-h"><div class="launch-wrap"><div class="launch-head"><p class="eyebrow" id="launch-mode">Campagne</p><button type="button" class="btn sm launch-x" id="launch-close" aria-label="Fermer">Retour</button></div><h2 id="launch-h" class="sr-only">Lancer une partie</h2>
+<div id="launch-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="launch-h"><div class="launch-wrap"><canvas id="camp-cv" class="camp-cv" aria-hidden="true"></canvas><div class="launch-head"><p class="eyebrow" id="launch-mode">Campagne</p><button type="button" class="btn sm launch-x" id="launch-close" aria-label="Fermer">Retour</button></div><h2 id="launch-h" class="sr-only">Lancer une partie</h2>
+      <div class="camp-hero"><p class="camp-eb">Campagne · 5 missions</p><p class="camp-title"><span>Opération</span><em>Couvre-Feu</em></p><p class="camp-sub" id="camp-sub"></p></div>
+      <ol class="camp-track" id="camp-track" aria-label="Les missions de la campagne"></ol>
       <section class="hub-card start-card">
         <div class="start-art"><canvas id="start-cv" width="360" height="150" aria-hidden="true"></canvas><div class="start-badge" aria-hidden="true">☠</div></div>
         <div class="start-body">
@@ -275,7 +277,7 @@
       </section>
 </div></div>
 <div id="join-modal" class="photo-modal hub-modal join-modal" hidden role="dialog" aria-labelledby="join-h"><div class="join-wrap"><p class="eyebrow">Campagne à deux</p><h2 id="join-h">Connexion des manettes</h2><p class="join-hint" id="join-hint"></p><div class="join-slots" id="join-slots"></div><div class="row center"><button type="button" class="btn" id="join-back">Retour</button><button type="button" class="btn primary big" id="join-go" disabled>Lancer la partie</button></div></div></div>
-<div id="secret-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="secret-h"><div class="secret-wrap"><canvas id="secret-cv" width="480" height="240" aria-hidden="true"></canvas><p class="eyebrow">Niveau secret</p><h2 id="secret-h">Le Paradis des Shibas</h2><p>Les 12 shibas sont sauvés. Le Shibanophile t'attend sur la Place de la Mairie : protège les 9 shibas du paradis.</p><div class="row center"><button type="button" class="btn" id="secret-close">Retour</button><button type="button" class="btn primary big" id="btn-paradise-title">Entrer au Paradis</button></div></div></div>
+<div id="secret-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="secret-h"><div class="secret-wrap"><canvas id="secret-cv" width="480" height="240" aria-hidden="true"></canvas><p class="eyebrow">Niveau secret</p><h2 id="secret-h">Le Paradis des Shibas</h2><p>Les 15 shibas sont sauvés. Le Shibanophile t'attend sur la Place de la Mairie : protège les 9 shibas du paradis.</p><div class="row center"><button type="button" class="btn" id="secret-close">Retour</button><button type="button" class="btn primary big" id="btn-paradise-title">Entrer au Paradis</button></div></div></div>
 <div class="rotate-overlay" id="rotate-overlay" role="alert"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="20" y="6" width="24" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="32" cy="43" r="2.5" fill="currentColor"/><path d="M50 52a18 18 0 0 1-30 6" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M18 52l2 7 7-2" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Tourne ton téléphone</b><p>Couvre-Feu se joue en mode paysage.</p></div>
 <div id="fs-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="fs-h"><div class="fs-wrap"><div class="fs-ico" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><p class="eyebrow">Couvre-Feu</p><h2 id="fs-h">Jouer en plein écran ?</h2><p id="fs-txt">Pour une meilleure immersion, le jeu passe en plein écran.</p><div class="row center"><button type="button" class="btn" id="fs-no">Non merci</button><button type="button" class="btn primary big" id="fs-yes">Plein écran</button></div><label class="fs-never"><input type="checkbox" id="fs-never"> Ne plus me demander</label></div></div>
 <div id="wn-modal" class="photo-modal hub-modal" hidden role="dialog" aria-labelledby="wn-ph"><div class="wn-pop" id="wn-pop"></div></div>

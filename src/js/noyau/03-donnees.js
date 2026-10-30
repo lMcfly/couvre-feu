@@ -13,6 +13,8 @@ const SAFES = [
   { x0: 8600, x1: 9000, name: 'Poste de secours' }
 ];
 const EXIT = { x0: 10400, x1: 10600 };
+// la campagne : les quatre secteurs de la ville, puis l'hôpital (mission 5)
+const MISSION_NAMES = [...ZONES.map(z => z.name), 'Hôpital Saint-Lazare'], MISSIONS = MISSION_NAMES.length;
 const BOUNDS = [2600, 3000, 5600, 6000, 8600, 9000, 10400];
 // centre de la Place de la Mairie et hélicoptère d'évacuation
 const PLAZA = ZONES[3].x0 + 700, HELI = EXIT.x0 + 100;
@@ -30,24 +32,26 @@ const ZTYPES = {
   spitter: { hp: 45, speed: [55, 66], dmg: 6, r: 13, money: 14, score: 260, kb: 0.9 },
   riot: { hp: 90, speed: [44, 54], dmg: 14, r: 15, money: 18, score: 320, kb: 0.4 },
   dog: { hp: 30, speed: [172, 198], dmg: 9, r: 11, money: 6, score: 180, kb: 1.3 },
+  screamer: { hp: 58, speed: [50, 62], dmg: 8, r: 13, money: 16, score: 300, kb: 0.9 },
   boss: { hp: 5600, speed: [70, 70], dmg: 38, r: 36, money: 1200, score: 15000, kb: 0.04 }
 };
 const ZCFG = [
   { pop: 30, interval: 1.0, seed: 16, w: { walker: 75, runner: 18, bomber: 7 } },
   { pop: 36, interval: 0.85, seed: 22, w: { walker: 62, runner: 20, bomber: 7, spitter: 6, brute: 3, riot: 2, dog: 4 } },
-  { pop: 60, interval: 0.6, seed: 26, w: { walker: 45, runner: 25, bomber: 10, spitter: 12, brute: 8, riot: 9, dog: 6 } },
-  { pop: 14, interval: 1.2, seed: 0, w: { walker: 50, runner: 32, bomber: 10, riot: 8 } }
+  { pop: 60, interval: 0.6, seed: 26, w: { walker: 45, runner: 25, bomber: 10, spitter: 12, brute: 8, riot: 9, dog: 6, screamer: 4 } },
+  { pop: 14, interval: 1.2, seed: 0, w: { walker: 50, runner: 32, bomber: 10, riot: 8, screamer: 5 } }
 ];
 const HORDE_W = { walker: 50, runner: 38, bomber: 8, brute: 4, riot: 3, dog: 5 };
-const HOSP_W = { walker: 64, runner: 16, dog: 9, spitter: 6, bomber: 5 };
+const HOSP_W = { walker: 58, runner: 15, dog: 9, spitter: 6, bomber: 5, screamer: 9 };
 // Halloween : du 25 octobre au 2 novembre, chaque année (?halloween pour forcer, ?nohalloween pour couper)
 const HALLOWEEN = (() => { try { const q = location.search; if (/[?&]nohalloween\b/.test(q)) return false; if (/[?&]halloween\b/.test(q)) return true; } catch (e) { } const d = new Date(), m = d.getMonth(), j = d.getDate(); return (m === 9 && j >= 25) || (m === 10 && j <= 2); })();
 const HW_GOAL = 31, COSTUMES = ['citrouille', 'drap', 'sorciere'];
 const hwCount = () => { const y = new Date().getFullYear(); return Settings.hw && Settings.hw.y === y ? Settings.hw.n : 0; };
 const SURVIVORS = [
   { name: 'Gérard', who: 'cheminot retraité', coat: '#5a4a3a', line: 'Merci ! J\'ai connu pire : la grève de 95.' },
-  { name: 'Mme Lefebvre', who: 'boulangère', coat: '#9a5a7a', line: 'Passez à la boutique, je vous ferai un pain au chocolat. Ou une chocolatine, je juge pas.' },
-  { name: 'Kévin', who: 'livreur à vélo', coat: '#2f8f6b', line: 'Ma commande est froide, mais moi je suis vivant. Cinq étoiles !' }
+  { name: 'Mme Lefebvre', who: 'boulangère', f: true, coat: '#9a5a7a', line: 'Passez à la boutique, je vous ferai un pain au chocolat. Ou une chocolatine, je juge pas.' },
+  { name: 'Kévin', who: 'livreur à vélo', coat: '#2f8f6b', line: 'Ma commande est froide, mais moi je suis vivant. Cinq étoiles !' },
+  { name: 'Inès', who: 'infirmière de garde', f: true, coat: '#6fa8bf', line: 'Trois gardes d\'affilée et une invasion de zombies. Je veux une prime.' }
 ];
 const WEAPONS = [
   { id: 'pistol', name: 'Pistolet', type: 'bullet', dmg: 20, rate: 0.2, mag: 12, reload: 1.0, spread: 0.035, pellets: 1, speed: 1500, pierce: 0, infinite: true, price: 0, ammoPrice: 0, ammoPack: 0, tier: 0.6, shake: 0.08, desc: 'Munitions infinies. Maintiens le clic pour charger un tir perçant.' },
