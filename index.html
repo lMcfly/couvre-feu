@@ -1217,10 +1217,6 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
 #tvfx.tv i:nth-child(1){top:18%;animation:tvBand .42s steps(3) forwards}#tvfx.tv i:nth-child(2){top:57%;height:4%;background:rgba(60,200,255,.45);animation:tvBand .42s .05s steps(4) forwards}#tvfx.tv i:nth-child(3){top:79%;height:2%;background:rgba(255,255,255,.6);animation:tvBand .42s .1s steps(2) forwards}
 @keyframes tvOff{0%{opacity:.55;background-position:0 0;filter:contrast(1.4)}20%{opacity:.35;background-position:-40px 30px}40%{opacity:.25;background-position:70px -20px}60%{opacity:.14;background-position:-10px 60px}80%{opacity:.07}100%{opacity:0}}
 @keyframes tvBand{0%{transform:translateX(-8%) scaleY(1)}50%{transform:translateX(6%) scaleY(1.6)}100%{transform:translateX(0) scaleY(0);opacity:0}}
-#tvfx.blood{opacity:1;background:none}
-#tvfx.blood i{position:absolute;top:0;height:100%;background:linear-gradient(180deg,#4a0605 0%,#7a0c09 calc(100% - var(--len,30%)),rgba(122,12,9,0) 100%);border-radius:0 0 45% 45%/0 0 6% 6%;transform:translateY(-102%);animation:bloodRun .6s cubic-bezier(.5,0,.6,1) forwards}
-#tvfx.tv i:nth-child(n+4){display:none}
-@keyframes bloodRun{0%{transform:translateY(-102%);opacity:.9}45%{transform:translateY(-8%);opacity:.85}100%{transform:translateY(25%);opacity:0}}
 </style>
 
 <canvas id="game" aria-label="Couvre-Feu, zone de jeu"></canvas>
@@ -1899,16 +1895,21 @@ function grungeTitle(c, t, x, y, fs, o = {}) {
     const R = document.documentElement.style; R.setProperty('--static', `url(${n.toDataURL()})`); R.setProperty('--grunge', `url(${a.toDataURL()})`); R.setProperty('--grime', `url(${b.toDataURL()})`);
   } catch (e) { }
 })();
-// passage d'un menu à l'autre : une télé qui saute, ou un voile de sang qui coule (purement visuel, ne bloque rien)
+// passage d'un menu à l'autre : de temps en temps (1 fois sur 15), l'image saute comme une vieille télé (purement visuel, ne bloque rien)
 let fxT = 0;
 function screenFx() {
   try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) { }
-  const now = performance.now(); if (now - fxT < 250) return; fxT = now;
-  let el = document.getElementById('tvfx'); if (!el) { el = document.createElement('div'); el.id = 'tvfx'; el.setAttribute('aria-hidden', 'true'); el.innerHTML = '<i></i>'.repeat(9); document.body.appendChild(el); }
-  const tv = Math.random() < 0.6; let x = -2;
-  for (const i of el.children) { const w = 8 + Math.random() * 12; i.style.cssText = tv ? '' : `left:${x}%;width:${w + 2}%;animation-delay:${(Math.random() * 0.12).toFixed(2)}s;--len:${(18 + Math.random() * 30).toFixed(0)}%`; x += w; } /* coulées de sang de largeurs et de vitesses différentes */
-  el.className = ''; void el.offsetWidth; el.className = tv ? 'tv' : 'blood';
+  const now = performance.now(); if (now - fxT < 250) return; fxT = now; if (Math.random() >= 1 / 15) return;
+  let el = document.getElementById('tvfx'); if (!el) { el = document.createElement('div'); el.id = 'tvfx'; el.setAttribute('aria-hidden', 'true'); el.innerHTML = '<i></i><i></i><i></i>'; document.body.appendChild(el); }
+  el.className = ''; void el.offsetWidth; el.className = 'tv';
 }
+// tous les menus passent par là : écrans, panneaux, fenêtres, onglets de l'accueil, dossiers et pages de réglages
+(function watchMenus() {
+  if (!document.body) { addEventListener('DOMContentLoaded', watchMenus); return; }
+  const MENU = '.screen,.sheet,.hub-modal,.hub-pane,.folder-pane,.set-page,.set-home';
+  new MutationObserver(ms => { if (ms.some(m => m.target.matches && m.target.matches(MENU) && !m.target.hidden && m.oldValue !== null)) screenFx(); })
+    .observe(document.body, { subtree: true, attributes: true, attributeFilter: ['hidden'], attributeOldValue: true });
+})();
 // ============================================================ audio (Web Audio, tout est synthétisé)
 const MUSIC_THEMES = {
   gare: { base: 36.7, tempo: 1.55, beat: 1, scale: [146.83, 155.56, 174.61, 196, 207.65, 233.08, 261.63] },
@@ -3531,7 +3532,7 @@ class Game {
     for (let i = 0; i < 22; i++) { const z = new Zombie(this, Math.random() < 0.15 ? 'runner' : 'walker', rand(300, 1500), rand(260, 960), null); if (!this.level.pointObstacle(z.x, z.y)) this.zombies.push(z); }
     this.cam.x = 760; this.cam.y = 600;
   }
-  showScreen(id) { const was = this._scr || null; this._scr = id; if (was !== id) screenFx(); for (const s of document.querySelectorAll('.screen')) s.hidden = s.id !== id; }
+  showScreen(id) { for (const s of document.querySelectorAll('.screen')) s.hidden = s.id !== id; }
   screenToWorld(sx, sy) { const S = VS * DPR * (this.zoom || 1); return { x: (sx * DPR - (W / 2 - this.cam.x * S)) / S, y: (sy * DPR - (H / 2 - this.cam.y * S)) / S }; }
   wheelCenter() { const ch = H / DPR / HUDK, cw = W / DPR / HUDK, Ro = Math.min(TOUCH ? 92 : 104, ch * 0.24), ps = this.w2h(this.player.x, this.player.y - 16); return { x: clamp(ps.x, Ro + 12, cw - Ro - 12), y: clamp(ps.y, Ro + 40, ch - Ro - 50) }; }
   w2h(x, y) { const s = this.worldToScreen(x, y); s.x /= HUDK; s.y /= HUDK; return s; }
@@ -8098,7 +8099,6 @@ function fillCredits(el) {
 }
 const fillCreditsOnce = el => { if (el && !el.dataset.filled) fillCredits(el); };
 function togglePanel(id, btn, fill) {
-  screenFx();
   game.audio.init(); const p = $(id);
   for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden = true; $(bid).setAttribute('aria-expanded', 'false'); }
   if (fill) (p.querySelector('.sheet-body') || p).innerHTML = fill();
@@ -8464,7 +8464,7 @@ const WN = [
   { v: 73, d: '30 oct.', t: 'L\'armurerie', s: 'Le marché noir devient une vraie armurerie, et la musique suit enfin l\'action.', it: [
     ['new', 'Armurerie', 'Un grand panneau de métal sale : l\'arme choisie en grand avec sa description, une rangée d\'armes, une rangée d\'améliorations avec leurs étoiles, et l\'écran « Nouv. armurerie » qui t\'indique ce qui est enfin à ta portée.'],
     ['new', 'Musique qui suit l\'action', 'Calme quand tu explores. Quand la horde arrive, la batterie et la basse se lèvent. Face à un boss : frappes lourdes et accords qui grincent.'],
-    ['new', 'Transitions', 'Entre deux menus, la télé saute ou du sang coule sur l\'écran.'],
+    ['new', 'Transitions', 'De temps en temps, en passant d\'un menu à l\'autre, l\'image saute comme une vieille télé.'],
     ['up', 'Pause, carte et fin de partie', 'Même panneau de métal riveté et taché de sang que l\'armurerie.']],
     q: ['pedro', 'Pedro', '¡Una armería de verdad! Il manque juste un rayon burritos.'] },
   { v: 72, d: '30 oct.', t: 'Le bestiaire broie du noir', s: 'Fiches sombres, icônes de fin du monde et plus de carré au survol des menus.', it: [

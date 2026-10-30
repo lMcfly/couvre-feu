@@ -3,7 +3,7 @@ const WN = [
   { v: 73, d: '30 oct.', t: 'L\'armurerie', s: 'Le marché noir devient une vraie armurerie, et la musique suit enfin l\'action.', it: [
     ['new', 'Armurerie', 'Un grand panneau de métal sale : l\'arme choisie en grand avec sa description, une rangée d\'armes, une rangée d\'améliorations avec leurs étoiles, et l\'écran « Nouv. armurerie » qui t\'indique ce qui est enfin à ta portée.'],
     ['new', 'Musique qui suit l\'action', 'Calme quand tu explores. Quand la horde arrive, la batterie et la basse se lèvent. Face à un boss : frappes lourdes et accords qui grincent.'],
-    ['new', 'Transitions', 'Entre deux menus, la télé saute ou du sang coule sur l\'écran.'],
+    ['new', 'Transitions', 'De temps en temps, en passant d\'un menu à l\'autre, l\'image saute comme une vieille télé.'],
     ['up', 'Pause, carte et fin de partie', 'Même panneau de métal riveté et taché de sang que l\'armurerie.']],
     q: ['pedro', 'Pedro', '¡Una armería de verdad! Il manque juste un rayon burritos.'] },
   { v: 72, d: '30 oct.', t: 'Le bestiaire broie du noir', s: 'Fiches sombres, icônes de fin du monde et plus de carré au survol des menus.', it: [

@@ -1189,7 +1189,3 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
 #tvfx.tv i:nth-child(1){top:18%;animation:tvBand .42s steps(3) forwards}#tvfx.tv i:nth-child(2){top:57%;height:4%;background:rgba(60,200,255,.45);animation:tvBand .42s .05s steps(4) forwards}#tvfx.tv i:nth-child(3){top:79%;height:2%;background:rgba(255,255,255,.6);animation:tvBand .42s .1s steps(2) forwards}
 @keyframes tvOff{0%{opacity:.55;background-position:0 0;filter:contrast(1.4)}20%{opacity:.35;background-position:-40px 30px}40%{opacity:.25;background-position:70px -20px}60%{opacity:.14;background-position:-10px 60px}80%{opacity:.07}100%{opacity:0}}
 @keyframes tvBand{0%{transform:translateX(-8%) scaleY(1)}50%{transform:translateX(6%) scaleY(1.6)}100%{transform:translateX(0) scaleY(0);opacity:0}}
-#tvfx.blood{opacity:1;background:none}
-#tvfx.blood i{position:absolute;top:0;height:100%;background:linear-gradient(180deg,#4a0605 0%,#7a0c09 calc(100% - var(--len,30%)),rgba(122,12,9,0) 100%);border-radius:0 0 45% 45%/0 0 6% 6%;transform:translateY(-102%);animation:bloodRun .6s cubic-bezier(.5,0,.6,1) forwards}
-#tvfx.tv i:nth-child(n+4){display:none}
-@keyframes bloodRun{0%{transform:translateY(-102%);opacity:.9}45%{transform:translateY(-8%);opacity:.85}100%{transform:translateY(25%);opacity:0}}

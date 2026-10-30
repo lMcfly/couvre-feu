@@ -26,7 +26,7 @@ class Game {
     for (let i = 0; i < 22; i++) { const z = new Zombie(this, Math.random() < 0.15 ? 'runner' : 'walker', rand(300, 1500), rand(260, 960), null); if (!this.level.pointObstacle(z.x, z.y)) this.zombies.push(z); }
     this.cam.x = 760; this.cam.y = 600;
   }
-  showScreen(id) { const was = this._scr || null; this._scr = id; if (was !== id) screenFx(); for (const s of document.querySelectorAll('.screen')) s.hidden = s.id !== id; }
+  showScreen(id) { for (const s of document.querySelectorAll('.screen')) s.hidden = s.id !== id; }
   screenToWorld(sx, sy) { const S = VS * DPR * (this.zoom || 1); return { x: (sx * DPR - (W / 2 - this.cam.x * S)) / S, y: (sy * DPR - (H / 2 - this.cam.y * S)) / S }; }
   wheelCenter() { const ch = H / DPR / HUDK, cw = W / DPR / HUDK, Ro = Math.min(TOUCH ? 92 : 104, ch * 0.24), ps = this.w2h(this.player.x, this.player.y - 16); return { x: clamp(ps.x, Ro + 12, cw - Ro - 12), y: clamp(ps.y, Ro + 40, ch - Ro - 50) }; }
   w2h(x, y) { const s = this.worldToScreen(x, y); s.x /= HUDK; s.y /= HUDK; return s; }

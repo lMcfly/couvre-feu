@@ -97,13 +97,18 @@ function grungeTitle(c, t, x, y, fs, o = {}) {
     const R = document.documentElement.style; R.setProperty('--static', `url(${n.toDataURL()})`); R.setProperty('--grunge', `url(${a.toDataURL()})`); R.setProperty('--grime', `url(${b.toDataURL()})`);
   } catch (e) { }
 })();
-// passage d'un menu à l'autre : une télé qui saute, ou un voile de sang qui coule (purement visuel, ne bloque rien)
+// passage d'un menu à l'autre : de temps en temps (1 fois sur 15), l'image saute comme une vieille télé (purement visuel, ne bloque rien)
 let fxT = 0;
 function screenFx() {
   try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) { }
-  const now = performance.now(); if (now - fxT < 250) return; fxT = now;
-  let el = document.getElementById('tvfx'); if (!el) { el = document.createElement('div'); el.id = 'tvfx'; el.setAttribute('aria-hidden', 'true'); el.innerHTML = '<i></i>'.repeat(9); document.body.appendChild(el); }
-  const tv = Math.random() < 0.6; let x = -2;
-  for (const i of el.children) { const w = 8 + Math.random() * 12; i.style.cssText = tv ? '' : `left:${x}%;width:${w + 2}%;animation-delay:${(Math.random() * 0.12).toFixed(2)}s;--len:${(18 + Math.random() * 30).toFixed(0)}%`; x += w; } /* coulées de sang de largeurs et de vitesses différentes */
-  el.className = ''; void el.offsetWidth; el.className = tv ? 'tv' : 'blood';
+  const now = performance.now(); if (now - fxT < 250) return; fxT = now; if (Math.random() >= 1 / 15) return;
+  let el = document.getElementById('tvfx'); if (!el) { el = document.createElement('div'); el.id = 'tvfx'; el.setAttribute('aria-hidden', 'true'); el.innerHTML = '<i></i><i></i><i></i>'; document.body.appendChild(el); }
+  el.className = ''; void el.offsetWidth; el.className = 'tv';
 }
+// tous les menus passent par là : écrans, panneaux, fenêtres, onglets de l'accueil, dossiers et pages de réglages
+(function watchMenus() {
+  if (!document.body) { addEventListener('DOMContentLoaded', watchMenus); return; }
+  const MENU = '.screen,.sheet,.hub-modal,.hub-pane,.folder-pane,.set-page,.set-home';
+  new MutationObserver(ms => { if (ms.some(m => m.target.matches && m.target.matches(MENU) && !m.target.hidden && m.oldValue !== null)) screenFx(); })
+    .observe(document.body, { subtree: true, attributes: true, attributeFilter: ['hidden'], attributeOldValue: true });
+})();
