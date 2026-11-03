@@ -106,3 +106,10 @@ const CLOTHS = ['#3d4652', '#5a3b33', '#4a4a3c', '#2f3a35', '#5b5448', '#3b2f3f'
 const CAR_COLORS = ['#5b2a26', '#2f3d4f', '#4f5254', '#6b6a5e', '#2e4436', '#6e5a35', '#3a3340', '#7a7c80'];
 const LOWK = new Set(['barrel', 'barrier', 'sandbags', 'parapet', 'radio', 'brazier', 'bed', 'hydrant', 'fbox']);
 
+// météo des rues : vis = portée de la lampe, fog = voile gris, rain = densité de la pluie (1 = bruine habituelle)
+const WEATHER = {
+  clair: { vis: 1, fog: 0, rain: 1, name: 'Ça se calme', sub: 'Il ne reste qu\'une bruine', col: '#c6c0b2' },
+  averse: { vis: 0.82, fog: 0.15, rain: 2.4, name: 'Averse', sub: 'La lampe porte moins loin', col: '#9fd6ff' },
+  brouillard: { vis: 0.62, fog: 0.85, rain: 0.3, name: 'Brouillard', sub: 'On n\'y voit plus à dix mètres', col: '#c6c0b2' },
+  orage: { vis: 0.78, fog: 0.2, rain: 2.8, name: 'Orage', sub: 'Les éclairs révèlent la rue', col: '#b9c8ff' }
+};

@@ -9,6 +9,9 @@ mixin(Game, {
       if (e.id === 'fog') { const s = this.worldToScreen(p.x, p.y), x = s.x * DPR, y = s.y * DPR, r0 = 140 * VS * DPR; const g = c.createRadialGradient(x, y, r0, x, y, r0 * 3.2); g.addColorStop(0, 'rgba(80,82,92,0)'); g.addColorStop(1, `rgba(80,82,92,${0.9 * fade})`); c.fillStyle = g; c.fillRect(0, 0, W, H); }
       if (e.id === 'ash') { c.fillStyle = `rgba(200,190,180,${0.6 * fade})`; const t = this.time; for (let i = 0; i < 140; i++) { const x = ((i * 137.5 + t * (18 + (i % 5) * 6)) % (W + 40)) - 20, y = ((i * 71.3 + t * (40 + (i % 7) * 9)) % (H + 40)) - 20; c.fillRect(x, y, 2 * DPR, 2 * DPR); } c.fillStyle = `rgba(120,60,30,${0.12 * fade})`; c.fillRect(0, 0, W, H); }
     }
+    // météo : voile de brouillard autour du joueur, plus dense quand le temps se gâte
+    { const X = this.wx, fg = X && this.state !== 'title' ? X.fog * (1 - this.boltK() * 0.7) : 0;
+      if (fg > 0.02) { const s = this.worldToScreen(p.x, p.y), x = s.x * DPR, y = s.y * DPR, r0 = (170 - 60 * fg) * VS * DPR; const g = c.createRadialGradient(x, y, r0, x, y, r0 * 3.4); g.addColorStop(0, 'rgba(84,88,98,0)'); g.addColorStop(1, `rgba(84,88,98,${0.78 * fg})`); c.fillStyle = g; c.fillRect(0, 0, W, H); } }
     if (this.slowT > 0) {
       const k = Math.min(1, (this.slowMax - this.slowT) * 5, this.slowT * 3), bh = H * 0.09 * k;
       drawFinisher(c, this, k, this.time);
@@ -41,7 +44,13 @@ mixin(Game, {
     if (this.mode === 'secret' && this.npcShibas) for (const sh of this.npcShibas) if (!sh.caught && inView(sh.x, sh.y)) drawShibaSprite(c, sh.x, sh.y, 1.1, this.time + sh.x);
     if (this.buddy && inView(this.buddy.x, this.buddy.y)) { const b = this.buddy; c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(b.x, b.y + 2, 10, 4, 0, 0, TAU); c.fill(); drawShibaSprite(c, b.x, b.y - b.hop, 1, this.time * 1.6); }
     if (this.event && this.event.id === 'icecream' && inView(this.event.x, this.event.y, 120)) drawIceTruck(c, this.event.x, this.event.y, this.time);
-    for (const s of this.level.spawners) if (s.anim > 0 && s.kind === 'sewer' && inView(s.x, s.y)) { c.fillStyle = '#55565a'; c.beginPath(); c.ellipse(s.x + 22 * s.anim, s.y - 4, 17, 9, 0.4, 0, TAU); c.fill(); }
+    // bouches d'égout scellées : un tas de gravats sur la plaque
+    for (const s of this.level.spawners) if (s.kind === 'sewer' && s.sealed && inView(s.x, s.y)) {
+      c.save(); c.translate(s.x, s.y);
+      { c.fillStyle = 'rgba(0,0,0,.45)'; c.beginPath(); c.ellipse(0, 2, 24, 13, 0, 0, TAU); c.fill(); for (let i = 0; i < 7; i++) { const a = i * 2.39 + s.x, d = (i % 3) * 6; c.fillStyle = i % 2 ? '#5c5853' : '#77716a'; c.beginPath(); c.ellipse(Math.cos(a) * d, Math.sin(a) * d * 0.6 - 2, 8 - (i % 3), 5, a, 0, TAU); c.fill(); } c.strokeStyle = '#3a3633'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(-12, -4); c.lineTo(10, 3); c.stroke(); }
+      c.restore();
+    }
+    for (const s of this.level.spawners) if (s.anim > 0 && !s.sealed && s.kind === 'sewer' && inView(s.x, s.y)) { c.fillStyle = '#55565a'; c.beginPath(); c.ellipse(s.x + 22 * s.anim, s.y - 4, 17, 9, 0.4, 0, TAU); c.fill(); }
     // graffitis à la bombe sur le bitume
     for (const t of this.level.graffiti || []) if (inView(t.x, t.y, 200)) { c.save(); c.translate(t.x, t.y); c.rotate(t.rot); c.font = `18px ${FD}`; c.textAlign = 'center'; c.globalAlpha = 0.5; c.fillStyle = t.col; c.fillText(t.t, 0, 0); c.globalAlpha = 0.25; c.fillText(t.t, 1.5, 1); c.globalAlpha = 1; c.restore(); }
     // clôtures électriques au sol (poteaux, fils, arcs quand le courant passe)
@@ -114,7 +123,8 @@ mixin(Game, {
     const L = lctx, lw = lightCanvas.width, lh = lightCanvas.height, p = this.player, t = this.time;
     L.setTransform(1, 0, 0, 1, 0, 0); L.globalCompositeOperation = 'source-over';
     const amb = this.mode === 'secret' ? [58, 34, 56] : modOn(this, 'night') ? [3, 3, 6] : this.diff.ambient, bossDark = (this.blackoutT > 0 ? 0.1 : 1) * (this.bossRef && this.bossRef.state === 'intro' ? 0.4 : 1) * (this.event && this.event.id === 'blackout' ? 0.25 : this.event && this.event.id === 'ash' ? 0.7 : 1);
-    L.fillStyle = `rgb(${amb[0] * bossDark | 0},${amb[1] * bossDark | 0},${amb[2] * bossDark | 0})`; L.fillRect(0, 0, lw, lh);
+    const bk = this.boltK(), fl = (v, top) => (v * bossDark + (top - v * bossDark) * bk) | 0; /* l'éclair éclaire toute la rue un instant */
+    L.fillStyle = `rgb(${fl(amb[0], 150)},${fl(amb[1], 158)},${fl(amb[2], 185)})`; L.fillRect(0, 0, lw, lh);
     L.setTransform(S / LD, 0, 0, S / LD, ox / LD, oy / LD); L.globalCompositeOperation = 'lighter';
     const glow = (x, y, r, col, i) => {
       if (i <= 0.01 || !inView(x, y, r)) return;
@@ -127,7 +137,7 @@ mixin(Game, {
     for (const p of this.players()) if (!p.dead) {
       let flick = 1; if (this.torchFlicker > 0) flick = Math.random() < 0.5 ? 0.15 : 0.8;
       const tk = this.state === 'title' ? 1 : p.torchK(); flick *= tk;
-      const px = p.x + Math.cos(p.aim) * 6, py = p.y + Math.sin(p.aim) * 6, range = 580 * lampRange() * (0.45 + 0.55 * tk), half = lampHalf(), rays = TOUCH ? 64 : 120;
+      const px = p.x + Math.cos(p.aim) * 6, py = p.y + Math.sin(p.aim) * 6, range = 580 * lampRange() * (0.45 + 0.55 * tk) * (this.wx ? this.wx.vis : 1), half = lampHalf(), rays = TOUCH ? 64 : 120;
       const obs = this.level.queryRect(px - range, py - range, range * 2, range * 2).filter(o => !LOWK.has(o.kind));
       const pts = [];
       for (let i = 0; i <= rays; i++) {
@@ -195,6 +205,8 @@ mixin(Game, {
     for (const pt of this.particles) if (pt.emissive && inView(pt.x, pt.y)) this.drawParticle(pt);
     c.globalAlpha = 1;
     for (const z of this.zombies) if (z.type === 'boss' && !z.dead && inView(z.x, z.y, 200)) this.drawBossGlow(z);
+    // bouche d'égout qui gronde : anneau orange visible même dans le noir
+    for (const s of this.level.spawners) if (s.rumble > 0 && !s.sealed && inView(s.x, s.y)) { const k = 0.55 + Math.sin(t * 14) * 0.3; c.save(); c.translate(s.x, s.y); c.scale(1, 0.6); c.strokeStyle = `rgba(255,140,50,${k})`; c.lineWidth = 3; c.setLineDash([8, 6]); c.lineDashOffset = -t * 40; c.beginPath(); c.arc(0, 0, 34 + Math.sin(t * 9) * 3, 0, TAU); c.stroke(); c.setLineDash([]); c.fillStyle = `rgba(255,110,40,${k * 0.18})`; c.fill(); c.restore(); }
     if (this.state === 'playing' || this.state === 'paused') for (const q of this.players()) if (q && !q.dead && !q.hidden) this.drawLaser(q, q === this.p2 ? '255,170,90' : '90,170,255');
     for (const b of this.bullets) { c.strokeStyle = b.charged ? 'rgba(200,235,255,.95)' : 'rgba(255,215,150,.85)'; c.lineWidth = b.charged ? 4 : 1.6; c.beginPath(); c.moveTo(b.px - b.vx * 0.012, b.py - b.vy * 0.012 - 14); c.lineTo(b.x, b.y - 14); c.stroke(); }
     for (const f of this.flames) { const k = f.life / f.max; c.globalAlpha = Math.min(1, k * 1.4) * 0.7; c.fillStyle = k > 0.65 ? '#ffd88a' : k > 0.35 ? '#ff7a22' : '#9c2410'; c.beginPath(); c.arc(f.x, f.y - 12, f.r, 0, TAU); c.fill(); } c.globalAlpha = 1;

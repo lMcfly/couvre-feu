@@ -270,6 +270,10 @@ mixin(Game, {
       case 'notice': this.notice(a[0], a[1], a[2]); break;
       case 'text': this.floatText(...a); break;
       case 'scream': this.screamFx(a[0], a[1]); break;
+      case 'wx': this.setWeather(a[0]); break;
+      case 'bolt': this.bolt(); break;
+      case 'rumble': { const s = this.level.spawners[a[0]]; if (s) { s.rumble = a[1]; this.later(a[1], () => { s.rumble = 0; }); } break; }
+      case 'seal': { const s = this.level.spawners[a[0]]; if (s && !s.sealed) this.sealFx(s); break; }
       case 'trap': { const t = (this.level.traps || []).find(x => x.ob.oid === a[0]); if (t) { t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = a[1]; this.trapFx(t); } break; }
       case 'win': this.winFx = { t: 0, title: a[0], sub: a[1] }; this.audio.objective(); break;
       case 'slow': this.slowT = a[0]; this.slowMax = a[0]; this.slowLabel = a[1]; break;
@@ -285,6 +289,7 @@ mixin(Game, {
   updateGuest(dt, inp) {
     const N = this.netG, me = this.player, h = this.p2;
     if (this.portrait) return;
+    if (N.hostSt === 'playing') carnet().time += dt;
     if (N.hostSt && N.hostSt !== 'playing' && N.hostSt !== 'paused') { this.updateCommon(dt); return; }
     if (inp.pause) { this.pause(); return; }
     // commandes envoyées à l'hôte (les appuis sont comptés pour ne jamais se perdre)

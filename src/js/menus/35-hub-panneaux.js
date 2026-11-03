@@ -56,7 +56,7 @@ $('btn-start').addEventListener('click', () => {
   if (launchMode === 'coop') openJoin(); else if (launchMode === 'survival') game.newSurvival(false); else if (launchMode === 'endless') game.newEndless(); else if (launchMode === 'daily') game.newDaily(); else if (launchMode === 'weekly') game.newWeekly(); else if (launchMode === 'hospital') game.newHospital(); else game.newGame();
 });
 // panneaux de l'écran titre : un seul ouvert à la fois, et on défile jusqu'à lui
-const TITLE_PANELS = [['panel-settings', 'btn-settings'], ['panel-scores', 'btn-scores'], ['panel-ach', 'btn-ach'], ['panel-best', 'btn-best'], ['panel-news', 'btn-news']];
+const TITLE_PANELS = [['panel-settings', 'btn-settings'], ['panel-scores', 'btn-scores'], ['panel-ach', 'btn-ach'], ['panel-best', 'btn-best'], ['panel-carnet', 'btn-carnet'], ['panel-news', 'btn-news']];
 const CREDITS = [['Zeus', 'Plante', 'zeus'], ['Dobby', 'Lor\'hi', 'dobby'], ['Chewie', 'Kiffeur', 'chewie'], ['Dragon', 'Maléfique', 'dragon']];
 function fillCredits(el) {
   el.innerHTML = `<h3>Crédits</h3><div class="credits"><p class="eyebrow">Un jeu Nadrax Prod</p><div class="credit-list">${CREDITS.map(([n, r, k]) => `<div class="credit"><canvas width="480" height="360" data-portrait="${k}" aria-hidden="true"></canvas><div><b>${n}</b><span>${r}</span></div></div>`).join('')}</div></div>`;
@@ -77,6 +77,22 @@ $('btn-settings').addEventListener('click', e => { refreshContinue(); setHome('o
 function closeSheets() { for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden = true; $(bid).setAttribute('aria-expanded', 'false'); } $('scr-title').classList.remove('page-open'); if (typeof setTab === 'function') setTab(hubTab); }
 for (const sh of document.querySelectorAll('.sheet')) sh.addEventListener('click', e => { if (e.target === sh || e.target.closest('.sheet-close')) { closeSheets(); game.audio.ui(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !game.keysOpen && document.querySelector('.sheet:not([hidden])')) { e.preventDefault(); if (!setBack()) closeSheets(); } });
+// ---------- carnet de survie : ce que la ville t'a fait, partie après partie
+const DEATH_BY = { explosion: 'Une explosion', spitter: 'Un crachat d\'acide', bomber: 'Le Gonflé', dot: 'Le feu ou l\'acide', trap: 'Un piège du décor' };
+const ARM_BY = { feu: 'Le feu', explosifs: 'Les explosifs', melee: 'Corps à corps', piege: 'Les pièges du décor', shiba: 'Le shiba', special: 'Capacité spéciale' };
+function carnetTop(o, name) {
+  const l = Object.entries(o).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 4), max = l.length ? l[0][1] : 1;
+  return l.length ? `<ol class="cn-bars">${l.map(([k, n]) => `<li><span>${name(k)}</span><b>${fmt(n)}</b><i style="--w:${Math.max(4, Math.round(100 * n / max))}%"></i></li>`).join('')}</ol>` : '<p class="hint">Rien encore.</p>';
+}
+function carnetHTML() {
+  const c = carnet(), t = Math.floor(c.time), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, dead = Object.values(c.deaths).reduce((a, b) => a + b, 0);
+  if (!c.runs && !c.kills) return '<p class="cn-empty">Page blanche. La ville n\'a encore rien écrit sur toi : lance une partie.</p>';
+  const cells = [['Zombies abattus', fmt(c.kills)], ['Temps dans les rues', h ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`], ['Parties', fmt(c.runs)], ['Morts', fmt(dead)], ['Précision', (c.shots ? Math.round(100 * c.hits / c.shots) : 0) + ' %'], ['Survivants sauvés', fmt(c.saved)], ['Zombies d\'élite', fmt(c.elites)], ['Bouches scellées', fmt(c.sealed)], ['Éclairs encaissés', fmt(c.bolts)]];
+  const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k, dName = k => (BESTIARY.find(b => b.k === k) || {}).name || DEATH_BY[k] || 'Inconnu';
+  return `<p class="cn-intro">Tout ce que tu as vécu dans les rues, sur cet appareil.</p><div class="pause-stats cn-grid">${cells.map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`
+    + `<div class="cn-cols"><section><h4>Arme préférée</h4>${carnetTop(c.arms, wName)}</section><section><h4>Ce qui t'a eu le plus souvent</h4>${carnetTop(c.deaths, dName)}</section></div>`;
+}
+$('btn-carnet').addEventListener('click', e => togglePanel('panel-carnet', e.currentTarget, carnetHTML));
 const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['week', 'Semaine'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
 function scoresHTML() {
   if (!Online.on()) return scoreTable(Scores.list()) + (ONLINE.url ? '<p class="hint">Classement en ligne désactivé dans les Paramètres.</p>' : '');

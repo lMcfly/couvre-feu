@@ -1,10 +1,12 @@
 // ============================================================ jeu : combat, apparitions et boss
+// carnet : à quoi on attribue un zombie abattu (les balles reviennent à l'arme en main)
+const KILL_ARM = { fire: 'feu', explosion: 'explosifs', melee: 'melee', shock: 'piege', bite: 'shiba', salsa: 'special' };
 mixin(Game, {
   // ---------- apparitions
   inCone(x, y) { const p = this.player; const d = Math.hypot(x - p.x, y - p.y); return d < 620 && Math.abs(angDiff(p.aim, Math.atan2(y - p.y, x - p.x))) < 0.75; },
   findSpawnPoint(k) {
     const p = this.player, Z = ZONES[k];
-    const sp = this.level.spawners.filter(s => s.zone === k);
+    const sp = this.level.spawners.filter(s => s.zone === k && !s.sealed);
     for (let t = 0; t < 8 && sp.length; t++) { const s = pick(sp); const d = Math.hypot(s.x - p.x, s.y - p.y); if (d > 300 && d < 1100 && !this.inCone(s.x, s.y)) return s; }
     for (let t = 0; t < 14; t++) {
       const x = rand(Z.x0 + 40, Z.x1 - 40), y = rand(ST + 40, SB - 40), d = Math.hypot(x - p.x, y - p.y);
@@ -19,6 +21,33 @@ mixin(Game, {
     if (s.kind === 'sewer') for (let i = 0; i < 5; i++) this.spawnP({ x: s.x, y: s.y, vx: rand(-40, 40), vy: rand(-40, 40), life: 1, type: 'smoke', size: 8, grow: 12 });
     if (type === 'dog') { const n = randi(1, 3); for (let i = 0; i < n && this.zombies.length < 220; i++) { const d = new Zombie(this, 'dog', s.x + rand(-26, 26), s.y + rand(-26, 26), z.spawnKind); d.aggro = true; d.spawnT += i * 0.15; this.zombies.push(d); } if (!this.dogTip && this.mode !== 'training') { this.dogTip = true; this.toast('Meute de chiens : quand un chien s\'accroupit en grognant, roule !', '#ff8a5a'); } }
     return z;
+  },
+  // ---------- bouches d'égout : l'une d'elles gronde de temps en temps puis crache un petit groupe ; une grenade la scelle
+  updateSewers(dt) {
+    const p = this.player;
+    for (const s of this.level.spawners) if (s.rumble > 0) {
+      s.rumble -= dt; s.anim = Math.max(s.anim, 0.12 + Math.random() * 0.12);
+      if (Math.random() < dt * 10) this.spawnP({ x: s.x + rand(-10, 10), y: s.y, vx: rand(-20, 20), vy: rand(-30, -10), life: 0.9, type: 'smoke', size: 6, grow: 10 });
+      if (s.rumble > 0) continue;
+      const n = randi(2, 4); s.anim = 1; this.audio.noise({ f: 700, f2: 120, dur: 0.6, g: 0.4 }); this.shake(0.2);
+      for (let i = 0; i < n && this.zombies.length < 220; i++) { const z = new Zombie(this, Math.random() < 0.3 ? 'runner' : 'walker', s.x + rand(-8, 8), s.y + rand(-8, 8), 'sewer'); z.aggro = true; z.spawnT += i * 0.3; if (modOn(this, 'tanks')) z.maxHp = z.hp = z.hp * 1.6; this.zombies.push(z); }
+    }
+    if (p.dead || this.cine || (this.sewerT = (this.sewerT ?? rand(20, 35)) - dt) > 0) return;
+    this.sewerT = rand(28, 50);
+    const near = this.level.spawners.filter(s => s.kind === 'sewer' && !s.sealed && !(s.rumble > 0) && dist2(s.x, s.y, p.x, p.y) > 230 * 230 && dist2(s.x, s.y, p.x, p.y) < 560 * 560);
+    if (!near.length) return; const s = pick(near); s.rumble = 3.2; this.netEmit(['rumble', this.level.spawners.indexOf(s), 3.2]);
+    this.audio.noise({ f: 180, f2: 60, dur: 1.8, g: 0.45, pan: clamp((s.x - p.x) / 600, -1, 1) });
+    if (!this.sewTip && carnet().sealed < 3) { this.sewTip = true; this.toast('Une bouche d\'égout gronde : une grenade dessus la bouche pour de bon', '#9fd6e6'); }
+  },
+  sealSewer(s) {
+    this.sealFx(s); this.netEmit(['seal', this.level.spawners.indexOf(s)]);
+    const pts = Math.round((s.rumble > 0 ? 700 : 400) * this.diff.score); this.score += pts; this.floatText(s.x, s.y - 30, `BOUCHE SCELLÉE +${fmt(pts)}`, '#9fd6e6');
+    const c = carnet(); c.sealed++; Settings.save(); if (c.sealed >= 10) this.unlock('plombier');
+  },
+  sealFx(s) {
+    s.sealed = true; s.rumble = 0; s.anim = 0;
+    for (let i = 0; i < 10; i++) this.spawnP({ x: s.x + rand(-14, 14), y: s.y + rand(-8, 8), z: 4, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(60, 180), grav: 600, life: rand(0.5, 1), type: 'debris', size: rand(2, 4), color: '#6a6560' });
+    this.audio.tone({ f: 90, f2: 40, dur: 0.5, g: 0.4 });
   },
   spawnMiniBoss(k) {
     if (this.mode !== 'story' || this.activeZone !== k || (this.bossRef && !this.bossRef.dead)) return;
@@ -90,7 +119,9 @@ mixin(Game, {
       z.damage(dmg * f, dx / d, dy / d, 'explosion'); if (z.dead) killed++; hitN++;
     }
     if (src === 'car' && killed >= 8) this.unlock('alarm');
-    for (const p of this.players()) if (!p.dead) { const d = Math.hypot(p.x - x, p.y - y); if (d < R) { const f = 1 - d / R, mul = { rocket: 0.35, grenade: 0.45, mine: 0.3, decoy: 0.3, car: 0.55, barrel: 0.55, bomber: 0.9 }[src] ?? 0.5; const a = dmg * mul * f * this.diff.dmg; if (a > 2) p.hurt(a, x, y, 520 * f); } }
+    if (src === 'grenade' || src === 'rocket') for (const s of this.level.spawners) if (s.kind === 'sewer' && !s.sealed && dist2(s.x, s.y, x, y) < (R * 0.5 + 10) ** 2) this.sealSewer(s);
+    this.hitCause = src === 'bomber' ? 'bomber' : 'explosion'; for (const p of this.players()) if (!p.dead) { const d = Math.hypot(p.x - x, p.y - y); if (d < R) { const f = 1 - d / R, mul = { rocket: 0.35, grenade: 0.45, mine: 0.3, decoy: 0.3, car: 0.55, barrel: 0.55, bomber: 0.9 }[src] ?? 0.5; const a = dmg * mul * f * this.diff.dmg; if (a > 2) p.hurt(a, x, y, 520 * f); } }
+    this.hitCause = null;
     if (dmg > 0) for (const o of this.level.queryRect(x - R, y - R, R * 2, R * 2)) {
       if (o.kind !== 'car' && o.kind !== 'barrel' && o.kind !== 'machine') continue;
       if (rectDist(x, y, o) < R) this.later(0.08 + Math.random() * 0.12, () => this.hitObstacle(o, dmg * 1.3, x, y, src === 'bomber' || src === 'carz' ? 'zexplosion' : 'explosion'));
@@ -125,6 +156,7 @@ mixin(Game, {
     this.netEmit(['die', z.nid, Math.round(z.x), Math.round(z.y)]);
     if (this.mode === 'training') { this.trainKill(z); return; }
     const T = ZTYPES[z.type]; this.kills++; this.noteKill(z);
+    { const c = carnet(), w = this.player.weapon, a = KILL_ARM[src] || ((src === 'bullet' || src === 'rail') && w ? w.def.id : null); c.kills++; if (a) c.arms[a] = (c.arms[a] || 0) + 1; if (z.elite) c.elites++; }
     { const now = this.time; this.recentKills = (this.recentKills || []).filter(t0 => now - t0 < 8); this.recentKills.push(now);
       const k0 = this.activeZone, o0 = k0 >= 0 && this.level.obj[k0];
       if (this.mode === 'story' && o0 && (k0 < 3 ? o0.done : o0.dead) && this.director.queue <= 0 && !(this.cleared || (this.cleared = []))[k0] && !this.zombies.some(o => o !== z && !o.dead)) {

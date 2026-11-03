@@ -1235,6 +1235,18 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
   .map-radio .mr-t{font-size:10.5px;line-height:1.3}
 }
 @media (max-height:560px){.map-side .rep{display:none}.map-side .report{padding:6px 9px}}
+/* carnet de survie */
+.cn-intro,.cn-empty{margin:0 0 10px;font-family:var(--type);font-size:14px;color:var(--ash)}
+.cn-empty{padding:30px 10px;text-align:center;font-size:16px}
+.cn-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.cn-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;margin-top:10px}
+.cn-bars{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:7px}
+.cn-bars li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;align-items:center}
+.cn-bars span{font-family:var(--type);font-size:14px;color:var(--bone);overflow-wrap:anywhere}
+.cn-bars b{font-family:var(--display);font-weight:400;font-size:17px;color:var(--bone)}
+.cn-bars i{grid-column:1/-1;height:6px;background:rgba(0,0,0,.45);border:1px solid #3a2e30;position:relative}
+.cn-bars i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);background:linear-gradient(90deg,#6e0f0c,var(--blood))}
+@media (max-width:640px){.cn-cols{grid-template-columns:1fr}.cn-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
 </style>
 
 <canvas id="game" aria-label="Couvre-Feu, zone de jeu"></canvas>
@@ -1258,6 +1270,7 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
       <button type="button" class="tab" data-tab="arsenal" aria-selected="false">Arsenal</button>
       <button type="button" class="tab" id="btn-ach" aria-expanded="false">Succès <span id="ach-count"></span></button>
       <button type="button" class="tab" id="btn-best" aria-expanded="false">Bestiaire</button>
+      <button type="button" class="tab" id="btn-carnet" aria-expanded="false">Carnet</button>
       <button type="button" class="tab" id="btn-scores" aria-expanded="false">Scores</button>
       <button type="button" class="tab" id="btn-settings" aria-expanded="false">Paramètres</button>
       <button type="button" class="tab fs-tab" id="btn-fs" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 18V6h12M30 6h12v12M42 30v12H30M18 42H6V30" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></button>
@@ -1427,6 +1440,7 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
   </div></div>
   <div class="sheet" id="panel-scores" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Meilleurs scores</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
   <div class="sheet" id="panel-best" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Bestiaire</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
+  <div class="sheet" id="panel-carnet" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Carnet de survie</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
   <div class="sheet" id="panel-ach" hidden><div class="sheet-card" role="region"><header class="sheet-head"><h3>Succès</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body"></div></div></div>
   <div class="sheet" id="panel-news" hidden><div class="sheet-card wide" role="region"><header class="sheet-head"><h3>Nouveautés</h3><button type="button" class="btn sm sheet-close">‹ Retour</button></header><div class="sheet-body" id="news-body"></div></div></div>
 </section>
@@ -1622,7 +1636,7 @@ const Settings = {
   quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital, carnet: this.carnet })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -1646,6 +1660,7 @@ const ACH = [
   ['scratch', 'Sans une égratignure', 'Terminer un secteur sans être touché.'],
   ['mult10', 'En pleine forme', 'Atteindre un multiplicateur ×10.'],
   ['alarm', 'Concert de klaxons', 'Tuer 8 zombies avec une seule explosion de voiture.'],
+  ['plombier', 'Plombier de l\'apocalypse', 'Sceller 10 bouches d\'égout à la grenade.'],
   ['samaritan', 'Bon samaritain', 'Ramener 3 survivants dans une même partie.'],
   ['glutton', 'Gourmand', 'Ramasser 6 objets fétiches dans une même partie.'],
   ['riot', 'Contournement', 'Abattre 20 CRS zombies dans une même partie.'],
@@ -1670,6 +1685,9 @@ const padLabel = i => i == null || i < 0 ? '—' : (PAD_NAMES[i] || 'Bouton ' + 
 Settings.binds = JSON.parse(JSON.stringify(DEFAULT_BINDS));
 Settings.padBinds = JSON.parse(JSON.stringify(DEFAULT_PAD));
 Settings.load();
+// carnet de survie : compteurs cumulés de toutes les parties (hors entraînement)
+function carnet() { const c = Settings.carnet && typeof Settings.carnet === 'object' ? Settings.carnet : (Settings.carnet = {}); for (const k of ['runs', 'time', 'kills', 'shots', 'hits', 'sealed', 'bolts', 'elites', 'saved']) if (typeof c[k] !== 'number') c[k] = 0; for (const k of ['deaths', 'arms']) if (!c[k] || typeof c[k] !== 'object') c[k] = {}; return c; }
+function countShot(g, hit) { const k = hit ? 'hits' : 'shots'; g.stats[k]++; if (g.mode !== 'training' && g.state === 'playing') carnet()[k]++; }
 // ancienne sauvegarde de touches : le sprint disparaît, sa touche passe à la roulade
 { const sv = Settings.binds; if (sv && sv.sprint) { const r = Array.isArray(sv.roll) ? sv.roll : ['', '']; sv.roll = [sv.sprint[0] || 'ShiftLeft', r[0] || 'Space']; delete sv.sprint; } }
 { const sv = Settings.padBinds; if (sv && sv.sprint) { const r = Array.isArray(sv.roll) ? sv.roll : [-1, -1]; sv.roll = [sv.sprint[0] >= 0 ? sv.sprint[0] : 6, r[0] >= 0 ? r[0] : 1]; delete sv.sprint; } }
@@ -1837,6 +1855,13 @@ const CLOTHS = ['#3d4652', '#5a3b33', '#4a4a3c', '#2f3a35', '#5b5448', '#3b2f3f'
 const CAR_COLORS = ['#5b2a26', '#2f3d4f', '#4f5254', '#6b6a5e', '#2e4436', '#6e5a35', '#3a3340', '#7a7c80'];
 const LOWK = new Set(['barrel', 'barrier', 'sandbags', 'parapet', 'radio', 'brazier', 'bed', 'hydrant', 'fbox']);
 
+// météo des rues : vis = portée de la lampe, fog = voile gris, rain = densité de la pluie (1 = bruine habituelle)
+const WEATHER = {
+  clair: { vis: 1, fog: 0, rain: 1, name: 'Ça se calme', sub: 'Il ne reste qu\'une bruine', col: '#c6c0b2' },
+  averse: { vis: 0.82, fog: 0.15, rain: 2.4, name: 'Averse', sub: 'La lampe porte moins loin', col: '#9fd6ff' },
+  brouillard: { vis: 0.62, fog: 0.85, rain: 0.3, name: 'Brouillard', sub: 'On n\'y voit plus à dix mètres', col: '#c6c0b2' },
+  orage: { vis: 0.78, fog: 0.2, rain: 2.8, name: 'Orage', sub: 'Les éclairs révèlent la rue', col: '#b9c8ff' }
+};
 // ============================================================ canvas
 const $ = id => document.getElementById(id);
 const canvas = $('game'); let ctx = canvas.getContext('2d'); // let : le teaser des fiches emprunte le moteur de dessin
@@ -2661,7 +2686,7 @@ class Player {
     const g = this.g, w = this.weapon, d = w.def; this.cd = w.rate(); w.ammo--; this.breakCover();
     const m = this.muzzle(); this.recoil = 1; this.muzzleT = 0.05;
     if (this.noiseT <= 0 && d.type !== 'flame') { g.makeNoise(this.x, this.y, 650); this.noiseT = 0.25; }
-    const shot = { hit: false }; if (d.type !== 'flame') g.stats.shots++;
+    const shot = { hit: false }; if (d.type !== 'flame') countShot(g);
     if (d.type === 'bullet') {
       for (let i = 0; i < d.pellets; i++) {
         const a = this.aim + (Math.random() - 0.5) * d.spread * (this.sprinting ? 1.6 : 1);
@@ -2676,7 +2701,7 @@ class Player {
       g.addLight(this.x + Math.cos(this.aim) * 110, this.y + Math.sin(this.aim) * 110, 300, '255,140,50', 0.8, 0.05);
       if (this.noiseT <= 0) { g.makeNoise(this.x, this.y, 400); this.noiseT = 0.5; }
     } else if (d.type === 'rail') {
-      if (g.railShot(m.x, m.y, this.aim, w.dmg())) g.stats.hits++;
+      if (g.railShot(m.x, m.y, this.aim, w.dmg())) countShot(g, true);
       this.kx -= Math.cos(this.aim) * 160; this.ky -= Math.sin(this.aim) * 160;
     } else if (d.type === 'rocket') {
       const rk = new Rocket(g, m.x, m.y, this.aim, w.dmg(), d.radius); rk.shot = shot; g.rockets.push(rk);
@@ -2708,7 +2733,7 @@ class Player {
   }
   hurt(dmg, sx, sy, kb = 260) {
     const g = this.g; if (this.inv > 0 || this.rollT > 0 || this.dead || g.state !== 'playing') return;
-    dmg *= 1 - 0.15 * this.armor; this.hp -= dmg; if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + dmg; this.inv = 0.35; g.zoneHit = true; this.lastHurt = g.time;
+    dmg *= 1 - 0.15 * this.armor; this.hp -= dmg; this.lastCause = g.hitCause || hitCause(g, sx, sy); if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + dmg; this.inv = 0.35; g.zoneHit = true; this.lastHurt = g.time;
     g.mult = Math.max(1, g.mult - 1); g.hurtFlash = Math.min(1, 0.35 + dmg / 40); g.shake(0.25 + dmg / 80); g.audio.hurt();
     const dx = this.x - sx, dy = this.y - sy, d = Math.hypot(dx, dy) || 1; this.kx += dx / d * kb; this.ky += dy / d * kb; if (this.isP2 && g.net === 'host') g.netEmit(['kb', Math.round(dx / d * kb), Math.round(dy / d * kb)]);
     g.bleed(this.x, this.y, dx / d, dy / d, 6);
@@ -2717,7 +2742,7 @@ class Player {
   }
   hurtDot(a) {
     const g = this.g; if (this.dead || g.state !== 'playing') return;
-    this.hp -= a * (1 - 0.15 * this.armor); if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + a * (1 - 0.15 * this.armor); g.hurtFlash = Math.max(g.hurtFlash, 0.18); g.zoneHit = true; this.lastHurt = g.time;
+    this.hp -= a * (1 - 0.15 * this.armor); this.lastCause = g.hitCause || 'dot'; if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + a * (1 - 0.15 * this.armor); g.hurtFlash = Math.max(g.hurtFlash, 0.18); g.zoneHit = true; this.lastHurt = g.time;
     if (g.time - this.dotSnd > 0.45) { this.dotSnd = g.time; g.audio.hurt(); }
     if (this.hp <= 0) { if (this.isP2) g.onP2Death(this); else g.onPlayerDeath(); }
   }
@@ -3162,7 +3187,7 @@ class Bullet {
         const z = near[i]; if (z.dead || z.spawnT > 0 || this.hit.has(z)) continue;
         const rr = z.r + (this.charged ? 8 : 3);
         if (dist2(this.x, this.y, z.x, z.y) < rr * rr) {
-          this.hit.add(z); if (this.shot && !this.shot.hit) { this.shot.hit = true; g.stats.hits++; } z.knock(this.vx / sp * (this.charged ? 420 : 110), this.vy / sp * (this.charged ? 420 : 110)); z.damage(this.dmg, this.vx / sp, this.vy / sp, 'bullet');
+          this.hit.add(z); if (this.shot && !this.shot.hit) { this.shot.hit = true; countShot(g, true); } z.knock(this.vx / sp * (this.charged ? 420 : 110), this.vy / sp * (this.charged ? 420 : 110)); z.damage(this.dmg, this.vx / sp, this.vy / sp, 'bullet');
           if (--this.pierce < 0) { this.dead = true; return; }
         }
       }
@@ -3196,7 +3221,7 @@ class Rocket {
     g.spawnP({ x: this.x, y: this.y, z: 14, vx: -this.vx * 0.1, vy: -this.vy * 0.1, life: 0.15, type: 'fire', size: 5, emissive: true });
     g.addLight(this.x, this.y, 170, '255,160,80', 0.8, 0.03);
   }
-  explode() { if (this.dead) return; this.dead = true; const n = this.g.explosion(this.x, this.y, this.rad, this.dmg, 'rocket'); if (n > 0 && this.shot && !this.shot.hit) { this.shot.hit = true; this.g.stats.hits++; } }
+  explode() { if (this.dead) return; this.dead = true; const n = this.g.explosion(this.x, this.y, this.rad, this.dmg, 'rocket'); if (n > 0 && this.shot && !this.shot.hit) { this.shot.hit = true; countShot(this.g, true); } }
 }
 class Throwable {
   constructor(g, kind, x, y, tx, ty) {
@@ -3234,7 +3259,7 @@ class Acid {
     this.t += dt; const k = Math.min(1, this.t / this.T); this.x = lerp(this.sx, this.tx, k); this.y = lerp(this.sy, this.ty, k); this.z = Math.sin(k * Math.PI) * (50 + this.T * 70);
     if (k >= 1) {
       this.dead = true; const g = this.g, R = this.big ? 42 : 30;
-      for (const p of g.players()) if (!p.dead && dist2(p.x, p.y, this.x, this.y) < (R + p.r) ** 2) p.hurt((this.big ? 18 : 11) * g.diff.dmg, this.x, this.y, 150);
+      g.hitCause = 'spitter'; for (const p of g.players()) if (!p.dead && dist2(p.x, p.y, this.x, this.y) < (R + p.r) ** 2) p.hurt((this.big ? 18 : 11) * g.diff.dmg, this.x, this.y, 150); g.hitCause = null;
       g.puddles.push({ x: this.x, y: this.y, r: R, life: this.big ? 6 : 4.5, max: this.big ? 6 : 4.5, dead: false });
       for (let i = 0; i < 8; i++) g.spawnP({ x: this.x, y: this.y, z: 2, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(60, 160), grav: 600, life: 0.6, type: 'acid', size: 2.5, emissive: true });
       g.audio.splat(this.x, this.y);
@@ -3482,7 +3507,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -3539,6 +3564,8 @@ const BESTIARY = [
   { k: 'ultimate', name: 'Le Shibanophile', type: 'Boss secret', m: 5, boss: true, txt: 'Mordu par un shiba en 2019. Depuis, c\'est personnel.', tip: 'Laisse : roule ou tire dessus pour la couper. En rage, il attire les shibas avec des croquettes : protège-les.' }
 ];
 const beastKey = z => z.ultimate ? 'ultimate' : z.mini ? 'mini' + (z.mk || 0) : z.type;
+// ce qui a blessé le joueur : le zombie posté au point d'impact, sinon le boss en cours, sinon une explosion
+const hitCause = (g, x, y) => { for (const z of g.zombies) if (!z.dead && dist2(z.x, z.y, x, y) < 9) return beastKey(z); return g.bossRef && !g.bossRef.dead ? beastKey(g.bossRef) : 'explosion'; };
 const SECRET_W = { walker: 40, runner: 30, riot: 12, brute: 8, bomber: 10 };
 // plan de l'hôpital (secteur 1 réaménagé) : couloir central, chambres de part et d'autre, morgue au fond
 const HOSP = { x0: 250, top: 452, bot: 730, doors: [470, 860, 1250, 1640], cols: [250, 660, 1050, 1440, 1830, 2060], morgue: 2060 };
@@ -3580,7 +3607,7 @@ class Game {
     this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.winFx = null; this.mapHover = null;
     this.zombies = []; this.bullets = []; this.flames = []; this.rockets = []; this.throwables = []; this.mines = []; this.acids = [];
     this.puddles = []; this.fires = []; this.shockwaves = []; this.beams = []; this.particles = []; this.pickups = []; this.lights = []; this.survivors = [];
-    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
+    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
     if (this.level) for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
     this.level = new Level(this); this.director.reset(); this.bossRef = null;
   }
@@ -3711,7 +3738,7 @@ class Game {
     if (this.portrait) { this.audio.flame(false); return; }
     if (inp.pause) { this.closeWheel(false); this.pause(); return; }
     if (this.cine) { this.updateCine(dt, inp); return; }
-    const p = this.player; this.runTime += dt;
+    const p = this.player; this.runTime += dt; if (this.mode !== 'training') carnet().time += dt;
     const realDt = dt; let pdt = dt;
     const W8 = this.wheel || (this.wheel = { open: false, sel: -1, k: 0 });
     if (inp.wheelHeld && !p.dead) {
@@ -3745,6 +3772,7 @@ class Game {
     this.updateBuddy(dt); this.updateEvent(dt);
     if (p.flashCd > 0) p.flashCd -= realDt; if (inp.flash && !p.dead) this.flash(); if (this.flashFx > 0) this.flashFx -= realDt;
     if (this.mode !== 'training') this.director.update(dt);
+    if (this.mode === 'story' || this.mode === 'survival') this.updateSewers(dt);
     this.hash.clear(); for (const z of this.zombies) if (!z.dead) this.hash.insert(z);
     this.attractions.length = 0;
     for (const c of this.level.cars) if (c.alarm > 0) this.attractions.push({ x: c.x + c.w / 2, y: c.y + c.h / 2, r: 1000 });
@@ -3821,7 +3849,7 @@ mixin(Game, {
   },
   newGameCore() {
     this.resetModes(); this.shibaSeed = Math.floor(Math.random() * 1e6); this.keysOpen = false; this.audio.init(); this.diff = DIFFS[this.diffKey]; this.activeZone = -1; this.shibaFound = new Set(); this.resetWorld();
-    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0, 0, 0] }; this.stats = newStats(); this.shibaFound = new Set(); this.missionFor = -1;
+    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0, 0, 0] }; this.stats = newStats(); carnet().runs++; this.shibaFound = new Set(); this.missionFor = -1;
     this.player = new Player(this, 140, 600); this.lives = this.diff.lives; this.score = 0; this.mult = 1; this.maxMult = 1; this.kills = 0; this.runTime = 0;
     this.zoneEntered = [false, false, false, false]; this.safeEntered = [false, false, false]; this.safeName = null; this.savedScore = false;
     this.checkpoint = this.makeCheckpoint(140, 600); this.state = 'playing'; this.deathT = 0;
@@ -3845,7 +3873,7 @@ mixin(Game, {
   newSecret(keep) {
     this.keysOpen = false; this.audio.init(); const prev = keep && this.player ? this.player : null; this.resetModes();
     this.diff = DIFFS[this.diffKey]; this.activeZone = -1; this.shibaFound = new Set(); this.resetWorld();
-    this.mode = 'secret'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats();
+    this.mode = 'secret'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats(); carnet().runs++;
     const p = this.player = new Player(this, PLAZA, 820);
     if (prev) { p.money = prev.money; p.armor = prev.armor; p.weapons.forEach((w, i) => w.restore(prev.weapons[i].snapshot())); p.cur = prev.cur; }
     else { p.armor = 2; for (const w of p.weapons) { w.owned = true; w.ammo = w.magSize(); if (!w.def.infinite) w.reserve = w.def.ammoPack * 2; } }
@@ -3867,7 +3895,7 @@ mixin(Game, {
   newHospital() {
     this.keysOpen = false; this.audio.init(); this.resetModes();
     this.diff = DIFFS[this.diffKey]; this.activeZone = -1; this.shibaFound = new Set(); this.resetWorld();
-    this.mode = 'hospital'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats();
+    this.mode = 'hospital'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats(); carnet().runs++;
     const p = this.player = new Player(this, 150, 600);
     p.armor = 2; for (const w of p.weapons) { w.owned = true; w.ammo = w.magSize(); if (!w.def.infinite) w.reserve = w.def.ammoPack * 2; }
     p.grenades = Math.max(p.grenades, 4); p.mines = Math.max(p.mines, 2); p.decoys = Math.max(p.decoys, 2);
@@ -3966,7 +3994,7 @@ mixin(Game, {
   newSurvival(keep) {
     this.keysOpen = false; this.audio.init(); const prev = keep && this.player ? this.player : null; this.resetModes();
     this.diff = DIFFS[this.diffKey]; this.activeZone = -1; this.shibaFound = new Set(); this.resetWorld();
-    this.mode = 'survival'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats(); this.shibaFound = new Set();
+    this.mode = 'survival'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats(); carnet().runs++; this.shibaFound = new Set();
     const p = this.player = new Player(this, PLAZA, 780);
     if (prev) { p.money = prev.money; p.armor = prev.armor; p.grenades = Math.max(3, prev.grenades); p.mines = Math.max(1, prev.mines); p.decoys = Math.max(2, prev.decoys); p.weapons.forEach((w, i) => w.restore(prev.weapons[i].snapshot())); p.cur = prev.cur; }
     else { p.money = 600; for (const i of [1, 2]) { const w = p.weapons[i]; w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack * 2; } }
@@ -4182,6 +4210,7 @@ mixin(Game, {
   },
   onPlayerDeath() {
     const p = this.player; if (p.dead) return;
+    if (this.mode !== 'training') { const d = carnet().deaths, k = p.lastCause || 'explosion'; d[k] = (d[k] || 0) + 1; Settings.save(); }
     if (this.p2 && !this.p2.dead) {
       p.dead = true; p.hp = 0; p.carry = null; this.p1Down = 1; p.downX = p.x; p.downY = p.y; p.revT = 0; this.audio.death(); this.bleed(p.x, p.y, 0, 0, 20); this.toast(`${this.pName(p)} est à terre`, '#e2792f');
       return;
@@ -4227,7 +4256,7 @@ mixin(Game, {
       if (sv.dead || sv.state !== 'follow') continue;
       sv.dead = true;
       if (dist2(sv.x, sv.y, p.x, p.y) < 320 * 320) {
-        const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; if (this.run.sv) this.run.sv[sv.zone] = 2;
+        const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; carnet().saved++; if (this.run.sv) this.run.sv[sv.zone] = 2;
         this.later(1.2, () => { this.notice(`${sv.name} est sauvé${sv.f ? 'e' : ''}`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); });
         if (this.run.saved >= 3) this.unlock('samaritan');
       } else { if (this.run.sv) this.run.sv[sv.zone] = 3; this.later(1.2, () => this.toast(`${sv.name} est resté${sv.f ? 'e' : ''} dehors`, '#a39e93')); }
@@ -4267,7 +4296,7 @@ mixin(Game, {
     const p = this.player;
     for (const sv of this.survivors) {
       if (sv.dead || sv.state !== 'follow') continue;
-      sv.dead = true; const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; this.run.sv[sv.zone] = 2;
+      sv.dead = true; const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; carnet().saved++; this.run.sv[sv.zone] = 2;
       this.notice(`${sv.name} est sauvé${sv.f ? 'e' : ''}`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); if (this.run.saved >= 3) this.unlock('samaritan');
     }
     const xp = this.gainXP(200 + (this.kills - ((this.missionStart || {}).kills || 0)) * 2); this.toast(`+${xp} XP · mission 5 terminée`, '#9fd6e6');
@@ -4454,12 +4483,14 @@ mixin(Game, {
   }
 });
 // ============================================================ jeu : combat, apparitions et boss
+// carnet : à quoi on attribue un zombie abattu (les balles reviennent à l'arme en main)
+const KILL_ARM = { fire: 'feu', explosion: 'explosifs', melee: 'melee', shock: 'piege', bite: 'shiba', salsa: 'special' };
 mixin(Game, {
   // ---------- apparitions
   inCone(x, y) { const p = this.player; const d = Math.hypot(x - p.x, y - p.y); return d < 620 && Math.abs(angDiff(p.aim, Math.atan2(y - p.y, x - p.x))) < 0.75; },
   findSpawnPoint(k) {
     const p = this.player, Z = ZONES[k];
-    const sp = this.level.spawners.filter(s => s.zone === k);
+    const sp = this.level.spawners.filter(s => s.zone === k && !s.sealed);
     for (let t = 0; t < 8 && sp.length; t++) { const s = pick(sp); const d = Math.hypot(s.x - p.x, s.y - p.y); if (d > 300 && d < 1100 && !this.inCone(s.x, s.y)) return s; }
     for (let t = 0; t < 14; t++) {
       const x = rand(Z.x0 + 40, Z.x1 - 40), y = rand(ST + 40, SB - 40), d = Math.hypot(x - p.x, y - p.y);
@@ -4474,6 +4505,33 @@ mixin(Game, {
     if (s.kind === 'sewer') for (let i = 0; i < 5; i++) this.spawnP({ x: s.x, y: s.y, vx: rand(-40, 40), vy: rand(-40, 40), life: 1, type: 'smoke', size: 8, grow: 12 });
     if (type === 'dog') { const n = randi(1, 3); for (let i = 0; i < n && this.zombies.length < 220; i++) { const d = new Zombie(this, 'dog', s.x + rand(-26, 26), s.y + rand(-26, 26), z.spawnKind); d.aggro = true; d.spawnT += i * 0.15; this.zombies.push(d); } if (!this.dogTip && this.mode !== 'training') { this.dogTip = true; this.toast('Meute de chiens : quand un chien s\'accroupit en grognant, roule !', '#ff8a5a'); } }
     return z;
+  },
+  // ---------- bouches d'égout : l'une d'elles gronde de temps en temps puis crache un petit groupe ; une grenade la scelle
+  updateSewers(dt) {
+    const p = this.player;
+    for (const s of this.level.spawners) if (s.rumble > 0) {
+      s.rumble -= dt; s.anim = Math.max(s.anim, 0.12 + Math.random() * 0.12);
+      if (Math.random() < dt * 10) this.spawnP({ x: s.x + rand(-10, 10), y: s.y, vx: rand(-20, 20), vy: rand(-30, -10), life: 0.9, type: 'smoke', size: 6, grow: 10 });
+      if (s.rumble > 0) continue;
+      const n = randi(2, 4); s.anim = 1; this.audio.noise({ f: 700, f2: 120, dur: 0.6, g: 0.4 }); this.shake(0.2);
+      for (let i = 0; i < n && this.zombies.length < 220; i++) { const z = new Zombie(this, Math.random() < 0.3 ? 'runner' : 'walker', s.x + rand(-8, 8), s.y + rand(-8, 8), 'sewer'); z.aggro = true; z.spawnT += i * 0.3; if (modOn(this, 'tanks')) z.maxHp = z.hp = z.hp * 1.6; this.zombies.push(z); }
+    }
+    if (p.dead || this.cine || (this.sewerT = (this.sewerT ?? rand(20, 35)) - dt) > 0) return;
+    this.sewerT = rand(28, 50);
+    const near = this.level.spawners.filter(s => s.kind === 'sewer' && !s.sealed && !(s.rumble > 0) && dist2(s.x, s.y, p.x, p.y) > 230 * 230 && dist2(s.x, s.y, p.x, p.y) < 560 * 560);
+    if (!near.length) return; const s = pick(near); s.rumble = 3.2; this.netEmit(['rumble', this.level.spawners.indexOf(s), 3.2]);
+    this.audio.noise({ f: 180, f2: 60, dur: 1.8, g: 0.45, pan: clamp((s.x - p.x) / 600, -1, 1) });
+    if (!this.sewTip && carnet().sealed < 3) { this.sewTip = true; this.toast('Une bouche d\'égout gronde : une grenade dessus la bouche pour de bon', '#9fd6e6'); }
+  },
+  sealSewer(s) {
+    this.sealFx(s); this.netEmit(['seal', this.level.spawners.indexOf(s)]);
+    const pts = Math.round((s.rumble > 0 ? 700 : 400) * this.diff.score); this.score += pts; this.floatText(s.x, s.y - 30, `BOUCHE SCELLÉE +${fmt(pts)}`, '#9fd6e6');
+    const c = carnet(); c.sealed++; Settings.save(); if (c.sealed >= 10) this.unlock('plombier');
+  },
+  sealFx(s) {
+    s.sealed = true; s.rumble = 0; s.anim = 0;
+    for (let i = 0; i < 10; i++) this.spawnP({ x: s.x + rand(-14, 14), y: s.y + rand(-8, 8), z: 4, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(60, 180), grav: 600, life: rand(0.5, 1), type: 'debris', size: rand(2, 4), color: '#6a6560' });
+    this.audio.tone({ f: 90, f2: 40, dur: 0.5, g: 0.4 });
   },
   spawnMiniBoss(k) {
     if (this.mode !== 'story' || this.activeZone !== k || (this.bossRef && !this.bossRef.dead)) return;
@@ -4545,7 +4603,9 @@ mixin(Game, {
       z.damage(dmg * f, dx / d, dy / d, 'explosion'); if (z.dead) killed++; hitN++;
     }
     if (src === 'car' && killed >= 8) this.unlock('alarm');
-    for (const p of this.players()) if (!p.dead) { const d = Math.hypot(p.x - x, p.y - y); if (d < R) { const f = 1 - d / R, mul = { rocket: 0.35, grenade: 0.45, mine: 0.3, decoy: 0.3, car: 0.55, barrel: 0.55, bomber: 0.9 }[src] ?? 0.5; const a = dmg * mul * f * this.diff.dmg; if (a > 2) p.hurt(a, x, y, 520 * f); } }
+    if (src === 'grenade' || src === 'rocket') for (const s of this.level.spawners) if (s.kind === 'sewer' && !s.sealed && dist2(s.x, s.y, x, y) < (R * 0.5 + 10) ** 2) this.sealSewer(s);
+    this.hitCause = src === 'bomber' ? 'bomber' : 'explosion'; for (const p of this.players()) if (!p.dead) { const d = Math.hypot(p.x - x, p.y - y); if (d < R) { const f = 1 - d / R, mul = { rocket: 0.35, grenade: 0.45, mine: 0.3, decoy: 0.3, car: 0.55, barrel: 0.55, bomber: 0.9 }[src] ?? 0.5; const a = dmg * mul * f * this.diff.dmg; if (a > 2) p.hurt(a, x, y, 520 * f); } }
+    this.hitCause = null;
     if (dmg > 0) for (const o of this.level.queryRect(x - R, y - R, R * 2, R * 2)) {
       if (o.kind !== 'car' && o.kind !== 'barrel' && o.kind !== 'machine') continue;
       if (rectDist(x, y, o) < R) this.later(0.08 + Math.random() * 0.12, () => this.hitObstacle(o, dmg * 1.3, x, y, src === 'bomber' || src === 'carz' ? 'zexplosion' : 'explosion'));
@@ -4580,6 +4640,7 @@ mixin(Game, {
     this.netEmit(['die', z.nid, Math.round(z.x), Math.round(z.y)]);
     if (this.mode === 'training') { this.trainKill(z); return; }
     const T = ZTYPES[z.type]; this.kills++; this.noteKill(z);
+    { const c = carnet(), w = this.player.weapon, a = KILL_ARM[src] || ((src === 'bullet' || src === 'rail') && w ? w.def.id : null); c.kills++; if (a) c.arms[a] = (c.arms[a] || 0) + 1; if (z.elite) c.elites++; }
     { const now = this.time; this.recentKills = (this.recentKills || []).filter(t0 => now - t0 < 8); this.recentKills.push(now);
       const k0 = this.activeZone, o0 = k0 >= 0 && this.level.obj[k0];
       if (this.mode === 'story' && o0 && (k0 < 3 ? o0.done : o0.dead) && this.director.queue <= 0 && !(this.cleared || (this.cleared = []))[k0] && !this.zombies.some(o => o !== z && !o.dead)) {
@@ -4700,7 +4761,7 @@ mixin(Game, {
         if (!host) continue;
         const inside = e => e.x > t.x - e.r && e.x < t.x + t.w + e.r && e.y > t.y - e.r && e.y < t.y + t.h + e.r;
         for (const z of this.zombies) if (!z.dead && z.spawnT <= 0 && inside(z)) { z.damage(70 * dt, 0, 0, 'shock'); z.stun = Math.max(z.stun, 0.35); if (Math.random() < dt * 8) this.sparks(z.x, z.y - 14, 0, -1, 3); }
-        for (const p of this.players()) if (!p.dead && inside(p)) { p.hurtDot(22 * dt); p.ky += (p.y < t.y + 8 ? -1 : 1) * 900 * dt; /* la décharge rejette le survivant hors de la clôture */ }
+        for (const p of this.players()) if (!p.dead && inside(p)) { this.hitCause = 'trap'; p.hurtDot(22 * dt); this.hitCause = null; p.ky += (p.y < t.y + 8 ? -1 : 1) * 900 * dt; /* la décharge rejette le survivant hors de la clôture */ }
       } else {
         const o = t.ob, hx = o.x + 8, hy = o.y + 8, ca = Math.cos(t.ang), sa = Math.sin(t.ang), R = 300;
         for (let i = 0; i < 6; i++) { const a = t.ang + rand(-0.22, 0.22), sp = rand(420, 620); this.spawnP({ x: hx, y: hy, z: 14, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, vz: rand(10, 70), grav: 300, life: rand(0.4, 0.6), type: 'spark', size: 3, color: 'rgba(200,232,255,.95)', drag: 1 }); }
@@ -4748,10 +4809,34 @@ mixin(Game, {
       c.strokeStyle = shade(z.skin, -0.35); c.lineWidth = s * 0.28; c.lineCap = 'round'; c.beginPath(); c.moveTo(s * 0.4, -s * 0.5); c.lineTo(s * 1.2, -s * 1.1); c.moveTo(s * 0.3, s * 0.5); c.lineTo(s * 0.9, s * 1.2); c.stroke();
     });
   },
+  // ---------- météo : clair, averse, brouillard, orage ; l'hôte décide, l'invité suit
+  wxOn() { return (this.mode === 'story' || this.mode === 'survival') && !this.level.hosp; },
+  setWeather(k) {
+    const X = this.wx, W0 = WEATHER[k]; if (!X || !W0 || X.k === k) return;
+    X.k = k; X.t = rand(45, 80); if (k === 'orage') X.boltCd = rand(2, 5);
+    this.netEmit(['wx', k]); this.notice(W0.name, W0.sub, W0.col);
+    if (k === 'orage') this.audio.noise({ f: 300, f2: 50, dur: 2.6, g: 0.35, delay: 0.4 });
+  },
+  bolt() {
+    const X = this.wx; if (!X) return; X.bolt = 0.5; X.boltCd = rand(7, 15); this.netEmit(['bolt']);
+    const d = rand(0.3, 1.2); this.audio.noise({ f: 2200, f2: 300, dur: 0.35, g: 0.25, delay: d * 0.4 }); this.audio.noise({ f: 420, f2: 45, dur: 2.4, g: 0.55, delay: d }); this.audio.tone({ f: 55, f2: 30, dur: 1.6, g: 0.3, delay: d });
+    if (this.state === 'playing') carnet().bolts++;
+  },
+  // intensité de l'éclair en cours : deux flashs rapprochés puis un reflux
+  boltK() { const b = this.wx ? this.wx.bolt : 0; if (!(b > 0)) return 0; const v = b > 0.42 ? 1 : b > 0.34 ? 0.15 : b > 0.24 ? 0.85 : b / 0.24 * 0.45; return v * (Settings.calm ? 0.35 : 1); },
   updateWeather(dt) {
     const S = VS * DPR * (this.zoom || 1), hw = W / 2 / S + 60, hh = H / 2 / S + 60, cx = this.cam.x, cy = this.cam.y;
+    const X = this.wx || (this.wx = { k: 'clair', t: rand(40, 70), vis: 1, fog: 0, rain: 1, bolt: 0, boltCd: 8 }), on = this.wxOn();
+    if (this.state === 'playing' && on && this.net !== 'guest') {
+      if ((X.t -= dt) <= 0) this.setWeather(X.k === 'clair' ? pick(['averse', 'brouillard', 'orage']) : Math.random() < 0.6 ? 'clair' : pick(['averse', 'brouillard', 'orage'].filter(k => k !== X.k)));
+      if (X.k === 'orage' && (X.boltCd -= dt) <= 0) this.bolt();
+    }
+    if (!on) X.k = 'clair';
+    const T = WEATHER[X.k], e = Math.min(1, dt * 0.4); X.vis += (T.vis - X.vis) * e; X.fog += (T.fog - X.fog) * e; X.rain += (T.rain - X.rain) * e; X.bolt = Math.max(0, X.bolt - dt);
+    if (this.audio.rainG) this.audio.rainG.gain.value = (Settings.rain ? 0.05 : 0.012) * (0.55 + 0.45 * X.rain);
     if (Settings.rain && this.mode !== 'hospital') {
-      while (this.rain.length < (TOUCH ? 150 : 260)) this.rain.push({ x: cx + rand(-hw, hw), y: cy + rand(-hh, hh), z: rand(0, 380), v: rand(650, 900) });
+      const nr = Math.round((TOUCH ? 150 : 260) * X.rain); if (this.rain.length > nr) this.rain.length = nr;
+      while (this.rain.length < nr) this.rain.push({ x: cx + rand(-hw, hw), y: cy + rand(-hh, hh), z: rand(0, 380), v: rand(650, 900) });
       for (const d of this.rain) {
         d.z -= d.v * dt; d.x -= 60 * dt;
         if (d.z <= 0) {
@@ -4819,6 +4904,9 @@ mixin(Game, {
       if (e.id === 'fog') { const s = this.worldToScreen(p.x, p.y), x = s.x * DPR, y = s.y * DPR, r0 = 140 * VS * DPR; const g = c.createRadialGradient(x, y, r0, x, y, r0 * 3.2); g.addColorStop(0, 'rgba(80,82,92,0)'); g.addColorStop(1, `rgba(80,82,92,${0.9 * fade})`); c.fillStyle = g; c.fillRect(0, 0, W, H); }
       if (e.id === 'ash') { c.fillStyle = `rgba(200,190,180,${0.6 * fade})`; const t = this.time; for (let i = 0; i < 140; i++) { const x = ((i * 137.5 + t * (18 + (i % 5) * 6)) % (W + 40)) - 20, y = ((i * 71.3 + t * (40 + (i % 7) * 9)) % (H + 40)) - 20; c.fillRect(x, y, 2 * DPR, 2 * DPR); } c.fillStyle = `rgba(120,60,30,${0.12 * fade})`; c.fillRect(0, 0, W, H); }
     }
+    // météo : voile de brouillard autour du joueur, plus dense quand le temps se gâte
+    { const X = this.wx, fg = X && this.state !== 'title' ? X.fog * (1 - this.boltK() * 0.7) : 0;
+      if (fg > 0.02) { const s = this.worldToScreen(p.x, p.y), x = s.x * DPR, y = s.y * DPR, r0 = (170 - 60 * fg) * VS * DPR; const g = c.createRadialGradient(x, y, r0, x, y, r0 * 3.4); g.addColorStop(0, 'rgba(84,88,98,0)'); g.addColorStop(1, `rgba(84,88,98,${0.78 * fg})`); c.fillStyle = g; c.fillRect(0, 0, W, H); } }
     if (this.slowT > 0) {
       const k = Math.min(1, (this.slowMax - this.slowT) * 5, this.slowT * 3), bh = H * 0.09 * k;
       drawFinisher(c, this, k, this.time);
@@ -4851,7 +4939,13 @@ mixin(Game, {
     if (this.mode === 'secret' && this.npcShibas) for (const sh of this.npcShibas) if (!sh.caught && inView(sh.x, sh.y)) drawShibaSprite(c, sh.x, sh.y, 1.1, this.time + sh.x);
     if (this.buddy && inView(this.buddy.x, this.buddy.y)) { const b = this.buddy; c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(b.x, b.y + 2, 10, 4, 0, 0, TAU); c.fill(); drawShibaSprite(c, b.x, b.y - b.hop, 1, this.time * 1.6); }
     if (this.event && this.event.id === 'icecream' && inView(this.event.x, this.event.y, 120)) drawIceTruck(c, this.event.x, this.event.y, this.time);
-    for (const s of this.level.spawners) if (s.anim > 0 && s.kind === 'sewer' && inView(s.x, s.y)) { c.fillStyle = '#55565a'; c.beginPath(); c.ellipse(s.x + 22 * s.anim, s.y - 4, 17, 9, 0.4, 0, TAU); c.fill(); }
+    // bouches d'égout scellées : un tas de gravats sur la plaque
+    for (const s of this.level.spawners) if (s.kind === 'sewer' && s.sealed && inView(s.x, s.y)) {
+      c.save(); c.translate(s.x, s.y);
+      { c.fillStyle = 'rgba(0,0,0,.45)'; c.beginPath(); c.ellipse(0, 2, 24, 13, 0, 0, TAU); c.fill(); for (let i = 0; i < 7; i++) { const a = i * 2.39 + s.x, d = (i % 3) * 6; c.fillStyle = i % 2 ? '#5c5853' : '#77716a'; c.beginPath(); c.ellipse(Math.cos(a) * d, Math.sin(a) * d * 0.6 - 2, 8 - (i % 3), 5, a, 0, TAU); c.fill(); } c.strokeStyle = '#3a3633'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(-12, -4); c.lineTo(10, 3); c.stroke(); }
+      c.restore();
+    }
+    for (const s of this.level.spawners) if (s.anim > 0 && !s.sealed && s.kind === 'sewer' && inView(s.x, s.y)) { c.fillStyle = '#55565a'; c.beginPath(); c.ellipse(s.x + 22 * s.anim, s.y - 4, 17, 9, 0.4, 0, TAU); c.fill(); }
     // graffitis à la bombe sur le bitume
     for (const t of this.level.graffiti || []) if (inView(t.x, t.y, 200)) { c.save(); c.translate(t.x, t.y); c.rotate(t.rot); c.font = `18px ${FD}`; c.textAlign = 'center'; c.globalAlpha = 0.5; c.fillStyle = t.col; c.fillText(t.t, 0, 0); c.globalAlpha = 0.25; c.fillText(t.t, 1.5, 1); c.globalAlpha = 1; c.restore(); }
     // clôtures électriques au sol (poteaux, fils, arcs quand le courant passe)
@@ -4924,7 +5018,8 @@ mixin(Game, {
     const L = lctx, lw = lightCanvas.width, lh = lightCanvas.height, p = this.player, t = this.time;
     L.setTransform(1, 0, 0, 1, 0, 0); L.globalCompositeOperation = 'source-over';
     const amb = this.mode === 'secret' ? [58, 34, 56] : modOn(this, 'night') ? [3, 3, 6] : this.diff.ambient, bossDark = (this.blackoutT > 0 ? 0.1 : 1) * (this.bossRef && this.bossRef.state === 'intro' ? 0.4 : 1) * (this.event && this.event.id === 'blackout' ? 0.25 : this.event && this.event.id === 'ash' ? 0.7 : 1);
-    L.fillStyle = `rgb(${amb[0] * bossDark | 0},${amb[1] * bossDark | 0},${amb[2] * bossDark | 0})`; L.fillRect(0, 0, lw, lh);
+    const bk = this.boltK(), fl = (v, top) => (v * bossDark + (top - v * bossDark) * bk) | 0; /* l'éclair éclaire toute la rue un instant */
+    L.fillStyle = `rgb(${fl(amb[0], 150)},${fl(amb[1], 158)},${fl(amb[2], 185)})`; L.fillRect(0, 0, lw, lh);
     L.setTransform(S / LD, 0, 0, S / LD, ox / LD, oy / LD); L.globalCompositeOperation = 'lighter';
     const glow = (x, y, r, col, i) => {
       if (i <= 0.01 || !inView(x, y, r)) return;
@@ -4937,7 +5032,7 @@ mixin(Game, {
     for (const p of this.players()) if (!p.dead) {
       let flick = 1; if (this.torchFlicker > 0) flick = Math.random() < 0.5 ? 0.15 : 0.8;
       const tk = this.state === 'title' ? 1 : p.torchK(); flick *= tk;
-      const px = p.x + Math.cos(p.aim) * 6, py = p.y + Math.sin(p.aim) * 6, range = 580 * lampRange() * (0.45 + 0.55 * tk), half = lampHalf(), rays = TOUCH ? 64 : 120;
+      const px = p.x + Math.cos(p.aim) * 6, py = p.y + Math.sin(p.aim) * 6, range = 580 * lampRange() * (0.45 + 0.55 * tk) * (this.wx ? this.wx.vis : 1), half = lampHalf(), rays = TOUCH ? 64 : 120;
       const obs = this.level.queryRect(px - range, py - range, range * 2, range * 2).filter(o => !LOWK.has(o.kind));
       const pts = [];
       for (let i = 0; i <= rays; i++) {
@@ -5005,6 +5100,8 @@ mixin(Game, {
     for (const pt of this.particles) if (pt.emissive && inView(pt.x, pt.y)) this.drawParticle(pt);
     c.globalAlpha = 1;
     for (const z of this.zombies) if (z.type === 'boss' && !z.dead && inView(z.x, z.y, 200)) this.drawBossGlow(z);
+    // bouche d'égout qui gronde : anneau orange visible même dans le noir
+    for (const s of this.level.spawners) if (s.rumble > 0 && !s.sealed && inView(s.x, s.y)) { const k = 0.55 + Math.sin(t * 14) * 0.3; c.save(); c.translate(s.x, s.y); c.scale(1, 0.6); c.strokeStyle = `rgba(255,140,50,${k})`; c.lineWidth = 3; c.setLineDash([8, 6]); c.lineDashOffset = -t * 40; c.beginPath(); c.arc(0, 0, 34 + Math.sin(t * 9) * 3, 0, TAU); c.stroke(); c.setLineDash([]); c.fillStyle = `rgba(255,110,40,${k * 0.18})`; c.fill(); c.restore(); }
     if (this.state === 'playing' || this.state === 'paused') for (const q of this.players()) if (q && !q.dead && !q.hidden) this.drawLaser(q, q === this.p2 ? '255,170,90' : '90,170,255');
     for (const b of this.bullets) { c.strokeStyle = b.charged ? 'rgba(200,235,255,.95)' : 'rgba(255,215,150,.85)'; c.lineWidth = b.charged ? 4 : 1.6; c.beginPath(); c.moveTo(b.px - b.vx * 0.012, b.py - b.vy * 0.012 - 14); c.lineTo(b.x, b.y - 14); c.stroke(); }
     for (const f of this.flames) { const k = f.life / f.max; c.globalAlpha = Math.min(1, k * 1.4) * 0.7; c.fillStyle = k > 0.65 ? '#ffd88a' : k > 0.35 ? '#ff7a22' : '#9c2410'; c.beginPath(); c.arc(f.x, f.y - 12, f.r, 0, TAU); c.fill(); } c.globalAlpha = 1;
@@ -7482,6 +7579,10 @@ mixin(Game, {
       case 'notice': this.notice(a[0], a[1], a[2]); break;
       case 'text': this.floatText(...a); break;
       case 'scream': this.screamFx(a[0], a[1]); break;
+      case 'wx': this.setWeather(a[0]); break;
+      case 'bolt': this.bolt(); break;
+      case 'rumble': { const s = this.level.spawners[a[0]]; if (s) { s.rumble = a[1]; this.later(a[1], () => { s.rumble = 0; }); } break; }
+      case 'seal': { const s = this.level.spawners[a[0]]; if (s && !s.sealed) this.sealFx(s); break; }
       case 'trap': { const t = (this.level.traps || []).find(x => x.ob.oid === a[0]); if (t) { t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = a[1]; this.trapFx(t); } break; }
       case 'win': this.winFx = { t: 0, title: a[0], sub: a[1] }; this.audio.objective(); break;
       case 'slow': this.slowT = a[0]; this.slowMax = a[0]; this.slowLabel = a[1]; break;
@@ -7497,6 +7598,7 @@ mixin(Game, {
   updateGuest(dt, inp) {
     const N = this.netG, me = this.player, h = this.p2;
     if (this.portrait) return;
+    if (N.hostSt === 'playing') carnet().time += dt;
     if (N.hostSt && N.hostSt !== 'playing' && N.hostSt !== 'paused') { this.updateCommon(dt); return; }
     if (inp.pause) { this.pause(); return; }
     // commandes envoyées à l'hôte (les appuis sont comptés pour ne jamais se perdre)
@@ -8291,7 +8393,7 @@ $('btn-start').addEventListener('click', () => {
   if (launchMode === 'coop') openJoin(); else if (launchMode === 'survival') game.newSurvival(false); else if (launchMode === 'endless') game.newEndless(); else if (launchMode === 'daily') game.newDaily(); else if (launchMode === 'weekly') game.newWeekly(); else if (launchMode === 'hospital') game.newHospital(); else game.newGame();
 });
 // panneaux de l'écran titre : un seul ouvert à la fois, et on défile jusqu'à lui
-const TITLE_PANELS = [['panel-settings', 'btn-settings'], ['panel-scores', 'btn-scores'], ['panel-ach', 'btn-ach'], ['panel-best', 'btn-best'], ['panel-news', 'btn-news']];
+const TITLE_PANELS = [['panel-settings', 'btn-settings'], ['panel-scores', 'btn-scores'], ['panel-ach', 'btn-ach'], ['panel-best', 'btn-best'], ['panel-carnet', 'btn-carnet'], ['panel-news', 'btn-news']];
 const CREDITS = [['Zeus', 'Plante', 'zeus'], ['Dobby', 'Lor\'hi', 'dobby'], ['Chewie', 'Kiffeur', 'chewie'], ['Dragon', 'Maléfique', 'dragon']];
 function fillCredits(el) {
   el.innerHTML = `<h3>Crédits</h3><div class="credits"><p class="eyebrow">Un jeu Nadrax Prod</p><div class="credit-list">${CREDITS.map(([n, r, k]) => `<div class="credit"><canvas width="480" height="360" data-portrait="${k}" aria-hidden="true"></canvas><div><b>${n}</b><span>${r}</span></div></div>`).join('')}</div></div>`;
@@ -8312,6 +8414,22 @@ $('btn-settings').addEventListener('click', e => { refreshContinue(); setHome('o
 function closeSheets() { for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden = true; $(bid).setAttribute('aria-expanded', 'false'); } $('scr-title').classList.remove('page-open'); if (typeof setTab === 'function') setTab(hubTab); }
 for (const sh of document.querySelectorAll('.sheet')) sh.addEventListener('click', e => { if (e.target === sh || e.target.closest('.sheet-close')) { closeSheets(); game.audio.ui(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !game.keysOpen && document.querySelector('.sheet:not([hidden])')) { e.preventDefault(); if (!setBack()) closeSheets(); } });
+// ---------- carnet de survie : ce que la ville t'a fait, partie après partie
+const DEATH_BY = { explosion: 'Une explosion', spitter: 'Un crachat d\'acide', bomber: 'Le Gonflé', dot: 'Le feu ou l\'acide', trap: 'Un piège du décor' };
+const ARM_BY = { feu: 'Le feu', explosifs: 'Les explosifs', melee: 'Corps à corps', piege: 'Les pièges du décor', shiba: 'Le shiba', special: 'Capacité spéciale' };
+function carnetTop(o, name) {
+  const l = Object.entries(o).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 4), max = l.length ? l[0][1] : 1;
+  return l.length ? `<ol class="cn-bars">${l.map(([k, n]) => `<li><span>${name(k)}</span><b>${fmt(n)}</b><i style="--w:${Math.max(4, Math.round(100 * n / max))}%"></i></li>`).join('')}</ol>` : '<p class="hint">Rien encore.</p>';
+}
+function carnetHTML() {
+  const c = carnet(), t = Math.floor(c.time), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, dead = Object.values(c.deaths).reduce((a, b) => a + b, 0);
+  if (!c.runs && !c.kills) return '<p class="cn-empty">Page blanche. La ville n\'a encore rien écrit sur toi : lance une partie.</p>';
+  const cells = [['Zombies abattus', fmt(c.kills)], ['Temps dans les rues', h ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`], ['Parties', fmt(c.runs)], ['Morts', fmt(dead)], ['Précision', (c.shots ? Math.round(100 * c.hits / c.shots) : 0) + ' %'], ['Survivants sauvés', fmt(c.saved)], ['Zombies d\'élite', fmt(c.elites)], ['Bouches scellées', fmt(c.sealed)], ['Éclairs encaissés', fmt(c.bolts)]];
+  const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k, dName = k => (BESTIARY.find(b => b.k === k) || {}).name || DEATH_BY[k] || 'Inconnu';
+  return `<p class="cn-intro">Tout ce que tu as vécu dans les rues, sur cet appareil.</p><div class="pause-stats cn-grid">${cells.map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`
+    + `<div class="cn-cols"><section><h4>Arme préférée</h4>${carnetTop(c.arms, wName)}</section><section><h4>Ce qui t'a eu le plus souvent</h4>${carnetTop(c.deaths, dName)}</section></div>`;
+}
+$('btn-carnet').addEventListener('click', e => togglePanel('panel-carnet', e.currentTarget, carnetHTML));
 const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['week', 'Semaine'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
 function scoresHTML() {
   if (!Online.on()) return scoreTable(Scores.list()) + (ONLINE.url ? '<p class="hint">Classement en ligne désactivé dans les Paramètres.</p>' : '');
@@ -8664,6 +8782,12 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 79, d: '3 nov.', t: 'Météo, égouts et carnet', s: 'Le ciel se gâte, le sol gronde, et la ville tient tes comptes.', it: [
+    ['new', 'Météo', 'Averse, brouillard ou orage : le temps change en pleine partie. La lampe porte moins loin, et pendant l\'orage les éclairs illuminent toute la rue une seconde.'],
+    ['new', 'Bouches d\'égout', 'Un anneau orange clignote quand une bouche d\'égout gronde : des zombies vont en sortir. Une grenade dessus la scelle pour de bon, et rapporte des points.'],
+    ['new', 'Carnet de survie', 'Nouvel onglet Carnet : zombies abattus, temps joué, arme préférée, ce qui t\'a tué le plus souvent, sur toutes tes parties. Il passe aussi dans le code de transfert.'],
+    ['new', 'Succès', 'Plombier de l\'apocalypse : sceller 10 bouches d\'égout.']
+  ] },
   { v: 78, d: '30 oct.', t: 'Médailles et radio', s: 'Chaque mission se joue pour l\'or, et les rues parlent.', it: [
     ['new', 'Médailles', 'Bronze, argent ou or à chaque mission selon quatre défis : 3 shibas, aucune mort, moins de 60 dégâts reçus, et le temps. Elles s\'affichent sur la carte, ton meilleur résultat est gardé.'],
     ['new', 'Radio Survivants', 'Entre deux missions, la radio grésille et donne les nouvelles. Humour noir garanti.'],
@@ -8941,8 +9065,8 @@ addEventListener('pagehide', () => { if (game.state === 'playing') game.pause();
 // ---------- hors ligne : le site garde une copie du jeu (uniquement sur le site en ligne)
 if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => { });
 // ---------- icônes et noms courts des onglets (barre verticale sur téléphone), dessinées dans l'ambiance du jeu
-{ const ICO = { 'btn-best': '<path d="M3 21h18"/><path d="M8 21v-5l-1.6-3.6a1 1 0 0 1 1.8-.9L9.5 14V7a1 1 0 0 1 2 0v5.5V5.5a1 1 0 0 1 2 0V12V7a1 1 0 0 1 2 0v7.5l1-1.6a1 1 0 0 1 1.7 1L16 19v2"/><path class="ib" d="M11.5 1.2c0 1-1.4 2.3-1.4 3.1a1.4 1.4 0 0 0 2.8 0c0-.8-1.4-2.1-1.4-3.1z"/>', lobby: '<path d="M3 11l9-7 9 7v10H3z"/><path d="M7.5 13.5l9 5M16.5 13.5l-9 5"/><path d="M15 6.5V3.5h2.5v4.8"/>', perso: '<circle cx="12" cy="8" r="4.2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/><path d="M9.6 5.2l2.6 3.6M9.8 7.4l1.2-.8M11 8.9l1.2-.8"/>', arsenal: '<path d="M4.5 19.5l6-6"/><path d="M9.5 14.5L17 7l3 3-7.5 7.5z"/><path d="M3 21l1.5-1.5"/><path class="ib" d="M14 17.6c0 1-1.4 2.3-1.4 3.1a1.4 1.4 0 0 0 2.8 0c0-.8-1.4-2.1-1.4-3.1z"/>', 'btn-ach': '<circle cx="12" cy="15" r="5.5"/><path d="M8 3l4 6.5L16 3"/><path d="M10.2 14.3h.01M13.8 14.3h.01M10.8 17.4l.6-.6.6.6.6-.6.6.6"/>', 'btn-scores': '<path d="M5 5v14M9 4v15M13 5v14M17 4v15M3 15.5l17-7"/>', 'btn-credits': '<path d="M12 3a7.5 7.5 0 0 0-5 13.1V19h10v-2.9A7.5 7.5 0 0 0 12 3z"/><circle cx="9.3" cy="11" r="1.6"/><circle cx="14.7" cy="11" r="1.6"/><path d="M11 15.2l1-1.5 1 1.5M10 19v2M14 19v2"/>', 'btn-news': '<path d="M4 4h13v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M17 8h3v11a2 2 0 0 1-2 2M7 8h7M7 11h7M7 14h4.5"/><path d="M11 4l1.5 2L14 4"/><path class="ib" d="M18.5 1.5c0 1-1.4 2.3-1.4 3.1a1.4 1.4 0 0 0 2.8 0c0-.8-1.4-2.1-1.4-3.1z"/>', 'btn-settings': '<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/><path d="M13.5 9.5l1.5-2M10.6 14.5l-1 1.8"/>' };
-  const SHORT = { lobby: 'Accueil', perso: 'Perso', arsenal: 'Arsenal', 'btn-ach': 'Succès', 'btn-best': 'Bestiaire', 'btn-scores': 'Scores', 'btn-news': 'Nouveau', 'btn-credits': 'Crédits', 'btn-settings': 'Réglages' };
+{ const ICO = { 'btn-best': '<path d="M3 21h18"/><path d="M8 21v-5l-1.6-3.6a1 1 0 0 1 1.8-.9L9.5 14V7a1 1 0 0 1 2 0v5.5V5.5a1 1 0 0 1 2 0V12V7a1 1 0 0 1 2 0v7.5l1-1.6a1 1 0 0 1 1.7 1L16 19v2"/><path class="ib" d="M11.5 1.2c0 1-1.4 2.3-1.4 3.1a1.4 1.4 0 0 0 2.8 0c0-.8-1.4-2.1-1.4-3.1z"/>', lobby: '<path d="M3 11l9-7 9 7v10H3z"/><path d="M7.5 13.5l9 5M16.5 13.5l-9 5"/><path d="M15 6.5V3.5h2.5v4.8"/>', perso: '<circle cx="12" cy="8" r="4.2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/><path d="M9.6 5.2l2.6 3.6M9.8 7.4l1.2-.8M11 8.9l1.2-.8"/>', arsenal: '<path d="M4.5 19.5l6-6"/><path d="M9.5 14.5L17 7l3 3-7.5 7.5z"/><path d="M3 21l1.5-1.5"/><path class="ib" d="M14 17.6c0 1-1.4 2.3-1.4 3.1a1.4 1.4 0 0 0 2.8 0c0-.8-1.4-2.1-1.4-3.1z"/>', 'btn-ach': '<circle cx="12" cy="15" r="5.5"/><path d="M8 3l4 6.5L16 3"/><path d="M10.2 14.3h.01M13.8 14.3h.01M10.8 17.4l.6-.6.6.6.6-.6.6.6"/>', 'btn-carnet': '<path d="M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6z"/><path d="M6 3v18M4 7h3M4 12h3M4 17h3M10 8h5M10 11.5h4"/><path class="ib" d="M13.5 13.5c0 1-1.4 2.3-1.4 3.1a1.4 1.4 0 0 0 2.8 0c0-.8-1.4-2.1-1.4-3.1z"/>', 'btn-scores': '<path d="M5 5v14M9 4v15M13 5v14M17 4v15M3 15.5l17-7"/>', 'btn-credits': '<path d="M12 3a7.5 7.5 0 0 0-5 13.1V19h10v-2.9A7.5 7.5 0 0 0 12 3z"/><circle cx="9.3" cy="11" r="1.6"/><circle cx="14.7" cy="11" r="1.6"/><path d="M11 15.2l1-1.5 1 1.5M10 19v2M14 19v2"/>', 'btn-news': '<path d="M4 4h13v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M17 8h3v11a2 2 0 0 1-2 2M7 8h7M7 11h7M7 14h4.5"/><path d="M11 4l1.5 2L14 4"/><path class="ib" d="M18.5 1.5c0 1-1.4 2.3-1.4 3.1a1.4 1.4 0 0 0 2.8 0c0-.8-1.4-2.1-1.4-3.1z"/>', 'btn-settings': '<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/><path d="M13.5 9.5l1.5-2M10.6 14.5l-1 1.8"/>' };
+  const SHORT = { lobby: 'Accueil', perso: 'Perso', arsenal: 'Arsenal', 'btn-ach': 'Succès', 'btn-best': 'Bestiaire', 'btn-carnet': 'Carnet', 'btn-scores': 'Scores', 'btn-news': 'Nouveau', 'btn-credits': 'Crédits', 'btn-settings': 'Réglages' };
   for (const t of document.querySelectorAll('.hub-tabs .tab:not(.fs-tab)')) { const k = t.dataset.tab || t.id; if (!ICO[k]) continue; const lbl = document.createElement('span'); lbl.className = 't-lbl'; while (t.firstChild) lbl.appendChild(t.firstChild); t.insertAdjacentHTML('afterbegin', `<svg class="t-ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICO[k]}</svg>`); t.appendChild(lbl); t.insertAdjacentHTML('beforeend', `<span class="t-short" aria-hidden="true">${SHORT[k]}</span>`); } }
 // ---------- pas de zoom, sur aucun appareil : pincement, double-tap, Ctrl + molette, Ctrl + / -
 for (const ev of ['gesturestart', 'gesturechange', 'gestureend']) document.addEventListener(ev, e => e.preventDefault(), { passive: false });

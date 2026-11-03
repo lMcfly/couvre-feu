@@ -13,7 +13,7 @@ class Bullet {
         const z = near[i]; if (z.dead || z.spawnT > 0 || this.hit.has(z)) continue;
         const rr = z.r + (this.charged ? 8 : 3);
         if (dist2(this.x, this.y, z.x, z.y) < rr * rr) {
-          this.hit.add(z); if (this.shot && !this.shot.hit) { this.shot.hit = true; g.stats.hits++; } z.knock(this.vx / sp * (this.charged ? 420 : 110), this.vy / sp * (this.charged ? 420 : 110)); z.damage(this.dmg, this.vx / sp, this.vy / sp, 'bullet');
+          this.hit.add(z); if (this.shot && !this.shot.hit) { this.shot.hit = true; countShot(g, true); } z.knock(this.vx / sp * (this.charged ? 420 : 110), this.vy / sp * (this.charged ? 420 : 110)); z.damage(this.dmg, this.vx / sp, this.vy / sp, 'bullet');
           if (--this.pierce < 0) { this.dead = true; return; }
         }
       }
@@ -47,7 +47,7 @@ class Rocket {
     g.spawnP({ x: this.x, y: this.y, z: 14, vx: -this.vx * 0.1, vy: -this.vy * 0.1, life: 0.15, type: 'fire', size: 5, emissive: true });
     g.addLight(this.x, this.y, 170, '255,160,80', 0.8, 0.03);
   }
-  explode() { if (this.dead) return; this.dead = true; const n = this.g.explosion(this.x, this.y, this.rad, this.dmg, 'rocket'); if (n > 0 && this.shot && !this.shot.hit) { this.shot.hit = true; this.g.stats.hits++; } }
+  explode() { if (this.dead) return; this.dead = true; const n = this.g.explosion(this.x, this.y, this.rad, this.dmg, 'rocket'); if (n > 0 && this.shot && !this.shot.hit) { this.shot.hit = true; countShot(this.g, true); } }
 }
 class Throwable {
   constructor(g, kind, x, y, tx, ty) {
@@ -85,7 +85,7 @@ class Acid {
     this.t += dt; const k = Math.min(1, this.t / this.T); this.x = lerp(this.sx, this.tx, k); this.y = lerp(this.sy, this.ty, k); this.z = Math.sin(k * Math.PI) * (50 + this.T * 70);
     if (k >= 1) {
       this.dead = true; const g = this.g, R = this.big ? 42 : 30;
-      for (const p of g.players()) if (!p.dead && dist2(p.x, p.y, this.x, this.y) < (R + p.r) ** 2) p.hurt((this.big ? 18 : 11) * g.diff.dmg, this.x, this.y, 150);
+      g.hitCause = 'spitter'; for (const p of g.players()) if (!p.dead && dist2(p.x, p.y, this.x, this.y) < (R + p.r) ** 2) p.hurt((this.big ? 18 : 11) * g.diff.dmg, this.x, this.y, 150); g.hitCause = null;
       g.puddles.push({ x: this.x, y: this.y, r: R, life: this.big ? 6 : 4.5, max: this.big ? 6 : 4.5, dead: false });
       for (let i = 0; i < 8; i++) g.spawnP({ x: this.x, y: this.y, z: 2, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(60, 160), grav: 600, life: 0.6, type: 'acid', size: 2.5, emissive: true });
       g.audio.splat(this.x, this.y);

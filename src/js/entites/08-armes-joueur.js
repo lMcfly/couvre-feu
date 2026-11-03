@@ -131,7 +131,7 @@ class Player {
     const g = this.g, w = this.weapon, d = w.def; this.cd = w.rate(); w.ammo--; this.breakCover();
     const m = this.muzzle(); this.recoil = 1; this.muzzleT = 0.05;
     if (this.noiseT <= 0 && d.type !== 'flame') { g.makeNoise(this.x, this.y, 650); this.noiseT = 0.25; }
-    const shot = { hit: false }; if (d.type !== 'flame') g.stats.shots++;
+    const shot = { hit: false }; if (d.type !== 'flame') countShot(g);
     if (d.type === 'bullet') {
       for (let i = 0; i < d.pellets; i++) {
         const a = this.aim + (Math.random() - 0.5) * d.spread * (this.sprinting ? 1.6 : 1);
@@ -146,7 +146,7 @@ class Player {
       g.addLight(this.x + Math.cos(this.aim) * 110, this.y + Math.sin(this.aim) * 110, 300, '255,140,50', 0.8, 0.05);
       if (this.noiseT <= 0) { g.makeNoise(this.x, this.y, 400); this.noiseT = 0.5; }
     } else if (d.type === 'rail') {
-      if (g.railShot(m.x, m.y, this.aim, w.dmg())) g.stats.hits++;
+      if (g.railShot(m.x, m.y, this.aim, w.dmg())) countShot(g, true);
       this.kx -= Math.cos(this.aim) * 160; this.ky -= Math.sin(this.aim) * 160;
     } else if (d.type === 'rocket') {
       const rk = new Rocket(g, m.x, m.y, this.aim, w.dmg(), d.radius); rk.shot = shot; g.rockets.push(rk);
@@ -178,7 +178,7 @@ class Player {
   }
   hurt(dmg, sx, sy, kb = 260) {
     const g = this.g; if (this.inv > 0 || this.rollT > 0 || this.dead || g.state !== 'playing') return;
-    dmg *= 1 - 0.15 * this.armor; this.hp -= dmg; if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + dmg; this.inv = 0.35; g.zoneHit = true; this.lastHurt = g.time;
+    dmg *= 1 - 0.15 * this.armor; this.hp -= dmg; this.lastCause = g.hitCause || hitCause(g, sx, sy); if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + dmg; this.inv = 0.35; g.zoneHit = true; this.lastHurt = g.time;
     g.mult = Math.max(1, g.mult - 1); g.hurtFlash = Math.min(1, 0.35 + dmg / 40); g.shake(0.25 + dmg / 80); g.audio.hurt();
     const dx = this.x - sx, dy = this.y - sy, d = Math.hypot(dx, dy) || 1; this.kx += dx / d * kb; this.ky += dy / d * kb; if (this.isP2 && g.net === 'host') g.netEmit(['kb', Math.round(dx / d * kb), Math.round(dy / d * kb)]);
     g.bleed(this.x, this.y, dx / d, dy / d, 6);
@@ -187,7 +187,7 @@ class Player {
   }
   hurtDot(a) {
     const g = this.g; if (this.dead || g.state !== 'playing') return;
-    this.hp -= a * (1 - 0.15 * this.armor); if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + a * (1 - 0.15 * this.armor); g.hurtFlash = Math.max(g.hurtFlash, 0.18); g.zoneHit = true; this.lastHurt = g.time;
+    this.hp -= a * (1 - 0.15 * this.armor); this.lastCause = g.hitCause || 'dot'; if (!this.isP2 && g.stats) g.stats.taken = (g.stats.taken || 0) + a * (1 - 0.15 * this.armor); g.hurtFlash = Math.max(g.hurtFlash, 0.18); g.zoneHit = true; this.lastHurt = g.time;
     if (g.time - this.dotSnd > 0.45) { this.dotSnd = g.time; g.audio.hurt(); }
     if (this.hp <= 0) { if (this.isP2) g.onP2Death(this); else g.onPlayerDeath(); }
   }

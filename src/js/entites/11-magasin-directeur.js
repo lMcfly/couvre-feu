@@ -84,7 +84,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -141,6 +141,8 @@ const BESTIARY = [
   { k: 'ultimate', name: 'Le Shibanophile', type: 'Boss secret', m: 5, boss: true, txt: 'Mordu par un shiba en 2019. Depuis, c\'est personnel.', tip: 'Laisse : roule ou tire dessus pour la couper. En rage, il attire les shibas avec des croquettes : protège-les.' }
 ];
 const beastKey = z => z.ultimate ? 'ultimate' : z.mini ? 'mini' + (z.mk || 0) : z.type;
+// ce qui a blessé le joueur : le zombie posté au point d'impact, sinon le boss en cours, sinon une explosion
+const hitCause = (g, x, y) => { for (const z of g.zombies) if (!z.dead && dist2(z.x, z.y, x, y) < 9) return beastKey(z); return g.bossRef && !g.bossRef.dead ? beastKey(g.bossRef) : 'explosion'; };
 const SECRET_W = { walker: 40, runner: 30, riot: 12, brute: 8, bomber: 10 };
 // plan de l'hôpital (secteur 1 réaménagé) : couloir central, chambres de part et d'autre, morgue au fond
 const HOSP = { x0: 250, top: 452, bot: 730, doors: [470, 860, 1250, 1640], cols: [250, 660, 1050, 1440, 1830, 2060], morgue: 2060 };

@@ -6,7 +6,7 @@ mixin(Game, {
   },
   newGameCore() {
     this.resetModes(); this.shibaSeed = Math.floor(Math.random() * 1e6); this.keysOpen = false; this.audio.init(); this.diff = DIFFS[this.diffKey]; this.activeZone = -1; this.shibaFound = new Set(); this.resetWorld();
-    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0, 0, 0] }; this.stats = newStats(); this.shibaFound = new Set(); this.missionFor = -1;
+    this.mode = 'story'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0, 0, 0] }; this.stats = newStats(); carnet().runs++; this.shibaFound = new Set(); this.missionFor = -1;
     this.player = new Player(this, 140, 600); this.lives = this.diff.lives; this.score = 0; this.mult = 1; this.maxMult = 1; this.kills = 0; this.runTime = 0;
     this.zoneEntered = [false, false, false, false]; this.safeEntered = [false, false, false]; this.safeName = null; this.savedScore = false;
     this.checkpoint = this.makeCheckpoint(140, 600); this.state = 'playing'; this.deathT = 0;
@@ -30,7 +30,7 @@ mixin(Game, {
   newSecret(keep) {
     this.keysOpen = false; this.audio.init(); const prev = keep && this.player ? this.player : null; this.resetModes();
     this.diff = DIFFS[this.diffKey]; this.activeZone = -1; this.shibaFound = new Set(); this.resetWorld();
-    this.mode = 'secret'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats();
+    this.mode = 'secret'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats(); carnet().runs++;
     const p = this.player = new Player(this, PLAZA, 820);
     if (prev) { p.money = prev.money; p.armor = prev.armor; p.weapons.forEach((w, i) => w.restore(prev.weapons[i].snapshot())); p.cur = prev.cur; }
     else { p.armor = 2; for (const w of p.weapons) { w.owned = true; w.ammo = w.magSize(); if (!w.def.infinite) w.reserve = w.def.ammoPack * 2; } }
@@ -52,7 +52,7 @@ mixin(Game, {
   newHospital() {
     this.keysOpen = false; this.audio.init(); this.resetModes();
     this.diff = DIFFS[this.diffKey]; this.activeZone = -1; this.shibaFound = new Set(); this.resetWorld();
-    this.mode = 'hospital'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats();
+    this.mode = 'hospital'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats(); carnet().runs++;
     const p = this.player = new Player(this, 150, 600);
     p.armor = 2; for (const w of p.weapons) { w.owned = true; w.ammo = w.magSize(); if (!w.def.infinite) w.reserve = w.def.ammoPack * 2; }
     p.grenades = Math.max(p.grenades, 4); p.mines = Math.max(p.mines, 2); p.decoys = Math.max(p.decoys, 2);
@@ -151,7 +151,7 @@ mixin(Game, {
   newSurvival(keep) {
     this.keysOpen = false; this.audio.init(); const prev = keep && this.player ? this.player : null; this.resetModes();
     this.diff = DIFFS[this.diffKey]; this.activeZone = -1; this.shibaFound = new Set(); this.resetWorld();
-    this.mode = 'survival'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats(); this.shibaFound = new Set();
+    this.mode = 'survival'; this.run = { fetish: 0, saved: 0, riot: 0, special: 0, sv: [0, 0, 0] }; this.stats = newStats(); carnet().runs++; this.shibaFound = new Set();
     const p = this.player = new Player(this, PLAZA, 780);
     if (prev) { p.money = prev.money; p.armor = prev.armor; p.grenades = Math.max(3, prev.grenades); p.mines = Math.max(1, prev.mines); p.decoys = Math.max(2, prev.decoys); p.weapons.forEach((w, i) => w.restore(prev.weapons[i].snapshot())); p.cur = prev.cur; }
     else { p.money = 600; for (const i of [1, 2]) { const w = p.weapons[i]; w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack * 2; } }

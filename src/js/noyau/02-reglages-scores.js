@@ -3,7 +3,7 @@ const Settings = {
   quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital, carnet: this.carnet })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -27,6 +27,7 @@ const ACH = [
   ['scratch', 'Sans une égratignure', 'Terminer un secteur sans être touché.'],
   ['mult10', 'En pleine forme', 'Atteindre un multiplicateur ×10.'],
   ['alarm', 'Concert de klaxons', 'Tuer 8 zombies avec une seule explosion de voiture.'],
+  ['plombier', 'Plombier de l\'apocalypse', 'Sceller 10 bouches d\'égout à la grenade.'],
   ['samaritan', 'Bon samaritain', 'Ramener 3 survivants dans une même partie.'],
   ['glutton', 'Gourmand', 'Ramasser 6 objets fétiches dans une même partie.'],
   ['riot', 'Contournement', 'Abattre 20 CRS zombies dans une même partie.'],
@@ -51,6 +52,9 @@ const padLabel = i => i == null || i < 0 ? '—' : (PAD_NAMES[i] || 'Bouton ' + 
 Settings.binds = JSON.parse(JSON.stringify(DEFAULT_BINDS));
 Settings.padBinds = JSON.parse(JSON.stringify(DEFAULT_PAD));
 Settings.load();
+// carnet de survie : compteurs cumulés de toutes les parties (hors entraînement)
+function carnet() { const c = Settings.carnet && typeof Settings.carnet === 'object' ? Settings.carnet : (Settings.carnet = {}); for (const k of ['runs', 'time', 'kills', 'shots', 'hits', 'sealed', 'bolts', 'elites', 'saved']) if (typeof c[k] !== 'number') c[k] = 0; for (const k of ['deaths', 'arms']) if (!c[k] || typeof c[k] !== 'object') c[k] = {}; return c; }
+function countShot(g, hit) { const k = hit ? 'hits' : 'shots'; g.stats[k]++; if (g.mode !== 'training' && g.state === 'playing') carnet()[k]++; }
 // ancienne sauvegarde de touches : le sprint disparaît, sa touche passe à la roulade
 { const sv = Settings.binds; if (sv && sv.sprint) { const r = Array.isArray(sv.roll) ? sv.roll : ['', '']; sv.roll = [sv.sprint[0] || 'ShiftLeft', r[0] || 'Space']; delete sv.sprint; } }
 { const sv = Settings.padBinds; if (sv && sv.sprint) { const r = Array.isArray(sv.roll) ? sv.roll : [-1, -1]; sv.roll = [sv.sprint[0] >= 0 ? sv.sprint[0] : 6, r[0] >= 0 ? r[0] : 1]; delete sv.sprint; } }

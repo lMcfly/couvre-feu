@@ -22,7 +22,7 @@ mixin(Game, {
         if (!host) continue;
         const inside = e => e.x > t.x - e.r && e.x < t.x + t.w + e.r && e.y > t.y - e.r && e.y < t.y + t.h + e.r;
         for (const z of this.zombies) if (!z.dead && z.spawnT <= 0 && inside(z)) { z.damage(70 * dt, 0, 0, 'shock'); z.stun = Math.max(z.stun, 0.35); if (Math.random() < dt * 8) this.sparks(z.x, z.y - 14, 0, -1, 3); }
-        for (const p of this.players()) if (!p.dead && inside(p)) { p.hurtDot(22 * dt); p.ky += (p.y < t.y + 8 ? -1 : 1) * 900 * dt; /* la décharge rejette le survivant hors de la clôture */ }
+        for (const p of this.players()) if (!p.dead && inside(p)) { this.hitCause = 'trap'; p.hurtDot(22 * dt); this.hitCause = null; p.ky += (p.y < t.y + 8 ? -1 : 1) * 900 * dt; /* la décharge rejette le survivant hors de la clôture */ }
       } else {
         const o = t.ob, hx = o.x + 8, hy = o.y + 8, ca = Math.cos(t.ang), sa = Math.sin(t.ang), R = 300;
         for (let i = 0; i < 6; i++) { const a = t.ang + rand(-0.22, 0.22), sp = rand(420, 620); this.spawnP({ x: hx, y: hy, z: 14, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, vz: rand(10, 70), grav: 300, life: rand(0.4, 0.6), type: 'spark', size: 3, color: 'rgba(200,232,255,.95)', drag: 1 }); }
@@ -70,10 +70,34 @@ mixin(Game, {
       c.strokeStyle = shade(z.skin, -0.35); c.lineWidth = s * 0.28; c.lineCap = 'round'; c.beginPath(); c.moveTo(s * 0.4, -s * 0.5); c.lineTo(s * 1.2, -s * 1.1); c.moveTo(s * 0.3, s * 0.5); c.lineTo(s * 0.9, s * 1.2); c.stroke();
     });
   },
+  // ---------- météo : clair, averse, brouillard, orage ; l'hôte décide, l'invité suit
+  wxOn() { return (this.mode === 'story' || this.mode === 'survival') && !this.level.hosp; },
+  setWeather(k) {
+    const X = this.wx, W0 = WEATHER[k]; if (!X || !W0 || X.k === k) return;
+    X.k = k; X.t = rand(45, 80); if (k === 'orage') X.boltCd = rand(2, 5);
+    this.netEmit(['wx', k]); this.notice(W0.name, W0.sub, W0.col);
+    if (k === 'orage') this.audio.noise({ f: 300, f2: 50, dur: 2.6, g: 0.35, delay: 0.4 });
+  },
+  bolt() {
+    const X = this.wx; if (!X) return; X.bolt = 0.5; X.boltCd = rand(7, 15); this.netEmit(['bolt']);
+    const d = rand(0.3, 1.2); this.audio.noise({ f: 2200, f2: 300, dur: 0.35, g: 0.25, delay: d * 0.4 }); this.audio.noise({ f: 420, f2: 45, dur: 2.4, g: 0.55, delay: d }); this.audio.tone({ f: 55, f2: 30, dur: 1.6, g: 0.3, delay: d });
+    if (this.state === 'playing') carnet().bolts++;
+  },
+  // intensité de l'éclair en cours : deux flashs rapprochés puis un reflux
+  boltK() { const b = this.wx ? this.wx.bolt : 0; if (!(b > 0)) return 0; const v = b > 0.42 ? 1 : b > 0.34 ? 0.15 : b > 0.24 ? 0.85 : b / 0.24 * 0.45; return v * (Settings.calm ? 0.35 : 1); },
   updateWeather(dt) {
     const S = VS * DPR * (this.zoom || 1), hw = W / 2 / S + 60, hh = H / 2 / S + 60, cx = this.cam.x, cy = this.cam.y;
+    const X = this.wx || (this.wx = { k: 'clair', t: rand(40, 70), vis: 1, fog: 0, rain: 1, bolt: 0, boltCd: 8 }), on = this.wxOn();
+    if (this.state === 'playing' && on && this.net !== 'guest') {
+      if ((X.t -= dt) <= 0) this.setWeather(X.k === 'clair' ? pick(['averse', 'brouillard', 'orage']) : Math.random() < 0.6 ? 'clair' : pick(['averse', 'brouillard', 'orage'].filter(k => k !== X.k)));
+      if (X.k === 'orage' && (X.boltCd -= dt) <= 0) this.bolt();
+    }
+    if (!on) X.k = 'clair';
+    const T = WEATHER[X.k], e = Math.min(1, dt * 0.4); X.vis += (T.vis - X.vis) * e; X.fog += (T.fog - X.fog) * e; X.rain += (T.rain - X.rain) * e; X.bolt = Math.max(0, X.bolt - dt);
+    if (this.audio.rainG) this.audio.rainG.gain.value = (Settings.rain ? 0.05 : 0.012) * (0.55 + 0.45 * X.rain);
     if (Settings.rain && this.mode !== 'hospital') {
-      while (this.rain.length < (TOUCH ? 150 : 260)) this.rain.push({ x: cx + rand(-hw, hw), y: cy + rand(-hh, hh), z: rand(0, 380), v: rand(650, 900) });
+      const nr = Math.round((TOUCH ? 150 : 260) * X.rain); if (this.rain.length > nr) this.rain.length = nr;
+      while (this.rain.length < nr) this.rain.push({ x: cx + rand(-hw, hw), y: cy + rand(-hh, hh), z: rand(0, 380), v: rand(650, 900) });
       for (const d of this.rain) {
         d.z -= d.v * dt; d.x -= 60 * dt;
         if (d.z <= 0) {

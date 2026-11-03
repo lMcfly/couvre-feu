@@ -1,5 +1,11 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 79, d: '3 nov.', t: 'Météo, égouts et carnet', s: 'Le ciel se gâte, le sol gronde, et la ville tient tes comptes.', it: [
+    ['new', 'Météo', 'Averse, brouillard ou orage : le temps change en pleine partie. La lampe porte moins loin, et pendant l\'orage les éclairs illuminent toute la rue une seconde.'],
+    ['new', 'Bouches d\'égout', 'Un anneau orange clignote quand une bouche d\'égout gronde : des zombies vont en sortir. Une grenade dessus la scelle pour de bon, et rapporte des points.'],
+    ['new', 'Carnet de survie', 'Nouvel onglet Carnet : zombies abattus, temps joué, arme préférée, ce qui t\'a tué le plus souvent, sur toutes tes parties. Il passe aussi dans le code de transfert.'],
+    ['new', 'Succès', 'Plombier de l\'apocalypse : sceller 10 bouches d\'égout.']
+  ] },
   { v: 78, d: '30 oct.', t: 'Médailles et radio', s: 'Chaque mission se joue pour l\'or, et les rues parlent.', it: [
     ['new', 'Médailles', 'Bronze, argent ou or à chaque mission selon quatre défis : 3 shibas, aucune mort, moins de 60 dégâts reçus, et le temps. Elles s\'affichent sur la carte, ton meilleur résultat est gardé.'],
     ['new', 'Radio Survivants', 'Entre deux missions, la radio grésille et donne les nouvelles. Humour noir garanti.'],
