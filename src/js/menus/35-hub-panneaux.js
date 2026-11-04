@@ -86,11 +86,18 @@ function carnetTop(o, name) {
 }
 function carnetHTML() {
   const c = carnet(), t = Math.floor(c.time), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, dead = Object.values(c.deaths).reduce((a, b) => a + b, 0);
-  if (!c.runs && !c.kills) return '<p class="cn-empty">Page blanche. La ville n\'a encore rien écrit sur toi : lance une partie.</p>';
-  const cells = [['Zombies abattus', fmt(c.kills)], ['Temps dans les rues', h ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`], ['Parties', fmt(c.runs)], ['Morts', fmt(dead)], ['Précision', (c.shots ? Math.round(100 * c.hits / c.shots) : 0) + ' %'], ['Survivants sauvés', fmt(c.saved)], ['Zombies d\'élite', fmt(c.elites)], ['Bouches scellées', fmt(c.sealed)], ['Éclairs encaissés', fmt(c.bolts)]];
+  if (!c.runs && !c.kills && !(Settings.notes || []).length) return '<p class="cn-empty">Page blanche. La ville n\'a encore rien écrit sur toi : lance une partie.</p>';
+  const cells = [['Zombies abattus', fmt(c.kills)], ['Temps dans les rues', h ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`], ['Parties', fmt(c.runs)], ['Morts', fmt(dead)], ['Précision', (c.shots ? Math.round(100 * c.hits / c.shots) : 0) + ' %'], ['Survivants sauvés', fmt(c.saved)], ['Zombies d\'élite', fmt(c.elites)], ['Bouches scellées', fmt(c.sealed)], ['Éclairs encaissés', fmt(c.bolts)], ['Nuits de pleine lune', fmt(c.moons)], ['Armes de fortune cassées', fmt(c.broken)]];
   const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k, dName = k => (BESTIARY.find(b => b.k === k) || {}).name || DEATH_BY[k] || 'Inconnu';
   return `<p class="cn-intro">Tout ce que tu as vécu dans les rues, sur cet appareil.</p><div class="pause-stats cn-grid">${cells.map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`
-    + `<div class="cn-cols"><section><h4>Arme préférée</h4>${carnetTop(c.arms, wName)}</section><section><h4>Ce qui t'a eu le plus souvent</h4>${carnetTop(c.deaths, dName)}</section></div>`;
+    + `<div class="cn-cols"><section><h4>Arme préférée</h4>${carnetTop(c.arms, wName)}</section><section><h4>Ce qui t'a eu le plus souvent</h4>${carnetTop(c.deaths, dName)}</section></div>` + notesHTML();
+}
+// documents trouvés dans la ville, rangés par mission ; ceux qui manquent restent sous scellés
+function notesHTML() {
+  const got = Settings.notes || [], n = NOTES.filter(o => got.includes(o.id)).length;
+  return `<h4 class="cn-docs-h">Documents trouvés · ${n} / ${NOTES.length}</h4><p class="cn-intro">Lettres et notes cachées dans les rues. Elles brillent faiblement au sol.</p><div class="cn-docs">${NOTES.map(o => got.includes(o.id)
+    ? `<details class="cn-doc"><summary><small>Mission ${o.m + 1}</small><b>${o.from}</b></summary><p>${o.t}</p></details>`
+    : `<div class="cn-doc locked"><small>Mission ${o.m + 1}</small><b>Document introuvable</b></div>`).join('')}</div>`;
 }
 $('btn-carnet').addEventListener('click', e => togglePanel('panel-carnet', e.currentTarget, carnetHTML));
 const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['week', 'Semaine'], ['hospital', 'Hôpital'], ['coop', 'Duo']];

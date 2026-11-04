@@ -181,7 +181,7 @@ mixin(Game, {
         ci: this.cine ? [this.cine.b.nid, netR(this.cine.t)] : 0, ob: this.objective().text, st: this.state, md: this.mode, hc: this.hcamp ? 1 : 0, az: this.activeZone, sn: this.safeName || '', sf: this.shibaFound ? this.shibaFound.size : 0, mo: Math.floor(this.player.money || 0),
         svv: this.survivors.filter(v => !v.dead).map(v => netFlat(v)), ev: this.event ? netFlat(this.event) : 0, bu: this.buddy ? netFlat(this.buddy) : 0, p1d: netR(this.p1Down || 0), rv: this.reviveUsed ? 1 : 0, sv: this.surv ? [this.surv.wave, this.surv.state, netR(this.surv.t)] : 0 } };
     // ce qui change rarement (armes, objectifs, éclairage) n'est renvoyé que s'il a changé, ou une fois par seconde
-    const L = { W: q.weapons.map(w => [w.owned ? 1 : 0, w.ammo, w.reserve, w.lvl ? netFlat(w.lvl) : 0]), oj: this.mode === 'story' ? this.level.obj.map(o => o ? netFlat(o) : 0) : 0, lp: this.level.lamps.map(l => l.on ? 1 : 0).join('') }, Ls = JSON.stringify(L);
+    const L = { W: q.weapons.map(w => [w.owned ? 1 : 0, w.ammo, w.reserve, w.lvl ? netFlat(w.lvl) : 0, w.scrap ? [w.scrap.n, w.scrap.max, w.scrap.temp ? 1 : 0] : 0]), oj: this.mode === 'story' ? this.level.obj.map(o => o ? netFlat(o) : 0) : 0, lp: this.level.lamps.map(l => l.on ? 1 : 0).join('') }, Ls = JSON.stringify(L);
     if (Ls !== H.lastL || H.seq % 20 === 0) { S.L = L; H.lastL = Ls; }
     if (Net.relay && this.netEv.length) { S.e = this.netEv; this.netEv = []; }
     Net.send(S, !!S.e);
@@ -214,7 +214,7 @@ mixin(Game, {
     // sa position fait foi : on ne recale que s'il y a un vrai écart (réanimation, téléportation, mort)
     const tx = S.P[1][0], ty = S.P[1][1], err = Math.hypot(tx - me.x, ty - me.y); if (err > 300 || me.dead || !this._meSync || (this._wasDead && !me.dead)) { me.x = tx; me.y = ty; this._meSync = true; } this._wasDead = me.dead;
     if (S.L) { this.netG.L = S.L; } const L = this.netG.L || {};
-    if (S.L) (S.L.W || []).forEach((w, i) => { const o = me.weapons[i]; if (!o) return; o.owned = !!w[0]; o.ammo = w[1]; o.reserve = w[2]; if (w[3]) Object.assign(o.lvl || (o.lvl = {}), w[3]); });
+    if (S.L) (S.L.W || []).forEach((w, i) => { const o = me.weapons[i]; if (!o) return; o.owned = !!w[0]; o.ammo = w[1]; o.reserve = w[2]; if (w[3]) Object.assign(o.lvl || (o.lvl = {}), w[3]); o.scrap = w[4] ? { n: w[4][0], max: w[4][1], temp: !!w[4][2] } : null; });
     const seen = new Set(), need = [];
     for (const r of S.Z) { const nid = r[0], z = this.zmap.get(nid); seen.add(nid); if (!z) { if (!this.netNeed.has(nid)) { this.netNeed.add(nid); need.push(nid); } continue; }
       z._fx = z.x; z._fy = z.y; z._tx = r[1]; z._ty = r[2]; z._t0 = now; if (z._new || Math.hypot(r[1] - z.x, r[2] - z.y) > 260) { z.x = z._fx = r[1]; z.y = z._fy = r[2]; z._new = false; } z.dir = r[3] / 100; z.walkT = r[4] / 10; z.hp = r[5]; const f = r[6]; z.hitFlash = f & 1 ? 0.06 : 0; z.burn = f & 2 ? 1 : 0; z.stun = f & 4 ? 1 : 0; z.lunge = f & 8 ? 0.1 : 0;
@@ -272,6 +272,8 @@ mixin(Game, {
       case 'scream': this.screamFx(a[0], a[1]); break;
       case 'wx': this.setWeather(a[0]); break;
       case 'bolt': this.bolt(); break;
+      case 'note': { const got = Settings.notes || (Settings.notes = []); if (!got.includes(a[0])) { got.push(a[0]); Settings.save(); } break; }
+      case 'moon': this.setMoon(!!a[0]); break;
       case 'rumble': { const s = this.level.spawners[a[0]]; if (s) { s.rumble = a[1]; this.later(a[1], () => { s.rumble = 0; }); } break; }
       case 'seal': { const s = this.level.spawners[a[0]]; if (s && !s.sealed) this.sealFx(s); break; }
       case 'trap': { const t = (this.level.traps || []).find(x => x.ob.oid === a[0]); if (t) { t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = a[1]; this.trapFx(t); } break; }

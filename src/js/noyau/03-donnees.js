@@ -113,3 +113,22 @@ const WEATHER = {
   brouillard: { vis: 0.62, fog: 0.85, rain: 0.3, name: 'Brouillard', sub: 'On n\'y voit plus à dix mètres', col: '#c6c0b2' },
   orage: { vis: 0.78, fog: 0.2, rain: 2.8, name: 'Orage', sub: 'Les éclairs révèlent la rue', col: '#b9c8ff' }
 };
+// documents cachés dans la ville : m = mission où on les trouve, à lire dans le carnet
+const NOTES = [
+  { id: 'n0', m: 0, from: 'Ticket de métro froissé', t: 'Ligne 4, 23 h 52. Le conducteur a mordu le contrôleur. Le contrôleur a verbalisé le conducteur. Personne n\'est descendu à la station suivante. Personne n\'est descendu du tout.' },
+  { id: 'n1', m: 0, from: 'Affichette sur la vitrine du kebab', t: 'Fermé pour cause de clients. Ils reviennent tous les soirs, mais ils ne commandent plus. Ils attendent derrière la vitre. Je crois qu\'ils attendent le cuisinier. Mourad' },
+  { id: 'n2', m: 0, from: 'Lettre jamais postée', t: 'Maman, la radio dit que c\'est une grippe et qu\'il faut rester chez soi après 20 h. Le voisin du dessus est resté chez lui. Il gratte à ma porte depuis trois jours. Je ne crois pas que ce soit une grippe.' },
+  { id: 'n3', m: 1, from: 'Note de la régie télé', t: 'Consigne de la préfecture : ne jamais dire « zombie » à l\'antenne, dire « usager en détresse alimentaire ». La Speakerine a refusé de lire le prompteur. Elle l\'a mangé.' },
+  { id: 'n4', m: 1, from: 'Tract de la mairie', t: 'COUVRE-FEU À 20 H. Restez calmes, les secours arrivent. Ne nourrissez pas vos voisins. Ne laissez pas vos voisins vous nourrir. La Mairie, qui a déménagé à une adresse tenue secrète.' },
+  { id: 'n5', m: 1, from: 'Répondeur d\'un appartement', t: 'Bonjour, vous êtes bien chez Gérard. Je ne peux pas répondre, je suis dans le placard. Si vous entendez ce message, ne venez pas me chercher. Si vous entendez gratter, ce n\'est pas moi.' },
+  { id: 'n6', m: 2, from: 'Ticket de parking', t: 'Entrée 19 h 58. Sortie : jamais. Tarif de nuit : un bras. Le gardien dit qu\'un ticket perdu coûte plus cher. Je n\'ai pas osé lui demander combien.' },
+  { id: 'n7', m: 2, from: 'Mot sur un pare-brise', t: 'On s\'est réfugiés au niveau -2 avec Kevin. Kevin a été mordu. Kevin dit que ça va. Kevin ne cligne plus des yeux. Si vous lisez ça, ne descendez pas au -2. Sarah' },
+  { id: 'n8', m: 3, from: 'Compte rendu du conseil municipal', t: 'Ordre du jour : 1. Budget des lampadaires. 2. Odeur inhabituelle dans la salle des fêtes. 3. Le maire a mordu son adjoint pendant le vote. Motion adoptée à l\'unanimité des survivants : on ferme les portes à clé.' },
+  { id: 'n9', m: 3, from: 'Journal du maire, dernière page', t: 'Ils n\'ont jamais été aussi soudés. Trois conseillers, mon adjoint, et ce pigeon qui traînait sur le balcon. J\'avais promis l\'union de la ville. Je n\'avais pas imaginé ça.' },
+  { id: 'n10', m: 4, from: 'Dossier médical, chambre 12', t: 'Patient en attente de ses résultats depuis 41 heures. S\'énerve, crie de plus en plus fort. Quand il crie, les autres patients se lèvent. Ils ne devraient pas pouvoir se lever : ils sont à la morgue.' },
+  { id: 'n11', m: 4, from: 'Carnet d\'Inès', t: 'Le chirurgien opère encore. Il n\'a plus de patients vivants, alors il opère les autres. Il m\'a dit que j\'étais la prochaine sur sa liste. Je me cache près de la morgue. Venez vite, et ne le laissez pas vous endormir : il n\'endort plus personne.' }
+];
+// nuit de pleine lune : vitesse des zombies et multiplicateur des points et de l'argent
+const MOON_SPEED = 1.22, MOON_GAIN = 2;
+// arme de fortune : plus forte, mais elle s'use à chaque tir et finit par casser
+const SCRAP_DMG = 1.5, scrapLife = d => Math.max(8, Math.round(d.mag * 3));

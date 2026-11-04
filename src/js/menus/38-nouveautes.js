@@ -1,5 +1,10 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 80, d: '4 nov.', t: 'Lune rouge et vieux papiers', s: 'La ville raconte son histoire, et certaines nuits tournent mal.', it: [
+    ['new', 'Documents', '12 lettres et notes cachées dans les cinq missions. Elles brillent faiblement au sol. Une fois ramassées, tu les lis dans l\'onglet Carnet.'],
+    ['new', 'Nuit de pleine lune', 'Certaines nuits, la lune rouge se lève : les zombies courent plus vite, mais chaque zombie abattu rapporte le double de points et d\'argent.'],
+    ['new', 'Armes de fortune', 'Des armes bricolées traînent par terre, et les zombies d\'élite en lâchent : 50 % de dégâts en plus, mais une jauge d\'usure. À zéro, elle casse. Achète-la au marché noir pour la garder.']
+  ] },
   { v: 79, d: '3 nov.', t: 'Météo, égouts et carnet', s: 'Le ciel se gâte, le sol gronde, et la ville tient tes comptes.', it: [
     ['new', 'Météo', 'Averse, brouillard ou orage : le temps change en pleine partie. La lampe porte moins loin, et pendant l\'orage les éclairs illuminent toute la rue une seconde.'],
     ['new', 'Bouches d\'égout', 'Un anneau orange clignote quand une bouche d\'égout gronde : des zombies vont en sortir. Une grenade dessus la scelle pour de bon, et rapporte des points.'],

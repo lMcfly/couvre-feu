@@ -16,7 +16,7 @@ class Game {
     this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.winFx = null; this.mapHover = null;
     this.zombies = []; this.bullets = []; this.flames = []; this.rockets = []; this.throwables = []; this.mines = []; this.acids = [];
     this.puddles = []; this.fires = []; this.shockwaves = []; this.beams = []; this.particles = []; this.pickups = []; this.lights = []; this.survivors = [];
-    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
+    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.moon = false; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
     if (this.level) for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
     this.level = new Level(this); this.director.reset(); this.bossRef = null;
   }

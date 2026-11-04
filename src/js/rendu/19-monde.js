@@ -9,6 +9,7 @@ mixin(Game, {
       if (e.id === 'fog') { const s = this.worldToScreen(p.x, p.y), x = s.x * DPR, y = s.y * DPR, r0 = 140 * VS * DPR; const g = c.createRadialGradient(x, y, r0, x, y, r0 * 3.2); g.addColorStop(0, 'rgba(80,82,92,0)'); g.addColorStop(1, `rgba(80,82,92,${0.9 * fade})`); c.fillStyle = g; c.fillRect(0, 0, W, H); }
       if (e.id === 'ash') { c.fillStyle = `rgba(200,190,180,${0.6 * fade})`; const t = this.time; for (let i = 0; i < 140; i++) { const x = ((i * 137.5 + t * (18 + (i % 5) * 6)) % (W + 40)) - 20, y = ((i * 71.3 + t * (40 + (i % 7) * 9)) % (H + 40)) - 20; c.fillRect(x, y, 2 * DPR, 2 * DPR); } c.fillStyle = `rgba(120,60,30,${0.12 * fade})`; c.fillRect(0, 0, W, H); }
     }
+    if (this.moon && this.state !== 'title') { c.fillStyle = 'rgba(110,0,0,.09)'; c.fillRect(0, 0, W, H); }
     // météo : voile de brouillard autour du joueur, plus dense quand le temps se gâte
     { const X = this.wx, fg = X && this.state !== 'title' ? X.fog * (1 - this.boltK() * 0.7) : 0;
       if (fg > 0.02) { const s = this.worldToScreen(p.x, p.y), x = s.x * DPR, y = s.y * DPR, r0 = (170 - 60 * fg) * VS * DPR; const g = c.createRadialGradient(x, y, r0, x, y, r0 * 3.4); g.addColorStop(0, 'rgba(84,88,98,0)'); g.addColorStop(1, `rgba(84,88,98,${0.78 * fg})`); c.fillStyle = g; c.fillRect(0, 0, W, H); } }
@@ -122,7 +123,8 @@ mixin(Game, {
   renderLights(S, ox, oy, inView) {
     const L = lctx, lw = lightCanvas.width, lh = lightCanvas.height, p = this.player, t = this.time;
     L.setTransform(1, 0, 0, 1, 0, 0); L.globalCompositeOperation = 'source-over';
-    const amb = this.mode === 'secret' ? [58, 34, 56] : modOn(this, 'night') ? [3, 3, 6] : this.diff.ambient, bossDark = (this.blackoutT > 0 ? 0.1 : 1) * (this.bossRef && this.bossRef.state === 'intro' ? 0.4 : 1) * (this.event && this.event.id === 'blackout' ? 0.25 : this.event && this.event.id === 'ash' ? 0.7 : 1);
+    let amb = this.mode === 'secret' ? [58, 34, 56] : modOn(this, 'night') ? [3, 3, 6] : this.diff.ambient, bossDark = (this.blackoutT > 0 ? 0.1 : 1) * (this.bossRef && this.bossRef.state === 'intro' ? 0.4 : 1) * (this.event && this.event.id === 'blackout' ? 0.25 : this.event && this.event.id === 'ash' ? 0.7 : 1);
+    if (this.moon && this.state !== 'title') amb = [amb[0] * 1.3 + 30, amb[1] * 0.6 + 3, amb[2] * 0.6 + 5]; /* la pleine lune baigne la rue de rouge */
     const bk = this.boltK(), fl = (v, top) => (v * bossDark + (top - v * bossDark) * bk) | 0; /* l'éclair éclaire toute la rue un instant */
     L.fillStyle = `rgb(${fl(amb[0], 150)},${fl(amb[1], 158)},${fl(amb[2], 185)})`; L.fillRect(0, 0, lw, lh);
     L.setTransform(S / LD, 0, 0, S / LD, ox / LD, oy / LD); L.globalCompositeOperation = 'lighter';
@@ -177,7 +179,7 @@ mixin(Game, {
     for (const th of this.throwables) if (th.kind === 'decoy' && th.landed) glow(th.x, th.y, 260, '255,60,40', 0.75 + Math.random() * 0.25);
     for (const m of this.mines) if (m.arm <= 0 && Math.floor(m.t * 2) % 2 === 0) glow(m.x, m.y, 30, '255,40,30', 0.5);
     for (const o of this.level.machines) if (!o.broken) glow(o.x + o.w / 2, o.y + o.h + 4, 70, '255,90,80', 0.28);
-    for (const pk of this.pickups) if (pk.kind === 'key' || pk.kind === 'fuel' || pk.kind === 'weapon') glow(pk.x, pk.y, 90, pk.kind === 'weapon' ? '255,220,150' : '255,200,90', 0.3 + Math.sin(t * 4) * 0.1);
+    for (const pk of this.pickups) if (pk.kind === 'key' || pk.kind === 'fuel' || pk.kind === 'weapon' || pk.kind === 'scrap' || pk.kind === 'note') glow(pk.x, pk.y, pk.kind === 'note' ? 60 : 90, pk.kind === 'note' ? '235,225,200' : pk.kind === 'weapon' || pk.kind === 'scrap' ? '255,220,150' : '255,200,90', (pk.kind === 'note' ? 0.22 : 0.3) + Math.sin(t * 4) * 0.1);
     const ob = this.state === 'playing' ? this.objective() : null;
     if (this.activeZone === 1 && !this.level.obj[1].done) glow(this.level.obj[1].x, 600, 170, this.level.obj[1].started ? '120,255,140' : '255,70,50', 0.35 + Math.sin(t * 5) * 0.12);
     if (this.level.obj[3].dead) { glow(HELI, 600, 260, '255,40,30', 0.6 + Math.sin(t * 6) * 0.2); glow(HELI - 60, 520, 120, '255,60,40', 0.5); glow(HELI + 60, 680, 120, '255,60,40', 0.5); }
@@ -338,6 +340,8 @@ mixin(Game, {
       case 'med': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 9, 3, 0, 0, TAU); c.fill(); itemArt(c, 'med', pk.x, pk.y - 8 + b, 20); break;
       case 'grenade': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 7, 3, 0, 0, TAU); c.fill(); itemArt(c, 'grenade', pk.x, pk.y - 8 + b, 18); break;
       case 'shiba': drawShibaSprite(c, pk.x, pk.y, 1, this.time + pk.x); break;
+      case 'note': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y + 2, 10, 4, 0, 0, TAU); c.fill(); c.save(); c.translate(pk.x, pk.y - 6 + b); c.rotate(-0.18); c.fillStyle = '#e8dcc0'; c.fillRect(-8, -10, 16, 20); c.fillStyle = '#8a7e66'; for (let i = 0; i < 4; i++) c.fillRect(-5, -6 + i * 4, i === 3 ? 6 : 10, 1.2); c.fillStyle = '#8a1a12'; c.fillRect(3, 5, 3, 3); c.restore(); break;
+      case 'scrap': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 16, 6, 0, 0, TAU); c.fill(); c.save(); c.translate(pk.x, pk.y - 8 + b); c.rotate(0.2); c.fillStyle = '#3a3634'; c.fillRect(-16, -3, 30, 6); c.fillStyle = '#6a4a2c'; c.fillRect(-16, 1, 8, 8); c.fillStyle = '#b8a888'; c.fillRect(-4, -5, 3, 10); c.fillRect(4, -5, 3, 10); c.fillStyle = '#c6a06a'; c.fillRect(10, -2, 6, 3); c.restore(); break;
       case 'battery': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 8, 3, 0, 0, TAU); c.fill(); itemArt(c, 'battery', pk.x, pk.y - 9 + b, 20); break;
       case 'fetish':
         c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 10, 4, 0, 0, TAU); c.fill();

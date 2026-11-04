@@ -66,7 +66,7 @@ mixin(Game, {
     this.banner('Secteur 5 · Hôpital Saint-Lazare', 'Traverse les couloirs jusqu\'à la morgue'); this.audio.setTheme('parking');
   },
   buildHospital() {
-    const L = this.level, H = HOSP;
+    const L = this.level, H = HOSP; this.setMoon(false);
     L.obstacles = L.obstacles.filter(o => o.zone !== 0); L.spawners = L.spawners.filter(s => s.zone !== 0); L.chests = (L.chests || []).filter(c => c.zone !== 0);
     for (const l of L.lamps) if (l.zone === 0) l.on = false;
     this.pickups = []; this.survivors = []; L.traps = L.traps.filter(t => t.zone !== 0); L.graffiti = L.graffiti.filter(t => t.zone !== 0); /* rien de la ville ne reste dans l'hôpital */
@@ -109,6 +109,7 @@ mixin(Game, {
     const spot = R => { for (let t = 0; t < 40; t++) { const x = Math.round(R.x0 + rs() * (R.x1 - R.x0)), y = Math.round(R.y0 + rs() * (R.y1 - R.y0)); if (!this.level.pointObstacle(x, y) && !this.level.pointObstacle(x + 14, y + 14) && !this.level.pointObstacle(x - 14, y - 14)) return [x, y]; } return null; };
     for (let i = 0; i < SHIBAS_PER; i++) { const s = spot(rooms[i]); if (!s || this.shibaFound.has('4-' + i)) continue; const pk = new Pickup(this, 'shiba', s[0], s[1], i); pk.zone = 0; pk.sid = '4-' + i; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); }
     const s = spot(rooms[SHIBAS_PER]); if (s && this.run.sv[4] !== 2) this.survivors.push(new Survivor(this, s[0], s[1], 4, MISSION_SURV[4]));
+    NOTES.filter(n => n.m === 4 && !(Settings.notes || []).includes(n.id)).forEach((n, i) => { const d = rooms[SHIBAS_PER + 1 + i] && spot(rooms[SHIBAS_PER + 1 + i]); if (!d) return; const pk = new Pickup(this, 'note', d[0], d[1], n.id); pk.zone = 0; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); });
   },
   updateHospital() {
     const o = this.level.obj[0], p = this.player; if (!o || o.spawned || p.dead) return;
@@ -169,7 +170,7 @@ mixin(Game, {
     if (s.state === 'break') {
       s.t -= dt;
       if (s.t <= 0) {
-        s.wave++; s.state = 'wave'; const n = s.wave;
+        s.wave++; s.state = 'wave'; const n = s.wave; this.rollMoon(n >= 3 ? 0.2 : 0);
         s.weights = this.dailyMod && this.dailyMod.weights ? this.dailyMod.weights : { walker: 50, runner: 20 + n * 2, bomber: 8, spitter: 6 + n, brute: 2 + n, riot: 3 + n * 1.5, dog: n > 1 ? 2 + n : 0 };
         this.director.queue += Math.min(90, Math.round((8 + n * 5) * this.diff.pop));
         this.banner(`Vague ${n}`, n % 5 === 0 ? 'L\'Abomination revient' : 'Tiens la place'); this.audio.siren();

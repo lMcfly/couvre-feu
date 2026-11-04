@@ -4,7 +4,7 @@ class Zombie {
     const T = ZTYPES[type], D = g.diff;
     this.g = g; this.type = type; this.x = x; this.y = y; this.r = T.r; this.nid = ++NET_NID;
     this.maxHp = this.hp = T.hp * D.hp * (1 + Math.max(0, g.activeZone) * 0.08);
-    this.speed = rand(T.speed[0], T.speed[1]); this.dmg = T.dmg * D.dmg; this.kbMul = T.kb;
+    this.speed = rand(T.speed[0], T.speed[1]) * (g.moon && type !== 'boss' ? MOON_SPEED : 1); this.dmg = T.dmg * D.dmg; this.kbMul = T.kb;
     this.kx = 0; this.ky = 0; this.dir = rand(0, TAU); this.atkCd = rand(0, 0.5);
     this.spawnKind = spawnKind; this.spawnMax = spawnKind === 'sewer' ? 0.9 : spawnKind ? 0.6 : 0; this.spawnT = this.spawnMax;
     this.walkT = rand(0, 10); this.hitFlash = 0; this.burn = 0; this.flameCd = 0; this.stun = 0; this.dead = false;

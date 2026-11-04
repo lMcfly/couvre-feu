@@ -17,10 +17,10 @@ class Shop {
     const ITEMS = { grenades: [60, 9, `${keyPhrase('grenade')}. Explose après 1,7 s.`], mines: [80, 5, `${keyPhrase('mine')}. Posée à tes pieds, s'arme en 1 s.`], decoys: [70, 5, `${keyPhrase('decoy')}. Attire la horde 8 s puis explose.`] };
     let name, desc, state, img, items = '', cases = '';
     if (tab === 'arms') {
-      p.weapons.forEach((w, i) => { const d = w.def; items += `<button type="button" class="arm-slot ${i === sel.arms ? 'on' : ''} ${w.owned ? '' : 'locked'}" data-act="sel:${i}" aria-pressed="${i === sel.arms}"><img src="${iconURL(d.id, true)}" alt=""><b>${d.name}</b><small>${w.owned ? (d.infinite ? '∞' : `${w.ammo} / ${w.reserve}`) : '$' + fmt(d.price)}</small></button>`; });
+      p.weapons.forEach((w, i) => { const d = w.def; items += `<button type="button" class="arm-slot ${i === sel.arms ? 'on' : ''} ${own(w) ? '' : 'locked'}" data-act="sel:${i}" aria-pressed="${i === sel.arms}"><img src="${iconURL(d.id, true)}" alt=""><b>${d.name}</b><small>${own(w) ? (d.infinite ? '∞' : `${w.ammo} / ${w.reserve}`) : '$' + fmt(d.price)}</small></button>`; });
       const i = sel.arms, w = p.weapons[i], d = w.def; name = d.name; desc = d.desc; img = iconURL(d.id, true);
-      state = w.owned ? `Touche ${i + 1} · munitions ${w.ammo} / ${d.infinite ? '∞' : w.reserve}` : `Pas encore à toi · $${fmt(d.price)}`;
-      if (!w.owned) { cases += act(`buy:${i}`, 'Acheter', '$' + fmt(d.price), money >= d.price, '<small>l\'arme et un chargeur plein</small>'); for (const u of ['dmg', 'rate', 'mag']) cases += off(UPNAMES[u], 'achète d\'abord l\'arme'); }
+      state = own(w) ? `Touche ${i + 1} · munitions ${w.ammo} / ${d.infinite ? '∞' : w.reserve}` : w.scrap ? `De fortune, en main : encore ${w.scrap.n} tirs avant qu'elle casse · achète-la pour la garder` : `Pas encore à toi · $${fmt(d.price)}`;
+      if (!own(w)) { cases += act(`buy:${i}`, 'Acheter', '$' + fmt(d.price), money >= d.price, '<small>l\'arme et un chargeur plein</small>'); for (const u of ['dmg', 'rate', 'mag']) cases += off(UPNAMES[u], 'achète d\'abord l\'arme'); }
       else {
         cases += d.infinite ? off('Munitions', 'infinies') : act(`ammo:${i}`, 'Munitions', '$' + d.ammoPrice, money >= d.ammoPrice, `<small>+${d.ammoPack} balles</small>`);
         for (const u of ['dmg', 'rate', 'mag']) { const l = w.lvl[u], pr = this.upPrice(i, u); cases += l >= 3 ? off(UPNAMES[u], stars(3, 3) + ' max') : act(`up:${i}:${u}`, UPNAMES[u], '$' + fmt(pr), money >= pr, stars(l, 3)); }
@@ -34,7 +34,7 @@ class Shop {
       else { const [pr, max, ds] = ITEMS[k]; desc = ds; state = `${p[k]} / ${max} sur toi`; cases += act(`item:${k}:${pr}:${max}`, 'Acheter +1', '$' + pr, money >= pr && p[k] < max, p[k] >= max ? '<small>poches pleines</small>' : ''); }
     }
     // encart : ce qui vient de devenir abordable
-    const news = []; p.weapons.forEach((w, i) => { if (!w.owned && money >= w.def.price) news.push(['Enfin disponible', w.def.name]); else if (w.owned && ['dmg', 'rate', 'mag'].some(u => w.lvl[u] < 3 && money >= this.upPrice(i, u))) news.push(['Amélioration possible', w.def.name]); });
+    const news = []; p.weapons.forEach((w, i) => { if (!own(w) && money >= w.def.price) news.push(['Enfin disponible', w.def.name]); else if (own(w) && ['dmg', 'rate', 'mag'].some(u => w.lvl[u] < 3 && money >= this.upPrice(i, u))) news.push(['Amélioration possible', w.def.name]); });
     if (p.armor < 3 && money >= 300 * (p.armor + 1)) news.push(['Amélioration possible', 'Armure']);
     const tb = (k, l, ic) => `<button type="button" class="arm-tab" data-act="tab:${k}" aria-pressed="${tab === k}" aria-label="${l}"><img src="${iconURL(ic, k === 'arms')}" alt=""><span>${l}</span></button>`;
     this.body.innerHTML = `<div class="arm" data-tab="${tab}">
@@ -52,7 +52,7 @@ class Shop {
     const pay = n => { if (p.money < n) return false; p.money -= n; return true; };
     switch (parts[0]) {
       case 'close': g.audio.ui(); this.close(); return;
-      case 'buy': { const w = p.weapons[+parts[1]]; if (modOn(g, 'pistol')) { g.toast('Défi : pistolet seulement', '#8b867b'); break; } if (!w.owned && pay(w.def.price)) { w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack; ok = true; } break; }
+      case 'buy': { const w = p.weapons[+parts[1]]; if (modOn(g, 'pistol')) { g.toast('Défi : pistolet seulement', '#8b867b'); break; } if (!own(w) && pay(w.def.price)) { w.owned = true; if (w.scrap) w.scrap.temp = false; w.ammo = w.magSize(); w.reserve = Math.max(w.reserve, w.def.ammoPack); ok = true; } break; }
       case 'ammo': { const w = p.weapons[+parts[1]]; if (pay(w.def.ammoPrice)) { w.reserve += w.def.ammoPack; ok = true; } break; }
       case 'up': { const i = +parts[1], u = parts[2], w = p.weapons[i]; if (w.lvl[u] < 3 && pay(this.upPrice(i, u))) { const before = w.magSize(); w.lvl[u]++; if (u === 'mag') w.ammo += w.magSize() - before; ok = true; } break; }
       case 'armor': if (p.armor < 3 && pay(300 * (p.armor + 1))) { p.armor++; ok = true; } break;
@@ -84,7 +84,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'notes', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -140,6 +140,8 @@ const BESTIARY = [
   { k: 'mini3', name: 'Le Chirurgien', type: 'Boss · hôpital', m: 5, boss: true, txt: 'Major de sa promo en chirurgie, recalé en anesthésie. Ses patients ne se plaignent plus jamais.', tip: 'Fuis le faisceau de sa frontale. Les lignes blanches annoncent ses scalpels ; à 30 %, il réanime les morts.' },
   { k: 'ultimate', name: 'Le Shibanophile', type: 'Boss secret', m: 5, boss: true, txt: 'Mordu par un shiba en 2019. Depuis, c\'est personnel.', tip: 'Laisse : roule ou tire dessus pour la couper. En rage, il attire les shibas avec des croquettes : protège-les.' }
 ];
+// une arme de fortune trouvée par terre n'appartient pas encore au joueur : le marché noir peut la lui vendre
+const own = w => w.owned && !(w.scrap && w.scrap.temp);
 const beastKey = z => z.ultimate ? 'ultimate' : z.mini ? 'mini' + (z.mk || 0) : z.type;
 // ce qui a blessé le joueur : le zombie posté au point d'impact, sinon le boss en cours, sinon une explosion
 const hitCause = (g, x, y) => { for (const z of g.zombies) if (!z.dead && dist2(z.x, z.y, x, y) < 9) return beastKey(z); return g.bossRef && !g.bossRef.dead ? beastKey(g.bossRef) : 'explosion'; };

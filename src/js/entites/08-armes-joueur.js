@@ -1,12 +1,12 @@
 // ============================================================ armes
 class Weapon {
-  constructor(def) { this.def = def; this.owned = def.id === 'pistol'; this.lvl = { dmg: 0, rate: 0, mag: 0 }; this.ammo = this.magSize(); this.reserve = def.infinite ? Infinity : 0; }
-  dmg() { return this.def.dmg * (1 + 0.25 * this.lvl.dmg) * (1 + 0.2 * mutN('dmg')); }
+  constructor(def) { this.def = def; this.scrap = null; this.owned = def.id === 'pistol'; this.lvl = { dmg: 0, rate: 0, mag: 0 }; this.ammo = this.magSize(); this.reserve = def.infinite ? Infinity : 0; }
+  dmg() { return this.def.dmg * (1 + 0.25 * this.lvl.dmg) * (1 + 0.2 * mutN('dmg')) * (this.scrap ? SCRAP_DMG : 1); }
   rate() { return this.def.rate * Math.pow(0.86, this.lvl.rate); }
   magSize() { return Math.round(this.def.mag * (1 + 0.35 * this.lvl.mag)); }
   reloadTime() { return this.def.reload * Math.pow(0.9, this.lvl.mag) * Math.pow(0.75, mutN('reload')); }
-  snapshot() { return { owned: this.owned, lvl: { ...this.lvl }, ammo: this.ammo, reserve: this.reserve }; }
-  restore(s) { this.owned = s.owned; this.lvl = { ...s.lvl }; this.ammo = s.ammo; this.reserve = s.reserve; }
+  snapshot() { return { owned: this.owned, lvl: { ...this.lvl }, ammo: this.ammo, reserve: this.reserve, scrap: this.scrap ? { ...this.scrap } : null }; }
+  restore(s) { this.owned = s.owned; this.lvl = { ...s.lvl }; this.ammo = s.ammo; this.reserve = s.reserve; this.scrap = s.scrap ? { ...s.scrap } : null; }
 }
 
 // ============================================================ joueur
@@ -128,7 +128,7 @@ class Player {
     const g = this.g; if (this.isP2 && g.net === 'host' && this.weapon.def.type === 'bullet' && !charged) { g._noNetFx = true; try { this.fire0(charged); } finally { g._noNetFx = false; } return; } this.fire0(charged);
   }
   fire0(charged) {
-    const g = this.g, w = this.weapon, d = w.def; this.cd = w.rate(); w.ammo--; this.breakCover();
+    const g = this.g, w = this.weapon, d = w.def; this.cd = w.rate(); w.ammo--; this.breakCover(); const worn = w.scrap && --w.scrap.n <= 0;
     const m = this.muzzle(); this.recoil = 1; this.muzzleT = 0.05;
     if (this.noiseT <= 0 && d.type !== 'flame') { g.makeNoise(this.x, this.y, 650); this.noiseT = 0.25; }
     const shot = { hit: false }; if (d.type !== 'flame') countShot(g);
@@ -156,6 +156,15 @@ class Player {
     }
     g.shake(d.shake * (charged ? 3 : 1));
     if (d.type !== 'flame') g.audio.shot(d.id, charged);
+    if (worn) this.breakScrap(w);
+  }
+  // l'arme de fortune lâche : elle disparaît si on ne l'avait pas achetée, sinon elle redevient normale
+  breakScrap(w) {
+    const g = this.g, temp = w.scrap.temp; w.scrap = null; g.audio.tone({ f: 420, f2: 90, dur: 0.35, type: 'square', g: 0.18 }); g.audio.empty();
+    for (let i = 0; i < 8; i++) g.spawnP({ x: this.x, y: this.y, z: 16, vx: rand(-120, 120), vy: rand(-120, 120), vz: rand(60, 180), grav: 600, life: 1, type: 'debris', size: rand(2, 3.5), color: '#7a7268' });
+    g.notice(`${w.def.name} de fortune`, temp ? 'Elle a lâché : il faudra l\'acheter au marché noir' : 'Elle a lâché : retour à ton arme normale', '#c6a06a');
+    if (temp) { w.owned = false; w.ammo = 0; w.reserve = 0; this.reloadT = 0; this.charging = false; this.cycle(-1); if (!this.weapon.owned) this.cur = 0; }
+    if (!this.isP2 && g.mode !== 'training') carnet().broken++;
   }
   melee() {
     if (this.meleeCd > 0) return; const g = this.g; this.breakCover();

@@ -1247,6 +1247,18 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
 .cn-bars i{grid-column:1/-1;height:6px;background:rgba(0,0,0,.45);border:1px solid #3a2e30;position:relative}
 .cn-bars i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);background:linear-gradient(90deg,#6e0f0c,var(--blood))}
 @media (max-width:640px){.cn-cols{grid-template-columns:1fr}.cn-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
+.cn-docs-h{margin-top:18px!important}
+.cn-docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;align-items:start}
+.cn-doc{border:1px solid #3a2e30;border-left:3px solid #8a7e66;background:var(--grime),linear-gradient(180deg,#221d1c,#120f10);background-size:256px 256px,100% 100%}
+.cn-doc summary,.cn-doc.locked{display:flex;flex-direction:column;gap:2px;padding:9px 12px;cursor:pointer;list-style:none}
+.cn-doc summary::-webkit-details-marker{display:none}
+.cn-doc small{font-family:var(--display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ash)}
+.cn-doc b{font-family:var(--type);font-weight:400;font-size:15px;color:#e8dcc0}
+.cn-doc[open]{border-left-color:var(--blood)}
+.cn-doc p{margin:0;padding:0 12px 12px;font-family:var(--type);font-size:14px;line-height:1.5;color:var(--bone)}
+.cn-doc.locked{cursor:default;opacity:.45;border-left-color:#3a2e30}
+.cn-doc.locked b{color:var(--ash)}
+.cn-doc summary:focus-visible{outline:2px solid var(--sodium);outline-offset:-2px}
 </style>
 
 <canvas id="game" aria-label="Couvre-Feu, zone de jeu"></canvas>
@@ -1636,7 +1648,7 @@ const Settings = {
   quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital, carnet: this.carnet })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital, carnet: this.carnet, notes: this.notes })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -1686,7 +1698,7 @@ Settings.binds = JSON.parse(JSON.stringify(DEFAULT_BINDS));
 Settings.padBinds = JSON.parse(JSON.stringify(DEFAULT_PAD));
 Settings.load();
 // carnet de survie : compteurs cumulés de toutes les parties (hors entraînement)
-function carnet() { const c = Settings.carnet && typeof Settings.carnet === 'object' ? Settings.carnet : (Settings.carnet = {}); for (const k of ['runs', 'time', 'kills', 'shots', 'hits', 'sealed', 'bolts', 'elites', 'saved']) if (typeof c[k] !== 'number') c[k] = 0; for (const k of ['deaths', 'arms']) if (!c[k] || typeof c[k] !== 'object') c[k] = {}; return c; }
+function carnet() { const c = Settings.carnet && typeof Settings.carnet === 'object' ? Settings.carnet : (Settings.carnet = {}); for (const k of ['runs', 'time', 'kills', 'shots', 'hits', 'sealed', 'bolts', 'elites', 'saved', 'broken', 'moons']) if (typeof c[k] !== 'number') c[k] = 0; for (const k of ['deaths', 'arms']) if (!c[k] || typeof c[k] !== 'object') c[k] = {}; return c; }
 function countShot(g, hit) { const k = hit ? 'hits' : 'shots'; g.stats[k]++; if (g.mode !== 'training' && g.state === 'playing') carnet()[k]++; }
 // ancienne sauvegarde de touches : le sprint disparaît, sa touche passe à la roulade
 { const sv = Settings.binds; if (sv && sv.sprint) { const r = Array.isArray(sv.roll) ? sv.roll : ['', '']; sv.roll = [sv.sprint[0] || 'ShiftLeft', r[0] || 'Space']; delete sv.sprint; } }
@@ -1862,6 +1874,25 @@ const WEATHER = {
   brouillard: { vis: 0.62, fog: 0.85, rain: 0.3, name: 'Brouillard', sub: 'On n\'y voit plus à dix mètres', col: '#c6c0b2' },
   orage: { vis: 0.78, fog: 0.2, rain: 2.8, name: 'Orage', sub: 'Les éclairs révèlent la rue', col: '#b9c8ff' }
 };
+// documents cachés dans la ville : m = mission où on les trouve, à lire dans le carnet
+const NOTES = [
+  { id: 'n0', m: 0, from: 'Ticket de métro froissé', t: 'Ligne 4, 23 h 52. Le conducteur a mordu le contrôleur. Le contrôleur a verbalisé le conducteur. Personne n\'est descendu à la station suivante. Personne n\'est descendu du tout.' },
+  { id: 'n1', m: 0, from: 'Affichette sur la vitrine du kebab', t: 'Fermé pour cause de clients. Ils reviennent tous les soirs, mais ils ne commandent plus. Ils attendent derrière la vitre. Je crois qu\'ils attendent le cuisinier. Mourad' },
+  { id: 'n2', m: 0, from: 'Lettre jamais postée', t: 'Maman, la radio dit que c\'est une grippe et qu\'il faut rester chez soi après 20 h. Le voisin du dessus est resté chez lui. Il gratte à ma porte depuis trois jours. Je ne crois pas que ce soit une grippe.' },
+  { id: 'n3', m: 1, from: 'Note de la régie télé', t: 'Consigne de la préfecture : ne jamais dire « zombie » à l\'antenne, dire « usager en détresse alimentaire ». La Speakerine a refusé de lire le prompteur. Elle l\'a mangé.' },
+  { id: 'n4', m: 1, from: 'Tract de la mairie', t: 'COUVRE-FEU À 20 H. Restez calmes, les secours arrivent. Ne nourrissez pas vos voisins. Ne laissez pas vos voisins vous nourrir. La Mairie, qui a déménagé à une adresse tenue secrète.' },
+  { id: 'n5', m: 1, from: 'Répondeur d\'un appartement', t: 'Bonjour, vous êtes bien chez Gérard. Je ne peux pas répondre, je suis dans le placard. Si vous entendez ce message, ne venez pas me chercher. Si vous entendez gratter, ce n\'est pas moi.' },
+  { id: 'n6', m: 2, from: 'Ticket de parking', t: 'Entrée 19 h 58. Sortie : jamais. Tarif de nuit : un bras. Le gardien dit qu\'un ticket perdu coûte plus cher. Je n\'ai pas osé lui demander combien.' },
+  { id: 'n7', m: 2, from: 'Mot sur un pare-brise', t: 'On s\'est réfugiés au niveau -2 avec Kevin. Kevin a été mordu. Kevin dit que ça va. Kevin ne cligne plus des yeux. Si vous lisez ça, ne descendez pas au -2. Sarah' },
+  { id: 'n8', m: 3, from: 'Compte rendu du conseil municipal', t: 'Ordre du jour : 1. Budget des lampadaires. 2. Odeur inhabituelle dans la salle des fêtes. 3. Le maire a mordu son adjoint pendant le vote. Motion adoptée à l\'unanimité des survivants : on ferme les portes à clé.' },
+  { id: 'n9', m: 3, from: 'Journal du maire, dernière page', t: 'Ils n\'ont jamais été aussi soudés. Trois conseillers, mon adjoint, et ce pigeon qui traînait sur le balcon. J\'avais promis l\'union de la ville. Je n\'avais pas imaginé ça.' },
+  { id: 'n10', m: 4, from: 'Dossier médical, chambre 12', t: 'Patient en attente de ses résultats depuis 41 heures. S\'énerve, crie de plus en plus fort. Quand il crie, les autres patients se lèvent. Ils ne devraient pas pouvoir se lever : ils sont à la morgue.' },
+  { id: 'n11', m: 4, from: 'Carnet d\'Inès', t: 'Le chirurgien opère encore. Il n\'a plus de patients vivants, alors il opère les autres. Il m\'a dit que j\'étais la prochaine sur sa liste. Je me cache près de la morgue. Venez vite, et ne le laissez pas vous endormir : il n\'endort plus personne.' }
+];
+// nuit de pleine lune : vitesse des zombies et multiplicateur des points et de l'argent
+const MOON_SPEED = 1.22, MOON_GAIN = 2;
+// arme de fortune : plus forte, mais elle s'use à chaque tir et finit par casser
+const SCRAP_DMG = 1.5, scrapLife = d => Math.max(8, Math.round(d.mag * 3));
 // ============================================================ canvas
 const $ = id => document.getElementById(id);
 const canvas = $('game'); let ctx = canvas.getContext('2d'); // let : le teaser des fiches emprunte le moteur de dessin
@@ -2441,6 +2472,10 @@ class Level {
     for (let i = 0; i < (k === 3 ? 4 : 7); i++) {
       for (let t = 0; t < 30; t++) { const x = Math.round(Z.x0 + 200 + r() * (Z.x1 - Z.x0 - 400)), y = Math.round(k === 2 ? (r() < 0.5 ? 600 : ST + 100) : 280 + r() * 640); if (free(x - 20, y - 20, 40, 40, 10)) { this.spawners.push({ x, y, kind: 'sewer', zone: k, anim: 0 }); reserved.push({ x: x - 20, y: y - 20, w: 40, h: 40 }); break; } }
     }
+    // documents pas encore lus et une arme de fortune : tirage à part, posés en dernier
+    { const rd = mulberry32(5101 + k * 31 + (g.shibaSeed || 0)), got = Settings.notes || [], at = () => { for (let t = 0; t < 60; t++) { const x = Math.round(Z.x0 + 160 + rd() * (Z.x1 - Z.x0 - 320)), y = Math.round(rd() < 0.55 ? ST + 92 + rd() * 60 : 280 + rd() * 640); if (free(x - 16, y - 16, 32, 32, 8)) return [x, y]; } return null; };
+      for (const n of NOTES) if (n.m === k && !got.includes(n.id)) { const s = at(); if (s) pickup('note', s[0], s[1], n.id); }
+      if (rd() < 0.75) { const s = at(); if (s) pickup('scrap', s[0], s[1], 0); } }
   }
   resetZone(k) {
     for (const o of this.obstacles) if (o.zone === k && o.snd) this.g.audio.alarmStop(o);
@@ -2555,13 +2590,13 @@ class Level {
 
 // ============================================================ armes
 class Weapon {
-  constructor(def) { this.def = def; this.owned = def.id === 'pistol'; this.lvl = { dmg: 0, rate: 0, mag: 0 }; this.ammo = this.magSize(); this.reserve = def.infinite ? Infinity : 0; }
-  dmg() { return this.def.dmg * (1 + 0.25 * this.lvl.dmg) * (1 + 0.2 * mutN('dmg')); }
+  constructor(def) { this.def = def; this.scrap = null; this.owned = def.id === 'pistol'; this.lvl = { dmg: 0, rate: 0, mag: 0 }; this.ammo = this.magSize(); this.reserve = def.infinite ? Infinity : 0; }
+  dmg() { return this.def.dmg * (1 + 0.25 * this.lvl.dmg) * (1 + 0.2 * mutN('dmg')) * (this.scrap ? SCRAP_DMG : 1); }
   rate() { return this.def.rate * Math.pow(0.86, this.lvl.rate); }
   magSize() { return Math.round(this.def.mag * (1 + 0.35 * this.lvl.mag)); }
   reloadTime() { return this.def.reload * Math.pow(0.9, this.lvl.mag) * Math.pow(0.75, mutN('reload')); }
-  snapshot() { return { owned: this.owned, lvl: { ...this.lvl }, ammo: this.ammo, reserve: this.reserve }; }
-  restore(s) { this.owned = s.owned; this.lvl = { ...s.lvl }; this.ammo = s.ammo; this.reserve = s.reserve; }
+  snapshot() { return { owned: this.owned, lvl: { ...this.lvl }, ammo: this.ammo, reserve: this.reserve, scrap: this.scrap ? { ...this.scrap } : null }; }
+  restore(s) { this.owned = s.owned; this.lvl = { ...s.lvl }; this.ammo = s.ammo; this.reserve = s.reserve; this.scrap = s.scrap ? { ...s.scrap } : null; }
 }
 
 // ============================================================ joueur
@@ -2683,7 +2718,7 @@ class Player {
     const g = this.g; if (this.isP2 && g.net === 'host' && this.weapon.def.type === 'bullet' && !charged) { g._noNetFx = true; try { this.fire0(charged); } finally { g._noNetFx = false; } return; } this.fire0(charged);
   }
   fire0(charged) {
-    const g = this.g, w = this.weapon, d = w.def; this.cd = w.rate(); w.ammo--; this.breakCover();
+    const g = this.g, w = this.weapon, d = w.def; this.cd = w.rate(); w.ammo--; this.breakCover(); const worn = w.scrap && --w.scrap.n <= 0;
     const m = this.muzzle(); this.recoil = 1; this.muzzleT = 0.05;
     if (this.noiseT <= 0 && d.type !== 'flame') { g.makeNoise(this.x, this.y, 650); this.noiseT = 0.25; }
     const shot = { hit: false }; if (d.type !== 'flame') countShot(g);
@@ -2711,6 +2746,15 @@ class Player {
     }
     g.shake(d.shake * (charged ? 3 : 1));
     if (d.type !== 'flame') g.audio.shot(d.id, charged);
+    if (worn) this.breakScrap(w);
+  }
+  // l'arme de fortune lâche : elle disparaît si on ne l'avait pas achetée, sinon elle redevient normale
+  breakScrap(w) {
+    const g = this.g, temp = w.scrap.temp; w.scrap = null; g.audio.tone({ f: 420, f2: 90, dur: 0.35, type: 'square', g: 0.18 }); g.audio.empty();
+    for (let i = 0; i < 8; i++) g.spawnP({ x: this.x, y: this.y, z: 16, vx: rand(-120, 120), vy: rand(-120, 120), vz: rand(60, 180), grav: 600, life: 1, type: 'debris', size: rand(2, 3.5), color: '#7a7268' });
+    g.notice(`${w.def.name} de fortune`, temp ? 'Elle a lâché : il faudra l\'acheter au marché noir' : 'Elle a lâché : retour à ton arme normale', '#c6a06a');
+    if (temp) { w.owned = false; w.ammo = 0; w.reserve = 0; this.reloadT = 0; this.charging = false; this.cycle(-1); if (!this.weapon.owned) this.cur = 0; }
+    if (!this.isP2 && g.mode !== 'training') carnet().broken++;
   }
   melee() {
     if (this.meleeCd > 0) return; const g = this.g; this.breakCover();
@@ -2754,7 +2798,7 @@ class Zombie {
     const T = ZTYPES[type], D = g.diff;
     this.g = g; this.type = type; this.x = x; this.y = y; this.r = T.r; this.nid = ++NET_NID;
     this.maxHp = this.hp = T.hp * D.hp * (1 + Math.max(0, g.activeZone) * 0.08);
-    this.speed = rand(T.speed[0], T.speed[1]); this.dmg = T.dmg * D.dmg; this.kbMul = T.kb;
+    this.speed = rand(T.speed[0], T.speed[1]) * (g.moon && type !== 'boss' ? MOON_SPEED : 1); this.dmg = T.dmg * D.dmg; this.kbMul = T.kb;
     this.kx = 0; this.ky = 0; this.dir = rand(0, TAU); this.atkCd = rand(0, 0.5);
     this.spawnKind = spawnKind; this.spawnMax = spawnKind === 'sewer' ? 0.9 : spawnKind ? 0.6 : 0; this.spawnT = this.spawnMax;
     this.walkT = rand(0, 10); this.hitFlash = 0; this.burn = 0; this.flameCd = 0; this.stun = 0; this.dead = false;
@@ -3370,6 +3414,17 @@ class Pickup {
         g.audio.pickup(); break;
       }
       case 'key': case 'fuel': g.onObjectivePickup(this, p); g.audio.pickup(); break;
+      case 'scrap': {
+        const free = p.weapons.map((w, i) => i).filter(i => i > 0 && !p.weapons[i].scrap), i = modOn(g, 'pistol') ? 0 : free.length ? pick(free) : randi(1, p.weapons.length - 1), w = p.weapons[i], temp = !own(w), n = scrapLife(w.def);
+        w.scrap = { n, max: n, temp }; if (temp) { w.owned = true; w.reserve = w.def.infinite ? Infinity : w.def.ammoPack; } else if (!w.def.infinite) w.reserve += Math.ceil(w.def.ammoPack / 2);
+        w.ammo = w.magSize(); p.switchTo(i); g.notice(`${w.def.name} de fortune`, `+50 % de dégâts, mais elle s'use · touche ${i + 1}`, '#c6a06a'); g.audio.pickup();
+        if (!g.scrapTip) { g.scrapTip = true; g.later(1.2, () => g.toast('Arme de fortune : la jauge sous l\'arme montre son usure. Elle casse à zéro.', '#c6a06a')); }
+        break;
+      }
+      case 'note': {
+        const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = Settings.notes || (Settings.notes = []); if (!got.includes(N.id)) got.push(N.id); Settings.save(); g.netEmit(['note', N.id]);
+        g.notice('Document trouvé', `${N.from} · à lire dans le Carnet (${got.length} / ${NOTES.length})`, '#e8dcc0'); g.audio.tone({ f: 900, f2: 1300, dur: 0.12, type: 'triangle', g: 0.12 }); g.audio.pickup(); break;
+      }
       case 'shiba': {
         g.shibaFound.add(this.sid || this.zone + '-' + this.val); const n = g.shibaFound.size;
         g.notice('Shiba sauvé', `${n} / ${SHIBAS_TOTAL}${n === SHIBAS_TOTAL ? ' · le Paradis t\'attend' : ''}`, '#ffb46a'); g.audio.bark(this.x, this.y, true); g.audio.pickup();
@@ -3440,10 +3495,10 @@ class Shop {
     const ITEMS = { grenades: [60, 9, `${keyPhrase('grenade')}. Explose après 1,7 s.`], mines: [80, 5, `${keyPhrase('mine')}. Posée à tes pieds, s'arme en 1 s.`], decoys: [70, 5, `${keyPhrase('decoy')}. Attire la horde 8 s puis explose.`] };
     let name, desc, state, img, items = '', cases = '';
     if (tab === 'arms') {
-      p.weapons.forEach((w, i) => { const d = w.def; items += `<button type="button" class="arm-slot ${i === sel.arms ? 'on' : ''} ${w.owned ? '' : 'locked'}" data-act="sel:${i}" aria-pressed="${i === sel.arms}"><img src="${iconURL(d.id, true)}" alt=""><b>${d.name}</b><small>${w.owned ? (d.infinite ? '∞' : `${w.ammo} / ${w.reserve}`) : '$' + fmt(d.price)}</small></button>`; });
+      p.weapons.forEach((w, i) => { const d = w.def; items += `<button type="button" class="arm-slot ${i === sel.arms ? 'on' : ''} ${own(w) ? '' : 'locked'}" data-act="sel:${i}" aria-pressed="${i === sel.arms}"><img src="${iconURL(d.id, true)}" alt=""><b>${d.name}</b><small>${own(w) ? (d.infinite ? '∞' : `${w.ammo} / ${w.reserve}`) : '$' + fmt(d.price)}</small></button>`; });
       const i = sel.arms, w = p.weapons[i], d = w.def; name = d.name; desc = d.desc; img = iconURL(d.id, true);
-      state = w.owned ? `Touche ${i + 1} · munitions ${w.ammo} / ${d.infinite ? '∞' : w.reserve}` : `Pas encore à toi · $${fmt(d.price)}`;
-      if (!w.owned) { cases += act(`buy:${i}`, 'Acheter', '$' + fmt(d.price), money >= d.price, '<small>l\'arme et un chargeur plein</small>'); for (const u of ['dmg', 'rate', 'mag']) cases += off(UPNAMES[u], 'achète d\'abord l\'arme'); }
+      state = own(w) ? `Touche ${i + 1} · munitions ${w.ammo} / ${d.infinite ? '∞' : w.reserve}` : w.scrap ? `De fortune, en main : encore ${w.scrap.n} tirs avant qu'elle casse · achète-la pour la garder` : `Pas encore à toi · $${fmt(d.price)}`;
+      if (!own(w)) { cases += act(`buy:${i}`, 'Acheter', '$' + fmt(d.price), money >= d.price, '<small>l\'arme et un chargeur plein</small>'); for (const u of ['dmg', 'rate', 'mag']) cases += off(UPNAMES[u], 'achète d\'abord l\'arme'); }
       else {
         cases += d.infinite ? off('Munitions', 'infinies') : act(`ammo:${i}`, 'Munitions', '$' + d.ammoPrice, money >= d.ammoPrice, `<small>+${d.ammoPack} balles</small>`);
         for (const u of ['dmg', 'rate', 'mag']) { const l = w.lvl[u], pr = this.upPrice(i, u); cases += l >= 3 ? off(UPNAMES[u], stars(3, 3) + ' max') : act(`up:${i}:${u}`, UPNAMES[u], '$' + fmt(pr), money >= pr, stars(l, 3)); }
@@ -3457,7 +3512,7 @@ class Shop {
       else { const [pr, max, ds] = ITEMS[k]; desc = ds; state = `${p[k]} / ${max} sur toi`; cases += act(`item:${k}:${pr}:${max}`, 'Acheter +1', '$' + pr, money >= pr && p[k] < max, p[k] >= max ? '<small>poches pleines</small>' : ''); }
     }
     // encart : ce qui vient de devenir abordable
-    const news = []; p.weapons.forEach((w, i) => { if (!w.owned && money >= w.def.price) news.push(['Enfin disponible', w.def.name]); else if (w.owned && ['dmg', 'rate', 'mag'].some(u => w.lvl[u] < 3 && money >= this.upPrice(i, u))) news.push(['Amélioration possible', w.def.name]); });
+    const news = []; p.weapons.forEach((w, i) => { if (!own(w) && money >= w.def.price) news.push(['Enfin disponible', w.def.name]); else if (own(w) && ['dmg', 'rate', 'mag'].some(u => w.lvl[u] < 3 && money >= this.upPrice(i, u))) news.push(['Amélioration possible', w.def.name]); });
     if (p.armor < 3 && money >= 300 * (p.armor + 1)) news.push(['Amélioration possible', 'Armure']);
     const tb = (k, l, ic) => `<button type="button" class="arm-tab" data-act="tab:${k}" aria-pressed="${tab === k}" aria-label="${l}"><img src="${iconURL(ic, k === 'arms')}" alt=""><span>${l}</span></button>`;
     this.body.innerHTML = `<div class="arm" data-tab="${tab}">
@@ -3475,7 +3530,7 @@ class Shop {
     const pay = n => { if (p.money < n) return false; p.money -= n; return true; };
     switch (parts[0]) {
       case 'close': g.audio.ui(); this.close(); return;
-      case 'buy': { const w = p.weapons[+parts[1]]; if (modOn(g, 'pistol')) { g.toast('Défi : pistolet seulement', '#8b867b'); break; } if (!w.owned && pay(w.def.price)) { w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack; ok = true; } break; }
+      case 'buy': { const w = p.weapons[+parts[1]]; if (modOn(g, 'pistol')) { g.toast('Défi : pistolet seulement', '#8b867b'); break; } if (!own(w) && pay(w.def.price)) { w.owned = true; if (w.scrap) w.scrap.temp = false; w.ammo = w.magSize(); w.reserve = Math.max(w.reserve, w.def.ammoPack); ok = true; } break; }
       case 'ammo': { const w = p.weapons[+parts[1]]; if (pay(w.def.ammoPrice)) { w.reserve += w.def.ammoPack; ok = true; } break; }
       case 'up': { const i = +parts[1], u = parts[2], w = p.weapons[i]; if (w.lvl[u] < 3 && pay(this.upPrice(i, u))) { const before = w.magSize(); w.lvl[u]++; if (u === 'mag') w.ammo += w.magSize() - before; ok = true; } break; }
       case 'armor': if (p.armor < 3 && pay(300 * (p.armor + 1))) { p.armor++; ok = true; } break;
@@ -3507,7 +3562,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'notes', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -3563,6 +3618,8 @@ const BESTIARY = [
   { k: 'mini3', name: 'Le Chirurgien', type: 'Boss · hôpital', m: 5, boss: true, txt: 'Major de sa promo en chirurgie, recalé en anesthésie. Ses patients ne se plaignent plus jamais.', tip: 'Fuis le faisceau de sa frontale. Les lignes blanches annoncent ses scalpels ; à 30 %, il réanime les morts.' },
   { k: 'ultimate', name: 'Le Shibanophile', type: 'Boss secret', m: 5, boss: true, txt: 'Mordu par un shiba en 2019. Depuis, c\'est personnel.', tip: 'Laisse : roule ou tire dessus pour la couper. En rage, il attire les shibas avec des croquettes : protège-les.' }
 ];
+// une arme de fortune trouvée par terre n'appartient pas encore au joueur : le marché noir peut la lui vendre
+const own = w => w.owned && !(w.scrap && w.scrap.temp);
 const beastKey = z => z.ultimate ? 'ultimate' : z.mini ? 'mini' + (z.mk || 0) : z.type;
 // ce qui a blessé le joueur : le zombie posté au point d'impact, sinon le boss en cours, sinon une explosion
 const hitCause = (g, x, y) => { for (const z of g.zombies) if (!z.dead && dist2(z.x, z.y, x, y) < 9) return beastKey(z); return g.bossRef && !g.bossRef.dead ? beastKey(g.bossRef) : 'explosion'; };
@@ -3607,7 +3664,7 @@ class Game {
     this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.winFx = null; this.mapHover = null;
     this.zombies = []; this.bullets = []; this.flames = []; this.rockets = []; this.throwables = []; this.mines = []; this.acids = [];
     this.puddles = []; this.fires = []; this.shockwaves = []; this.beams = []; this.particles = []; this.pickups = []; this.lights = []; this.survivors = [];
-    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
+    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.moon = false; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
     if (this.level) for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
     this.level = new Level(this); this.director.reset(); this.bossRef = null;
   }
@@ -3909,7 +3966,7 @@ mixin(Game, {
     this.banner('Secteur 5 · Hôpital Saint-Lazare', 'Traverse les couloirs jusqu\'à la morgue'); this.audio.setTheme('parking');
   },
   buildHospital() {
-    const L = this.level, H = HOSP;
+    const L = this.level, H = HOSP; this.setMoon(false);
     L.obstacles = L.obstacles.filter(o => o.zone !== 0); L.spawners = L.spawners.filter(s => s.zone !== 0); L.chests = (L.chests || []).filter(c => c.zone !== 0);
     for (const l of L.lamps) if (l.zone === 0) l.on = false;
     this.pickups = []; this.survivors = []; L.traps = L.traps.filter(t => t.zone !== 0); L.graffiti = L.graffiti.filter(t => t.zone !== 0); /* rien de la ville ne reste dans l'hôpital */
@@ -3952,6 +4009,7 @@ mixin(Game, {
     const spot = R => { for (let t = 0; t < 40; t++) { const x = Math.round(R.x0 + rs() * (R.x1 - R.x0)), y = Math.round(R.y0 + rs() * (R.y1 - R.y0)); if (!this.level.pointObstacle(x, y) && !this.level.pointObstacle(x + 14, y + 14) && !this.level.pointObstacle(x - 14, y - 14)) return [x, y]; } return null; };
     for (let i = 0; i < SHIBAS_PER; i++) { const s = spot(rooms[i]); if (!s || this.shibaFound.has('4-' + i)) continue; const pk = new Pickup(this, 'shiba', s[0], s[1], i); pk.zone = 0; pk.sid = '4-' + i; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); }
     const s = spot(rooms[SHIBAS_PER]); if (s && this.run.sv[4] !== 2) this.survivors.push(new Survivor(this, s[0], s[1], 4, MISSION_SURV[4]));
+    NOTES.filter(n => n.m === 4 && !(Settings.notes || []).includes(n.id)).forEach((n, i) => { const d = rooms[SHIBAS_PER + 1 + i] && spot(rooms[SHIBAS_PER + 1 + i]); if (!d) return; const pk = new Pickup(this, 'note', d[0], d[1], n.id); pk.zone = 0; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); });
   },
   updateHospital() {
     const o = this.level.obj[0], p = this.player; if (!o || o.spawned || p.dead) return;
@@ -4012,7 +4070,7 @@ mixin(Game, {
     if (s.state === 'break') {
       s.t -= dt;
       if (s.t <= 0) {
-        s.wave++; s.state = 'wave'; const n = s.wave;
+        s.wave++; s.state = 'wave'; const n = s.wave; this.rollMoon(n >= 3 ? 0.2 : 0);
         s.weights = this.dailyMod && this.dailyMod.weights ? this.dailyMod.weights : { walker: 50, runner: 20 + n * 2, bomber: 8, spitter: 6 + n, brute: 2 + n, riot: 3 + n * 1.5, dog: n > 1 ? 2 + n : 0 };
         this.director.queue += Math.min(90, Math.round((8 + n * 5) * this.diff.pop));
         this.banner(`Vague ${n}`, n % 5 === 0 ? 'L\'Abomination revient' : 'Tiens la place'); this.audio.siren();
@@ -4235,7 +4293,7 @@ mixin(Game, {
   enterZone(k) {
     if (this.missionFor !== k) { this.missionFor = k; this.missionStart = this.snapStats(); }
     this.zoneEntered[k] = true; this.activeZone = k; this.zoneHit = false; if (k > 0) this.level.setGate(ZONES[k].x0, true);
-    this.banner(ZONES[k].sub, ZONES[k].name); this.seedZone(k); this.director.reset();
+    this.banner(ZONES[k].sub, ZONES[k].name); this.seedZone(k); this.director.reset(); if (this.mode === 'story') this.rollMoon(k === 0 && !this.endless ? 0.08 : 0.2);
     this.audio.setTheme(['gare', 'boulevard', 'parking', 'mairie'][k]);
     if (this.mode === 'story' && k >= 1 && Math.random() < 0.6) this.later(rand(18, 35), () => this.startEvent(k));
     if (k === 3) this.later(1.8, () => { if (this.activeZone === 3 && !this.level.obj[3].spawned) this.spawnBoss(); });
@@ -4647,19 +4705,20 @@ mixin(Game, {
         this.cleared[k0] = true; this.finFx = currentFinisher(); this.slowMo(2.2, 'RUE NETTOYÉE'); this.slowCd = now + 20; this.recentKills = [];
         const bonus = Math.round(3000 * this.diff.score); this.score += bonus; this.player.money += 150; this.later(0.6, () => this.toast(`Plus un zombie dans la rue : +${fmt(bonus)} points, +$150`, '#ffd23a')); this.audio.objective();
       } else if (this.recentKills.length >= 12 && !(this.slowCd > now) && !this.zombies.some(o => o !== z && !o.dead && o.aggro && dist2(o.x, o.y, this.player.x, this.player.y) < 700 * 700)) { this.slowMo(1.2, 'HORDE NETTOYÉE'); this.slowCd = now + 20; this.recentKills = []; } }
-    const pts = Math.round(T.score * this.mult * this.diff.score); this.score += pts;
+    const pts = Math.round(T.score * this.mult * this.diff.score * (this.moon ? MOON_GAIN : 1)); this.score += pts;
     if (this.mult < 5 && this.mult + 0.1 >= 5) this.quip('streak');
     this.mult = Math.min(this.mult + 0.1, 25); this.maxMult = Math.max(this.maxMult, this.mult); this.multPulse = 1;
     if (this.mult >= 10) this.unlock('mult10');
     if (z.type === 'riot') { this.run.riot++; if (this.run.riot >= 20) this.unlock('riot'); }
-    this.floatText(z.x, z.y - 34, '+' + fmt(pts), this.mult >= 5 ? '#ff6a45' : '#f0b25a');
+    this.floatText(z.x, z.y - 34, '+' + fmt(pts), this.moon ? '#ff4a3a' : this.mult >= 5 ? '#ff6a45' : '#f0b25a');
     if (mutN('vamp') && !this.player.dead) this.player.hp = Math.min(this.player.maxHp, this.player.hp + 2 * mutN('vamp'));
-    const m = Math.max(1, Math.round((1 + 0.4 * mutN('money')) * T.money * this.diff.money * rand(0.8, 1.3))), n = Math.min(z.type === 'boss' ? 40 : 8, Math.ceil(m / 6));
+    const m = Math.max(1, Math.round((1 + 0.4 * mutN('money')) * T.money * this.diff.money * rand(0.8, 1.3) * (this.moon ? MOON_GAIN : 1))), n = Math.min(z.type === 'boss' ? 40 : 8, Math.ceil(m / 6));
     for (let i = 0; i < n; i++) this.pickups.push(new Pickup(this, 'coin', z.x + rand(-6, 6), z.y + rand(-6, 6), Math.max(1, Math.round(m / n))));
     const r = Math.random();
     if (r < 0.05) this.pickups.push(new Pickup(this, 'ammo', z.x, z.y, 0)); else if (r < 0.075) this.pickups.push(new Pickup(this, 'med', z.x, z.y, 0)); else if (r < 0.085) this.pickups.push(new Pickup(this, 'grenade', z.x, z.y, 0)); else if (r < 0.125) this.pickups.push(new Pickup(this, 'battery', z.x, z.y, 0));
+    if (!z.elite && this.mode !== 'training' && Math.random() < 0.004) this.pickups.push(new Pickup(this, 'scrap', z.x, z.y, 0));
     if (z.elite) { // bonus rare : une bourse, un objet au choix du hasard, et des points en plus
-      const cash = Math.round(120 * this.diff.money); this.pickups.push(new Pickup(this, 'coin', z.x, z.y, cash)); this.pickups.push(new Pickup(this, pick(['grenade', 'med', 'ammo', 'battery']), z.x + 10, z.y, 0));
+      const cash = Math.round(120 * this.diff.money); this.pickups.push(new Pickup(this, 'coin', z.x, z.y, cash)); this.pickups.push(new Pickup(this, Math.random() < 0.45 ? 'scrap' : pick(['grenade', 'med', 'ammo', 'battery']), z.x + 10, z.y, 0));
       const eb = Math.round(1500 * this.diff.score); this.score += eb; this.floatText(z.x, z.y - 56, `ÉLITE ABATTU · +${fmt(eb)}`, z.elite === 'gold' ? '#ffd23a' : '#ff7a3a'); this.audio.coin(); this.shake(0.3);
       if (z.elite === 'fire') this.fires.push(new FireArea(this, z.x, z.y, 60, 2.2));
       if (!this.eliteTip) { this.eliteTip = true; this.later(0.6, () => this.toast('Les zombies d\'élite rapportent gros : guette les dorés et les enflammés', '#ffd23a')); }
@@ -4809,6 +4868,15 @@ mixin(Game, {
       c.strokeStyle = shade(z.skin, -0.35); c.lineWidth = s * 0.28; c.lineCap = 'round'; c.beginPath(); c.moveTo(s * 0.4, -s * 0.5); c.lineTo(s * 1.2, -s * 1.1); c.moveTo(s * 0.3, s * 0.5); c.lineTo(s * 0.9, s * 1.2); c.stroke();
     });
   },
+  // ---------- nuit de pleine lune : zombies plus rapides, points et argent doublés ; l'hôte tire au sort, l'invité suit
+  setMoon(on) {
+    if (!!this.moon === on) return; this.moon = on; this.netEmit(['moon', on ? 1 : 0]);
+    if (!on) { if (this.state === 'playing') this.toast('La lune rouge se cache derrière les nuages', '#c6c0b2'); return; }
+    for (const z of this.zombies) if (!z.dead && z.type !== 'boss') z.speed *= MOON_SPEED;
+    this.later(2.6, () => { if (this.moon) this.banner('Nuit de pleine lune', 'Les zombies courent plus vite, mais rapportent le double'); }); this.audio.roar(0.5);
+    if (this.state === 'playing' && this.net !== 'guest') carnet().moons++;
+  },
+  rollMoon(chance) { if (this.net !== 'guest') this.setMoon(Math.random() < chance); },
   // ---------- météo : clair, averse, brouillard, orage ; l'hôte décide, l'invité suit
   wxOn() { return (this.mode === 'story' || this.mode === 'survival') && !this.level.hosp; },
   setWeather(k) {
@@ -4904,6 +4972,7 @@ mixin(Game, {
       if (e.id === 'fog') { const s = this.worldToScreen(p.x, p.y), x = s.x * DPR, y = s.y * DPR, r0 = 140 * VS * DPR; const g = c.createRadialGradient(x, y, r0, x, y, r0 * 3.2); g.addColorStop(0, 'rgba(80,82,92,0)'); g.addColorStop(1, `rgba(80,82,92,${0.9 * fade})`); c.fillStyle = g; c.fillRect(0, 0, W, H); }
       if (e.id === 'ash') { c.fillStyle = `rgba(200,190,180,${0.6 * fade})`; const t = this.time; for (let i = 0; i < 140; i++) { const x = ((i * 137.5 + t * (18 + (i % 5) * 6)) % (W + 40)) - 20, y = ((i * 71.3 + t * (40 + (i % 7) * 9)) % (H + 40)) - 20; c.fillRect(x, y, 2 * DPR, 2 * DPR); } c.fillStyle = `rgba(120,60,30,${0.12 * fade})`; c.fillRect(0, 0, W, H); }
     }
+    if (this.moon && this.state !== 'title') { c.fillStyle = 'rgba(110,0,0,.09)'; c.fillRect(0, 0, W, H); }
     // météo : voile de brouillard autour du joueur, plus dense quand le temps se gâte
     { const X = this.wx, fg = X && this.state !== 'title' ? X.fog * (1 - this.boltK() * 0.7) : 0;
       if (fg > 0.02) { const s = this.worldToScreen(p.x, p.y), x = s.x * DPR, y = s.y * DPR, r0 = (170 - 60 * fg) * VS * DPR; const g = c.createRadialGradient(x, y, r0, x, y, r0 * 3.4); g.addColorStop(0, 'rgba(84,88,98,0)'); g.addColorStop(1, `rgba(84,88,98,${0.78 * fg})`); c.fillStyle = g; c.fillRect(0, 0, W, H); } }
@@ -5017,7 +5086,8 @@ mixin(Game, {
   renderLights(S, ox, oy, inView) {
     const L = lctx, lw = lightCanvas.width, lh = lightCanvas.height, p = this.player, t = this.time;
     L.setTransform(1, 0, 0, 1, 0, 0); L.globalCompositeOperation = 'source-over';
-    const amb = this.mode === 'secret' ? [58, 34, 56] : modOn(this, 'night') ? [3, 3, 6] : this.diff.ambient, bossDark = (this.blackoutT > 0 ? 0.1 : 1) * (this.bossRef && this.bossRef.state === 'intro' ? 0.4 : 1) * (this.event && this.event.id === 'blackout' ? 0.25 : this.event && this.event.id === 'ash' ? 0.7 : 1);
+    let amb = this.mode === 'secret' ? [58, 34, 56] : modOn(this, 'night') ? [3, 3, 6] : this.diff.ambient, bossDark = (this.blackoutT > 0 ? 0.1 : 1) * (this.bossRef && this.bossRef.state === 'intro' ? 0.4 : 1) * (this.event && this.event.id === 'blackout' ? 0.25 : this.event && this.event.id === 'ash' ? 0.7 : 1);
+    if (this.moon && this.state !== 'title') amb = [amb[0] * 1.3 + 30, amb[1] * 0.6 + 3, amb[2] * 0.6 + 5]; /* la pleine lune baigne la rue de rouge */
     const bk = this.boltK(), fl = (v, top) => (v * bossDark + (top - v * bossDark) * bk) | 0; /* l'éclair éclaire toute la rue un instant */
     L.fillStyle = `rgb(${fl(amb[0], 150)},${fl(amb[1], 158)},${fl(amb[2], 185)})`; L.fillRect(0, 0, lw, lh);
     L.setTransform(S / LD, 0, 0, S / LD, ox / LD, oy / LD); L.globalCompositeOperation = 'lighter';
@@ -5072,7 +5142,7 @@ mixin(Game, {
     for (const th of this.throwables) if (th.kind === 'decoy' && th.landed) glow(th.x, th.y, 260, '255,60,40', 0.75 + Math.random() * 0.25);
     for (const m of this.mines) if (m.arm <= 0 && Math.floor(m.t * 2) % 2 === 0) glow(m.x, m.y, 30, '255,40,30', 0.5);
     for (const o of this.level.machines) if (!o.broken) glow(o.x + o.w / 2, o.y + o.h + 4, 70, '255,90,80', 0.28);
-    for (const pk of this.pickups) if (pk.kind === 'key' || pk.kind === 'fuel' || pk.kind === 'weapon') glow(pk.x, pk.y, 90, pk.kind === 'weapon' ? '255,220,150' : '255,200,90', 0.3 + Math.sin(t * 4) * 0.1);
+    for (const pk of this.pickups) if (pk.kind === 'key' || pk.kind === 'fuel' || pk.kind === 'weapon' || pk.kind === 'scrap' || pk.kind === 'note') glow(pk.x, pk.y, pk.kind === 'note' ? 60 : 90, pk.kind === 'note' ? '235,225,200' : pk.kind === 'weapon' || pk.kind === 'scrap' ? '255,220,150' : '255,200,90', (pk.kind === 'note' ? 0.22 : 0.3) + Math.sin(t * 4) * 0.1);
     const ob = this.state === 'playing' ? this.objective() : null;
     if (this.activeZone === 1 && !this.level.obj[1].done) glow(this.level.obj[1].x, 600, 170, this.level.obj[1].started ? '120,255,140' : '255,70,50', 0.35 + Math.sin(t * 5) * 0.12);
     if (this.level.obj[3].dead) { glow(HELI, 600, 260, '255,40,30', 0.6 + Math.sin(t * 6) * 0.2); glow(HELI - 60, 520, 120, '255,60,40', 0.5); glow(HELI + 60, 680, 120, '255,60,40', 0.5); }
@@ -5233,6 +5303,8 @@ mixin(Game, {
       case 'med': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 9, 3, 0, 0, TAU); c.fill(); itemArt(c, 'med', pk.x, pk.y - 8 + b, 20); break;
       case 'grenade': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 7, 3, 0, 0, TAU); c.fill(); itemArt(c, 'grenade', pk.x, pk.y - 8 + b, 18); break;
       case 'shiba': drawShibaSprite(c, pk.x, pk.y, 1, this.time + pk.x); break;
+      case 'note': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y + 2, 10, 4, 0, 0, TAU); c.fill(); c.save(); c.translate(pk.x, pk.y - 6 + b); c.rotate(-0.18); c.fillStyle = '#e8dcc0'; c.fillRect(-8, -10, 16, 20); c.fillStyle = '#8a7e66'; for (let i = 0; i < 4; i++) c.fillRect(-5, -6 + i * 4, i === 3 ? 6 : 10, 1.2); c.fillStyle = '#8a1a12'; c.fillRect(3, 5, 3, 3); c.restore(); break;
+      case 'scrap': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 16, 6, 0, 0, TAU); c.fill(); c.save(); c.translate(pk.x, pk.y - 8 + b); c.rotate(0.2); c.fillStyle = '#3a3634'; c.fillRect(-16, -3, 30, 6); c.fillStyle = '#6a4a2c'; c.fillRect(-16, 1, 8, 8); c.fillStyle = '#b8a888'; c.fillRect(-4, -5, 3, 10); c.fillRect(4, -5, 3, 10); c.fillStyle = '#c6a06a'; c.fillRect(10, -2, 6, 3); c.restore(); break;
       case 'battery': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 8, 3, 0, 0, TAU); c.fill(); itemArt(c, 'battery', pk.x, pk.y - 9 + b, 20); break;
       case 'fetish':
         c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 10, 4, 0, 0, TAU); c.fill();
@@ -5663,6 +5735,8 @@ mixin(Game, {
   }
 });
 // ============================================================ rendu : interface en jeu
+// jauge d'usure d'une arme de fortune : rouge quand elle est sur le point de casser
+function scrapBar(c, w, x, y, bw) { const k = clamp(w.scrap.n / w.scrap.max, 0, 1); c.fillStyle = 'rgba(0,0,0,.55)'; c.fillRect(x - bw / 2 - 1, y - 1, bw + 2, 7); c.fillStyle = k < 0.25 ? '#e0321f' : '#c6a06a'; c.fillRect(x - bw / 2, y, bw * k, 5); }
 mixin(Game, {
   drawWheel(cw, ch) {
     const W8 = this.wheel; if (!W8 || W8.k <= 0) return;
@@ -5733,7 +5807,8 @@ mixin(Game, {
       c.textAlign = 'left'; c.font = `${(small ? 22 : 30) + this.multPulse * 10}px ${FD}`; c.fillStyle = m >= 8 ? '#ff4a2c' : m >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText(m.toFixed(1) + '×', cw / 2 + 20, y);
       c.textAlign = 'center'; c.font = `12px ${FT}`; c.fillStyle = '#8b867b'; let sub = `${fmt(this.kills)} abattus`;
       if (this.mode !== 'training') sub += '   ' + '■'.repeat(Math.max(0, this.lives)) + '□'.repeat(Math.max(0, this.diff.lives - this.lives)); if (this.isCampaign()) sub += `   shibas ${this.shibaFound.size}/${SHIBAS_TOTAL}`;
-      c.fillText(sub, cw / 2, y + 20); }
+      c.fillText(sub, cw / 2, y + 20);
+      if (this.moon) { c.font = `${small ? 13 : 15}px ${FD}`; c.fillStyle = `rgba(224,50,31,${0.75 + Math.sin(this.time * 3) * 0.2})`; c.fillText('PLEINE LUNE · POINTS ET ARGENT ×2', cw / 2, y + 38); } }
     // panneaux joueurs
     this.drawPanel(p, 1, cw, ch, S, coop ? (this.netGuest ? 'TOI' : 'J1') : '');
     if (coop) this.drawPanel(this.p2, -1, cw, ch, S, this.netGuest ? 'J1' : 'J2');
@@ -5803,7 +5878,7 @@ mixin(Game, {
       const w = p.weapons[wi], x = X(dx); c.globalAlpha = main ? 1 : 0.55;
       weaponArt(c, w.def.id, x, -78, size);
       c.textAlign = 'center'; const res = w.def.infinite ? '∞' : String(w.reserve);
-      if (main) { c.font = `26px ${FD}`; c.fillStyle = w.ammo === 0 ? '#e0321f' : '#d8d2c4'; c.fillText(`${w.ammo}/${res}`, x, -22); c.font = `12px ${FT}`; c.fillStyle = this.weaponFlash > 0 && p === this.player ? '#f0b25a' : '#8b867b'; c.fillText(w.def.name.toUpperCase(), x, -6);
+      if (main) { c.font = `26px ${FD}`; c.fillStyle = w.ammo === 0 ? '#e0321f' : '#d8d2c4'; c.fillText(`${w.ammo}/${res}`, x, -22); c.font = `12px ${FT}`; c.fillStyle = this.weaponFlash > 0 && p === this.player ? '#f0b25a' : '#8b867b'; c.fillText(w.def.name.toUpperCase() + (w.scrap ? ' DE FORTUNE' : ''), x, -6); if (w.scrap) scrapBar(c, w, x, -58, 84);
         if (p.reloadT > 0) { const k = 1 - p.reloadT / w.reloadTime(); c.fillStyle = 'rgba(255,255,255,.12)'; c.fillRect(x - 50, -48, 100, 4); c.fillStyle = '#e2792f'; c.fillRect(x - 50, -48, 100 * k, 4); } }
       else { c.font = `14px ${FD}`; c.fillStyle = '#c6c0b2'; c.fillText(`${w.ammo}/${res}`, x, -28); }
       c.globalAlpha = 1;
@@ -5879,11 +5954,12 @@ mixin(Game, {
       }
     }
     if (this.mode !== 'training') { c.textAlign = 'right'; c.font = `26px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(fmt(this.score), cw - 16, 32);
-    c.font = `${21 + this.multPulse * 8}px ${FD}`; c.fillStyle = this.mult >= 8 ? '#ff4a2c' : this.mult >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText('×' + this.mult.toFixed(1), cw - 16, 58); }
+    c.font = `${21 + this.multPulse * 8}px ${FD}`; c.fillStyle = this.mult >= 8 ? '#ff4a2c' : this.mult >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText('×' + this.mult.toFixed(1), cw - 16, 58);
+    if (this.moon) { c.font = `13px ${FD}`; c.fillStyle = `rgba(224,50,31,${0.75 + Math.sin(t * 3) * 0.2})`; c.fillText('PLEINE LUNE · ×2', cw - 16, 78); } }
     const w = p.weapon; c.textAlign = 'center';
     c.font = `22px ${FD}`; c.fillStyle = w.ammo === 0 ? '#e0321f' : '#d8d2c4'; c.fillText(`${w.ammo} / ${w.def.infinite ? '∞' : w.reserve}`, cw / 2, ch - 14);
     if (p.reloadT <= 0 && w.ammo < w.magSize() && (w.def.infinite || w.reserve > 0)) { const tw = c.measureText(`${w.ammo} / ${w.def.infinite ? '∞' : w.reserve}`).width; c.font = `18px ${FD}`; c.fillStyle = `rgba(240,178,90,${0.55 + Math.sin(t * 4) * 0.3})`; c.fillText('↻', cw / 2 + tw / 2 + 14, ch - 15); }
-    c.font = `12px ${FT}`; c.fillStyle = this.weaponFlash > 0 ? '#f0b25a' : '#8b867b'; c.fillText(w.def.name.toUpperCase() + (p.reloadT > 0 ? ' · RECHARGE' : ''), cw / 2, ch - 40);
+    c.font = `12px ${FT}`; c.fillStyle = this.weaponFlash > 0 ? '#f0b25a' : '#8b867b'; c.fillText(w.def.name.toUpperCase() + (w.scrap ? ' DE FORTUNE' : '') + (p.reloadT > 0 ? ' · RECHARGE' : ''), cw / 2, ch - 40); if (w.scrap) scrapBar(c, w, cw / 2, ch - 58, 90);
     const boss = this.bossRef;
     if (boss && !boss.dead && boss.state !== 'intro') {
       const bw2 = Math.min(320, cw - 420), bx2 = (cw - bw2) / 2;
@@ -7490,7 +7566,7 @@ mixin(Game, {
         ci: this.cine ? [this.cine.b.nid, netR(this.cine.t)] : 0, ob: this.objective().text, st: this.state, md: this.mode, hc: this.hcamp ? 1 : 0, az: this.activeZone, sn: this.safeName || '', sf: this.shibaFound ? this.shibaFound.size : 0, mo: Math.floor(this.player.money || 0),
         svv: this.survivors.filter(v => !v.dead).map(v => netFlat(v)), ev: this.event ? netFlat(this.event) : 0, bu: this.buddy ? netFlat(this.buddy) : 0, p1d: netR(this.p1Down || 0), rv: this.reviveUsed ? 1 : 0, sv: this.surv ? [this.surv.wave, this.surv.state, netR(this.surv.t)] : 0 } };
     // ce qui change rarement (armes, objectifs, éclairage) n'est renvoyé que s'il a changé, ou une fois par seconde
-    const L = { W: q.weapons.map(w => [w.owned ? 1 : 0, w.ammo, w.reserve, w.lvl ? netFlat(w.lvl) : 0]), oj: this.mode === 'story' ? this.level.obj.map(o => o ? netFlat(o) : 0) : 0, lp: this.level.lamps.map(l => l.on ? 1 : 0).join('') }, Ls = JSON.stringify(L);
+    const L = { W: q.weapons.map(w => [w.owned ? 1 : 0, w.ammo, w.reserve, w.lvl ? netFlat(w.lvl) : 0, w.scrap ? [w.scrap.n, w.scrap.max, w.scrap.temp ? 1 : 0] : 0]), oj: this.mode === 'story' ? this.level.obj.map(o => o ? netFlat(o) : 0) : 0, lp: this.level.lamps.map(l => l.on ? 1 : 0).join('') }, Ls = JSON.stringify(L);
     if (Ls !== H.lastL || H.seq % 20 === 0) { S.L = L; H.lastL = Ls; }
     if (Net.relay && this.netEv.length) { S.e = this.netEv; this.netEv = []; }
     Net.send(S, !!S.e);
@@ -7523,7 +7599,7 @@ mixin(Game, {
     // sa position fait foi : on ne recale que s'il y a un vrai écart (réanimation, téléportation, mort)
     const tx = S.P[1][0], ty = S.P[1][1], err = Math.hypot(tx - me.x, ty - me.y); if (err > 300 || me.dead || !this._meSync || (this._wasDead && !me.dead)) { me.x = tx; me.y = ty; this._meSync = true; } this._wasDead = me.dead;
     if (S.L) { this.netG.L = S.L; } const L = this.netG.L || {};
-    if (S.L) (S.L.W || []).forEach((w, i) => { const o = me.weapons[i]; if (!o) return; o.owned = !!w[0]; o.ammo = w[1]; o.reserve = w[2]; if (w[3]) Object.assign(o.lvl || (o.lvl = {}), w[3]); });
+    if (S.L) (S.L.W || []).forEach((w, i) => { const o = me.weapons[i]; if (!o) return; o.owned = !!w[0]; o.ammo = w[1]; o.reserve = w[2]; if (w[3]) Object.assign(o.lvl || (o.lvl = {}), w[3]); o.scrap = w[4] ? { n: w[4][0], max: w[4][1], temp: !!w[4][2] } : null; });
     const seen = new Set(), need = [];
     for (const r of S.Z) { const nid = r[0], z = this.zmap.get(nid); seen.add(nid); if (!z) { if (!this.netNeed.has(nid)) { this.netNeed.add(nid); need.push(nid); } continue; }
       z._fx = z.x; z._fy = z.y; z._tx = r[1]; z._ty = r[2]; z._t0 = now; if (z._new || Math.hypot(r[1] - z.x, r[2] - z.y) > 260) { z.x = z._fx = r[1]; z.y = z._fy = r[2]; z._new = false; } z.dir = r[3] / 100; z.walkT = r[4] / 10; z.hp = r[5]; const f = r[6]; z.hitFlash = f & 1 ? 0.06 : 0; z.burn = f & 2 ? 1 : 0; z.stun = f & 4 ? 1 : 0; z.lunge = f & 8 ? 0.1 : 0;
@@ -7581,6 +7657,8 @@ mixin(Game, {
       case 'scream': this.screamFx(a[0], a[1]); break;
       case 'wx': this.setWeather(a[0]); break;
       case 'bolt': this.bolt(); break;
+      case 'note': { const got = Settings.notes || (Settings.notes = []); if (!got.includes(a[0])) { got.push(a[0]); Settings.save(); } break; }
+      case 'moon': this.setMoon(!!a[0]); break;
       case 'rumble': { const s = this.level.spawners[a[0]]; if (s) { s.rumble = a[1]; this.later(a[1], () => { s.rumble = 0; }); } break; }
       case 'seal': { const s = this.level.spawners[a[0]]; if (s && !s.sealed) this.sealFx(s); break; }
       case 'trap': { const t = (this.level.traps || []).find(x => x.ob.oid === a[0]); if (t) { t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = a[1]; this.trapFx(t); } break; }
@@ -8423,11 +8501,18 @@ function carnetTop(o, name) {
 }
 function carnetHTML() {
   const c = carnet(), t = Math.floor(c.time), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, dead = Object.values(c.deaths).reduce((a, b) => a + b, 0);
-  if (!c.runs && !c.kills) return '<p class="cn-empty">Page blanche. La ville n\'a encore rien écrit sur toi : lance une partie.</p>';
-  const cells = [['Zombies abattus', fmt(c.kills)], ['Temps dans les rues', h ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`], ['Parties', fmt(c.runs)], ['Morts', fmt(dead)], ['Précision', (c.shots ? Math.round(100 * c.hits / c.shots) : 0) + ' %'], ['Survivants sauvés', fmt(c.saved)], ['Zombies d\'élite', fmt(c.elites)], ['Bouches scellées', fmt(c.sealed)], ['Éclairs encaissés', fmt(c.bolts)]];
+  if (!c.runs && !c.kills && !(Settings.notes || []).length) return '<p class="cn-empty">Page blanche. La ville n\'a encore rien écrit sur toi : lance une partie.</p>';
+  const cells = [['Zombies abattus', fmt(c.kills)], ['Temps dans les rues', h ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`], ['Parties', fmt(c.runs)], ['Morts', fmt(dead)], ['Précision', (c.shots ? Math.round(100 * c.hits / c.shots) : 0) + ' %'], ['Survivants sauvés', fmt(c.saved)], ['Zombies d\'élite', fmt(c.elites)], ['Bouches scellées', fmt(c.sealed)], ['Éclairs encaissés', fmt(c.bolts)], ['Nuits de pleine lune', fmt(c.moons)], ['Armes de fortune cassées', fmt(c.broken)]];
   const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k, dName = k => (BESTIARY.find(b => b.k === k) || {}).name || DEATH_BY[k] || 'Inconnu';
   return `<p class="cn-intro">Tout ce que tu as vécu dans les rues, sur cet appareil.</p><div class="pause-stats cn-grid">${cells.map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`
-    + `<div class="cn-cols"><section><h4>Arme préférée</h4>${carnetTop(c.arms, wName)}</section><section><h4>Ce qui t'a eu le plus souvent</h4>${carnetTop(c.deaths, dName)}</section></div>`;
+    + `<div class="cn-cols"><section><h4>Arme préférée</h4>${carnetTop(c.arms, wName)}</section><section><h4>Ce qui t'a eu le plus souvent</h4>${carnetTop(c.deaths, dName)}</section></div>` + notesHTML();
+}
+// documents trouvés dans la ville, rangés par mission ; ceux qui manquent restent sous scellés
+function notesHTML() {
+  const got = Settings.notes || [], n = NOTES.filter(o => got.includes(o.id)).length;
+  return `<h4 class="cn-docs-h">Documents trouvés · ${n} / ${NOTES.length}</h4><p class="cn-intro">Lettres et notes cachées dans les rues. Elles brillent faiblement au sol.</p><div class="cn-docs">${NOTES.map(o => got.includes(o.id)
+    ? `<details class="cn-doc"><summary><small>Mission ${o.m + 1}</small><b>${o.from}</b></summary><p>${o.t}</p></details>`
+    : `<div class="cn-doc locked"><small>Mission ${o.m + 1}</small><b>Document introuvable</b></div>`).join('')}</div>`;
 }
 $('btn-carnet').addEventListener('click', e => togglePanel('panel-carnet', e.currentTarget, carnetHTML));
 const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['week', 'Semaine'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
@@ -8782,6 +8867,11 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 80, d: '4 nov.', t: 'Lune rouge et vieux papiers', s: 'La ville raconte son histoire, et certaines nuits tournent mal.', it: [
+    ['new', 'Documents', '12 lettres et notes cachées dans les cinq missions. Elles brillent faiblement au sol. Une fois ramassées, tu les lis dans l\'onglet Carnet.'],
+    ['new', 'Nuit de pleine lune', 'Certaines nuits, la lune rouge se lève : les zombies courent plus vite, mais chaque zombie abattu rapporte le double de points et d\'argent.'],
+    ['new', 'Armes de fortune', 'Des armes bricolées traînent par terre, et les zombies d\'élite en lâchent : 50 % de dégâts en plus, mais une jauge d\'usure. À zéro, elle casse. Achète-la au marché noir pour la garder.']
+  ] },
   { v: 79, d: '3 nov.', t: 'Météo, égouts et carnet', s: 'Le ciel se gâte, le sol gronde, et la ville tient tes comptes.', it: [
     ['new', 'Météo', 'Averse, brouillard ou orage : le temps change en pleine partie. La lampe porte moins loin, et pendant l\'orage les éclairs illuminent toute la rue une seconde.'],
     ['new', 'Bouches d\'égout', 'Un anneau orange clignote quand une bouche d\'égout gronde : des zombies vont en sortir. Une grenade dessus la scelle pour de bon, et rapporte des points.'],

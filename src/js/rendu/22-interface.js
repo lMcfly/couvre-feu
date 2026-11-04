@@ -1,4 +1,6 @@
 // ============================================================ rendu : interface en jeu
+// jauge d'usure d'une arme de fortune : rouge quand elle est sur le point de casser
+function scrapBar(c, w, x, y, bw) { const k = clamp(w.scrap.n / w.scrap.max, 0, 1); c.fillStyle = 'rgba(0,0,0,.55)'; c.fillRect(x - bw / 2 - 1, y - 1, bw + 2, 7); c.fillStyle = k < 0.25 ? '#e0321f' : '#c6a06a'; c.fillRect(x - bw / 2, y, bw * k, 5); }
 mixin(Game, {
   drawWheel(cw, ch) {
     const W8 = this.wheel; if (!W8 || W8.k <= 0) return;
@@ -69,7 +71,8 @@ mixin(Game, {
       c.textAlign = 'left'; c.font = `${(small ? 22 : 30) + this.multPulse * 10}px ${FD}`; c.fillStyle = m >= 8 ? '#ff4a2c' : m >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText(m.toFixed(1) + '×', cw / 2 + 20, y);
       c.textAlign = 'center'; c.font = `12px ${FT}`; c.fillStyle = '#8b867b'; let sub = `${fmt(this.kills)} abattus`;
       if (this.mode !== 'training') sub += '   ' + '■'.repeat(Math.max(0, this.lives)) + '□'.repeat(Math.max(0, this.diff.lives - this.lives)); if (this.isCampaign()) sub += `   shibas ${this.shibaFound.size}/${SHIBAS_TOTAL}`;
-      c.fillText(sub, cw / 2, y + 20); }
+      c.fillText(sub, cw / 2, y + 20);
+      if (this.moon) { c.font = `${small ? 13 : 15}px ${FD}`; c.fillStyle = `rgba(224,50,31,${0.75 + Math.sin(this.time * 3) * 0.2})`; c.fillText('PLEINE LUNE · POINTS ET ARGENT ×2', cw / 2, y + 38); } }
     // panneaux joueurs
     this.drawPanel(p, 1, cw, ch, S, coop ? (this.netGuest ? 'TOI' : 'J1') : '');
     if (coop) this.drawPanel(this.p2, -1, cw, ch, S, this.netGuest ? 'J1' : 'J2');
@@ -139,7 +142,7 @@ mixin(Game, {
       const w = p.weapons[wi], x = X(dx); c.globalAlpha = main ? 1 : 0.55;
       weaponArt(c, w.def.id, x, -78, size);
       c.textAlign = 'center'; const res = w.def.infinite ? '∞' : String(w.reserve);
-      if (main) { c.font = `26px ${FD}`; c.fillStyle = w.ammo === 0 ? '#e0321f' : '#d8d2c4'; c.fillText(`${w.ammo}/${res}`, x, -22); c.font = `12px ${FT}`; c.fillStyle = this.weaponFlash > 0 && p === this.player ? '#f0b25a' : '#8b867b'; c.fillText(w.def.name.toUpperCase(), x, -6);
+      if (main) { c.font = `26px ${FD}`; c.fillStyle = w.ammo === 0 ? '#e0321f' : '#d8d2c4'; c.fillText(`${w.ammo}/${res}`, x, -22); c.font = `12px ${FT}`; c.fillStyle = this.weaponFlash > 0 && p === this.player ? '#f0b25a' : '#8b867b'; c.fillText(w.def.name.toUpperCase() + (w.scrap ? ' DE FORTUNE' : ''), x, -6); if (w.scrap) scrapBar(c, w, x, -58, 84);
         if (p.reloadT > 0) { const k = 1 - p.reloadT / w.reloadTime(); c.fillStyle = 'rgba(255,255,255,.12)'; c.fillRect(x - 50, -48, 100, 4); c.fillStyle = '#e2792f'; c.fillRect(x - 50, -48, 100 * k, 4); } }
       else { c.font = `14px ${FD}`; c.fillStyle = '#c6c0b2'; c.fillText(`${w.ammo}/${res}`, x, -28); }
       c.globalAlpha = 1;
@@ -215,11 +218,12 @@ mixin(Game, {
       }
     }
     if (this.mode !== 'training') { c.textAlign = 'right'; c.font = `26px ${FD}`; c.fillStyle = '#d8d2c4'; c.fillText(fmt(this.score), cw - 16, 32);
-    c.font = `${21 + this.multPulse * 8}px ${FD}`; c.fillStyle = this.mult >= 8 ? '#ff4a2c' : this.mult >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText('×' + this.mult.toFixed(1), cw - 16, 58); }
+    c.font = `${21 + this.multPulse * 8}px ${FD}`; c.fillStyle = this.mult >= 8 ? '#ff4a2c' : this.mult >= 4 ? '#ff7a3c' : '#e2792f'; c.fillText('×' + this.mult.toFixed(1), cw - 16, 58);
+    if (this.moon) { c.font = `13px ${FD}`; c.fillStyle = `rgba(224,50,31,${0.75 + Math.sin(t * 3) * 0.2})`; c.fillText('PLEINE LUNE · ×2', cw - 16, 78); } }
     const w = p.weapon; c.textAlign = 'center';
     c.font = `22px ${FD}`; c.fillStyle = w.ammo === 0 ? '#e0321f' : '#d8d2c4'; c.fillText(`${w.ammo} / ${w.def.infinite ? '∞' : w.reserve}`, cw / 2, ch - 14);
     if (p.reloadT <= 0 && w.ammo < w.magSize() && (w.def.infinite || w.reserve > 0)) { const tw = c.measureText(`${w.ammo} / ${w.def.infinite ? '∞' : w.reserve}`).width; c.font = `18px ${FD}`; c.fillStyle = `rgba(240,178,90,${0.55 + Math.sin(t * 4) * 0.3})`; c.fillText('↻', cw / 2 + tw / 2 + 14, ch - 15); }
-    c.font = `12px ${FT}`; c.fillStyle = this.weaponFlash > 0 ? '#f0b25a' : '#8b867b'; c.fillText(w.def.name.toUpperCase() + (p.reloadT > 0 ? ' · RECHARGE' : ''), cw / 2, ch - 40);
+    c.font = `12px ${FT}`; c.fillStyle = this.weaponFlash > 0 ? '#f0b25a' : '#8b867b'; c.fillText(w.def.name.toUpperCase() + (w.scrap ? ' DE FORTUNE' : '') + (p.reloadT > 0 ? ' · RECHARGE' : ''), cw / 2, ch - 40); if (w.scrap) scrapBar(c, w, cw / 2, ch - 58, 90);
     const boss = this.bossRef;
     if (boss && !boss.dead && boss.state !== 'intro') {
       const bw2 = Math.min(320, cw - 420), bx2 = (cw - bw2) / 2;

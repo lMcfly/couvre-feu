@@ -70,6 +70,15 @@ mixin(Game, {
       c.strokeStyle = shade(z.skin, -0.35); c.lineWidth = s * 0.28; c.lineCap = 'round'; c.beginPath(); c.moveTo(s * 0.4, -s * 0.5); c.lineTo(s * 1.2, -s * 1.1); c.moveTo(s * 0.3, s * 0.5); c.lineTo(s * 0.9, s * 1.2); c.stroke();
     });
   },
+  // ---------- nuit de pleine lune : zombies plus rapides, points et argent doublés ; l'hôte tire au sort, l'invité suit
+  setMoon(on) {
+    if (!!this.moon === on) return; this.moon = on; this.netEmit(['moon', on ? 1 : 0]);
+    if (!on) { if (this.state === 'playing') this.toast('La lune rouge se cache derrière les nuages', '#c6c0b2'); return; }
+    for (const z of this.zombies) if (!z.dead && z.type !== 'boss') z.speed *= MOON_SPEED;
+    this.later(2.6, () => { if (this.moon) this.banner('Nuit de pleine lune', 'Les zombies courent plus vite, mais rapportent le double'); }); this.audio.roar(0.5);
+    if (this.state === 'playing' && this.net !== 'guest') carnet().moons++;
+  },
+  rollMoon(chance) { if (this.net !== 'guest') this.setMoon(Math.random() < chance); },
   // ---------- météo : clair, averse, brouillard, orage ; l'hôte décide, l'invité suit
   wxOn() { return (this.mode === 'story' || this.mode === 'survival') && !this.level.hosp; },
   setWeather(k) {

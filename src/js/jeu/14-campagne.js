@@ -132,7 +132,7 @@ mixin(Game, {
   enterZone(k) {
     if (this.missionFor !== k) { this.missionFor = k; this.missionStart = this.snapStats(); }
     this.zoneEntered[k] = true; this.activeZone = k; this.zoneHit = false; if (k > 0) this.level.setGate(ZONES[k].x0, true);
-    this.banner(ZONES[k].sub, ZONES[k].name); this.seedZone(k); this.director.reset();
+    this.banner(ZONES[k].sub, ZONES[k].name); this.seedZone(k); this.director.reset(); if (this.mode === 'story') this.rollMoon(k === 0 && !this.endless ? 0.08 : 0.2);
     this.audio.setTheme(['gare', 'boulevard', 'parking', 'mairie'][k]);
     if (this.mode === 'story' && k >= 1 && Math.random() < 0.6) this.later(rand(18, 35), () => this.startEvent(k));
     if (k === 3) this.later(1.8, () => { if (this.activeZone === 3 && !this.level.obj[3].spawned) this.spawnBoss(); });

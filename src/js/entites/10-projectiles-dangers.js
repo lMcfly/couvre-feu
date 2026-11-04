@@ -196,6 +196,17 @@ class Pickup {
         g.audio.pickup(); break;
       }
       case 'key': case 'fuel': g.onObjectivePickup(this, p); g.audio.pickup(); break;
+      case 'scrap': {
+        const free = p.weapons.map((w, i) => i).filter(i => i > 0 && !p.weapons[i].scrap), i = modOn(g, 'pistol') ? 0 : free.length ? pick(free) : randi(1, p.weapons.length - 1), w = p.weapons[i], temp = !own(w), n = scrapLife(w.def);
+        w.scrap = { n, max: n, temp }; if (temp) { w.owned = true; w.reserve = w.def.infinite ? Infinity : w.def.ammoPack; } else if (!w.def.infinite) w.reserve += Math.ceil(w.def.ammoPack / 2);
+        w.ammo = w.magSize(); p.switchTo(i); g.notice(`${w.def.name} de fortune`, `+50 % de dégâts, mais elle s'use · touche ${i + 1}`, '#c6a06a'); g.audio.pickup();
+        if (!g.scrapTip) { g.scrapTip = true; g.later(1.2, () => g.toast('Arme de fortune : la jauge sous l\'arme montre son usure. Elle casse à zéro.', '#c6a06a')); }
+        break;
+      }
+      case 'note': {
+        const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = Settings.notes || (Settings.notes = []); if (!got.includes(N.id)) got.push(N.id); Settings.save(); g.netEmit(['note', N.id]);
+        g.notice('Document trouvé', `${N.from} · à lire dans le Carnet (${got.length} / ${NOTES.length})`, '#e8dcc0'); g.audio.tone({ f: 900, f2: 1300, dur: 0.12, type: 'triangle', g: 0.12 }); g.audio.pickup(); break;
+      }
       case 'shiba': {
         g.shibaFound.add(this.sid || this.zone + '-' + this.val); const n = g.shibaFound.size;
         g.notice('Shiba sauvé', `${n} / ${SHIBAS_TOTAL}${n === SHIBAS_TOTAL ? ' · le Paradis t\'attend' : ''}`, '#ffb46a'); g.audio.bark(this.x, this.y, true); g.audio.pickup();
