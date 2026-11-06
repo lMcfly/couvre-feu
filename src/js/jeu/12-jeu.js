@@ -16,7 +16,7 @@ class Game {
     this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.winFx = null; this.mapHover = null;
     this.zombies = []; this.bullets = []; this.flames = []; this.rockets = []; this.throwables = []; this.mines = []; this.acids = [];
     this.puddles = []; this.fires = []; this.shockwaves = []; this.beams = []; this.particles = []; this.pickups = []; this.lights = []; this.survivors = [];
-    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.moon = false; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
+    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.dropT = null; this.moon = false; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
     if (this.level) for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
     this.level = new Level(this); this.director.reset(); this.bossRef = null;
   }
@@ -181,12 +181,13 @@ class Game {
     this.updateBuddy(dt); this.updateEvent(dt);
     if (p.flashCd > 0) p.flashCd -= realDt; if (inp.flash && !p.dead) this.flash(); if (this.flashFx > 0) this.flashFx -= realDt;
     if (this.mode !== 'training') this.director.update(dt);
-    if (this.mode === 'story' || this.mode === 'survival') this.updateSewers(dt);
+    if (this.mode === 'story' || this.mode === 'survival') { this.updateSewers(dt); this.updateDrops(dt); }
     this.hash.clear(); for (const z of this.zombies) if (!z.dead) this.hash.insert(z);
     this.attractions.length = 0;
     for (const c of this.level.cars) if (c.alarm > 0) this.attractions.push({ x: c.x + c.w / 2, y: c.y + c.h / 2, r: 1000 });
     for (const t of this.throwables) if (t.kind === 'decoy' && t.landed) this.attractions.push({ x: t.x, y: t.y, r: 950 });
     if (this.event && this.event.id === 'icecream') this.attractions.push({ x: this.event.x, y: this.event.y, r: 900 });
+    for (const k of this.pickups) if (k.kind === 'crate' && !k.dead) this.attractions.push({ x: k.x, y: k.y, r: 1100 });
     for (const z of this.zombies) if (!z.dead) {
       const ox = z.x, oy = z.y; z.update(dt);
       if (!isFinite(z.x) || !isFinite(z.y)) { for (const k in z) if (typeof z[k] === 'number' && !isFinite(z[k])) z[k] = 0; z.x = isFinite(ox) ? ox : this.player.x + 320; z.y = isFinite(oy) ? oy : this.player.y; }

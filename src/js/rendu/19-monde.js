@@ -160,10 +160,11 @@ mixin(Game, {
       glow(p.x, p.y, Settings.vis === 'renforcee' ? 190 : 135, !this.p2 ? '190,200,235' : p.isP2 ? '120,170,255' : '255,120,100', Settings.vis === 'renforcee' ? 0.5 : 0.32);
     } else glow(p.x, p.y, 90, '160,20,10', 0.4);
     if (this.state === 'title') glow(640, 660, 160, '190,200,235', 0.25);
+    const wet = this.wx && Settings.rain ? clamp((this.wx.rain - 1) / 1.6, 0, 1) : 0;
     for (const l of this.level.lamps) {
       if (!l.on) continue; let i = 0.78;
       if (l.flick) { const v = Math.sin(t * 3 + l.phase) * Math.sin(t * 17.3 + l.phase * 3); if (v > 0.72) i = 0.05; else i *= 0.85 + Math.random() * 0.15; }
-      l._i = i; glow(l.x, l.y + 12, 250, '255,165,85', i);
+      l._i = i; glow(l.x, l.y + 12, 250, '255,165,85', i); if (wet > 0.05) { glow(l.x, l.y + 70, 120, '255,175,95', i * 0.4 * wet); glow(l.x, l.y + 130, 80, '255,175,95', i * 0.25 * wet); }
     }
     for (const f of this.level.fixedLights) { const fl = Settings.calm && f.flick >= 2 ? 0.8 : f.flick === 3 ? (Math.sin(t * 2.3 + f.x) * Math.sin(t * 11.7 + f.y * 0.01) > 0.55 ? 0.04 : 0.8 + Math.random() * 0.2) : f.flick === 2 ? 0.75 + Math.random() * 0.25 : f.flick === 1 ? 0.95 + Math.sin(t * 2) * 0.05 : 1; glow(f.x, f.y, f.r, f.c, f.i * fl); }
     for (const f of this.fires) glow(f.x, f.y, f.r * 4.5, '255,130,50', 0.85 * Math.min(1, f.life / 1.5) * (0.75 + Math.random() * 0.25));
@@ -180,6 +181,7 @@ mixin(Game, {
     for (const m of this.mines) if (m.arm <= 0 && Math.floor(m.t * 2) % 2 === 0) glow(m.x, m.y, 30, '255,40,30', 0.5);
     for (const o of this.level.machines) if (!o.broken) glow(o.x + o.w / 2, o.y + o.h + 4, 70, '255,90,80', 0.28);
     for (const pk of this.pickups) if (pk.kind === 'key' || pk.kind === 'fuel' || pk.kind === 'weapon' || pk.kind === 'scrap' || pk.kind === 'note') glow(pk.x, pk.y, pk.kind === 'note' ? 60 : 90, pk.kind === 'note' ? '235,225,200' : pk.kind === 'weapon' || pk.kind === 'scrap' ? '255,220,150' : '255,200,90', (pk.kind === 'note' ? 0.22 : 0.3) + Math.sin(t * 4) * 0.1);
+    for (const pk of this.pickups) if (pk.kind === 'crate') { if (pk.drop > 0) glow(pk.x, pk.y - pk.drop / DROP_FALL * 260 - 70, 90, '255,60,40', 0.5); else { glow(pk.x + 21, pk.y - 14, 320, '255,40,30', 1.05 + Math.random() * 0.35); glow(pk.x + 21, pk.y - 14, 90, '255,120,90', 0.8); } }
     const ob = this.state === 'playing' ? this.objective() : null;
     if (this.activeZone === 1 && !this.level.obj[1].done) glow(this.level.obj[1].x, 600, 170, this.level.obj[1].started ? '120,255,140' : '255,70,50', 0.35 + Math.sin(t * 5) * 0.12);
     if (this.level.obj[3].dead) { glow(HELI, 600, 260, '255,40,30', 0.6 + Math.sin(t * 6) * 0.2); glow(HELI - 60, 520, 120, '255,60,40', 0.5); glow(HELI + 60, 680, 120, '255,60,40', 0.5); }
@@ -207,6 +209,8 @@ mixin(Game, {
     for (const pt of this.particles) if (pt.emissive && inView(pt.x, pt.y)) this.drawParticle(pt);
     c.globalAlpha = 1;
     for (const z of this.zombies) if (z.type === 'boss' && !z.dead && inView(z.x, z.y, 200)) this.drawBossGlow(z);
+    // fusée rouge du ravitaillement : flamme vive qui crépite
+    for (const pk of this.pickups) if (pk.kind === 'crate' && !(pk.drop > 0) && inView(pk.x, pk.y)) { const f = 0.75 + Math.random() * 0.25, x = pk.x + 21, y = pk.y - 18; c.fillStyle = `rgba(255,60,40,${0.35 * f})`; c.beginPath(); c.arc(x, y, 14 * f, 0, TAU); c.fill(); c.fillStyle = `rgba(255,190,170,${f})`; c.beginPath(); c.arc(x, y, 4, 0, TAU); c.fill(); }
     // bouche d'égout qui gronde : anneau orange visible même dans le noir
     for (const s of this.level.spawners) if (s.rumble > 0 && !s.sealed && inView(s.x, s.y)) { const k = 0.55 + Math.sin(t * 14) * 0.3; c.save(); c.translate(s.x, s.y); c.scale(1, 0.6); c.strokeStyle = `rgba(255,140,50,${k})`; c.lineWidth = 3; c.setLineDash([8, 6]); c.lineDashOffset = -t * 40; c.beginPath(); c.arc(0, 0, 34 + Math.sin(t * 9) * 3, 0, TAU); c.stroke(); c.setLineDash([]); c.fillStyle = `rgba(255,110,40,${k * 0.18})`; c.fill(); c.restore(); }
     if (this.state === 'playing' || this.state === 'paused') for (const q of this.players()) if (q && !q.dead && !q.hidden) this.drawLaser(q, q === this.p2 ? '255,170,90' : '90,170,255');
@@ -340,6 +344,10 @@ mixin(Game, {
       case 'med': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 9, 3, 0, 0, TAU); c.fill(); itemArt(c, 'med', pk.x, pk.y - 8 + b, 20); break;
       case 'grenade': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 7, 3, 0, 0, TAU); c.fill(); itemArt(c, 'grenade', pk.x, pk.y - 8 + b, 18); break;
       case 'shiba': drawShibaSprite(c, pk.x, pk.y, 1, this.time + pk.x); break;
+      case 'crate': { const fall = pk.drop > 0 ? pk.drop / DROP_FALL : 0, h = fall * 260; c.fillStyle = `rgba(0,0,0,${0.45 - fall * 0.3})`; c.beginPath(); c.ellipse(pk.x, pk.y + 2, 22 - fall * 12, 8 - fall * 4, 0, 0, TAU); c.fill();
+        c.save(); c.translate(pk.x, pk.y - h + (fall ? Math.sin(this.time * 3) * 3 : 0)); if (fall) { c.strokeStyle = '#c8c0b0'; c.lineWidth = 1; c.beginPath(); c.moveTo(-16, -24); c.lineTo(0, -62); c.lineTo(16, -24); c.stroke(); c.fillStyle = '#d8d2c4'; c.beginPath(); c.ellipse(0, -64, 32, 16, 0, Math.PI, 0); c.fill(); c.fillStyle = '#b0231c'; c.fillRect(-4, -80, 8, 16); }
+        c.fillStyle = '#5a4a2c'; c.fillRect(-17, -26, 34, 26); c.fillStyle = '#3e321e'; c.fillRect(-17, -14, 34, 3); c.fillRect(-2, -26, 4, 26); c.fillStyle = '#d8d2c4'; c.fillRect(-12, -22, 7, 5); c.fillStyle = '#b0231c'; c.fillRect(-10, -21, 3, 3); c.restore();
+        if (!fall) { c.fillStyle = '#5a1410'; c.fillRect(pk.x + 19, pk.y - 14, 4, 14); c.fillStyle = '#ffb0a0'; c.fillRect(pk.x + 19, pk.y - 17, 4, 3); } break; }
       case 'note': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y + 2, 10, 4, 0, 0, TAU); c.fill(); c.save(); c.translate(pk.x, pk.y - 6 + b); c.rotate(-0.18); c.fillStyle = '#e8dcc0'; c.fillRect(-8, -10, 16, 20); c.fillStyle = '#8a7e66'; for (let i = 0; i < 4; i++) c.fillRect(-5, -6 + i * 4, i === 3 ? 6 : 10, 1.2); c.fillStyle = '#8a1a12'; c.fillRect(3, 5, 3, 3); c.restore(); break;
       case 'scrap': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 16, 6, 0, 0, TAU); c.fill(); c.save(); c.translate(pk.x, pk.y - 8 + b); c.rotate(0.2); c.fillStyle = '#3a3634'; c.fillRect(-16, -3, 30, 6); c.fillStyle = '#6a4a2c'; c.fillRect(-16, 1, 8, 8); c.fillStyle = '#b8a888'; c.fillRect(-4, -5, 3, 10); c.fillRect(4, -5, 3, 10); c.fillStyle = '#c6a06a'; c.fillRect(10, -2, 6, 3); c.restore(); break;
       case 'battery': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 8, 3, 0, 0, TAU); c.fill(); itemArt(c, 'battery', pk.x, pk.y - 9 + b, 20); break;

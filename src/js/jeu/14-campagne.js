@@ -105,6 +105,7 @@ mixin(Game, {
     }
     if (e.t <= 0) { this.toast({ blackout: 'Le courant revient', fog: 'Le brouillard se lève', ash: 'Les cendres retombent', icecream: 'Le camion de glaces s\'éloigne' }[e.id], '#c6c0b2'); this.event = null; }
   },
+  noteRescue(sv) { if (sv.idx == null) return; const R = Settings.rescued || (Settings.rescued = {}); R[sv.idx] = (R[sv.idx] || 0) + 1; Settings.save(); this.netEmit(['rescued', sv.idx]); },
   onPlayerDeath() {
     const p = this.player; if (p.dead) return;
     if (this.mode !== 'training') { const d = carnet().deaths, k = p.lastCause || 'explosion'; d[k] = (d[k] || 0) + 1; Settings.save(); }
@@ -153,7 +154,7 @@ mixin(Game, {
       if (sv.dead || sv.state !== 'follow') continue;
       sv.dead = true;
       if (dist2(sv.x, sv.y, p.x, p.y) < 320 * 320) {
-        const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; carnet().saved++; if (this.run.sv) this.run.sv[sv.zone] = 2;
+        const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; carnet().saved++; this.noteRescue(sv); if (this.run.sv) this.run.sv[sv.zone] = 2;
         this.later(1.2, () => { this.notice(`${sv.name} est sauvé${sv.f ? 'e' : ''}`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); });
         if (this.run.saved >= 3) this.unlock('samaritan');
       } else { if (this.run.sv) this.run.sv[sv.zone] = 3; this.later(1.2, () => this.toast(`${sv.name} est resté${sv.f ? 'e' : ''} dehors`, '#a39e93')); }
@@ -193,7 +194,7 @@ mixin(Game, {
     const p = this.player;
     for (const sv of this.survivors) {
       if (sv.dead || sv.state !== 'follow') continue;
-      sv.dead = true; const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; carnet().saved++; this.run.sv[sv.zone] = 2;
+      sv.dead = true; const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; carnet().saved++; this.noteRescue(sv); this.run.sv[sv.zone] = 2;
       this.notice(`${sv.name} est sauvé${sv.f ? 'e' : ''}`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); if (this.run.saved >= 3) this.unlock('samaritan');
     }
     const xp = this.gainXP(200 + (this.kills - ((this.missionStart || {}).kills || 0)) * 2); this.toast(`+${xp} XP · mission 5 terminée`, '#9fd6e6');

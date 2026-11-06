@@ -1,5 +1,11 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 81, d: '6 nov.', t: 'Ravitaillement et visages', s: 'Le ciel largue de l\'aide, et les survivants ont enfin un visage.', it: [
+    ['new', 'Ravitaillement', 'De temps en temps, un hélico largue une caisse sous une fusée rouge : argent, grenades, munitions, soins et une arme de fortune. Mais la horde l\'a vue aussi et fonce dessus.'],
+    ['new', 'Portraits de survivants', 'Chaque survivant sauvé laisse sa fiche dans le Carnet : son portrait, son histoire et sa phrase.'],
+    ['fix', 'Fluidité', 'Sur les appareils qui peinent, la qualité automatique allège maintenant aussi la lumière, la pluie et les particules. Elle fonctionne enfin sur les écrans classiques des PC.'],
+    ['new', 'Bitume mouillé', 'Sous l\'averse, les lampadaires se reflètent sur la chaussée.']
+  ] },
   { v: 80, d: '4 nov.', t: 'Lune rouge et vieux papiers', s: 'La ville raconte son histoire, et certaines nuits tournent mal.', it: [
     ['new', 'Documents', '12 lettres et notes cachées dans les cinq missions. Elles brillent faiblement au sol. Une fois ramassées, tu les lis dans l\'onglet Carnet.'],
     ['new', 'Nuit de pleine lune', 'Certaines nuits, la lune rouge se lève : les zombies courent plus vite, mais chaque zombie abattu rapporte le double de points et d\'argent.'],

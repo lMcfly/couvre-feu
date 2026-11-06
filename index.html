@@ -1259,6 +1259,16 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
 .cn-doc.locked{cursor:default;opacity:.45;border-left-color:#3a2e30}
 .cn-doc.locked b{color:var(--ash)}
 .cn-doc summary:focus-visible{outline:2px solid var(--sodium);outline-offset:-2px}
+.cn-svs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;align-items:start}
+.cn-sv{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:10px;border:1px solid #3a2e30;border-left:3px solid var(--blood);background:var(--grime),linear-gradient(180deg,#221d1c,#120f10);background-size:256px 256px,100% 100%}
+.cn-sv canvas{width:96px;height:96px;border:1px solid #3a2e30}
+.cn-sv div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.cn-sv small{font-family:var(--display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ash)}
+.cn-sv b{font-family:var(--display);font-weight:400;font-size:20px;letter-spacing:.04em;color:var(--bone)}
+.cn-sv p{margin:0;font-family:var(--type);font-size:13px;line-height:1.45;color:var(--bone)}
+.cn-sv q{font-family:var(--type);font-style:italic;font-size:13px;color:#e8dcc0}
+.cn-sv.locked{opacity:.5;border-left-color:#3a2e30}
+@media (max-width:640px){.cn-sv{grid-template-columns:72px 1fr}.cn-sv canvas{width:72px;height:72px}}
 </style>
 
 <canvas id="game" aria-label="Couvre-Feu, zone de jeu"></canvas>
@@ -1648,7 +1658,7 @@ const Settings = {
   quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital, carnet: this.carnet, notes: this.notes })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital, carnet: this.carnet, notes: this.notes, rescued: this.rescued })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -1698,7 +1708,7 @@ Settings.binds = JSON.parse(JSON.stringify(DEFAULT_BINDS));
 Settings.padBinds = JSON.parse(JSON.stringify(DEFAULT_PAD));
 Settings.load();
 // carnet de survie : compteurs cumulés de toutes les parties (hors entraînement)
-function carnet() { const c = Settings.carnet && typeof Settings.carnet === 'object' ? Settings.carnet : (Settings.carnet = {}); for (const k of ['runs', 'time', 'kills', 'shots', 'hits', 'sealed', 'bolts', 'elites', 'saved', 'broken', 'moons']) if (typeof c[k] !== 'number') c[k] = 0; for (const k of ['deaths', 'arms']) if (!c[k] || typeof c[k] !== 'object') c[k] = {}; return c; }
+function carnet() { const c = Settings.carnet && typeof Settings.carnet === 'object' ? Settings.carnet : (Settings.carnet = {}); for (const k of ['runs', 'time', 'kills', 'shots', 'hits', 'sealed', 'bolts', 'elites', 'saved', 'broken', 'moons', 'drops']) if (typeof c[k] !== 'number') c[k] = 0; for (const k of ['deaths', 'arms']) if (!c[k] || typeof c[k] !== 'object') c[k] = {}; return c; }
 function countShot(g, hit) { const k = hit ? 'hits' : 'shots'; g.stats[k]++; if (g.mode !== 'training' && g.state === 'playing') carnet()[k]++; }
 // ancienne sauvegarde de touches : le sprint disparaît, sa touche passe à la roulade
 { const sv = Settings.binds; if (sv && sv.sprint) { const r = Array.isArray(sv.roll) ? sv.roll : ['', '']; sv.roll = [sv.sprint[0] || 'ShiftLeft', r[0] || 'Space']; delete sv.sprint; } }
@@ -1819,10 +1829,10 @@ const HALLOWEEN = (() => { try { const q = location.search; if (/[?&]nohalloween
 const HW_GOAL = 31, COSTUMES = ['citrouille', 'drap', 'sorciere'];
 const hwCount = () => { const y = new Date().getFullYear(); return Settings.hw && Settings.hw.y === y ? Settings.hw.n : 0; };
 const SURVIVORS = [
-  { name: 'Gérard', who: 'cheminot retraité', coat: '#5a4a3a', line: 'Merci ! J\'ai connu pire : la grève de 95.' },
-  { name: 'Mme Lefebvre', who: 'boulangère', f: true, coat: '#9a5a7a', line: 'Passez à la boutique, je vous ferai un pain au chocolat. Ou une chocolatine, je juge pas.' },
-  { name: 'Kévin', who: 'livreur à vélo', coat: '#2f8f6b', line: 'Ma commande est froide, mais moi je suis vivant. Cinq étoiles !' },
-  { name: 'Inès', who: 'infirmière de garde', f: true, coat: '#6fa8bf', line: 'Trois gardes d\'affilée et une invasion de zombies. Je veux une prime.' }
+  { name: 'Gérard', who: 'cheminot retraité', coat: '#5a4a3a', line: 'Merci ! J\'ai connu pire : la grève de 95.', bio: 'Quarante ans à la SNCF, dont dix de grève. Il a tenu trois jours caché dans un local à aiguillages, avec une thermos de café et sa radio. Il trouve les zombies moins pénibles que les usagers du RER.' },
+  { name: 'Mme Lefebvre', who: 'boulangère', f: true, coat: '#9a5a7a', line: 'Passez à la boutique, je vous ferai un pain au chocolat. Ou une chocolatine, je juge pas.', bio: 'Elle n\'a pas fermé sa boulangerie le soir du couvre-feu : les gens ont besoin de pain, même morts. Elle a assommé deux zombies au rouleau à pâtisserie avant de se barricader dans le fournil.' },
+  { name: 'Kévin', who: 'livreur à vélo', coat: '#2f8f6b', line: 'Ma commande est froide, mais moi je suis vivant. Cinq étoiles !', bio: 'Payé à la course, il a continué ses livraisons pendant deux nuits. Note client : 4,9. Il a semé une meute de chiens zombies dans le parking en roulant à contresens. Il cherche toujours l\'adresse de sa dernière commande.' },
+  { name: 'Inès', who: 'infirmière de garde', f: true, coat: '#6fa8bf', line: 'Trois gardes d\'affilée et une invasion de zombies. Je veux une prime.', bio: 'De garde à Saint-Lazare quand tout a basculé. Elle a soigné les blessés jusqu\'au bout, puis s\'est cachée près de la morgue pour échapper au Chirurgien. Elle a tout noté dans un carnet.' }
 ];
 const WEAPONS = [
   { id: 'pistol', name: 'Pistolet', type: 'bullet', dmg: 20, rate: 0.2, mag: 12, reload: 1.0, spread: 0.035, pellets: 1, speed: 1500, pierce: 0, infinite: true, price: 0, ammoPrice: 0, ammoPack: 0, tier: 0.6, shake: 0.08, desc: 'Munitions infinies. Maintiens le clic pour charger un tir perçant.' },
@@ -1889,6 +1899,8 @@ const NOTES = [
   { id: 'n10', m: 4, from: 'Dossier médical, chambre 12', t: 'Patient en attente de ses résultats depuis 41 heures. S\'énerve, crie de plus en plus fort. Quand il crie, les autres patients se lèvent. Ils ne devraient pas pouvoir se lever : ils sont à la morgue.' },
   { id: 'n11', m: 4, from: 'Carnet d\'Inès', t: 'Le chirurgien opère encore. Il n\'a plus de patients vivants, alors il opère les autres. Il m\'a dit que j\'étais la prochaine sur sa liste. Je me cache près de la morgue. Venez vite, et ne le laissez pas vous endormir : il n\'endort plus personne.' }
 ];
+// ravitaillement par hélico : temps de chute de la caisse sous son parachute (s)
+const DROP_FALL = 3;
 // nuit de pleine lune : vitesse des zombies et multiplicateur des points et de l'argent
 const MOON_SPEED = 1.22, MOON_GAIN = 2;
 // arme de fortune : plus forte, mais elle s'use à chaque tir et finit par casser
@@ -1897,6 +1909,7 @@ const SCRAP_DMG = 1.5, scrapLife = d => Math.max(8, Math.round(d.mag * 3));
 const $ = id => document.getElementById(id);
 const canvas = $('game'); let ctx = canvas.getContext('2d'); // let : le teaser des fiches emprunte le moteur de dessin
 const lightCanvas = document.createElement('canvas'), lctx = lightCanvas.getContext('2d');
+let PERF_LOW = false; // 2e cran de la qualité automatique : lumière plus grossière, moins de pluie et de particules
 let RW = 0, RH = 0, W = 0, H = 0, DPR = 1, VS = 1, dprCap = 2, SAFE = { l: 0, r: 0, t: 0, b: 0 }; // dprCap : baissé automatiquement si l'appareil n'arrive pas à suivre
 let TOUCH = false; try { TOUCH = matchMedia('(pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches; } catch (e) { }
 const STICK_R = 58;
@@ -1909,7 +1922,7 @@ function readSafe() { let el = document.getElementById('safe-probe'); if (!el) {
   // en paysage, iOS réserve la même marge des deux côtés alors que l'encoche (ou la Dynamic Island) n'est que d'un côté : on rend la place de l'autre
   if (SAFE.l > 30 && SAFE.r > 30 && Math.abs(SAFE.l - SAFE.r) < 4) { const o = typeof window.orientation === 'number' ? (window.orientation + 360) % 360 : screen.orientation && typeof screen.orientation.angle === 'number' ? screen.orientation.angle : 0; if (o === 90) SAFE.r = 16; else if (o === 270) SAFE.l = 16; } }
 function resize() { readSafe(); if (Settings.quality === 'eco') dprCap = 1; else if (Settings.quality === 'high') dprCap = 2;
-  DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, dprCap)); LD = TOUCH ? 3 : 2;
+  DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, dprCap)); LD = (TOUCH ? 3 : 2) + (PERF_LOW && Settings.quality === 'auto' ? 1 : 0);
   const cw = window.innerWidth, ch = window.innerHeight; RW = cw; RH = ch;
   W = Math.max(1, Math.floor(cw * DPR)); H = Math.max(1, Math.floor(ch * DPR));
   canvas.width = W; canvas.height = H;
@@ -3387,7 +3400,9 @@ class FireArea {
 class Pickup {
   constructor(g, kind, x, y, val) { this.g = g; this.kind = kind; this.x = x; this.y = y; this.val = val; this.t = 0; this.vx = rand(-70, 70); this.vy = rand(-70, 70); this.life = kind === 'coin' ? 30 : 40; this.dead = false; this.zone = -2; }
   update(dt) {
-    const g = this.g, p = g.nearestPlayer(this.x, this.y); this.t += dt; const dr = Math.exp(-5 * dt); this.vx *= dr; this.vy *= dr; this.x += this.vx * dt; this.y += this.vy * dt;
+    const g = this.g, p = g.nearestPlayer(this.x, this.y); this.t += dt;
+    if (this.kind === 'crate') { if (this.drop > 0) { this.drop -= dt; if (this.drop <= 0) g.crateLand(this); return; } if (Math.random() < dt * 12) g.spawnP({ x: this.x + 21, y: this.y - 12, z: 6, vx: rand(-14, 14), vy: rand(-26, -8), life: 1.4, type: 'smoke', size: 6, grow: 16 }); }
+    const dr = Math.exp(-5 * dt); this.vx *= dr; this.vy *= dr; this.x += this.vx * dt; this.y += this.vy * dt;
     this.life -= dt; if (this.life <= 0) { this.dead = true; return; }
     if (p.dead || g.state !== 'playing') return;
     const d = Math.hypot(p.x - this.x, p.y - this.y);
@@ -3421,6 +3436,7 @@ class Pickup {
         if (!g.scrapTip) { g.scrapTip = true; g.later(1.2, () => g.toast('Arme de fortune : la jauge sous l\'arme montre son usure. Elle casse à zéro.', '#c6a06a')); }
         break;
       }
+      case 'crate': g.openCrate(this, p); break;
       case 'note': {
         const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = Settings.notes || (Settings.notes = []); if (!got.includes(N.id)) got.push(N.id); Settings.save(); g.netEmit(['note', N.id]);
         g.notice('Document trouvé', `${N.from} · à lire dans le Carnet (${got.length} / ${NOTES.length})`, '#e8dcc0'); g.audio.tone({ f: 900, f2: 1300, dur: 0.12, type: 'triangle', g: 0.12 }); g.audio.pickup(); break;
@@ -3441,7 +3457,7 @@ class Pickup {
   }
 }
 class Survivor {
-  constructor(g, x, y, zone, idx) { const d = SURVIVORS[idx]; this.g = g; this.x = x; this.y = y; this.r = 12; this.zone = zone; this.hp = 60; this.state = 'idle'; this.dead = false; this.name = d.name; this.who = d.who; this.coat = d.coat; this.line = d.line; this.f = !!d.f; this.walkT = 0; this.hurtT = 0; this.dir = 0; }
+  constructor(g, x, y, zone, idx) { const d = SURVIVORS[idx]; this.idx = idx; this.g = g; this.x = x; this.y = y; this.r = 12; this.zone = zone; this.hp = 60; this.state = 'idle'; this.dead = false; this.name = d.name; this.who = d.who; this.coat = d.coat; this.line = d.line; this.f = !!d.f; this.walkT = 0; this.hurtT = 0; this.dir = 0; }
   update(dt) {
     const g = this.g, p = g.player; if (this.hurtT > 0) this.hurtT -= dt;
     if (this.state === 'idle') { if (!p.dead && dist2(p.x, p.y, this.x, this.y) < 44 * 44) { this.state = 'follow'; g.toast(`${this.name} (${this.who}) te suit : ${g.mode === 'hospital' ? `garde-l${this.f ? 'a' : 'e'} en vie jusqu'à la chute du Chirurgien` : `ramène-l${this.f ? 'a' : 'e'} au point de sauvegarde`}`, '#7fd18b'); g.audio.pickup(); } }
@@ -3562,7 +3578,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'notes', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'notes', 'rescued', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -3664,7 +3680,7 @@ class Game {
     this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.winFx = null; this.mapHover = null;
     this.zombies = []; this.bullets = []; this.flames = []; this.rockets = []; this.throwables = []; this.mines = []; this.acids = [];
     this.puddles = []; this.fires = []; this.shockwaves = []; this.beams = []; this.particles = []; this.pickups = []; this.lights = []; this.survivors = [];
-    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.moon = false; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
+    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.dropT = null; this.moon = false; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
     if (this.level) for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
     this.level = new Level(this); this.director.reset(); this.bossRef = null;
   }
@@ -3829,12 +3845,13 @@ class Game {
     this.updateBuddy(dt); this.updateEvent(dt);
     if (p.flashCd > 0) p.flashCd -= realDt; if (inp.flash && !p.dead) this.flash(); if (this.flashFx > 0) this.flashFx -= realDt;
     if (this.mode !== 'training') this.director.update(dt);
-    if (this.mode === 'story' || this.mode === 'survival') this.updateSewers(dt);
+    if (this.mode === 'story' || this.mode === 'survival') { this.updateSewers(dt); this.updateDrops(dt); }
     this.hash.clear(); for (const z of this.zombies) if (!z.dead) this.hash.insert(z);
     this.attractions.length = 0;
     for (const c of this.level.cars) if (c.alarm > 0) this.attractions.push({ x: c.x + c.w / 2, y: c.y + c.h / 2, r: 1000 });
     for (const t of this.throwables) if (t.kind === 'decoy' && t.landed) this.attractions.push({ x: t.x, y: t.y, r: 950 });
     if (this.event && this.event.id === 'icecream') this.attractions.push({ x: this.event.x, y: this.event.y, r: 900 });
+    for (const k of this.pickups) if (k.kind === 'crate' && !k.dead) this.attractions.push({ x: k.x, y: k.y, r: 1100 });
     for (const z of this.zombies) if (!z.dead) {
       const ox = z.x, oy = z.y; z.update(dt);
       if (!isFinite(z.x) || !isFinite(z.y)) { for (const k in z) if (typeof z[k] === 'number' && !isFinite(z[k])) z[k] = 0; z.x = isFinite(ox) ? ox : this.player.x + 320; z.y = isFinite(oy) ? oy : this.player.y; }
@@ -4266,6 +4283,7 @@ mixin(Game, {
     }
     if (e.t <= 0) { this.toast({ blackout: 'Le courant revient', fog: 'Le brouillard se lève', ash: 'Les cendres retombent', icecream: 'Le camion de glaces s\'éloigne' }[e.id], '#c6c0b2'); this.event = null; }
   },
+  noteRescue(sv) { if (sv.idx == null) return; const R = Settings.rescued || (Settings.rescued = {}); R[sv.idx] = (R[sv.idx] || 0) + 1; Settings.save(); this.netEmit(['rescued', sv.idx]); },
   onPlayerDeath() {
     const p = this.player; if (p.dead) return;
     if (this.mode !== 'training') { const d = carnet().deaths, k = p.lastCause || 'explosion'; d[k] = (d[k] || 0) + 1; Settings.save(); }
@@ -4314,7 +4332,7 @@ mixin(Game, {
       if (sv.dead || sv.state !== 'follow') continue;
       sv.dead = true;
       if (dist2(sv.x, sv.y, p.x, p.y) < 320 * 320) {
-        const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; carnet().saved++; if (this.run.sv) this.run.sv[sv.zone] = 2;
+        const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; carnet().saved++; this.noteRescue(sv); if (this.run.sv) this.run.sv[sv.zone] = 2;
         this.later(1.2, () => { this.notice(`${sv.name} est sauvé${sv.f ? 'e' : ''}`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); });
         if (this.run.saved >= 3) this.unlock('samaritan');
       } else { if (this.run.sv) this.run.sv[sv.zone] = 3; this.later(1.2, () => this.toast(`${sv.name} est resté${sv.f ? 'e' : ''} dehors`, '#a39e93')); }
@@ -4354,7 +4372,7 @@ mixin(Game, {
     const p = this.player;
     for (const sv of this.survivors) {
       if (sv.dead || sv.state !== 'follow') continue;
-      sv.dead = true; const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; carnet().saved++; this.run.sv[sv.zone] = 2;
+      sv.dead = true; const pts = Math.round(3000 * this.diff.score); this.score += pts; p.money += 200; this.run.saved++; carnet().saved++; this.noteRescue(sv); this.run.sv[sv.zone] = 2;
       this.notice(`${sv.name} est sauvé${sv.f ? 'e' : ''}`, `+${fmt(pts)} · +$200`); this.toast(`${sv.name} : « ${sv.line} »`, '#7fd18b'); if (this.run.saved >= 3) this.unlock('samaritan');
     }
     const xp = this.gainXP(200 + (this.kills - ((this.missionStart || {}).kills || 0)) * 2); this.toast(`+${xp} XP · mission 5 terminée`, '#9fd6e6');
@@ -4799,7 +4817,7 @@ mixin(Game, {
 // ============================================================ jeu : effets visuels
 mixin(Game, {
   addLight(x, y, r, c, i, life) { this.netEmit(['light', Math.round(x), Math.round(y), Math.round(r), c, netR(i), netR(life)]); this.lights.push({ x, y, r, c, i, life, max: life, dead: false }); },
-  spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
+  spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : PERF_LOW ? 500 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
   // ---------- pièges du décor : ils frappent tout le monde, zombies comme survivants
   trapNear(p) { for (const t of this.level.traps || []) if (rectDist(p.x, p.y, t.ob) < 40) return t; return null; },
   useTrap(t, by) {
@@ -4868,6 +4886,32 @@ mixin(Game, {
       c.strokeStyle = shade(z.skin, -0.35); c.lineWidth = s * 0.28; c.lineCap = 'round'; c.beginPath(); c.moveTo(s * 0.4, -s * 0.5); c.lineTo(s * 1.2, -s * 1.1); c.moveTo(s * 0.3, s * 0.5); c.lineTo(s * 0.9, s * 1.2); c.stroke();
     });
   },
+  // ---------- ravitaillement par hélico : une caisse sous une fusée rouge ; bon matériel, mais la horde converge dessus
+  updateDrops(dt) {
+    const p = this.player; if (p.dead || this.cine || this.mode === 'hospital') return;
+    if ((this.dropT = (this.dropT ?? rand(60, 100)) - dt) > 0) return;
+    this.dropT = rand(80, 130); if (this.pickups.some(k => k.kind === 'crate')) return;
+    const Z = this.activeZone >= 0 ? ZONES[this.activeZone] : { x0: 0, x1: WORLD.w };
+    for (let t = 0; t < 30; t++) {
+      const a = rand(0, TAU), d = rand(350, 620), x = Math.round(clamp(p.x + Math.cos(a) * d, Z.x0 + 90, Z.x1 - 90)), y = Math.round(clamp(p.y + Math.sin(a) * d * 0.6, ST + 80, SB - 50));
+      if (Math.hypot(x - p.x, y - p.y) < 300 || this.level.queryRect(x - 30, y - 30, 60, 60).some(o => rectDist(x, y, o) < 30)) continue; /* jamais sur la tête du joueur, même au bord d'un secteur */
+      const pk = new Pickup(this, 'crate', x, y, 0); pk.life = 75; pk.vx = pk.vy = 0; pk.drop = DROP_FALL; this.pickups.push(pk);
+      this.notice('Ravitaillement largué', 'Une fusée rouge marque la caisse : la horde l\'a vue aussi', '#ff6a4a');
+      for (let i = 0; i < 14; i++) this.audio.noise({ f: 260, f2: 120, dur: 0.07, g: 0.22 * (1 - Math.abs(i - 7) / 8), delay: i * 0.11 }); /* rotor qui passe */
+      this.director.queue += Math.round(6 * this.diff.pop); return;
+    }
+  },
+  crateLand(pk) {
+    this.audio.tone({ f: 110, f2: 45, dur: 0.4, g: 0.4 }); this.shake(0.25); this.audio.noise({ f: 2400, f2: 1200, dur: 1.4, g: 0.12, delay: 0.3 }); /* la fusée s'allume */
+    for (let i = 0; i < 12; i++) this.spawnP({ x: pk.x + rand(-18, 18), y: pk.y + rand(-6, 6), vx: rand(-90, 90), vy: rand(-40, 40), life: rand(0.6, 1.1), type: 'smoke', size: 8, grow: 14 });
+  },
+  openCrate(pk, p) {
+    const cash = Math.round(250 * this.diff.money); (this.p2 ? this.player : p).money += cash; p.grenades = Math.min(9, p.grenades + 2); p.hp = Math.min(p.maxHp, p.hp + Math.round(30 * p.healMul));
+    for (const w of p.weapons) if (own(w) && !w.def.infinite) w.reserve += Math.ceil(w.def.ammoPack * 0.5);
+    new Pickup(this, 'scrap', pk.x, pk.y, 0).collect(p);
+    this.notice('Caisse ouverte', `$${fmt(cash)} · 2 grenades · munitions · soins · une arme de fortune`, '#ff6a4a'); this.audio.objective();
+    if (this.mode !== 'training') carnet().drops++;
+  },
   // ---------- nuit de pleine lune : zombies plus rapides, points et argent doublés ; l'hôte tire au sort, l'invité suit
   setMoon(on) {
     if (!!this.moon === on) return; this.moon = on; this.netEmit(['moon', on ? 1 : 0]);
@@ -4903,7 +4947,7 @@ mixin(Game, {
     const T = WEATHER[X.k], e = Math.min(1, dt * 0.4); X.vis += (T.vis - X.vis) * e; X.fog += (T.fog - X.fog) * e; X.rain += (T.rain - X.rain) * e; X.bolt = Math.max(0, X.bolt - dt);
     if (this.audio.rainG) this.audio.rainG.gain.value = (Settings.rain ? 0.05 : 0.012) * (0.55 + 0.45 * X.rain);
     if (Settings.rain && this.mode !== 'hospital') {
-      const nr = Math.round((TOUCH ? 150 : 260) * X.rain); if (this.rain.length > nr) this.rain.length = nr;
+      const nr = Math.round((TOUCH ? 150 : 260) * X.rain * (PERF_LOW || Settings.quality === 'eco' ? 0.5 : 1)); if (this.rain.length > nr) this.rain.length = nr;
       while (this.rain.length < nr) this.rain.push({ x: cx + rand(-hw, hw), y: cy + rand(-hh, hh), z: rand(0, 380), v: rand(650, 900) });
       for (const d of this.rain) {
         d.z -= d.v * dt; d.x -= 60 * dt;
@@ -5123,10 +5167,11 @@ mixin(Game, {
       glow(p.x, p.y, Settings.vis === 'renforcee' ? 190 : 135, !this.p2 ? '190,200,235' : p.isP2 ? '120,170,255' : '255,120,100', Settings.vis === 'renforcee' ? 0.5 : 0.32);
     } else glow(p.x, p.y, 90, '160,20,10', 0.4);
     if (this.state === 'title') glow(640, 660, 160, '190,200,235', 0.25);
+    const wet = this.wx && Settings.rain ? clamp((this.wx.rain - 1) / 1.6, 0, 1) : 0;
     for (const l of this.level.lamps) {
       if (!l.on) continue; let i = 0.78;
       if (l.flick) { const v = Math.sin(t * 3 + l.phase) * Math.sin(t * 17.3 + l.phase * 3); if (v > 0.72) i = 0.05; else i *= 0.85 + Math.random() * 0.15; }
-      l._i = i; glow(l.x, l.y + 12, 250, '255,165,85', i);
+      l._i = i; glow(l.x, l.y + 12, 250, '255,165,85', i); if (wet > 0.05) { glow(l.x, l.y + 70, 120, '255,175,95', i * 0.4 * wet); glow(l.x, l.y + 130, 80, '255,175,95', i * 0.25 * wet); }
     }
     for (const f of this.level.fixedLights) { const fl = Settings.calm && f.flick >= 2 ? 0.8 : f.flick === 3 ? (Math.sin(t * 2.3 + f.x) * Math.sin(t * 11.7 + f.y * 0.01) > 0.55 ? 0.04 : 0.8 + Math.random() * 0.2) : f.flick === 2 ? 0.75 + Math.random() * 0.25 : f.flick === 1 ? 0.95 + Math.sin(t * 2) * 0.05 : 1; glow(f.x, f.y, f.r, f.c, f.i * fl); }
     for (const f of this.fires) glow(f.x, f.y, f.r * 4.5, '255,130,50', 0.85 * Math.min(1, f.life / 1.5) * (0.75 + Math.random() * 0.25));
@@ -5143,6 +5188,7 @@ mixin(Game, {
     for (const m of this.mines) if (m.arm <= 0 && Math.floor(m.t * 2) % 2 === 0) glow(m.x, m.y, 30, '255,40,30', 0.5);
     for (const o of this.level.machines) if (!o.broken) glow(o.x + o.w / 2, o.y + o.h + 4, 70, '255,90,80', 0.28);
     for (const pk of this.pickups) if (pk.kind === 'key' || pk.kind === 'fuel' || pk.kind === 'weapon' || pk.kind === 'scrap' || pk.kind === 'note') glow(pk.x, pk.y, pk.kind === 'note' ? 60 : 90, pk.kind === 'note' ? '235,225,200' : pk.kind === 'weapon' || pk.kind === 'scrap' ? '255,220,150' : '255,200,90', (pk.kind === 'note' ? 0.22 : 0.3) + Math.sin(t * 4) * 0.1);
+    for (const pk of this.pickups) if (pk.kind === 'crate') { if (pk.drop > 0) glow(pk.x, pk.y - pk.drop / DROP_FALL * 260 - 70, 90, '255,60,40', 0.5); else { glow(pk.x + 21, pk.y - 14, 320, '255,40,30', 1.05 + Math.random() * 0.35); glow(pk.x + 21, pk.y - 14, 90, '255,120,90', 0.8); } }
     const ob = this.state === 'playing' ? this.objective() : null;
     if (this.activeZone === 1 && !this.level.obj[1].done) glow(this.level.obj[1].x, 600, 170, this.level.obj[1].started ? '120,255,140' : '255,70,50', 0.35 + Math.sin(t * 5) * 0.12);
     if (this.level.obj[3].dead) { glow(HELI, 600, 260, '255,40,30', 0.6 + Math.sin(t * 6) * 0.2); glow(HELI - 60, 520, 120, '255,60,40', 0.5); glow(HELI + 60, 680, 120, '255,60,40', 0.5); }
@@ -5170,6 +5216,8 @@ mixin(Game, {
     for (const pt of this.particles) if (pt.emissive && inView(pt.x, pt.y)) this.drawParticle(pt);
     c.globalAlpha = 1;
     for (const z of this.zombies) if (z.type === 'boss' && !z.dead && inView(z.x, z.y, 200)) this.drawBossGlow(z);
+    // fusée rouge du ravitaillement : flamme vive qui crépite
+    for (const pk of this.pickups) if (pk.kind === 'crate' && !(pk.drop > 0) && inView(pk.x, pk.y)) { const f = 0.75 + Math.random() * 0.25, x = pk.x + 21, y = pk.y - 18; c.fillStyle = `rgba(255,60,40,${0.35 * f})`; c.beginPath(); c.arc(x, y, 14 * f, 0, TAU); c.fill(); c.fillStyle = `rgba(255,190,170,${f})`; c.beginPath(); c.arc(x, y, 4, 0, TAU); c.fill(); }
     // bouche d'égout qui gronde : anneau orange visible même dans le noir
     for (const s of this.level.spawners) if (s.rumble > 0 && !s.sealed && inView(s.x, s.y)) { const k = 0.55 + Math.sin(t * 14) * 0.3; c.save(); c.translate(s.x, s.y); c.scale(1, 0.6); c.strokeStyle = `rgba(255,140,50,${k})`; c.lineWidth = 3; c.setLineDash([8, 6]); c.lineDashOffset = -t * 40; c.beginPath(); c.arc(0, 0, 34 + Math.sin(t * 9) * 3, 0, TAU); c.stroke(); c.setLineDash([]); c.fillStyle = `rgba(255,110,40,${k * 0.18})`; c.fill(); c.restore(); }
     if (this.state === 'playing' || this.state === 'paused') for (const q of this.players()) if (q && !q.dead && !q.hidden) this.drawLaser(q, q === this.p2 ? '255,170,90' : '90,170,255');
@@ -5303,6 +5351,10 @@ mixin(Game, {
       case 'med': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 9, 3, 0, 0, TAU); c.fill(); itemArt(c, 'med', pk.x, pk.y - 8 + b, 20); break;
       case 'grenade': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 7, 3, 0, 0, TAU); c.fill(); itemArt(c, 'grenade', pk.x, pk.y - 8 + b, 18); break;
       case 'shiba': drawShibaSprite(c, pk.x, pk.y, 1, this.time + pk.x); break;
+      case 'crate': { const fall = pk.drop > 0 ? pk.drop / DROP_FALL : 0, h = fall * 260; c.fillStyle = `rgba(0,0,0,${0.45 - fall * 0.3})`; c.beginPath(); c.ellipse(pk.x, pk.y + 2, 22 - fall * 12, 8 - fall * 4, 0, 0, TAU); c.fill();
+        c.save(); c.translate(pk.x, pk.y - h + (fall ? Math.sin(this.time * 3) * 3 : 0)); if (fall) { c.strokeStyle = '#c8c0b0'; c.lineWidth = 1; c.beginPath(); c.moveTo(-16, -24); c.lineTo(0, -62); c.lineTo(16, -24); c.stroke(); c.fillStyle = '#d8d2c4'; c.beginPath(); c.ellipse(0, -64, 32, 16, 0, Math.PI, 0); c.fill(); c.fillStyle = '#b0231c'; c.fillRect(-4, -80, 8, 16); }
+        c.fillStyle = '#5a4a2c'; c.fillRect(-17, -26, 34, 26); c.fillStyle = '#3e321e'; c.fillRect(-17, -14, 34, 3); c.fillRect(-2, -26, 4, 26); c.fillStyle = '#d8d2c4'; c.fillRect(-12, -22, 7, 5); c.fillStyle = '#b0231c'; c.fillRect(-10, -21, 3, 3); c.restore();
+        if (!fall) { c.fillStyle = '#5a1410'; c.fillRect(pk.x + 19, pk.y - 14, 4, 14); c.fillStyle = '#ffb0a0'; c.fillRect(pk.x + 19, pk.y - 17, 4, 3); } break; }
       case 'note': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y + 2, 10, 4, 0, 0, TAU); c.fill(); c.save(); c.translate(pk.x, pk.y - 6 + b); c.rotate(-0.18); c.fillStyle = '#e8dcc0'; c.fillRect(-8, -10, 16, 20); c.fillStyle = '#8a7e66'; for (let i = 0; i < 4; i++) c.fillRect(-5, -6 + i * 4, i === 3 ? 6 : 10, 1.2); c.fillStyle = '#8a1a12'; c.fillRect(3, 5, 3, 3); c.restore(); break;
       case 'scrap': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 16, 6, 0, 0, TAU); c.fill(); c.save(); c.translate(pk.x, pk.y - 8 + b); c.rotate(0.2); c.fillStyle = '#3a3634'; c.fillRect(-16, -3, 30, 6); c.fillStyle = '#6a4a2c'; c.fillRect(-16, 1, 8, 8); c.fillStyle = '#b8a888'; c.fillRect(-4, -5, 3, 10); c.fillRect(4, -5, 3, 10); c.fillStyle = '#c6a06a'; c.fillRect(10, -2, 6, 3); c.restore(); break;
       case 'battery': c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(pk.x, pk.y, 8, 3, 0, 0, TAU); c.fill(); itemArt(c, 'battery', pk.x, pk.y - 9 + b, 20); break;
@@ -7659,6 +7711,7 @@ mixin(Game, {
       case 'bolt': this.bolt(); break;
       case 'note': { const got = Settings.notes || (Settings.notes = []); if (!got.includes(a[0])) { got.push(a[0]); Settings.save(); } break; }
       case 'moon': this.setMoon(!!a[0]); break;
+      case 'rescued': { const R = Settings.rescued || (Settings.rescued = {}); R[a[0]] = (R[a[0]] || 0) + 1; Settings.save(); break; }
       case 'rumble': { const s = this.level.spawners[a[0]]; if (s) { s.rumble = a[1]; this.later(a[1], () => { s.rumble = 0; }); } break; }
       case 'seal': { const s = this.level.spawners[a[0]]; if (s && !s.sealed) this.sealFx(s); break; }
       case 'trap': { const t = (this.level.traps || []).find(x => x.ob.oid === a[0]); if (t) { t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = a[1]; this.trapFx(t); } break; }
@@ -8505,7 +8558,7 @@ function carnetHTML() {
   const cells = [['Zombies abattus', fmt(c.kills)], ['Temps dans les rues', h ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`], ['Parties', fmt(c.runs)], ['Morts', fmt(dead)], ['Précision', (c.shots ? Math.round(100 * c.hits / c.shots) : 0) + ' %'], ['Survivants sauvés', fmt(c.saved)], ['Zombies d\'élite', fmt(c.elites)], ['Bouches scellées', fmt(c.sealed)], ['Éclairs encaissés', fmt(c.bolts)], ['Nuits de pleine lune', fmt(c.moons)], ['Armes de fortune cassées', fmt(c.broken)]];
   const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k, dName = k => (BESTIARY.find(b => b.k === k) || {}).name || DEATH_BY[k] || 'Inconnu';
   return `<p class="cn-intro">Tout ce que tu as vécu dans les rues, sur cet appareil.</p><div class="pause-stats cn-grid">${cells.map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`
-    + `<div class="cn-cols"><section><h4>Arme préférée</h4>${carnetTop(c.arms, wName)}</section><section><h4>Ce qui t'a eu le plus souvent</h4>${carnetTop(c.deaths, dName)}</section></div>` + notesHTML();
+    + `<div class="cn-cols"><section><h4>Arme préférée</h4>${carnetTop(c.arms, wName)}</section><section><h4>Ce qui t'a eu le plus souvent</h4>${carnetTop(c.deaths, dName)}</section></div>` + rescuedHTML() + notesHTML();
 }
 // documents trouvés dans la ville, rangés par mission ; ceux qui manquent restent sous scellés
 function notesHTML() {
@@ -8514,7 +8567,30 @@ function notesHTML() {
     ? `<details class="cn-doc"><summary><small>Mission ${o.m + 1}</small><b>${o.from}</b></summary><p>${o.t}</p></details>`
     : `<div class="cn-doc locked"><small>Mission ${o.m + 1}</small><b>Document introuvable</b></div>`).join('')}</div>`;
 }
-$('btn-carnet').addEventListener('click', e => togglePanel('panel-carnet', e.currentTarget, carnetHTML));
+// survivants sauvés : une fiche par personne, avec son portrait ; les autres restent des silhouettes
+function rescuedHTML() {
+  const R = Settings.rescued || {};
+  return `<h4 class="cn-docs-h">Survivants sauvés · ${SURVIVORS.filter((s, i) => R[i]).length} / ${SURVIVORS.length}</h4><div class="cn-svs">${SURVIVORS.map((s, i) => { const m = MISSION_SURV.indexOf(i) + 1;
+    return R[i] ? `<article class="cn-sv"><canvas width="160" height="160" data-sv="${i}" aria-hidden="true"></canvas><div><small>Mission ${m} · ${s.who}</small><b>${s.name}</b><p>${s.bio}</p><q>${s.line}</q><small>Sauvé${s.f ? 'e' : ''} ${R[i]} fois</small></div></article>`
+      : `<article class="cn-sv locked"><canvas width="160" height="160" data-sv="${i}" data-off="1" aria-hidden="true"></canvas><div><small>Mission ${m}</small><b>Survivant inconnu</b><p>Quelqu'un attend encore de l'aide dans cette mission.</p></div></article>`; }).join('')}</div>`;
+}
+// portrait en buste d'un survivant : manteau, visage, et un détail qui le résume
+function drawSurvivorPortrait(cv) {
+  const c = cv.getContext('2d'), i = +cv.dataset.sv, s = SURVIVORS[i], off = !!cv.dataset.off, w = cv.width, h = cv.height;
+  c.clearRect(0, 0, w, h); const bg = c.createRadialGradient(w / 2, h * 0.45, 10, w / 2, h / 2, w * 0.7); bg.addColorStop(0, off ? '#1c1819' : '#3a2a22'); bg.addColorStop(1, '#0c0a0a'); c.fillStyle = bg; c.fillRect(0, 0, w, h);
+  c.save(); c.translate(w / 2, h); const skin = off ? '#141112' : '#d2a37c', coat = off ? '#141112' : s.coat;
+  c.fillStyle = coat; c.beginPath(); c.ellipse(0, -8, 62, 52, 0, Math.PI, 0); c.fill();
+  c.fillStyle = skin; c.fillRect(-10, -66, 20, 16); c.beginPath(); c.ellipse(0, -92, 28, 33, 0, 0, TAU); c.fill();
+  if (!off) {
+    c.fillStyle = '#2a1e18'; c.fillRect(-11, -96, 7, 3); c.fillRect(4, -96, 7, 3); c.fillStyle = '#1a1210'; c.fillRect(-9, -90, 4, 4); c.fillRect(5, -90, 4, 4); c.fillStyle = '#8a4a3a'; c.fillRect(-6, -76, 12, 3);
+    if (i === 0) { c.fillStyle = '#3a3a48'; c.fillRect(-30, -126, 60, 14); c.fillRect(-36, -114, 72, 6); c.fillStyle = '#c8b030'; c.fillRect(-6, -122, 12, 6); c.fillStyle = '#cfcfcf'; c.fillRect(-14, -74, 28, 6); }
+    else if (i === 1) { c.fillStyle = '#6a4a3a'; c.beginPath(); c.arc(0, -124, 16, 0, TAU); c.fill(); c.beginPath(); c.ellipse(0, -106, 30, 14, 0, Math.PI, 0); c.fill(); c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(-20, -70, 6, 5); c.fillRect(14, -80, 5, 4); c.fillStyle = '#e8dcc0'; c.fillRect(-24, -40, 48, 40); }
+    else if (i === 2) { c.fillStyle = '#2f8f6b'; c.beginPath(); c.ellipse(0, -112, 32, 22, 0, Math.PI, 0); c.fill(); c.fillStyle = '#1a1a1a'; c.fillRect(-32, -114, 64, 4); c.fillStyle = '#d8d2c4'; c.fillRect(30, -60, 34, 46); c.fillStyle = '#2f8f6b'; c.fillRect(34, -54, 26, 6); }
+    else { c.fillStyle = '#e8f0f2'; c.fillRect(-26, -128, 52, 16); c.fillStyle = '#b0231c'; c.fillRect(-4, -126, 8, 12); c.fillRect(-8, -122, 16, 4); c.fillStyle = '#9ac0cc'; c.fillRect(-18, -82, 36, 14); c.fillStyle = '#1a1210'; c.fillRect(-26, -112, 6, 30); c.fillRect(20, -112, 6, 30); }
+  } else { c.fillStyle = 'rgba(176,35,28,.5)'; c.font = `46px ${FD}`; c.textAlign = 'center'; c.fillText('?', 0, -78); }
+  c.restore();
+}
+$('btn-carnet').addEventListener('click', e => { togglePanel('panel-carnet', e.currentTarget, carnetHTML); for (const cv of $('panel-carnet').querySelectorAll('canvas[data-sv]')) drawSurvivorPortrait(cv); });
 const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['week', 'Semaine'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
 function scoresHTML() {
   if (!Online.on()) return scoreTable(Scores.list()) + (ONLINE.url ? '<p class="hint">Classement en ligne désactivé dans les Paramètres.</p>' : '');
@@ -8867,6 +8943,12 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 81, d: '6 nov.', t: 'Ravitaillement et visages', s: 'Le ciel largue de l\'aide, et les survivants ont enfin un visage.', it: [
+    ['new', 'Ravitaillement', 'De temps en temps, un hélico largue une caisse sous une fusée rouge : argent, grenades, munitions, soins et une arme de fortune. Mais la horde l\'a vue aussi et fonce dessus.'],
+    ['new', 'Portraits de survivants', 'Chaque survivant sauvé laisse sa fiche dans le Carnet : son portrait, son histoire et sa phrase.'],
+    ['fix', 'Fluidité', 'Sur les appareils qui peinent, la qualité automatique allège maintenant aussi la lumière, la pluie et les particules. Elle fonctionne enfin sur les écrans classiques des PC.'],
+    ['new', 'Bitume mouillé', 'Sous l\'averse, les lampadaires se reflètent sur la chaussée.']
+  ] },
   { v: 80, d: '4 nov.', t: 'Lune rouge et vieux papiers', s: 'La ville raconte son histoire, et certaines nuits tournent mal.', it: [
     ['new', 'Documents', '12 lettres et notes cachées dans les cinq missions. Elles brillent faiblement au sol. Une fois ramassées, tu les lis dans l\'onglet Carnet.'],
     ['new', 'Nuit de pleine lune', 'Certaines nuits, la lune rouge se lève : les zombies courent plus vite, mais chaque zombie abattu rapporte le double de points et d\'argent.'],
@@ -9233,7 +9315,7 @@ function frame(now) {
   if (Settings.quality === 'eco' && now - last < 30) { requestAnimationFrame(frame); return; } // économie de batterie : 30 images par seconde
   const raw = (now - last) / 1000, dt = Math.min(0.034, Math.max(0, raw)); last = now;
   // qualité automatique : en partie, si l'image tombe sous ~38 i/s pendant 3 s, on réduit la résolution d'un cran
-  if (Settings.quality === 'auto' && game.state === 'playing' && raw < 0.25 && !document.hidden) { perf.t += raw; perf.n++; if (perf.t >= 3) { const avg = perf.t / perf.n; if (avg > 0.026 && dprCap > 1) { dprCap = Math.max(1, +(Math.min(dprCap, DPR) * 0.8).toFixed(2)); resize(); } perf.t = 0; perf.n = 0; } }
+  if (Settings.quality === 'auto' && game.state === 'playing' && raw < 0.25 && !document.hidden) { perf.t += raw; perf.n++; if (perf.t >= 3) { const avg = perf.t / perf.n; if (avg > 0.026 && dprCap > 1 && DPR > 1) { dprCap = Math.max(1, +(Math.min(dprCap, DPR) * 0.8).toFixed(2)); resize(); } else if (avg > 0.026 && !PERF_LOW) { PERF_LOW = true; resize(); } perf.t = 0; perf.n = 0; } }
   if (innerWidth !== RW || innerHeight !== RH) resize();
   try { game.update(dt); game.render(); } catch (err) { if (!errShown) { errShown = true; console.error(err); } }
   requestAnimationFrame(frame);

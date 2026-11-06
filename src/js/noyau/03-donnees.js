@@ -58,10 +58,10 @@ const HALLOWEEN = (() => { try { const q = location.search; if (/[?&]nohalloween
 const HW_GOAL = 31, COSTUMES = ['citrouille', 'drap', 'sorciere'];
 const hwCount = () => { const y = new Date().getFullYear(); return Settings.hw && Settings.hw.y === y ? Settings.hw.n : 0; };
 const SURVIVORS = [
-  { name: 'Gérard', who: 'cheminot retraité', coat: '#5a4a3a', line: 'Merci ! J\'ai connu pire : la grève de 95.' },
-  { name: 'Mme Lefebvre', who: 'boulangère', f: true, coat: '#9a5a7a', line: 'Passez à la boutique, je vous ferai un pain au chocolat. Ou une chocolatine, je juge pas.' },
-  { name: 'Kévin', who: 'livreur à vélo', coat: '#2f8f6b', line: 'Ma commande est froide, mais moi je suis vivant. Cinq étoiles !' },
-  { name: 'Inès', who: 'infirmière de garde', f: true, coat: '#6fa8bf', line: 'Trois gardes d\'affilée et une invasion de zombies. Je veux une prime.' }
+  { name: 'Gérard', who: 'cheminot retraité', coat: '#5a4a3a', line: 'Merci ! J\'ai connu pire : la grève de 95.', bio: 'Quarante ans à la SNCF, dont dix de grève. Il a tenu trois jours caché dans un local à aiguillages, avec une thermos de café et sa radio. Il trouve les zombies moins pénibles que les usagers du RER.' },
+  { name: 'Mme Lefebvre', who: 'boulangère', f: true, coat: '#9a5a7a', line: 'Passez à la boutique, je vous ferai un pain au chocolat. Ou une chocolatine, je juge pas.', bio: 'Elle n\'a pas fermé sa boulangerie le soir du couvre-feu : les gens ont besoin de pain, même morts. Elle a assommé deux zombies au rouleau à pâtisserie avant de se barricader dans le fournil.' },
+  { name: 'Kévin', who: 'livreur à vélo', coat: '#2f8f6b', line: 'Ma commande est froide, mais moi je suis vivant. Cinq étoiles !', bio: 'Payé à la course, il a continué ses livraisons pendant deux nuits. Note client : 4,9. Il a semé une meute de chiens zombies dans le parking en roulant à contresens. Il cherche toujours l\'adresse de sa dernière commande.' },
+  { name: 'Inès', who: 'infirmière de garde', f: true, coat: '#6fa8bf', line: 'Trois gardes d\'affilée et une invasion de zombies. Je veux une prime.', bio: 'De garde à Saint-Lazare quand tout a basculé. Elle a soigné les blessés jusqu\'au bout, puis s\'est cachée près de la morgue pour échapper au Chirurgien. Elle a tout noté dans un carnet.' }
 ];
 const WEAPONS = [
   { id: 'pistol', name: 'Pistolet', type: 'bullet', dmg: 20, rate: 0.2, mag: 12, reload: 1.0, spread: 0.035, pellets: 1, speed: 1500, pierce: 0, infinite: true, price: 0, ammoPrice: 0, ammoPack: 0, tier: 0.6, shake: 0.08, desc: 'Munitions infinies. Maintiens le clic pour charger un tir perçant.' },
@@ -128,6 +128,8 @@ const NOTES = [
   { id: 'n10', m: 4, from: 'Dossier médical, chambre 12', t: 'Patient en attente de ses résultats depuis 41 heures. S\'énerve, crie de plus en plus fort. Quand il crie, les autres patients se lèvent. Ils ne devraient pas pouvoir se lever : ils sont à la morgue.' },
   { id: 'n11', m: 4, from: 'Carnet d\'Inès', t: 'Le chirurgien opère encore. Il n\'a plus de patients vivants, alors il opère les autres. Il m\'a dit que j\'étais la prochaine sur sa liste. Je me cache près de la morgue. Venez vite, et ne le laissez pas vous endormir : il n\'endort plus personne.' }
 ];
+// ravitaillement par hélico : temps de chute de la caisse sous son parachute (s)
+const DROP_FALL = 3;
 // nuit de pleine lune : vitesse des zombies et multiplicateur des points et de l'argent
 const MOON_SPEED = 1.22, MOON_GAIN = 2;
 // arme de fortune : plus forte, mais elle s'use à chaque tir et finit par casser

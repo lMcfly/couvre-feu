@@ -274,6 +274,7 @@ mixin(Game, {
       case 'bolt': this.bolt(); break;
       case 'note': { const got = Settings.notes || (Settings.notes = []); if (!got.includes(a[0])) { got.push(a[0]); Settings.save(); } break; }
       case 'moon': this.setMoon(!!a[0]); break;
+      case 'rescued': { const R = Settings.rescued || (Settings.rescued = {}); R[a[0]] = (R[a[0]] || 0) + 1; Settings.save(); break; }
       case 'rumble': { const s = this.level.spawners[a[0]]; if (s) { s.rumble = a[1]; this.later(a[1], () => { s.rumble = 0; }); } break; }
       case 'seal': { const s = this.level.spawners[a[0]]; if (s && !s.sealed) this.sealFx(s); break; }
       case 'trap': { const t = (this.level.traps || []).find(x => x.ob.oid === a[0]); if (t) { t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = a[1]; this.trapFx(t); } break; }

@@ -2,6 +2,7 @@
 const $ = id => document.getElementById(id);
 const canvas = $('game'); let ctx = canvas.getContext('2d'); // let : le teaser des fiches emprunte le moteur de dessin
 const lightCanvas = document.createElement('canvas'), lctx = lightCanvas.getContext('2d');
+let PERF_LOW = false; // 2e cran de la qualité automatique : lumière plus grossière, moins de pluie et de particules
 let RW = 0, RH = 0, W = 0, H = 0, DPR = 1, VS = 1, dprCap = 2, SAFE = { l: 0, r: 0, t: 0, b: 0 }; // dprCap : baissé automatiquement si l'appareil n'arrive pas à suivre
 let TOUCH = false; try { TOUCH = matchMedia('(pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches; } catch (e) { }
 const STICK_R = 58;
@@ -14,7 +15,7 @@ function readSafe() { let el = document.getElementById('safe-probe'); if (!el) {
   // en paysage, iOS réserve la même marge des deux côtés alors que l'encoche (ou la Dynamic Island) n'est que d'un côté : on rend la place de l'autre
   if (SAFE.l > 30 && SAFE.r > 30 && Math.abs(SAFE.l - SAFE.r) < 4) { const o = typeof window.orientation === 'number' ? (window.orientation + 360) % 360 : screen.orientation && typeof screen.orientation.angle === 'number' ? screen.orientation.angle : 0; if (o === 90) SAFE.r = 16; else if (o === 270) SAFE.l = 16; } }
 function resize() { readSafe(); if (Settings.quality === 'eco') dprCap = 1; else if (Settings.quality === 'high') dprCap = 2;
-  DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, dprCap)); LD = TOUCH ? 3 : 2;
+  DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, dprCap)); LD = (TOUCH ? 3 : 2) + (PERF_LOW && Settings.quality === 'auto' ? 1 : 0);
   const cw = window.innerWidth, ch = window.innerHeight; RW = cw; RH = ch;
   W = Math.max(1, Math.floor(cw * DPR)); H = Math.max(1, Math.floor(ch * DPR));
   canvas.width = W; canvas.height = H;

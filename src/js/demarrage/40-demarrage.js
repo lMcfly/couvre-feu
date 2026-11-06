@@ -88,7 +88,7 @@ function frame(now) {
   if (Settings.quality === 'eco' && now - last < 30) { requestAnimationFrame(frame); return; } // économie de batterie : 30 images par seconde
   const raw = (now - last) / 1000, dt = Math.min(0.034, Math.max(0, raw)); last = now;
   // qualité automatique : en partie, si l'image tombe sous ~38 i/s pendant 3 s, on réduit la résolution d'un cran
-  if (Settings.quality === 'auto' && game.state === 'playing' && raw < 0.25 && !document.hidden) { perf.t += raw; perf.n++; if (perf.t >= 3) { const avg = perf.t / perf.n; if (avg > 0.026 && dprCap > 1) { dprCap = Math.max(1, +(Math.min(dprCap, DPR) * 0.8).toFixed(2)); resize(); } perf.t = 0; perf.n = 0; } }
+  if (Settings.quality === 'auto' && game.state === 'playing' && raw < 0.25 && !document.hidden) { perf.t += raw; perf.n++; if (perf.t >= 3) { const avg = perf.t / perf.n; if (avg > 0.026 && dprCap > 1 && DPR > 1) { dprCap = Math.max(1, +(Math.min(dprCap, DPR) * 0.8).toFixed(2)); resize(); } else if (avg > 0.026 && !PERF_LOW) { PERF_LOW = true; resize(); } perf.t = 0; perf.n = 0; } }
   if (innerWidth !== RW || innerHeight !== RH) resize();
   try { game.update(dt); game.render(); } catch (err) { if (!errShown) { errShown = true; console.error(err); } }
   requestAnimationFrame(frame);

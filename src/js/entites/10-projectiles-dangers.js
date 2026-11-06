@@ -169,7 +169,9 @@ class FireArea {
 class Pickup {
   constructor(g, kind, x, y, val) { this.g = g; this.kind = kind; this.x = x; this.y = y; this.val = val; this.t = 0; this.vx = rand(-70, 70); this.vy = rand(-70, 70); this.life = kind === 'coin' ? 30 : 40; this.dead = false; this.zone = -2; }
   update(dt) {
-    const g = this.g, p = g.nearestPlayer(this.x, this.y); this.t += dt; const dr = Math.exp(-5 * dt); this.vx *= dr; this.vy *= dr; this.x += this.vx * dt; this.y += this.vy * dt;
+    const g = this.g, p = g.nearestPlayer(this.x, this.y); this.t += dt;
+    if (this.kind === 'crate') { if (this.drop > 0) { this.drop -= dt; if (this.drop <= 0) g.crateLand(this); return; } if (Math.random() < dt * 12) g.spawnP({ x: this.x + 21, y: this.y - 12, z: 6, vx: rand(-14, 14), vy: rand(-26, -8), life: 1.4, type: 'smoke', size: 6, grow: 16 }); }
+    const dr = Math.exp(-5 * dt); this.vx *= dr; this.vy *= dr; this.x += this.vx * dt; this.y += this.vy * dt;
     this.life -= dt; if (this.life <= 0) { this.dead = true; return; }
     if (p.dead || g.state !== 'playing') return;
     const d = Math.hypot(p.x - this.x, p.y - this.y);
@@ -203,6 +205,7 @@ class Pickup {
         if (!g.scrapTip) { g.scrapTip = true; g.later(1.2, () => g.toast('Arme de fortune : la jauge sous l\'arme montre son usure. Elle casse à zéro.', '#c6a06a')); }
         break;
       }
+      case 'crate': g.openCrate(this, p); break;
       case 'note': {
         const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = Settings.notes || (Settings.notes = []); if (!got.includes(N.id)) got.push(N.id); Settings.save(); g.netEmit(['note', N.id]);
         g.notice('Document trouvé', `${N.from} · à lire dans le Carnet (${got.length} / ${NOTES.length})`, '#e8dcc0'); g.audio.tone({ f: 900, f2: 1300, dur: 0.12, type: 'triangle', g: 0.12 }); g.audio.pickup(); break;
@@ -223,7 +226,7 @@ class Pickup {
   }
 }
 class Survivor {
-  constructor(g, x, y, zone, idx) { const d = SURVIVORS[idx]; this.g = g; this.x = x; this.y = y; this.r = 12; this.zone = zone; this.hp = 60; this.state = 'idle'; this.dead = false; this.name = d.name; this.who = d.who; this.coat = d.coat; this.line = d.line; this.f = !!d.f; this.walkT = 0; this.hurtT = 0; this.dir = 0; }
+  constructor(g, x, y, zone, idx) { const d = SURVIVORS[idx]; this.idx = idx; this.g = g; this.x = x; this.y = y; this.r = 12; this.zone = zone; this.hp = 60; this.state = 'idle'; this.dead = false; this.name = d.name; this.who = d.who; this.coat = d.coat; this.line = d.line; this.f = !!d.f; this.walkT = 0; this.hurtT = 0; this.dir = 0; }
   update(dt) {
     const g = this.g, p = g.player; if (this.hurtT > 0) this.hurtT -= dt;
     if (this.state === 'idle') { if (!p.dead && dist2(p.x, p.y, this.x, this.y) < 44 * 44) { this.state = 'follow'; g.toast(`${this.name} (${this.who}) te suit : ${g.mode === 'hospital' ? `garde-l${this.f ? 'a' : 'e'} en vie jusqu'à la chute du Chirurgien` : `ramène-l${this.f ? 'a' : 'e'} au point de sauvegarde`}`, '#7fd18b'); g.audio.pickup(); } }

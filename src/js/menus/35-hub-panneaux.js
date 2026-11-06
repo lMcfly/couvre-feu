@@ -90,7 +90,7 @@ function carnetHTML() {
   const cells = [['Zombies abattus', fmt(c.kills)], ['Temps dans les rues', h ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`], ['Parties', fmt(c.runs)], ['Morts', fmt(dead)], ['Précision', (c.shots ? Math.round(100 * c.hits / c.shots) : 0) + ' %'], ['Survivants sauvés', fmt(c.saved)], ['Zombies d\'élite', fmt(c.elites)], ['Bouches scellées', fmt(c.sealed)], ['Éclairs encaissés', fmt(c.bolts)], ['Nuits de pleine lune', fmt(c.moons)], ['Armes de fortune cassées', fmt(c.broken)]];
   const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k, dName = k => (BESTIARY.find(b => b.k === k) || {}).name || DEATH_BY[k] || 'Inconnu';
   return `<p class="cn-intro">Tout ce que tu as vécu dans les rues, sur cet appareil.</p><div class="pause-stats cn-grid">${cells.map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`
-    + `<div class="cn-cols"><section><h4>Arme préférée</h4>${carnetTop(c.arms, wName)}</section><section><h4>Ce qui t'a eu le plus souvent</h4>${carnetTop(c.deaths, dName)}</section></div>` + notesHTML();
+    + `<div class="cn-cols"><section><h4>Arme préférée</h4>${carnetTop(c.arms, wName)}</section><section><h4>Ce qui t'a eu le plus souvent</h4>${carnetTop(c.deaths, dName)}</section></div>` + rescuedHTML() + notesHTML();
 }
 // documents trouvés dans la ville, rangés par mission ; ceux qui manquent restent sous scellés
 function notesHTML() {
@@ -99,7 +99,30 @@ function notesHTML() {
     ? `<details class="cn-doc"><summary><small>Mission ${o.m + 1}</small><b>${o.from}</b></summary><p>${o.t}</p></details>`
     : `<div class="cn-doc locked"><small>Mission ${o.m + 1}</small><b>Document introuvable</b></div>`).join('')}</div>`;
 }
-$('btn-carnet').addEventListener('click', e => togglePanel('panel-carnet', e.currentTarget, carnetHTML));
+// survivants sauvés : une fiche par personne, avec son portrait ; les autres restent des silhouettes
+function rescuedHTML() {
+  const R = Settings.rescued || {};
+  return `<h4 class="cn-docs-h">Survivants sauvés · ${SURVIVORS.filter((s, i) => R[i]).length} / ${SURVIVORS.length}</h4><div class="cn-svs">${SURVIVORS.map((s, i) => { const m = MISSION_SURV.indexOf(i) + 1;
+    return R[i] ? `<article class="cn-sv"><canvas width="160" height="160" data-sv="${i}" aria-hidden="true"></canvas><div><small>Mission ${m} · ${s.who}</small><b>${s.name}</b><p>${s.bio}</p><q>${s.line}</q><small>Sauvé${s.f ? 'e' : ''} ${R[i]} fois</small></div></article>`
+      : `<article class="cn-sv locked"><canvas width="160" height="160" data-sv="${i}" data-off="1" aria-hidden="true"></canvas><div><small>Mission ${m}</small><b>Survivant inconnu</b><p>Quelqu'un attend encore de l'aide dans cette mission.</p></div></article>`; }).join('')}</div>`;
+}
+// portrait en buste d'un survivant : manteau, visage, et un détail qui le résume
+function drawSurvivorPortrait(cv) {
+  const c = cv.getContext('2d'), i = +cv.dataset.sv, s = SURVIVORS[i], off = !!cv.dataset.off, w = cv.width, h = cv.height;
+  c.clearRect(0, 0, w, h); const bg = c.createRadialGradient(w / 2, h * 0.45, 10, w / 2, h / 2, w * 0.7); bg.addColorStop(0, off ? '#1c1819' : '#3a2a22'); bg.addColorStop(1, '#0c0a0a'); c.fillStyle = bg; c.fillRect(0, 0, w, h);
+  c.save(); c.translate(w / 2, h); const skin = off ? '#141112' : '#d2a37c', coat = off ? '#141112' : s.coat;
+  c.fillStyle = coat; c.beginPath(); c.ellipse(0, -8, 62, 52, 0, Math.PI, 0); c.fill();
+  c.fillStyle = skin; c.fillRect(-10, -66, 20, 16); c.beginPath(); c.ellipse(0, -92, 28, 33, 0, 0, TAU); c.fill();
+  if (!off) {
+    c.fillStyle = '#2a1e18'; c.fillRect(-11, -96, 7, 3); c.fillRect(4, -96, 7, 3); c.fillStyle = '#1a1210'; c.fillRect(-9, -90, 4, 4); c.fillRect(5, -90, 4, 4); c.fillStyle = '#8a4a3a'; c.fillRect(-6, -76, 12, 3);
+    if (i === 0) { c.fillStyle = '#3a3a48'; c.fillRect(-30, -126, 60, 14); c.fillRect(-36, -114, 72, 6); c.fillStyle = '#c8b030'; c.fillRect(-6, -122, 12, 6); c.fillStyle = '#cfcfcf'; c.fillRect(-14, -74, 28, 6); }
+    else if (i === 1) { c.fillStyle = '#6a4a3a'; c.beginPath(); c.arc(0, -124, 16, 0, TAU); c.fill(); c.beginPath(); c.ellipse(0, -106, 30, 14, 0, Math.PI, 0); c.fill(); c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(-20, -70, 6, 5); c.fillRect(14, -80, 5, 4); c.fillStyle = '#e8dcc0'; c.fillRect(-24, -40, 48, 40); }
+    else if (i === 2) { c.fillStyle = '#2f8f6b'; c.beginPath(); c.ellipse(0, -112, 32, 22, 0, Math.PI, 0); c.fill(); c.fillStyle = '#1a1a1a'; c.fillRect(-32, -114, 64, 4); c.fillStyle = '#d8d2c4'; c.fillRect(30, -60, 34, 46); c.fillStyle = '#2f8f6b'; c.fillRect(34, -54, 26, 6); }
+    else { c.fillStyle = '#e8f0f2'; c.fillRect(-26, -128, 52, 16); c.fillStyle = '#b0231c'; c.fillRect(-4, -126, 8, 12); c.fillRect(-8, -122, 16, 4); c.fillStyle = '#9ac0cc'; c.fillRect(-18, -82, 36, 14); c.fillStyle = '#1a1210'; c.fillRect(-26, -112, 6, 30); c.fillRect(20, -112, 6, 30); }
+  } else { c.fillStyle = 'rgba(176,35,28,.5)'; c.font = `46px ${FD}`; c.textAlign = 'center'; c.fillText('?', 0, -78); }
+  c.restore();
+}
+$('btn-carnet').addEventListener('click', e => { togglePanel('panel-carnet', e.currentTarget, carnetHTML); for (const cv of $('panel-carnet').querySelectorAll('canvas[data-sv]')) drawSurvivorPortrait(cv); });
 const ONLINE_MODES = [['all', 'Tous'], ['story', 'Campagne'], ['survival', 'Survie'], ['endless', 'Nuit sans fin'], ['daily', 'Défi'], ['week', 'Semaine'], ['hospital', 'Hôpital'], ['coop', 'Duo']];
 function scoresHTML() {
   if (!Online.on()) return scoreTable(Scores.list()) + (ONLINE.url ? '<p class="hint">Classement en ligne désactivé dans les Paramètres.</p>' : '');

@@ -1,7 +1,7 @@
 // ============================================================ jeu : effets visuels
 mixin(Game, {
   addLight(x, y, r, c, i, life) { this.netEmit(['light', Math.round(x), Math.round(y), Math.round(r), c, netR(i), netR(life)]); this.lights.push({ x, y, r, c, i, life, max: life, dead: false }); },
-  spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
+  spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : PERF_LOW ? 500 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
   // ---------- pièges du décor : ils frappent tout le monde, zombies comme survivants
   trapNear(p) { for (const t of this.level.traps || []) if (rectDist(p.x, p.y, t.ob) < 40) return t; return null; },
   useTrap(t, by) {
@@ -70,6 +70,32 @@ mixin(Game, {
       c.strokeStyle = shade(z.skin, -0.35); c.lineWidth = s * 0.28; c.lineCap = 'round'; c.beginPath(); c.moveTo(s * 0.4, -s * 0.5); c.lineTo(s * 1.2, -s * 1.1); c.moveTo(s * 0.3, s * 0.5); c.lineTo(s * 0.9, s * 1.2); c.stroke();
     });
   },
+  // ---------- ravitaillement par hélico : une caisse sous une fusée rouge ; bon matériel, mais la horde converge dessus
+  updateDrops(dt) {
+    const p = this.player; if (p.dead || this.cine || this.mode === 'hospital') return;
+    if ((this.dropT = (this.dropT ?? rand(60, 100)) - dt) > 0) return;
+    this.dropT = rand(80, 130); if (this.pickups.some(k => k.kind === 'crate')) return;
+    const Z = this.activeZone >= 0 ? ZONES[this.activeZone] : { x0: 0, x1: WORLD.w };
+    for (let t = 0; t < 30; t++) {
+      const a = rand(0, TAU), d = rand(350, 620), x = Math.round(clamp(p.x + Math.cos(a) * d, Z.x0 + 90, Z.x1 - 90)), y = Math.round(clamp(p.y + Math.sin(a) * d * 0.6, ST + 80, SB - 50));
+      if (Math.hypot(x - p.x, y - p.y) < 300 || this.level.queryRect(x - 30, y - 30, 60, 60).some(o => rectDist(x, y, o) < 30)) continue; /* jamais sur la tête du joueur, même au bord d'un secteur */
+      const pk = new Pickup(this, 'crate', x, y, 0); pk.life = 75; pk.vx = pk.vy = 0; pk.drop = DROP_FALL; this.pickups.push(pk);
+      this.notice('Ravitaillement largué', 'Une fusée rouge marque la caisse : la horde l\'a vue aussi', '#ff6a4a');
+      for (let i = 0; i < 14; i++) this.audio.noise({ f: 260, f2: 120, dur: 0.07, g: 0.22 * (1 - Math.abs(i - 7) / 8), delay: i * 0.11 }); /* rotor qui passe */
+      this.director.queue += Math.round(6 * this.diff.pop); return;
+    }
+  },
+  crateLand(pk) {
+    this.audio.tone({ f: 110, f2: 45, dur: 0.4, g: 0.4 }); this.shake(0.25); this.audio.noise({ f: 2400, f2: 1200, dur: 1.4, g: 0.12, delay: 0.3 }); /* la fusée s'allume */
+    for (let i = 0; i < 12; i++) this.spawnP({ x: pk.x + rand(-18, 18), y: pk.y + rand(-6, 6), vx: rand(-90, 90), vy: rand(-40, 40), life: rand(0.6, 1.1), type: 'smoke', size: 8, grow: 14 });
+  },
+  openCrate(pk, p) {
+    const cash = Math.round(250 * this.diff.money); (this.p2 ? this.player : p).money += cash; p.grenades = Math.min(9, p.grenades + 2); p.hp = Math.min(p.maxHp, p.hp + Math.round(30 * p.healMul));
+    for (const w of p.weapons) if (own(w) && !w.def.infinite) w.reserve += Math.ceil(w.def.ammoPack * 0.5);
+    new Pickup(this, 'scrap', pk.x, pk.y, 0).collect(p);
+    this.notice('Caisse ouverte', `$${fmt(cash)} · 2 grenades · munitions · soins · une arme de fortune`, '#ff6a4a'); this.audio.objective();
+    if (this.mode !== 'training') carnet().drops++;
+  },
   // ---------- nuit de pleine lune : zombies plus rapides, points et argent doublés ; l'hôte tire au sort, l'invité suit
   setMoon(on) {
     if (!!this.moon === on) return; this.moon = on; this.netEmit(['moon', on ? 1 : 0]);
@@ -105,7 +131,7 @@ mixin(Game, {
     const T = WEATHER[X.k], e = Math.min(1, dt * 0.4); X.vis += (T.vis - X.vis) * e; X.fog += (T.fog - X.fog) * e; X.rain += (T.rain - X.rain) * e; X.bolt = Math.max(0, X.bolt - dt);
     if (this.audio.rainG) this.audio.rainG.gain.value = (Settings.rain ? 0.05 : 0.012) * (0.55 + 0.45 * X.rain);
     if (Settings.rain && this.mode !== 'hospital') {
-      const nr = Math.round((TOUCH ? 150 : 260) * X.rain); if (this.rain.length > nr) this.rain.length = nr;
+      const nr = Math.round((TOUCH ? 150 : 260) * X.rain * (PERF_LOW || Settings.quality === 'eco' ? 0.5 : 1)); if (this.rain.length > nr) this.rain.length = nr;
       while (this.rain.length < nr) this.rain.push({ x: cx + rand(-hw, hw), y: cy + rand(-hh, hh), z: rand(0, 380), v: rand(650, 900) });
       for (const d of this.rain) {
         d.z -= d.v * dt; d.x -= 60 * dt;
