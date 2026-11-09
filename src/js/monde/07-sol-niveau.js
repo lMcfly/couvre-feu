@@ -175,6 +175,8 @@ class Level {
     { const rd = mulberry32(5101 + k * 31 + (g.shibaSeed || 0)), got = Settings.notes || [], at = () => { for (let t = 0; t < 60; t++) { const x = Math.round(Z.x0 + 160 + rd() * (Z.x1 - Z.x0 - 320)), y = Math.round(rd() < 0.55 ? ST + 92 + rd() * 60 : 280 + rd() * 640); if (free(x - 16, y - 16, 32, 32, 8)) return [x, y]; } return null; };
       for (const n of NOTES) if (n.m === k && !got.includes(n.id)) { const s = at(); if (s) pickup('note', s[0], s[1], n.id); }
       if (rd() < 0.75) { const s = at(); if (s) pickup('scrap', s[0], s[1], 0); } }
+    // Noël : guirlandes lumineuses le long des façades
+    if (NOEL) { const XC = ['255,60,50', '80,220,110', '255,200,80', '120,170,255']; let i = 0; for (let x = Z.x0 + 60; x < Z.x1 - 40; x += 70, i++) this.fixedLights.push({ x, y: ST + 8, r: 46, c: XC[i % 4], i: 0.5, flick: 1, zone: k, xmas: true }); }
   }
   resetZone(k) {
     for (const o of this.obstacles) if (o.zone === k && o.snd) this.g.audio.alarmStop(o);
@@ -282,6 +284,9 @@ class Level {
       g.strokeStyle = '#55565a'; g.lineWidth = 2.5; g.stroke();
       g.strokeStyle = '#3a3b3e'; g.lineWidth = 1.5; g.beginPath(); for (let i = -10; i <= 10; i += 5) { g.moveTo(s.x + i, s.y - 13); g.lineTo(s.x + i, s.y + 13); } g.stroke();
     }
+    if (NOEL && !(this.hosp && x0 < ZONES[0].x1)) { /* décembre : congères sur les trottoirs et poudreuse sur le bitume */
+      g.fillStyle = 'rgba(232,238,246,.55)'; for (let i = 0; i < 70; i++) { const x = x0 + r() * w, top = r() < 0.5, y = top ? ST + r() * 64 : SB - r() * 54; if (y < y0 - 30 || y > y0 + h + 30) continue; g.beginPath(); g.ellipse(x, y, 10 + r() * 32, 4 + r() * 9, 0, 0, TAU); g.fill(); }
+      g.fillStyle = 'rgba(232,238,246,.22)'; for (let i = 0; i < 300; i++) g.fillRect(x0 + r() * w, y0 + r() * h, 1.5 + r() * 2, 1.5 + r() * 2); }
     if (this.hosp && x0 < ZONES[0].x1) this.paintHospital(g, x0, y0, w, h, r);
     g.restore();
   }

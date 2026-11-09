@@ -84,7 +84,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'notes', 'rescued', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'notes', 'rescued', 'xm', 'santaHat', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -122,7 +122,7 @@ function applyProfile(d) {
   return { lv: levelInfo(Settings.xp || 0).lv, ach: ACH.filter(a => Ach.get()[a[0]]).length, run: !!readSave() };
 }
 function saveLine(d) { return `${CHARS[d.char].name} · ${DIFFS[d.diff].name} · mission ${d.safe + 2} sur ${MISSIONS} · ${fmt(d.cp.score || 0)} pts · ${(d.cp.shibas || []).length}/${SHIBAS_TOTAL} shibas`; }
-function newStats() { return { shots: 0, hits: 0, dmg: 0, deaths: 0, taken: 0 }; }
+function newStats() { return { shots: 0, hits: 0, dmg: 0, deaths: 0, taken: 0, arms: {}, boom: 0, burst: 0, elites: 0, bosses: [], sv: [], notes: 0, crates: 0, sealed: 0, moons: 0 }; }
 const SHIBAS_PER = 3, SHIBAS_TOTAL = SHIBAS_PER * MISSIONS;
 const BESTIARY = [
   { k: 'walker', name: 'Le Traînard', type: 'Zombie ordinaire', m: 1, txt: 'Ancien usager de la ligne 4. Attend toujours son bus, mais accepte un mollet en dédommagement.', tip: 'Lent, mais jamais seul. Recule en tirant.' },
@@ -138,6 +138,7 @@ const BESTIARY = [
   { k: 'mini2', name: 'Le Gardien du parking', type: 'Boss · secteur 3', m: 4, boss: true, txt: 'Ton ticket a expiré. Toi aussi, bientôt.', tip: 'Ses barrières ferment les passages. En rage, il pousse des épaves : écarte-toi de la ligne orange.' },
   { k: 'boss', name: 'L\'Abomination', type: 'Boss · secteur 4', m: 5, boss: true, txt: 'Trois conseillers municipaux, un adjoint et un pigeon. Le conseil n\'a jamais été aussi soudé.', tip: 'Tue les zombies qu\'elle aspire avant qu\'elle les avale. En rage, roule au passage des ondes du séisme.' },
   { k: 'mini3', name: 'Le Chirurgien', type: 'Boss · hôpital', m: 5, boss: true, txt: 'Major de sa promo en chirurgie, recalé en anesthésie. Ses patients ne se plaignent plus jamais.', tip: 'Fuis le faisceau de sa frontale. Les lignes blanches annoncent ses scalpels ; à 30 %, il réanime les morts.' },
+  { k: 'mini4', name: 'Le Père Noël zombie', type: 'Boss · Noël', m: 5, boss: true, txt: 'Descendu par une cheminée en décembre 2019. Il n\'est jamais remonté. Sa hotte sent le renne.', tip: 'Esquive ses boules de neige sales, puis frappe quand il rate sa charge.' },
   { k: 'ultimate', name: 'Le Shibanophile', type: 'Boss secret', m: 5, boss: true, txt: 'Mordu par un shiba en 2019. Depuis, c\'est personnel.', tip: 'Laisse : roule ou tire dessus pour la couper. En rage, il attire les shibas avec des croquettes : protège-les.' }
 ];
 // une arme de fortune trouvée par terre n'appartient pas encore au joueur : le marché noir peut la lui vendre

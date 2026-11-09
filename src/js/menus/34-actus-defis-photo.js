@@ -68,13 +68,36 @@ function makeSouvenir(g0) {
   g.fillStyle = '#120c09'; g.fillRect(0, H2 - 40, W2, 40); g.fillStyle = '#efe6cf'; g.font = '18px "Special Elite", monospace'; g.textAlign = 'center'; g.fillText('COUVRE-FEU · UN JEU NADRAX PROD · L\'INFO QUI PIQUE… ET QUI MORD', W2 / 2, H2 - 14);
   return cv;
 }
-function openSouvenir() {
-  const cv = makeSouvenir(game), url = cv.toDataURL('image/png');
-  $('photo-img').src = url; $('photo-dl').href = url; $('photo-dl').download = `couvre-feu-${CHARS[(Settings.lastRun || {}).char || game.charKey].name.toLowerCase()}.png`;
+function openSouvenir() { showShareImage(makeSouvenir(game), `couvre-feu-${CHARS[(Settings.lastRun || {}).char || game.charKey].name.toLowerCase()}.png`, 'Une de KE-DLA-D TV avec ta partie'); }
+function showShareImage(cv, name, alt) {
+  const url = cv.toDataURL('image/png');
+  $('photo-img').src = url; $('photo-img').alt = alt; $('photo-dl').href = url; $('photo-dl').download = name;
   $('photo-modal').hidden = false; $('photo-close').focus();
   $('photo-share').hidden = !(navigator.canShare);
-  $('photo-share').onclick = () => cv.toBlob(b => { const f = new File([b], $('photo-dl').download, { type: 'image/png' }); if (navigator.canShare && navigator.canShare({ files: [f] })) navigator.share({ files: [f], title: 'Couvre-Feu', text: 'Ma nuit dans Couvre-Feu' }).catch(() => { }); else $('photo-dl').click(); });
+  $('photo-share').onclick = () => cv.toBlob(b => { const f = new File([b], name, { type: 'image/png' }); if (navigator.canShare && navigator.canShare({ files: [f] })) navigator.share({ files: [f], title: 'Couvre-Feu', text: 'Ma nuit dans Couvre-Feu' }).catch(() => { }); else $('photo-dl').click(); });
 }
+// récap de la nuit en image : portrait, chiffres, meilleur moment, arme et survivants
+function makeRecap(g0) {
+  const R = g0.recap || g0.nightRecap(), ch = g0.charKey, W2 = 1080, H2 = 1350, cv = document.createElement('canvas'); cv.width = W2; cv.height = H2; const g = cv.getContext('2d');
+  const bg = g.createLinearGradient(0, 0, 0, H2); bg.addColorStop(0, '#1c1416'); bg.addColorStop(1, '#070506'); g.fillStyle = bg; g.fillRect(0, 0, W2, H2);
+  const rr = mulberry32(11); for (let i = 0; i < 2600; i++) { g.fillStyle = rr() < 0.5 ? 'rgba(0,0,0,.35)' : 'rgba(255,255,255,.025)'; g.fillRect(rr() * W2, rr() * H2, 1 + rr() * 3, 1 + rr() * 3); }
+  g.fillStyle = 'rgba(110,10,8,.55)'; for (let i = 0; i < 9; i++) { g.beginPath(); g.ellipse(rr() * W2, rr() * H2, 30 + rr() * 90, 20 + rr() * 50, rr() * 3, 0, TAU); g.fill(); }
+  g.textAlign = 'center'; grungeTitle(g, 'COUVRE-FEU', W2 / 2, 130, 120, { rage: true });
+  g.font = `26px ${FT}`; g.fillStyle = '#c6c0b2'; g.fillText($('end-eyebrow').textContent, W2 / 2, 190);
+  g.font = `64px ${FD}`; g.fillStyle = '#d8d2c4'; g.fillText($('end-title').textContent.toUpperCase(), W2 / 2, 262);
+  const pc = document.createElement('canvas'); pc.width = 480; pc.height = 360; renderPortrait(pc, ch);
+  g.save(); g.translate(W2 / 2 - 270, 300); g.fillStyle = '#000'; g.fillRect(-8, -8, 556, 421); g.drawImage(pc, 0, 0, 540, 405); g.strokeStyle = '#b0231c'; g.lineWidth = 5; g.strokeRect(0, 0, 540, 405); g.restore();
+  g.save(); g.translate(W2 / 2 + 230, 690); g.rotate(-0.12); g.strokeStyle = 'rgba(176,35,28,.9)'; g.lineWidth = 5; g.strokeRect(-150, -38, 300, 64); g.font = `40px ${FD}`; g.fillStyle = 'rgba(176,35,28,.95)'; g.fillText($('end-stamp').textContent.toUpperCase(), 0, 10); g.restore();
+  const big = [['SCORE', fmt(Math.floor(g0.score))], ['ZOMBIES', fmt(g0.kills)], ['TEMPS', fmtTime(g0.runTime || 0)]];
+  big.forEach(([k, v], i) => { const x = 90 + i * 310; g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(x, 760, 280, 120); g.fillStyle = '#b0231c'; g.fillRect(x, 760, 6, 120); g.textAlign = 'left'; g.font = `58px ${FD}`; g.fillStyle = '#d8d2c4'; g.fillText(v, x + 26, 830); g.font = `20px ${FD}`; g.fillStyle = '#8b867b'; g.fillText(k, x + 26, 864); });
+  const card = (y, h, label, title, sub, art) => { g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(90, y, 900, h); g.fillStyle = '#b0231c'; g.fillRect(90, y, 6, h); g.textAlign = 'left'; g.font = `20px ${FD}`; g.fillStyle = '#8b867b'; g.fillText(label, 120, y + 36); g.font = `38px ${FD}`; g.fillStyle = '#f0b25a'; const L = wrapLines(g, title, art ? 560 : 840); L.slice(0, 2).forEach((l, i) => g.fillText(l, 120, y + 82 + i * 42)); if (sub) { g.font = `24px ${FT}`; g.fillStyle = '#c6c0b2'; g.fillText(sub, 120, y + 82 + Math.min(2, L.length) * 42); } if (art) { try { weaponArt(g, art, 830, y + h / 2 + 10, 220); } catch (e) { } } };
+  card(910, 130, 'MEILLEUR MOMENT', R.best);
+  card(1056, 140, 'ARME DE LA NUIT', R.arm, R.armN, WEAPONS.some(w => w.id === R.armId) ? R.armId : null);
+  card(1212, 96, 'SURVIVANTS SAUVÉS · ' + R.svN, R.svTxt);
+  g.textAlign = 'center'; g.font = `22px ${FT}`; g.fillStyle = '#8b867b'; g.fillText(`${CHARS[ch].name} · ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} · lmcfly.github.io/couvre-feu`, W2 / 2, H2 - 22);
+  return cv;
+}
+function openRecap() { showShareImage(makeRecap(game), `couvre-feu-recap-${CHARS[game.charKey].name.toLowerCase()}.png`, 'Récapitulatif de ta nuit dans Couvre-Feu'); }
 const NEWS = [
   { h: 'Macaron s\'excuse… par SMS', t: '« Dsl pr la bombe 😬 » : le message a mis trois semaines à arriver, les antennes ayant fondu.', draw: g => { bgSummit(g); macaron(g, 240, 400, 1.0, { mood: 'shock' }); sfx(g, 'DSL…', 380, 90, 44, 0.1); } },
   { h: 'Trompe : « Les zombies ? Des fake news »', t: 'Le président a tenu sa conférence depuis un bunker, porte blindée fermée à double tour.', draw: g => { speedBg(g, '#6a1a14'); ZB(g, 110, 420, 0.95); trompe(g, 300, 420, 1.0, { mood: 'angry' }); sfx(g, 'FAKE !', 380, 80, 48, -0.1); } },

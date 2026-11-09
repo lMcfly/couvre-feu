@@ -146,7 +146,8 @@ $('btn-pause-back').addEventListener('click', () => { game.audio.ui(); $('pause-
 $('btn-map-go').addEventListener('click', () => game.mapContinue());
 $('btn-map-home').addEventListener('click', () => { game.audio.flame(false); game.setupDemo(); game.showScreen('scr-title'); refreshContinue(); });
 function refreshHw() {
-  const el = $('hw-chip'); if (!el) return; el.hidden = !HALLOWEEN; if (!HALLOWEEN) return;
+  const el = $('hw-chip'); if (!el) return; el.hidden = !HALLOWEEN && !NOEL; if (!HALLOWEEN && !NOEL) return;
+  if (!HALLOWEEN) { el.innerHTML = Settings.santaHat ? '<b>🎅 Noël</b> tout le mois de décembre · la ville est sous la neige · bonnet du Père Noël gagné !' : `<b>🎅 Noël</b> tout le mois de décembre · zombies à bonnet abattus : ${Math.min(xmCount(), XM_GOAL)} / ${XM_GOAL}, puis le Père Noël zombie`; return; }
   el.innerHTML = Settings.pumpkin ? '<b>🎃 Halloween</b> jusqu\'au 2 novembre · citrouilles piégées, zombies déguisés · tête de citrouille gagnée !' : `<b>🎃 Halloween</b> jusqu'au 2 novembre · zombies déguisés abattus : ${hwCount()} / ${HW_GOAL} pour la tête de citrouille`;
 }
 function refreshSurvivalBtn() {

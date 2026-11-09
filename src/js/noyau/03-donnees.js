@@ -56,6 +56,10 @@ const HOSP_W = { walker: 58, runner: 15, dog: 9, spitter: 6, bomber: 5, screamer
 // Halloween : du 25 octobre au 2 novembre, chaque année (?halloween pour forcer, ?nohalloween pour couper)
 const HALLOWEEN = (() => { try { const q = location.search; if (/[?&]nohalloween\b/.test(q)) return false; if (/[?&]halloween\b/.test(q)) return true; } catch (e) { } const d = new Date(), m = d.getMonth(), j = d.getDate(); return (m === 9 && j >= 25) || (m === 10 && j <= 2); })();
 const HW_GOAL = 31, COSTUMES = ['citrouille', 'drap', 'sorciere'];
+// Noël : tout le mois de décembre (?noel pour forcer, ?nonoel pour couper)
+const NOEL = (() => { try { const q = location.search; if (/[?&]nonoel\b/.test(q)) return false; if (/[?&]noel\b/.test(q)) return true; } catch (e) { } return new Date().getMonth() === 11; })();
+const XM_GOAL = 25, XM_COSTUMES = ['bonnet', 'renne'];
+const xmCount = () => { const y = new Date().getFullYear(); return Settings.xm && Settings.xm.y === y ? Settings.xm.n : 0; };
 const hwCount = () => { const y = new Date().getFullYear(); return Settings.hw && Settings.hw.y === y ? Settings.hw.n : 0; };
 const SURVIVORS = [
   { name: 'Gérard', who: 'cheminot retraité', coat: '#5a4a3a', line: 'Merci ! J\'ai connu pire : la grève de 95.', bio: 'Quarante ans à la SNCF, dont dix de grève. Il a tenu trois jours caché dans un local à aiguillages, avec une thermos de café et sa radio. Il trouve les zombies moins pénibles que les usagers du RER.' },
@@ -128,6 +132,18 @@ const NOTES = [
   { id: 'n10', m: 4, from: 'Dossier médical, chambre 12', t: 'Patient en attente de ses résultats depuis 41 heures. S\'énerve, crie de plus en plus fort. Quand il crie, les autres patients se lèvent. Ils ne devraient pas pouvoir se lever : ils sont à la morgue.' },
   { id: 'n11', m: 4, from: 'Carnet d\'Inès', t: 'Le chirurgien opère encore. Il n\'a plus de patients vivants, alors il opère les autres. Il m\'a dit que j\'étais la prochaine sur sa liste. Je me cache près de la morgue. Venez vite, et ne le laissez pas vous endormir : il n\'endort plus personne.' }
 ];
+// radio des survivants pendant la partie : {dir} = direction depuis le joueur, {n} = nombre
+const RADIO_LIVE = {
+  idle: ['Ici Radio Survivants. Si tu entends ce message, c\'est que tu es encore en vie. Bravo.', 'Rappel : les zombies ne savent pas ouvrir les portes. Sauf le jeudi.', 'Gérard signale que le café de la gare est toujours chaud. Les clients, beaucoup moins.', 'Météo de la nuit : couvre-feu généralisé, avec des averses de morsures en fin de soirée.', 'On a vu un shiba sur le toit de la mairie. Il refuse de descendre. Il a bien raison.', 'Message pour Kevin : ta mère dit de rentrer. Si tu es mordu, ne rentre pas.', 'Économise tes balles : le marché noir ne fait pas crédit.', 'Conseil du soir : vise la tête, et garde toujours une grenade pour les mauvaises surprises.', 'La préfecture annonce que la situation est sous contrôle. La préfecture ne répond plus.', 'Un auditeur demande si les zombies mangent végétarien. Réponse : non.'],
+  horde: ['Attention : une horde arrive {dir}. J\'en compte {n}, peut-être plus.', 'Ça bouge {dir}. Beaucoup. Trouve un mur et garde-le dans ton dos.', 'Je les vois sur les caméras : {n} zombies {dir}, et ils ont faim.'],
+  low: ['Tu respires mal, je l\'entends d\'ici. Trouve une trousse de soins.', 'Tu perds beaucoup de sang. Une trousse, vite.'],
+  crate: ['Hélico en approche : caisse larguée {dir}. Fais vite, ils l\'ont vue aussi.', 'Colis spécial {dir} ! Pas de signature demandée.'],
+  wx: { clair: ['Ça se dégage. On respire un peu.'], averse: ['Grosse averse sur la ville. Ta lampe va moins porter, reste près des lampadaires.'], brouillard: ['Brouillard épais. Tu ne les verras qu\'au dernier moment. Eux non plus, normalement.'], orage: ['Orage en approche. Profite des éclairs pour compter ce qui te court après.'], neige: ['Tempête de neige. Les flocons cachent tout, et les zombies ne craignent pas le froid.'] },
+  moon: ['Lune rouge ce soir. Ils sont plus nerveux, mais il paraît qu\'ils valent le double.'],
+  boss: ['Quelque chose de très gros arrive. Je répète : très gros.', 'Les caméras viennent de griller. Il y a un monstre dans ton secteur.'],
+  santa: ['Ho, ho, ho. Non, ce n\'est pas moi qui rigole. Cours.'],
+  wave: ['Vague {n} en approche. Recharge pendant qu\'il est encore temps.', 'Ils reviennent. Vague {n}. Courage.']
+};
 // ravitaillement par hélico : temps de chute de la caisse sous son parachute (s)
 const DROP_FALL = 3;
 // nuit de pleine lune : vitesse des zombies et multiplicateur des points et de l'argent

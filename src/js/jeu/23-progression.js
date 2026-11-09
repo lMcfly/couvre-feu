@@ -29,9 +29,9 @@ const REWARDS = [
   { lv: 15, type: 'acc', id: 'aureole', name: 'Auréole' },
   { lv: 20, type: 'acc', id: 'cornes', name: 'Cornes de démon' }
 ];
-const hasReward = id => id === 'citrouille' ? !!Settings.pumpkin : REWARDS.some(r => r.id === id && playerLevel() >= r.lv);
-const ACCS = [{ id: 'aucun', name: 'Aucun', lv: 1 }].concat(REWARDS.filter(r => r.type === 'acc'), [{ id: 'citrouille', name: 'Tête de citrouille', lv: 1, ev: true }]);
-const accOk = a => a.ev ? !!Settings.pumpkin : playerLevel() >= a.lv;
+const hasReward = id => id === 'citrouille' ? !!Settings.pumpkin : id === 'noel' ? !!Settings.santaHat : REWARDS.some(r => r.id === id && playerLevel() >= r.lv);
+const ACCS = [{ id: 'aucun', name: 'Aucun', lv: 1 }].concat(REWARDS.filter(r => r.type === 'acc'), [{ id: 'citrouille', name: 'Tête de citrouille', lv: 1, ev: true }, { id: 'noel', name: 'Bonnet de Père Noël', lv: 1, ev: true }]);
+const accOk = a => a.ev ? !!(a.id === 'noel' ? Settings.santaHat : Settings.pumpkin) : playerLevel() >= a.lv;
 const currentAcc = (ch = game.charKey) => { const a = (Settings.accBy && Settings.accBy[ch]) || Settings.acc; return (a && hasReward(a)) ? a : 'aucun'; };
 // carnet de route de chaque survivant (parties, zombies, record, XP)
 function cstat(ch) { const all = Settings.cstats || (Settings.cstats = {}); return all[ch] || (all[ch] = { games: 0, wins: 0, kills: 0, best: 0, xp: 0, time: 0 }); }
@@ -51,6 +51,7 @@ function drawAccessory(g, ch, acc, x, y, s) {
   if (acc === 'couronne') { K('#ffd23a', () => { g.moveTo(-28, top + 8); g.lineTo(-28, top - 18); g.lineTo(-14, top - 6); g.lineTo(0, top - 26); g.lineTo(14, top - 6); g.lineTo(28, top - 18); g.lineTo(28, top + 8); g.closePath(); }); g.fillStyle = '#d0141e'; g.beginPath(); g.arc(0, top - 2, 4, 0, TAU); g.fill(); }
   if (acc === 'clown') { K('#e0321f', () => g.arc(0, eye + 20, 11, 0, TAU), 3); g.fillStyle = 'rgba(255,255,255,.6)'; g.beginPath(); g.arc(-3, eye + 16, 3, 0, TAU); g.fill(); }
   if (acc === 'aureole') { g.lineWidth = 7; g.strokeStyle = '#ffe07a'; g.shadowColor = '#ffe07a'; g.shadowBlur = 14; g.beginPath(); g.ellipse(0, top - 20, 34, 9, 0, 0, TAU); g.stroke(); g.shadowBlur = 0; }
+  if (acc === 'noel') { K('#c8201a', () => { g.moveTo(-40, top + 14); g.quadraticCurveTo(-6, top - 70, 58, top - 40); g.lineTo(40, top + 14); g.closePath(); }); K('#f2f2ee', () => RR(g, -46, top + 2, 92, 22, 11)); K('#f2f2ee', () => g.arc(60, top - 40, 13, 0, TAU)); }
   if (acc === 'cornes') { K('#8a0c2a', () => { g.moveTo(-26, top + 14); g.quadraticCurveTo(-40, top - 10, -30, top - 30); g.quadraticCurveTo(-24, top - 6, -12, top + 6); g.closePath(); g.moveTo(26, top + 14); g.quadraticCurveTo(40, top - 10, 30, top - 30); g.quadraticCurveTo(24, top - 6, 12, top + 6); g.closePath(); }); }
   g.restore();
 }
@@ -64,6 +65,7 @@ function drawAccessoryTop(c, acc, hx, hy) {
   if (acc === 'clown') { c.fillStyle = '#e0321f'; c.beginPath(); c.arc(hx, hy + 2, 2.4, 0, TAU); c.fill(); }
   if (acc === 'aureole') { c.strokeStyle = '#ffe07a'; c.lineWidth = 1.6; c.beginPath(); c.ellipse(hx, hy - 12, 7, 2.2, 0, 0, TAU); c.stroke(); }
   if (acc === 'citrouille') { c.save(); c.translate(hx, hy + 1); c.scale(0.62, 0.62); drawPumpkin(c, 0, 0, 1, game.time, true); c.restore(); return; }
+  if (acc === 'noel') { c.fillStyle = '#c8201a'; c.beginPath(); c.moveTo(hx - 7, hy - 4); c.quadraticCurveTo(hx, hy - 16, hx + 9, hy - 12); c.lineTo(hx + 7, hy - 4); c.fill(); c.fillStyle = '#f2f2ee'; c.fillRect(hx - 8, hy - 6, 16, 3); c.beginPath(); c.arc(hx + 9, hy - 12, 2.2, 0, TAU); c.fill(); }
   if (acc === 'cornes') { c.fillStyle = '#8a0c2a'; c.beginPath(); c.moveTo(hx - 5, hy - 5); c.lineTo(hx - 8, hy - 12); c.lineTo(hx - 2, hy - 6); c.moveTo(hx + 5, hy - 5); c.lineTo(hx + 8, hy - 12); c.lineTo(hx + 2, hy - 6); c.fill(); }
 }
 const accThumbs = new Map();
@@ -74,8 +76,8 @@ function accThumb(ch, acc) {
 function renderAccPicker() {
   const el = $('acc-pick'); if (!el || !ficheKey) return; const ch = ficheKey, lv = playerLevel(), cur = currentAcc(ch);
   el.className = 'acc-tiles';
-  const lockTxt = a => a.ev ? `Halloween : abats ${HW_GOAL} zombies déguisés (${hwCount()} / ${HW_GOAL})` : 'se débloque au niveau ' + a.lv;
-  el.innerHTML = ACCS.filter(a => !a.ev || HALLOWEEN || Settings.pumpkin).map(a => { const ok = accOk(a); return `<button type="button" class="acc-tile ${ok ? '' : 'locked'} ${accPreview === a.id ? 'preview' : ''} ${a.ev ? 'ev' : ''}" data-acc="${a.id}" aria-pressed="${a.id === cur}" title="${ok ? 'Équiper' : 'Aperçu · ' + lockTxt(a)}"><canvas width="128" height="128" aria-hidden="true"></canvas><span>${a.name}</span><small>${ok ? (a.id === cur ? 'équipé' : 'équiper') : a.ev ? `🎃 ${hwCount()} / ${HW_GOAL}` : '🔒 niv. ' + a.lv}</small></button>`; }).join('') + `<p class="fiche-preview" id="acc-prev-msg">${accPreview ? `Aperçu : ${ACCS.find(a => a.id === accPreview).name} · ${lockTxt(ACCS.find(a => a.id === accPreview))}` : ''}</p>`;
+  const lockTxt = a => a.id === 'noel' ? `Noël : abats ${XM_GOAL} zombies à bonnet puis le Père Noël zombie (${Math.min(xmCount(), XM_GOAL)} / ${XM_GOAL})` : a.ev ? `Halloween : abats ${HW_GOAL} zombies déguisés (${hwCount()} / ${HW_GOAL})` : 'se débloque au niveau ' + a.lv;
+  el.innerHTML = ACCS.filter(a => !a.ev || (a.id === 'noel' ? NOEL || Settings.santaHat : HALLOWEEN || Settings.pumpkin)).map(a => { const ok = accOk(a); return `<button type="button" class="acc-tile ${ok ? '' : 'locked'} ${accPreview === a.id ? 'preview' : ''} ${a.ev ? 'ev' : ''}" data-acc="${a.id}" aria-pressed="${a.id === cur}" title="${ok ? 'Équiper' : 'Aperçu · ' + lockTxt(a)}"><canvas width="128" height="128" aria-hidden="true"></canvas><span>${a.name}</span><small>${ok ? (a.id === cur ? 'équipé' : 'équiper') : a.ev ? `🎃 ${hwCount()} / ${HW_GOAL}` : '🔒 niv. ' + a.lv}</small></button>`; }).join('') + `<p class="fiche-preview" id="acc-prev-msg">${accPreview ? `Aperçu : ${ACCS.find(a => a.id === accPreview).name} · ${lockTxt(ACCS.find(a => a.id === accPreview))}` : ''}</p>`;
   for (const b of el.querySelectorAll('[data-acc]')) {
     b.querySelector('canvas').getContext('2d').drawImage(accThumb(ch, b.dataset.acc), 0, 0);
     b.addEventListener('click', () => {

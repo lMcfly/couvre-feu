@@ -92,7 +92,8 @@ mixin(Game, {
     c.globalAlpha = 1;
     // pluie et brouillard (visibles là où la lumière tombe)
     if (this.fogs.length) for (const f of this.fogs) { const gr = c.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r); gr.addColorStop(0, `rgba(160,168,178,${f.a})`); gr.addColorStop(1, 'rgba(160,168,178,0)'); c.fillStyle = gr; c.beginPath(); c.arc(f.x, f.y, f.r, 0, TAU); c.fill(); }
-    if (this.rain.length && this.mode === 'secret') { c.fillStyle = 'rgba(255,170,210,.7)'; for (const d of this.rain) c.fillRect(d.x + Math.sin(d.z * 0.03) * 8, d.y - d.z * 0.5, 3, 2); }
+    if (this.rain.length && NOEL && this.mode !== 'secret') { c.fillStyle = 'rgba(240,244,250,.85)'; for (const d of this.rain) c.fillRect(d.x + Math.sin(d.z * 0.02 + d.y) * 6, d.y - d.z * 0.5, 2.5, 2.5); }
+    else if (this.rain.length && this.mode === 'secret') { c.fillStyle = 'rgba(255,170,210,.7)'; for (const d of this.rain) c.fillRect(d.x + Math.sin(d.z * 0.03) * 8, d.y - d.z * 0.5, 3, 2); }
     else if (this.rain.length) { c.strokeStyle = 'rgba(175,188,205,.45)'; c.lineWidth = 1; c.beginPath(); for (const d of this.rain) { c.moveTo(d.x, d.y - d.z); c.lineTo(d.x + 3, d.y - d.z - 16); } c.stroke(); }
     // lumière
     this.renderLights(S, ox, oy, inView);
@@ -176,7 +177,7 @@ mixin(Game, {
     }
     for (const z of this.zombies) { if (z.type === 'bomber') glow(z.x, z.y - 14, 70, '140,255,90', 0.35 + Math.sin(t * 8 + z.walkT) * 0.1); else if (z.type === 'boss') glow(z.x, z.y - 40, 140, '255,40,20', 0.35); }
     for (const pd of this.puddles) glow(pd.x, pd.y, pd.r * 1.8, Settings.cb ? '80,160,255' : '120,255,60', 0.2 * Math.min(1, pd.life / 1.5));
-    for (const a of this.acids) glow(a.x, a.y - a.z, 40, '140,255,70', 0.4);
+    for (const a of this.acids) glow(a.x, a.y - a.z, 40, a.snow ? '220,230,255' : '140,255,70', 0.4);
     for (const th of this.throwables) if (th.kind === 'decoy' && th.landed) glow(th.x, th.y, 260, '255,60,40', 0.75 + Math.random() * 0.25);
     for (const m of this.mines) if (m.arm <= 0 && Math.floor(m.t * 2) % 2 === 0) glow(m.x, m.y, 30, '255,40,30', 0.5);
     for (const o of this.level.machines) if (!o.broken) glow(o.x + o.w / 2, o.y + o.h + 4, 70, '255,90,80', 0.28);
@@ -223,7 +224,8 @@ mixin(Game, {
       c.lineTo(b.x2, b.y2 - 14);
       c.strokeStyle = `rgba(150,215,255,${k})`; c.lineWidth = (b.bolt ? 6 : 9) * k; c.stroke(); c.strokeStyle = `rgba(255,255,255,${k})`; c.lineWidth = 2.5 * k; c.stroke();
     }
-    for (const a of this.acids) { c.fillStyle = ACID(); c.globalAlpha = 0.85; c.beginPath(); c.arc(a.x, a.y - a.z, a.big ? 7 : 5, 0, TAU); c.fill(); } c.globalAlpha = 1;
+    for (const a of this.acids) { c.fillStyle = a.snow ? '#eef3f8' : ACID(); c.globalAlpha = 0.85; c.beginPath(); c.arc(a.x, a.y - a.z, a.big ? 7 : 5, 0, TAU); c.fill(); } c.globalAlpha = 1;
+    for (const f of this.level.fixedLights) if (f.xmas && inView(f.x, f.y)) { const on = Math.sin(t * 2 + f.x * 0.05) > -0.3; c.fillStyle = `rgba(${f.c},${on ? 0.95 : 0.35})`; c.beginPath(); c.arc(f.x, f.y, 2.6, 0, TAU); c.fill(); }
     for (const s of this.shockwaves) { c.strokeStyle = `rgba(255,140,60,${1 - s.r / s.max})`; c.lineWidth = 6; c.beginPath(); c.ellipse(s.x, s.y, s.r, s.r * 0.85, 0, 0, TAU); c.stroke(); }
     // yeux dans la nuit
     for (const z of this.zombies) {

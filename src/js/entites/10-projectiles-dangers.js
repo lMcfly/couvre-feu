@@ -86,8 +86,9 @@ class Acid {
     if (k >= 1) {
       this.dead = true; const g = this.g, R = this.big ? 42 : 30;
       g.hitCause = 'spitter'; for (const p of g.players()) if (!p.dead && dist2(p.x, p.y, this.x, this.y) < (R + p.r) ** 2) p.hurt((this.big ? 18 : 11) * g.diff.dmg, this.x, this.y, 150); g.hitCause = null;
-      g.puddles.push({ x: this.x, y: this.y, r: R, life: this.big ? 6 : 4.5, max: this.big ? 6 : 4.5, dead: false });
-      for (let i = 0; i < 8; i++) g.spawnP({ x: this.x, y: this.y, z: 2, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(60, 160), grav: 600, life: 0.6, type: 'acid', size: 2.5, emissive: true });
+      if (this.snow) for (let i = 0; i < 10; i++) g.spawnP({ x: this.x, y: this.y, z: 2, vx: rand(-110, 110), vy: rand(-110, 110), vz: rand(60, 180), grav: 600, life: 0.7, type: 'debris', size: rand(2, 3.5), color: '#e8eef4' });
+      else { g.puddles.push({ x: this.x, y: this.y, r: R, life: this.big ? 6 : 4.5, max: this.big ? 6 : 4.5, dead: false });
+      for (let i = 0; i < 8; i++) g.spawnP({ x: this.x, y: this.y, z: 2, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(60, 160), grav: 600, life: 0.6, type: 'acid', size: 2.5, emissive: true }); }
       g.audio.splat(this.x, this.y);
     }
   }
@@ -207,7 +208,7 @@ class Pickup {
       }
       case 'crate': g.openCrate(this, p); break;
       case 'note': {
-        const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = Settings.notes || (Settings.notes = []); if (!got.includes(N.id)) got.push(N.id); Settings.save(); g.netEmit(['note', N.id]);
+        const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = Settings.notes || (Settings.notes = []); if (!got.includes(N.id)) got.push(N.id); g.stats.notes++; Settings.save(); g.netEmit(['note', N.id]);
         g.notice('Document trouvé', `${N.from} · à lire dans le Carnet (${got.length} / ${NOTES.length})`, '#e8dcc0'); g.audio.tone({ f: 900, f2: 1300, dur: 0.12, type: 'triangle', g: 0.12 }); g.audio.pickup(); break;
       }
       case 'shiba': {

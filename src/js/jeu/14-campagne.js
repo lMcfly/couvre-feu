@@ -105,7 +105,7 @@ mixin(Game, {
     }
     if (e.t <= 0) { this.toast({ blackout: 'Le courant revient', fog: 'Le brouillard se lève', ash: 'Les cendres retombent', icecream: 'Le camion de glaces s\'éloigne' }[e.id], '#c6c0b2'); this.event = null; }
   },
-  noteRescue(sv) { if (sv.idx == null) return; const R = Settings.rescued || (Settings.rescued = {}); R[sv.idx] = (R[sv.idx] || 0) + 1; Settings.save(); this.netEmit(['rescued', sv.idx]); },
+  noteRescue(sv) { (this.stats.sv || (this.stats.sv = [])).push(sv.name); if (sv.idx == null) return; const R = Settings.rescued || (Settings.rescued = {}); R[sv.idx] = (R[sv.idx] || 0) + 1; Settings.save(); this.netEmit(['rescued', sv.idx]); },
   onPlayerDeath() {
     const p = this.player; if (p.dead) return;
     if (this.mode !== 'training') { const d = carnet().deaths, k = p.lastCause || 'explosion'; d[k] = (d[k] || 0) + 1; Settings.save(); }
@@ -266,10 +266,25 @@ mixin(Game, {
     if (this.endless) { $('end-eyebrow').textContent = 'Nuit sans fin'; $('end-title').textContent = `Tombé pendant la nuit ${this.endless.night}`; $('end-stamp').textContent = `Nuit ${this.endless.night}`; stats.unshift(['Nuits survécues', String(this.endless.night - 1)], ['Mutations', String(Object.values(this.endless.m).reduce((a, b) => a + b, 0))]); }
     if (this.dailyMod) { $('end-eyebrow').textContent = `${this.dailyMod.week ? 'Défi de la semaine' : 'Défi du jour'} · ${this.dailyMod.name}`; $('end-title').textContent = 'Défi terminé'; $('end-stamp').textContent = `Vague ${wave}`; }
     $('end-stats').innerHTML = stats.map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join('');
+    { const R = this.nightRecap(); this.recap = R; $('end-recap').innerHTML = `<div class="rc-card rc-best"><small>Meilleur moment</small><b>${R.best}</b></div><div class="rc-card"><small>Arme de la nuit</small><b>${R.arm}</b><span>${R.armN}</span></div><div class="rc-card"><small>Survivants sauvés</small><b>${R.svN}</b><span>${R.svTxt}</span></div>${R.extra ? `<p class="rc-extra">${R.extra}</p>` : ''}`; }
     { const h = newBeastsHTML(this.takeActBeasts()); $('end-beasts').innerHTML = h; $('end-beasts').hidden = !h; if (h) drawBestiary(); }
     $('end-name').value = Settings.name || 'Survivant'; $('btn-save').disabled = false; $('end-namebox').hidden = false;
     $('end-scores').innerHTML = scoreTable(Scores.list());
     this.showScreen('scr-end'); $('end-name').focus(); $('end-name').select();
+  },
+  // le récit de la nuit : meilleur moment, arme la plus utilisée, survivants, petits bonus
+  nightRecap() {
+    const st = this.stats || {}, arms = Object.entries(st.arms || {}).sort((a, b) => b[1] - a[1]), sv = st.sv || [], n = v => v > 1 ? 's' : '';
+    const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k;
+    let best;
+    if ((st.bosses || []).length) best = `${st.bosses[st.bosses.length - 1]} est tombé${/^La /.test(st.bosses[st.bosses.length - 1]) ? 'e' : ''} sous tes coups`;
+    else if (st.boom >= 5) best = `${st.boom} zombies emportés par une seule explosion`;
+    else if (st.burst >= 12) best = `${st.burst} zombies abattus en moins de huit secondes`;
+    else if (st.elites) best = `${st.elites} zombie${n(st.elites)} d'élite abattu${n(st.elites)}`;
+    else if ((this.maxMult || 1) >= 5) best = `Multiplicateur poussé jusqu'à ×${this.maxMult.toFixed(1)}`;
+    else best = `Tu as tenu ${fmtTime(this.runTime || 0)} dans la nuit`;
+    const extra = [st.notes && `${st.notes} document${n(st.notes)} trouvé${n(st.notes)}`, st.crates && `${st.crates} caisse${n(st.crates)} de ravitaillement`, st.sealed && `${st.sealed} bouche${n(st.sealed)} d'égout scellée${n(st.sealed)}`, st.moons && 'une nuit de pleine lune'].filter(Boolean).join(' · ');
+    return { best, arm: arms.length ? wName(arms[0][0]) : 'Aucune', armN: arms.length ? `${fmt(arms[0][1])} zombie${n(arms[0][1])}` : 'Pas un seul zombie', armId: arms.length ? arms[0][0] : null, svN: String(sv.length), svTxt: sv.length ? [...new Set(sv)].join(', ') : 'Personne cette nuit', extra };
   },
   saveScore() {
     if (this.savedScore) return; this.savedScore = true;

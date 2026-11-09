@@ -51,7 +51,7 @@ mixin(Game, {
       if (E.fx === 'tv') { const u = clamp((ek - 0.35) / 0.4, 0.02, 1); c.translate(0, -r * 1.4); c.scale(Math.min(1, 0.3 + u), u); c.translate(0, r * 1.4); if (u < 1) { c.fillStyle = 'rgba(255,255,255,.9)'; c.fillRect(-r * 1.4, -r * 1.45, r * 2.8, 3 / u); } }
       if (E.fx === 'burst') { const u = E.prop === 'cage' ? (ek < 0.6 ? 0.45 : Math.min(1.12, 0.45 + (ek - 0.6) * 3)) : 1; c.translate(0, 0); c.scale(Math.min(1, u), Math.min(1, u)); if (E.prop === 'cage' && ek < 0.6) c.translate(Math.sin(t * 40) * 3, 0); }
     }
-    const fn = { controleur: 'drawControleur', speakerine: 'drawSpeakerine', gardien: 'drawGardien', abomination: 'drawAbomination', chirurgien: 'drawChirurgien', shibanophile: 'drawShibanophile' }[z.bkind];
+    const fn = { controleur: 'drawControleur', speakerine: 'drawSpeakerine', gardien: 'drawGardien', abomination: 'drawAbomination', chirurgien: 'drawChirurgien', perenoel: 'drawPereNoel', shibanophile: 'drawShibanophile' }[z.bkind];
     if (!hide) this.inkBoss(z, () => { const g2 = ctx; g2.save(); const sq = Math.sin(z.walkT * 2.4) * 0.028 + Math.sin(t * 2.2) * 0.012; g2.scale(1 + sq, 1 - sq); if (fn) this[fn](g2, z, ca, sa, r, t); else this.drawBoss(z, ca, sa); g2.restore(); if (E) this.drawEntryOver(g2, z, E, ek, r, t); });
     if (E) { // neige télé par-dessus le boss
       if (E.prop === 'snow' && ek < 0.85) { for (let i = 0; i < 90; i++) { c.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,.75)' : 'rgba(40,40,40,.75)'; c.fillRect(rand(-r * 1.2, r * 1.2), rand(-r * 3.2, 0), 3, 3); } }
@@ -135,6 +135,22 @@ mixin(Game, {
     if (z.phase >= 2) { const cols = ['#e8e8e8', '#e8e030', '#30e0e0', '#30e030', '#e030e0', '#e03030', '#3030e0']; cols.forEach((col, i) => { c.fillStyle = col; c.fillRect(sx + i * swd / 7, sy, swd / 7 + 1, sh * 0.7); }); c.fillStyle = '#111'; c.fillRect(sx, sy + sh * 0.7, swd, sh * 0.3); c.fillStyle = '#ff3a2a'; c.fillRect(sx + swd * 0.35, sy + sh * 0.25, swd * 0.3, sh * 0.2); }
     else { c.fillStyle = z.state === 'tvOff' ? '#0a0a0a' : '#7fc8c0'; c.fillRect(sx, sy, swd, sh); if (z.state !== 'tvOff') { c.fillStyle = '#1a3a38'; c.beginPath(); c.ellipse(sx + swd * 0.32, sy + sh * 0.38, 3, 4, 0, 0, TAU); c.ellipse(sx + swd * 0.68, sy + sh * 0.38, 3, 4, 0, 0, TAU); c.fill(); c.strokeStyle = '#1a3a38'; c.lineWidth = 2; c.beginPath(); c.arc(sx + swd / 2, sy + sh * 0.6, swd * 0.16, 0.2, Math.PI - 0.2); c.stroke(); c.fillStyle = '#b0234a'; c.fillRect(sx + swd * 0.38, sy + sh * 0.68, swd * 0.24, 3); } }
     c.fillStyle = 'rgba(255,255,255,.12)'; for (let i = 0; i < 5; i++) c.fillRect(sx, sy + ((t * 60 + i * 13) % sh), swd, 1.5); c.restore();
+  },
+  drawPereNoel(c, z, ca, sa, r, t) {
+    const F = col => z.hitFlash > 0 ? '#f0f0d0' : col, sw = Math.sin(z.walkT * 1.4) * r * 0.12, hx = ca * r * 0.1;
+    for (const sd of [-1, 1]) { const lx = sd * r * 0.42, ly = sd * sw; c.fillStyle = '#1a1a1a'; c.fillRect(lx - r * 0.2, -r * 0.62 + ly, r * 0.4, r * 0.62); }
+    const sack = () => { c.fillStyle = F('#6a4a2a'); c.beginPath(); c.ellipse(-ca * r * 0.95, -r * 1.75, r * 0.72, r * 0.82, 0, 0, TAU); c.fill(); c.fillStyle = '#4a3218'; c.fillRect(-ca * r * 0.95 - r * 0.25, -r * 2.55, r * 0.5, r * 0.14); c.fillStyle = '#c8b030'; c.fillRect(-ca * r * 0.95 - r * 0.12, -r * 2.68, r * 0.24, r * 0.2); };
+    if (sa < 0) sack();
+    c.fillStyle = F('#b0231c'); c.beginPath(); RR(c, -r * 0.98, -r * 2.1, r * 1.96, r * 1.6, r * 0.5); c.fill();
+    c.fillStyle = F('#efefe8'); c.fillRect(-r * 0.98, -r * 0.72, r * 1.96, r * 0.2); c.fillRect(-r * 0.12, -r * 2.1, r * 0.24, r * 1.4);
+    c.fillStyle = '#1a1a1a'; c.fillRect(-r * 0.98, -r * 1.27, r * 1.96, r * 0.2); c.fillStyle = '#d0a020'; c.fillRect(-r * 0.18, -r * 1.29, r * 0.36, r * 0.24);
+    c.fillStyle = 'rgba(80,10,8,.55)'; c.beginPath(); c.ellipse(r * 0.45, -r * 1.6, r * 0.22, r * 0.14, 0.5, 0, TAU); c.fill();
+    c.fillStyle = F('#7a9a7a'); c.beginPath(); c.arc(hx, -r * 2.45, r * 0.42, 0, TAU); c.fill();
+    c.fillStyle = F('#efefe8'); c.beginPath(); c.moveTo(hx - r * 0.44, -r * 2.42); c.quadraticCurveTo(hx, -r * 1.45 + Math.sin(t * 3) * 2, hx + r * 0.44, -r * 2.42); c.closePath(); c.fill();
+    c.fillStyle = '#ff3a2a'; if (sa > -0.5) { c.fillRect(hx - r * 0.2, -r * 2.6, 4, 3); c.fillRect(hx + r * 0.1, -r * 2.6, 4, 3); }
+    const pb = Math.sin(t * 2) * 2; c.fillStyle = F('#c8201a'); c.beginPath(); c.moveTo(hx - r * 0.46, -r * 2.74); c.quadraticCurveTo(hx, -r * 3.6, hx + r * 0.9, -r * 3.25 + pb); c.lineTo(hx + r * 0.46, -r * 2.74); c.closePath(); c.fill();
+    c.fillStyle = '#efefe8'; c.fillRect(hx - r * 0.5, -r * 2.84, r, r * 0.16); c.beginPath(); c.arc(hx + r * 0.92, -r * 3.25 + pb, r * 0.15, 0, TAU); c.fill();
+    if (sa >= 0) sack();
   },
   drawGardien(c, z, ca, sa, r, t) {
     const F = col => z.hitFlash > 0 ? '#f0f0d0' : col, sw = Math.sin(z.walkT * 1.4) * r * 0.12;

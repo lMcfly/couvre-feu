@@ -18,7 +18,7 @@ class Zombie {
     // zombie d'élite : un sur cinquante, doré ou enflammé, plus solide et qui lâche un bonus rare
     this.elite = type !== 'boss' && g.mode !== 'training' && g.state !== 'title' && Math.random() < 0.02 ? (Math.random() < 0.5 ? 'gold' : 'fire') : null;
     if (this.elite) { if (this.elite === 'gold') { this.skin = '#d4ad3c'; this.cloth = '#7a5a14'; } else { this.skin = '#8a3a1e'; this.cloth = '#2a1208'; } this.maxHp = this.hp = this.hp * 3; this.speed *= 1.12; this.dmg *= 1.3; this.aggro = true; }
-    this.costume = HALLOWEEN && g.mode !== 'training' && (type === 'walker' || type === 'runner') && Math.random() < 0.3 ? pick(COSTUMES) : null;
+    this.costume = HALLOWEEN && g.mode !== 'training' && (type === 'walker' || type === 'runner') && Math.random() < 0.3 ? pick(COSTUMES) : NOEL && g.mode !== 'training' && g.state !== 'title' && (type === 'walker' || type === 'runner') && Math.random() < 0.35 ? pick(XM_COSTUMES) : null;
   }
   knock(x, y) { this.kx += x * this.kbMul; this.ky += y * this.kbMul; }
   damage(a, dx, dy, src) {
@@ -153,12 +153,13 @@ const BOSS_ENTRIES = {
   gardien: [{ fx: 'rise', prop: 'gate' }, { fx: 'run', prop: 'car', label: 'STATIONNEMENT INTERDIT' }, { fx: 'fade', where: 'near', prop: 'beacon', dark: true }],
   abomination: [{ fx: 'door', where: 'keep' }, { fx: 'rise', prop: 'gore' }, { fx: 'drop', impact: true }],
   chirurgien: [{ fx: 'fade', dark: true, prop: 'lamp' }, { fx: 'run', prop: 'bed' }, { fx: 'rise', prop: 'drawer' }],
+  perenoel: [{ fx: 'drop', impact: true, label: 'HO HO HO !' }],
   shibanophile: [{ fx: 'fade', where: 'keep', prop: 'ultra' }, { fx: 'burst', prop: 'costume', label: 'WOUF ?' }, { fx: 'burst', prop: 'cage' }]
 };
 // l'entrée retenue pour chaque boss
-const BOSS_PICK = { controleur: 1, speakerine: 0, gardien: 1, abomination: 1, chirurgien: 1, shibanophile: 1 };
-const BOSS_HINT = { controleur: 'sors du cercle quand il siffle', speakerine: 'dans le noir, vise ses yeux rouges', gardien: 'ses barrières ferment les passages', abomination: 'tue les zombies qu\'elle aspire', chirurgien: 'fuis le faisceau de sa frontale', shibanophile: 'roule pour couper sa laisse' };
-const RAGE_TXT = { controleur: 'il appelle des renforts', speakerine: 'son micro hurle maintenant', gardien: 'il pousse des épaves', abomination: 'le sol tremble sous ses pas', chirurgien: 'il gaze la salle', shibanophile: 'il sort les croquettes' };
+const BOSS_PICK = { controleur: 1, speakerine: 0, gardien: 1, abomination: 1, chirurgien: 1, perenoel: 0, shibanophile: 1 };
+const BOSS_HINT = { controleur: 'sors du cercle quand il siffle', speakerine: 'dans le noir, vise ses yeux rouges', gardien: 'ses barrières ferment les passages', abomination: 'tue les zombies qu\'elle aspire', chirurgien: 'fuis le faisceau de sa frontale', perenoel: 'esquive ses boules de neige, frappe quand il rate sa charge', shibanophile: 'roule pour couper sa laisse' };
+const RAGE_TXT = { controleur: 'il appelle des renforts', speakerine: 'son micro hurle maintenant', gardien: 'il pousse des épaves', abomination: 'le sol tremble sous ses pas', chirurgien: 'il gaze la salle', perenoel: 'il lâche ses lutins', shibanophile: 'il sort les croquettes' };
 const bossName = b => (b.title || 'Le boss').toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase()).replace(/ (Du|De|Des|La|Le|Les|L')(?= )/g, m => m.toLowerCase()).replace(/^L'a/, "L'A");
 class Boss extends Zombie {
   constructor(g, x, y) {
@@ -186,6 +187,7 @@ class Boss extends Zombie {
       case 'gardien': a.siren(); break;
       case 'chirurgien': if (!E || E.prop === 'lamp') g.blackoutT = Math.max(g.blackoutT, 1.4); a.tone({ f: 120, f2: 40, dur: 1, type: 'sine', g: 0.3 }); a.tone({ f: 1500, f2: 1500, dur: 0.08, type: 'square', g: 0.08, delay: 1.3 }); break;
       case 'shibanophile': a.tone({ f: 9000, f2: 11000, dur: 1.2, type: 'sine', g: 0.05 }); g.shake(0.6); break;
+      case 'perenoel': for (let i = 0; i < 8; i++) a.tone({ f: 1320 + (i % 2) * 330, dur: 0.12, type: 'triangle', g: 0.08, delay: i * 0.13 }); break;
     }
   }
   // effets permanents : tickets qui volent, étincelles des câbles…
@@ -355,7 +357,8 @@ const MINI_BOSSES = [
   { kind: 'controleur', title: 'LE CONTRÔLEUR', sub: 'Il n\'a jamais aimé les voyageurs sans billet', hp: 1900, r: 30, speed: 70, body: '#2c3e5a', blob: '#3d5478', head: '#4a6a4a', cap: '#1a2638' },
   { kind: 'speakerine', title: 'LA SPEAKERINE', sub: 'Elle tient l\'antenne… et ne la lâchera pas', hp: 2600, r: 32, speed: 64, body: '#6a2a4a', blob: '#8a3a62', head: '#6a8a5a', cap: '#d0a020', spitty: true },
   { kind: 'gardien', title: 'LE GARDIEN DU PARKING', sub: 'Stationnement interdit. Pour toujours.', hp: 3400, r: 34, speed: 68, body: '#3e4a2a', blob: '#56643a', head: '#5a7a4a', cap: '#e0a020' },
-  { kind: 'chirurgien', title: 'LE CHIRURGIEN', sub: 'Il opère sans anesthésie', hp: 4300, r: 31, speed: 80, body: '#cfd8d6', blob: '#8a1a14', head: '#7a9a7a', cap: '#3f8f80', surgeon: true }
+  { kind: 'chirurgien', title: 'LE CHIRURGIEN', sub: 'Il opère sans anesthésie', hp: 4300, r: 31, speed: 80, body: '#cfd8d6', blob: '#8a1a14', head: '#7a9a7a', cap: '#3f8f80', surgeon: true },
+  { kind: 'perenoel', title: 'LE PÈRE NOËL ZOMBIE', sub: 'Il sait que tu n\'as pas été sage', hp: 3200, r: 33, speed: 74, body: '#b0231c', blob: '#d03a2a', head: '#7a9a7a', cap: '#efefe8', spitty: true }
 ];
 // cible d'entraînement en carton, sur rail (ne mord pas)
 class Target extends Zombie {

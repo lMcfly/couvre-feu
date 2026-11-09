@@ -1,5 +1,10 @@
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 82, d: '9 nov.', t: 'Radio, récap et Noël', s: 'La radio parle pendant la nuit, la nuit se raconte à la fin, et décembre arrive.', it: [
+    ['new', 'Radio en mission', 'Radio Survivants grésille pendant la partie : hordes qui arrivent et leur direction, caisses larguées, météo, boss, et quelques nouvelles de la ville.'],
+    ['new', 'Récap de la nuit', 'L\'écran de fin raconte ta nuit : meilleur moment, arme de la nuit, survivants sauvés. Le bouton Partager le récap en fait une image à envoyer.'],
+    ['new', 'Noël', 'Tout le mois de décembre : la ville sous la neige, des guirlandes sur les façades, et des zombies à bonnet ou à bois de renne. Abats-en 25 pour faire venir le Père Noël zombie. Bats-le pour gagner son bonnet.']
+  ] },
   { v: 81, d: '6 nov.', t: 'Ravitaillement et visages', s: 'Le ciel largue de l\'aide, et les survivants ont enfin un visage.', it: [
     ['new', 'Ravitaillement', 'De temps en temps, un hélico largue une caisse sous une fusée rouge : argent, grenades, munitions, soins et une arme de fortune. Mais la horde l\'a vue aussi et fonce dessus.'],
     ['new', 'Portraits de survivants', 'Chaque survivant sauvé laisse sa fiche dans le Carnet : son portrait, son histoire et sa phrase.'],

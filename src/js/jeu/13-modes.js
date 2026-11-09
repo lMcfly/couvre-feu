@@ -174,7 +174,7 @@ mixin(Game, {
         s.weights = this.dailyMod && this.dailyMod.weights ? this.dailyMod.weights : { walker: 50, runner: 20 + n * 2, bomber: 8, spitter: 6 + n, brute: 2 + n, riot: 3 + n * 1.5, dog: n > 1 ? 2 + n : 0 };
         this.director.queue += Math.min(90, Math.round((8 + n * 5) * this.diff.pop));
         this.banner(`Vague ${n}`, n % 5 === 0 ? 'L\'Abomination revient' : 'Tiens la place'); this.audio.siren();
-        if (n % 5 === 0) this.later(1.5, () => this.spawnBoss());
+        if (n % 5 === 0) this.later(1.5, () => this.spawnBoss()); else if (n > 1 && Math.random() < 0.5) this.later(3, () => this.radio(pick(RADIO_LIVE.wave).replace('{n}', n)));
         if (n >= 10) this.unlock('wave10');
       }
     } else if (this.director.queue <= 0 && this.zombies.length === 0) {

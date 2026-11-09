@@ -70,6 +70,30 @@ mixin(Game, {
       c.strokeStyle = shade(z.skin, -0.35); c.lineWidth = s * 0.28; c.lineCap = 'round'; c.beginPath(); c.moveTo(s * 0.4, -s * 0.5); c.lineTo(s * 1.2, -s * 1.1); c.moveTo(s * 0.3, s * 0.5); c.lineTo(s * 0.9, s * 1.2); c.stroke();
     });
   },
+  // ---------- Noël : les zombies à bonnet font venir le Père Noël zombie ; le battre offre son bonnet
+  updateNoel(dt) {
+    if (!NOEL || Settings.santaHat || this.santaDone || this.net === 'guest' || this.mode === 'hospital') return;
+    if (xmCount() < XM_GOAL || (this.bossRef && !this.bossRef.dead) || this.player.dead || this.cine) return;
+    if ((this.santaT = (this.santaT ?? 12) - dt) <= 0) this.spawnSanta();
+  },
+  spawnSanta() {
+    this.santaDone = true; const s = this.findSpawnPoint(clamp(this.activeZone, 0, 3)) || { x: this.player.x + 420, y: this.player.y }, b = new MiniBoss(this, s.x, s.y, 4);
+    this.bossEntry(b); this.zombies.push(b); this.bossRef = b; this.audio.roar(1.1); this.shake(0.7); this.banner(MINI_BOSSES[4].title, MINI_BOSSES[4].sub); this.torchFlicker = 0.8;
+  },
+  // ---------- radio des survivants pendant la partie : alertes et petites nouvelles, espacées d'au moins 14 s
+  radio(text, force) {
+    if (this.mode === 'training' || this.state !== 'playing') return; const now = this.time;
+    if (!force && now - (this.radioAt ?? -99) < 14) return; this.radioAt = now;
+    this.toast(`📻 Radio : ${text}`, '#9fd6e6'); this.audio.noise({ f: 2600, type: 'bandpass', q: 2, dur: 0.35, g: 0.1 }); this.audio.noise({ f: 1800, type: 'bandpass', q: 3, dur: 0.15, g: 0.07, delay: 0.45 });
+  },
+  dirName(x, y) { const p = this.player, a = Math.atan2(p.y - y, x - p.x), i = ((Math.round(a / (TAU / 8)) % 8) + 8) % 8; return ['à l\'est', 'au nord-est', 'au nord', 'au nord-ouest', 'à l\'ouest', 'au sud-ouest', 'au sud', 'au sud-est'][i]; },
+  updateRadio(dt) {
+    const p = this.player; if (p.dead || this.cine || this.net === 'guest') return;
+    if ((this.radioT = (this.radioT ?? rand(25, 40)) - dt) > 0) return; this.radioT = rand(40, 70);
+    const near = this.zombies.filter(z => !z.dead && z.type !== 'boss' && dist2(z.x, z.y, p.x, p.y) > 300 * 300 && dist2(z.x, z.y, p.x, p.y) < 900 * 900);
+    if (near.length >= 10) { let sx = 0, sy = 0; for (const z of near) { sx += z.x; sy += z.y; } this.radio(pick(RADIO_LIVE.horde).replace('{dir}', this.dirName(sx / near.length, sy / near.length)).replace('{n}', near.length)); return; }
+    this.radio(pick(p.hp < 35 ? RADIO_LIVE.low : RADIO_LIVE.idle));
+  },
   // ---------- ravitaillement par hélico : une caisse sous une fusée rouge ; bon matériel, mais la horde converge dessus
   updateDrops(dt) {
     const p = this.player; if (p.dead || this.cine || this.mode === 'hospital') return;
@@ -80,7 +104,7 @@ mixin(Game, {
       const a = rand(0, TAU), d = rand(350, 620), x = Math.round(clamp(p.x + Math.cos(a) * d, Z.x0 + 90, Z.x1 - 90)), y = Math.round(clamp(p.y + Math.sin(a) * d * 0.6, ST + 80, SB - 50));
       if (Math.hypot(x - p.x, y - p.y) < 300 || this.level.queryRect(x - 30, y - 30, 60, 60).some(o => rectDist(x, y, o) < 30)) continue; /* jamais sur la tête du joueur, même au bord d'un secteur */
       const pk = new Pickup(this, 'crate', x, y, 0); pk.life = 75; pk.vx = pk.vy = 0; pk.drop = DROP_FALL; this.pickups.push(pk);
-      this.notice('Ravitaillement largué', 'Une fusée rouge marque la caisse : la horde l\'a vue aussi', '#ff6a4a');
+      this.notice('Ravitaillement largué', 'Une fusée rouge marque la caisse : la horde l\'a vue aussi', '#ff6a4a'); this.later(1, () => this.radio(pick(RADIO_LIVE.crate).replace('{dir}', this.dirName(x, y)), true));
       for (let i = 0; i < 14; i++) this.audio.noise({ f: 260, f2: 120, dur: 0.07, g: 0.22 * (1 - Math.abs(i - 7) / 8), delay: i * 0.11 }); /* rotor qui passe */
       this.director.queue += Math.round(6 * this.diff.pop); return;
     }
@@ -94,7 +118,7 @@ mixin(Game, {
     for (const w of p.weapons) if (own(w) && !w.def.infinite) w.reserve += Math.ceil(w.def.ammoPack * 0.5);
     new Pickup(this, 'scrap', pk.x, pk.y, 0).collect(p);
     this.notice('Caisse ouverte', `$${fmt(cash)} · 2 grenades · munitions · soins · une arme de fortune`, '#ff6a4a'); this.audio.objective();
-    if (this.mode !== 'training') carnet().drops++;
+    if (this.mode !== 'training') { carnet().drops++; this.stats.crates++; }
   },
   // ---------- nuit de pleine lune : zombies plus rapides, points et argent doublés ; l'hôte tire au sort, l'invité suit
   setMoon(on) {
@@ -102,15 +126,16 @@ mixin(Game, {
     if (!on) { if (this.state === 'playing') this.toast('La lune rouge se cache derrière les nuages', '#c6c0b2'); return; }
     for (const z of this.zombies) if (!z.dead && z.type !== 'boss') z.speed *= MOON_SPEED;
     this.later(2.6, () => { if (this.moon) this.banner('Nuit de pleine lune', 'Les zombies courent plus vite, mais rapportent le double'); }); this.audio.roar(0.5);
-    if (this.state === 'playing' && this.net !== 'guest') carnet().moons++;
+    if (this.net !== 'guest') this.later(5, () => { if (this.moon) this.radio(pick(RADIO_LIVE.moon), true); });
+    if (this.state === 'playing' && this.net !== 'guest') { carnet().moons++; this.stats.moons++; }
   },
   rollMoon(chance) { if (this.net !== 'guest') this.setMoon(Math.random() < chance); },
   // ---------- météo : clair, averse, brouillard, orage ; l'hôte décide, l'invité suit
   wxOn() { return (this.mode === 'story' || this.mode === 'survival') && !this.level.hosp; },
   setWeather(k) {
-    const X = this.wx, W0 = WEATHER[k]; if (!X || !W0 || X.k === k) return;
+    const X = this.wx, W0 = NOEL && k === 'averse' ? { ...WEATHER[k], name: 'Tempête de neige', sub: 'Les flocons cachent tout au-delà de ta lampe' } : WEATHER[k]; if (!X || !W0 || X.k === k) return;
     X.k = k; X.t = rand(45, 80); if (k === 'orage') X.boltCd = rand(2, 5);
-    this.netEmit(['wx', k]); this.notice(W0.name, W0.sub, W0.col);
+    this.netEmit(['wx', k]); this.notice(W0.name, W0.sub, W0.col); if (this.net !== 'guest') this.later(1.6, () => this.radio(pick(RADIO_LIVE.wx[NOEL && k === 'averse' ? 'neige' : k]), true));
     if (k === 'orage') this.audio.noise({ f: 300, f2: 50, dur: 2.6, g: 0.35, delay: 0.4 });
   },
   bolt() {
@@ -134,9 +159,9 @@ mixin(Game, {
       const nr = Math.round((TOUCH ? 150 : 260) * X.rain * (PERF_LOW || Settings.quality === 'eco' ? 0.5 : 1)); if (this.rain.length > nr) this.rain.length = nr;
       while (this.rain.length < nr) this.rain.push({ x: cx + rand(-hw, hw), y: cy + rand(-hh, hh), z: rand(0, 380), v: rand(650, 900) });
       for (const d of this.rain) {
-        d.z -= d.v * dt; d.x -= 60 * dt;
+        d.z -= d.v * dt * (NOEL ? 0.22 : 1); d.x -= (NOEL ? 22 : 60) * dt; /* en décembre, la pluie tombe en flocons */
         if (d.z <= 0) {
-          if (Math.random() < 0.35 && this.particles.length < 1500) this.spawnP({ x: d.x, y: d.y, life: 0.25, type: 'splash', size: 1, grow: 14, drag: 0 });
+          if (!NOEL && Math.random() < 0.35 && this.particles.length < 1500) this.spawnP({ x: d.x, y: d.y, life: 0.25, type: 'splash', size: 1, grow: 14, drag: 0 });
           d.x = cx + rand(-hw, hw); d.y = cy + rand(-hh, hh); d.z = rand(250, 420);
         }
         if (d.x < cx - hw || d.x > cx + hw || d.y < cy - hh || d.y > cy + hh) { d.x = cx + rand(-hw, hw); d.y = cy + rand(-hh, hh); }

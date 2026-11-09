@@ -1269,6 +1269,15 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
 .cn-sv q{font-family:var(--type);font-style:italic;font-size:13px;color:#e8dcc0}
 .cn-sv.locked{opacity:.5;border-left-color:#3a2e30}
 @media (max-width:640px){.cn-sv{grid-template-columns:72px 1fr}.cn-sv canvas{width:72px;height:72px}}
+/* écran de fin : récapitulatif de la nuit */
+.end-recap{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px;margin:6px 0 10px}
+.rc-card{display:flex;flex-direction:column;gap:3px;padding:10px 12px;min-width:0;background:var(--grime),linear-gradient(180deg,#2c2526,#141011);background-size:256px 256px,100% 100%;border:1px solid #4a3e40;border-left:3px solid var(--blood)}
+.rc-card small{font-family:var(--display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ash)}
+.rc-card b{font-family:var(--display);font-weight:400;font-size:20px;line-height:1.15;color:var(--sodium);overflow-wrap:anywhere}
+.rc-card span{font-family:var(--type);font-size:13px;color:var(--bone);overflow-wrap:anywhere}
+.rc-best b{font-size:22px}
+.rc-extra{grid-column:1/-1;margin:0;font-family:var(--type);font-size:13px;color:var(--ash)}
+@media (max-width:640px){.end-recap{grid-template-columns:1fr 1fr}.rc-best{grid-column:1/-1}}
 </style>
 
 <canvas id="game" aria-label="Couvre-Feu, zone de jeu"></canvas>
@@ -1596,6 +1605,7 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
     <p class="eyebrow" id="end-eyebrow">Rapport de fin de nuit</p>
     <h2 id="end-title">Fin de la nuit</h2>
     <span class="stamp" id="end-stamp">Disparu</span>
+    <div class="end-recap" id="end-recap"></div>
     <div class="stats" id="end-stats"></div>
     <div id="end-beasts" hidden></div>
     <div class="namebox" id="end-namebox">
@@ -1609,6 +1619,7 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
       <button type="button" class="btn primary" id="btn-again">Rejouer</button>
       <button type="button" class="btn" id="btn-survival" hidden>Mode Survie</button>
       <button type="button" class="btn primary" id="btn-paradise" hidden>Le Paradis des Shibas</button>
+      <button type="button" class="btn" id="btn-recap">🖼 Partager le récap</button>
       <button type="button" class="btn" id="btn-photo">📸 Photo souvenir</button>
       <button type="button" class="btn" id="btn-menu">Menu principal</button>
     </div>
@@ -1658,7 +1669,7 @@ const Settings = {
   quality: 'auto', btnSize: 'normal', btnAlpha: 1, lefty: false, fixedSticks: false, fireAt: 0.6,
   rain: true, fog: true, vol: 0.8, music: 0.6, name: '', char: 'pedro', survival: false, paradise: false, ui: 'normale',
   load() { try { Object.assign(this, JSON.parse(localStorage.getItem('couvrefeu.settings') || '{}')); } catch (e) { } if (!['pedro', 'fiona', 'zeus', 'dobby', 'chewie', 'dragon'].includes(this.char)) this.char = 'pedro'; },
-  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital, carnet: this.carnet, notes: this.notes, rescued: this.rescued })); } catch (e) { } }
+  save() { try { localStorage.setItem('couvrefeu.settings', JSON.stringify({ rain: this.rain, fog: this.fog, vol: this.vol, music: this.music, name: this.name, char: this.char, char2: this.char2, survival: this.survival, paradise: this.paradise, ui: this.ui, lastRun: this.lastRun, bestKills: this.bestKills, daily: this.daily, weekly: this.weekly, medals: this.medals, finisher: this.finisher, xp: this.xp, acc: this.acc, accBy: this.accBy, cstats: this.cstats, finBy: this.finBy, quality: this.quality, btnSize: this.btnSize, btnAlpha: this.btnAlpha, lefty: this.lefty, fixedSticks: this.fixedSticks, fireAt: this.fireAt, cb: this.cb, calm: this.calm, wnSeen: this.wnSeen, online: this.online, vis: this.vis, seen: this.seen, hw: this.hw, pumpkin: this.pumpkin, hospital: this.hospital, carnet: this.carnet, notes: this.notes, rescued: this.rescued, xm: this.xm, santaHat: this.santaHat })); } catch (e) { } }
 };
 // touches : codes physiques (KeyW = Z sur AZERTY, W sur QWERTY), deux par action
 const ACTIONS = [
@@ -1827,6 +1838,10 @@ const HOSP_W = { walker: 58, runner: 15, dog: 9, spitter: 6, bomber: 5, screamer
 // Halloween : du 25 octobre au 2 novembre, chaque année (?halloween pour forcer, ?nohalloween pour couper)
 const HALLOWEEN = (() => { try { const q = location.search; if (/[?&]nohalloween\b/.test(q)) return false; if (/[?&]halloween\b/.test(q)) return true; } catch (e) { } const d = new Date(), m = d.getMonth(), j = d.getDate(); return (m === 9 && j >= 25) || (m === 10 && j <= 2); })();
 const HW_GOAL = 31, COSTUMES = ['citrouille', 'drap', 'sorciere'];
+// Noël : tout le mois de décembre (?noel pour forcer, ?nonoel pour couper)
+const NOEL = (() => { try { const q = location.search; if (/[?&]nonoel\b/.test(q)) return false; if (/[?&]noel\b/.test(q)) return true; } catch (e) { } return new Date().getMonth() === 11; })();
+const XM_GOAL = 25, XM_COSTUMES = ['bonnet', 'renne'];
+const xmCount = () => { const y = new Date().getFullYear(); return Settings.xm && Settings.xm.y === y ? Settings.xm.n : 0; };
 const hwCount = () => { const y = new Date().getFullYear(); return Settings.hw && Settings.hw.y === y ? Settings.hw.n : 0; };
 const SURVIVORS = [
   { name: 'Gérard', who: 'cheminot retraité', coat: '#5a4a3a', line: 'Merci ! J\'ai connu pire : la grève de 95.', bio: 'Quarante ans à la SNCF, dont dix de grève. Il a tenu trois jours caché dans un local à aiguillages, avec une thermos de café et sa radio. Il trouve les zombies moins pénibles que les usagers du RER.' },
@@ -1899,6 +1914,18 @@ const NOTES = [
   { id: 'n10', m: 4, from: 'Dossier médical, chambre 12', t: 'Patient en attente de ses résultats depuis 41 heures. S\'énerve, crie de plus en plus fort. Quand il crie, les autres patients se lèvent. Ils ne devraient pas pouvoir se lever : ils sont à la morgue.' },
   { id: 'n11', m: 4, from: 'Carnet d\'Inès', t: 'Le chirurgien opère encore. Il n\'a plus de patients vivants, alors il opère les autres. Il m\'a dit que j\'étais la prochaine sur sa liste. Je me cache près de la morgue. Venez vite, et ne le laissez pas vous endormir : il n\'endort plus personne.' }
 ];
+// radio des survivants pendant la partie : {dir} = direction depuis le joueur, {n} = nombre
+const RADIO_LIVE = {
+  idle: ['Ici Radio Survivants. Si tu entends ce message, c\'est que tu es encore en vie. Bravo.', 'Rappel : les zombies ne savent pas ouvrir les portes. Sauf le jeudi.', 'Gérard signale que le café de la gare est toujours chaud. Les clients, beaucoup moins.', 'Météo de la nuit : couvre-feu généralisé, avec des averses de morsures en fin de soirée.', 'On a vu un shiba sur le toit de la mairie. Il refuse de descendre. Il a bien raison.', 'Message pour Kevin : ta mère dit de rentrer. Si tu es mordu, ne rentre pas.', 'Économise tes balles : le marché noir ne fait pas crédit.', 'Conseil du soir : vise la tête, et garde toujours une grenade pour les mauvaises surprises.', 'La préfecture annonce que la situation est sous contrôle. La préfecture ne répond plus.', 'Un auditeur demande si les zombies mangent végétarien. Réponse : non.'],
+  horde: ['Attention : une horde arrive {dir}. J\'en compte {n}, peut-être plus.', 'Ça bouge {dir}. Beaucoup. Trouve un mur et garde-le dans ton dos.', 'Je les vois sur les caméras : {n} zombies {dir}, et ils ont faim.'],
+  low: ['Tu respires mal, je l\'entends d\'ici. Trouve une trousse de soins.', 'Tu perds beaucoup de sang. Une trousse, vite.'],
+  crate: ['Hélico en approche : caisse larguée {dir}. Fais vite, ils l\'ont vue aussi.', 'Colis spécial {dir} ! Pas de signature demandée.'],
+  wx: { clair: ['Ça se dégage. On respire un peu.'], averse: ['Grosse averse sur la ville. Ta lampe va moins porter, reste près des lampadaires.'], brouillard: ['Brouillard épais. Tu ne les verras qu\'au dernier moment. Eux non plus, normalement.'], orage: ['Orage en approche. Profite des éclairs pour compter ce qui te court après.'], neige: ['Tempête de neige. Les flocons cachent tout, et les zombies ne craignent pas le froid.'] },
+  moon: ['Lune rouge ce soir. Ils sont plus nerveux, mais il paraît qu\'ils valent le double.'],
+  boss: ['Quelque chose de très gros arrive. Je répète : très gros.', 'Les caméras viennent de griller. Il y a un monstre dans ton secteur.'],
+  santa: ['Ho, ho, ho. Non, ce n\'est pas moi qui rigole. Cours.'],
+  wave: ['Vague {n} en approche. Recharge pendant qu\'il est encore temps.', 'Ils reviennent. Vague {n}. Courage.']
+};
 // ravitaillement par hélico : temps de chute de la caisse sous son parachute (s)
 const DROP_FALL = 3;
 // nuit de pleine lune : vitesse des zombies et multiplicateur des points et de l'argent
@@ -2489,6 +2516,8 @@ class Level {
     { const rd = mulberry32(5101 + k * 31 + (g.shibaSeed || 0)), got = Settings.notes || [], at = () => { for (let t = 0; t < 60; t++) { const x = Math.round(Z.x0 + 160 + rd() * (Z.x1 - Z.x0 - 320)), y = Math.round(rd() < 0.55 ? ST + 92 + rd() * 60 : 280 + rd() * 640); if (free(x - 16, y - 16, 32, 32, 8)) return [x, y]; } return null; };
       for (const n of NOTES) if (n.m === k && !got.includes(n.id)) { const s = at(); if (s) pickup('note', s[0], s[1], n.id); }
       if (rd() < 0.75) { const s = at(); if (s) pickup('scrap', s[0], s[1], 0); } }
+    // Noël : guirlandes lumineuses le long des façades
+    if (NOEL) { const XC = ['255,60,50', '80,220,110', '255,200,80', '120,170,255']; let i = 0; for (let x = Z.x0 + 60; x < Z.x1 - 40; x += 70, i++) this.fixedLights.push({ x, y: ST + 8, r: 46, c: XC[i % 4], i: 0.5, flick: 1, zone: k, xmas: true }); }
   }
   resetZone(k) {
     for (const o of this.obstacles) if (o.zone === k && o.snd) this.g.audio.alarmStop(o);
@@ -2596,6 +2625,9 @@ class Level {
       g.strokeStyle = '#55565a'; g.lineWidth = 2.5; g.stroke();
       g.strokeStyle = '#3a3b3e'; g.lineWidth = 1.5; g.beginPath(); for (let i = -10; i <= 10; i += 5) { g.moveTo(s.x + i, s.y - 13); g.lineTo(s.x + i, s.y + 13); } g.stroke();
     }
+    if (NOEL && !(this.hosp && x0 < ZONES[0].x1)) { /* décembre : congères sur les trottoirs et poudreuse sur le bitume */
+      g.fillStyle = 'rgba(232,238,246,.55)'; for (let i = 0; i < 70; i++) { const x = x0 + r() * w, top = r() < 0.5, y = top ? ST + r() * 64 : SB - r() * 54; if (y < y0 - 30 || y > y0 + h + 30) continue; g.beginPath(); g.ellipse(x, y, 10 + r() * 32, 4 + r() * 9, 0, 0, TAU); g.fill(); }
+      g.fillStyle = 'rgba(232,238,246,.22)'; for (let i = 0; i < 300; i++) g.fillRect(x0 + r() * w, y0 + r() * h, 1.5 + r() * 2, 1.5 + r() * 2); }
     if (this.hosp && x0 < ZONES[0].x1) this.paintHospital(g, x0, y0, w, h, r);
     g.restore();
   }
@@ -2825,7 +2857,7 @@ class Zombie {
     // zombie d'élite : un sur cinquante, doré ou enflammé, plus solide et qui lâche un bonus rare
     this.elite = type !== 'boss' && g.mode !== 'training' && g.state !== 'title' && Math.random() < 0.02 ? (Math.random() < 0.5 ? 'gold' : 'fire') : null;
     if (this.elite) { if (this.elite === 'gold') { this.skin = '#d4ad3c'; this.cloth = '#7a5a14'; } else { this.skin = '#8a3a1e'; this.cloth = '#2a1208'; } this.maxHp = this.hp = this.hp * 3; this.speed *= 1.12; this.dmg *= 1.3; this.aggro = true; }
-    this.costume = HALLOWEEN && g.mode !== 'training' && (type === 'walker' || type === 'runner') && Math.random() < 0.3 ? pick(COSTUMES) : null;
+    this.costume = HALLOWEEN && g.mode !== 'training' && (type === 'walker' || type === 'runner') && Math.random() < 0.3 ? pick(COSTUMES) : NOEL && g.mode !== 'training' && g.state !== 'title' && (type === 'walker' || type === 'runner') && Math.random() < 0.35 ? pick(XM_COSTUMES) : null;
   }
   knock(x, y) { this.kx += x * this.kbMul; this.ky += y * this.kbMul; }
   damage(a, dx, dy, src) {
@@ -2960,12 +2992,13 @@ const BOSS_ENTRIES = {
   gardien: [{ fx: 'rise', prop: 'gate' }, { fx: 'run', prop: 'car', label: 'STATIONNEMENT INTERDIT' }, { fx: 'fade', where: 'near', prop: 'beacon', dark: true }],
   abomination: [{ fx: 'door', where: 'keep' }, { fx: 'rise', prop: 'gore' }, { fx: 'drop', impact: true }],
   chirurgien: [{ fx: 'fade', dark: true, prop: 'lamp' }, { fx: 'run', prop: 'bed' }, { fx: 'rise', prop: 'drawer' }],
+  perenoel: [{ fx: 'drop', impact: true, label: 'HO HO HO !' }],
   shibanophile: [{ fx: 'fade', where: 'keep', prop: 'ultra' }, { fx: 'burst', prop: 'costume', label: 'WOUF ?' }, { fx: 'burst', prop: 'cage' }]
 };
 // l'entrée retenue pour chaque boss
-const BOSS_PICK = { controleur: 1, speakerine: 0, gardien: 1, abomination: 1, chirurgien: 1, shibanophile: 1 };
-const BOSS_HINT = { controleur: 'sors du cercle quand il siffle', speakerine: 'dans le noir, vise ses yeux rouges', gardien: 'ses barrières ferment les passages', abomination: 'tue les zombies qu\'elle aspire', chirurgien: 'fuis le faisceau de sa frontale', shibanophile: 'roule pour couper sa laisse' };
-const RAGE_TXT = { controleur: 'il appelle des renforts', speakerine: 'son micro hurle maintenant', gardien: 'il pousse des épaves', abomination: 'le sol tremble sous ses pas', chirurgien: 'il gaze la salle', shibanophile: 'il sort les croquettes' };
+const BOSS_PICK = { controleur: 1, speakerine: 0, gardien: 1, abomination: 1, chirurgien: 1, perenoel: 0, shibanophile: 1 };
+const BOSS_HINT = { controleur: 'sors du cercle quand il siffle', speakerine: 'dans le noir, vise ses yeux rouges', gardien: 'ses barrières ferment les passages', abomination: 'tue les zombies qu\'elle aspire', chirurgien: 'fuis le faisceau de sa frontale', perenoel: 'esquive ses boules de neige, frappe quand il rate sa charge', shibanophile: 'roule pour couper sa laisse' };
+const RAGE_TXT = { controleur: 'il appelle des renforts', speakerine: 'son micro hurle maintenant', gardien: 'il pousse des épaves', abomination: 'le sol tremble sous ses pas', chirurgien: 'il gaze la salle', perenoel: 'il lâche ses lutins', shibanophile: 'il sort les croquettes' };
 const bossName = b => (b.title || 'Le boss').toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase()).replace(/ (Du|De|Des|La|Le|Les|L')(?= )/g, m => m.toLowerCase()).replace(/^L'a/, "L'A");
 class Boss extends Zombie {
   constructor(g, x, y) {
@@ -2993,6 +3026,7 @@ class Boss extends Zombie {
       case 'gardien': a.siren(); break;
       case 'chirurgien': if (!E || E.prop === 'lamp') g.blackoutT = Math.max(g.blackoutT, 1.4); a.tone({ f: 120, f2: 40, dur: 1, type: 'sine', g: 0.3 }); a.tone({ f: 1500, f2: 1500, dur: 0.08, type: 'square', g: 0.08, delay: 1.3 }); break;
       case 'shibanophile': a.tone({ f: 9000, f2: 11000, dur: 1.2, type: 'sine', g: 0.05 }); g.shake(0.6); break;
+      case 'perenoel': for (let i = 0; i < 8; i++) a.tone({ f: 1320 + (i % 2) * 330, dur: 0.12, type: 'triangle', g: 0.08, delay: i * 0.13 }); break;
     }
   }
   // effets permanents : tickets qui volent, étincelles des câbles…
@@ -3162,7 +3196,8 @@ const MINI_BOSSES = [
   { kind: 'controleur', title: 'LE CONTRÔLEUR', sub: 'Il n\'a jamais aimé les voyageurs sans billet', hp: 1900, r: 30, speed: 70, body: '#2c3e5a', blob: '#3d5478', head: '#4a6a4a', cap: '#1a2638' },
   { kind: 'speakerine', title: 'LA SPEAKERINE', sub: 'Elle tient l\'antenne… et ne la lâchera pas', hp: 2600, r: 32, speed: 64, body: '#6a2a4a', blob: '#8a3a62', head: '#6a8a5a', cap: '#d0a020', spitty: true },
   { kind: 'gardien', title: 'LE GARDIEN DU PARKING', sub: 'Stationnement interdit. Pour toujours.', hp: 3400, r: 34, speed: 68, body: '#3e4a2a', blob: '#56643a', head: '#5a7a4a', cap: '#e0a020' },
-  { kind: 'chirurgien', title: 'LE CHIRURGIEN', sub: 'Il opère sans anesthésie', hp: 4300, r: 31, speed: 80, body: '#cfd8d6', blob: '#8a1a14', head: '#7a9a7a', cap: '#3f8f80', surgeon: true }
+  { kind: 'chirurgien', title: 'LE CHIRURGIEN', sub: 'Il opère sans anesthésie', hp: 4300, r: 31, speed: 80, body: '#cfd8d6', blob: '#8a1a14', head: '#7a9a7a', cap: '#3f8f80', surgeon: true },
+  { kind: 'perenoel', title: 'LE PÈRE NOËL ZOMBIE', sub: 'Il sait que tu n\'as pas été sage', hp: 3200, r: 33, speed: 74, body: '#b0231c', blob: '#d03a2a', head: '#7a9a7a', cap: '#efefe8', spitty: true }
 ];
 // cible d'entraînement en carton, sur rail (ne mord pas)
 class Target extends Zombie {
@@ -3317,8 +3352,9 @@ class Acid {
     if (k >= 1) {
       this.dead = true; const g = this.g, R = this.big ? 42 : 30;
       g.hitCause = 'spitter'; for (const p of g.players()) if (!p.dead && dist2(p.x, p.y, this.x, this.y) < (R + p.r) ** 2) p.hurt((this.big ? 18 : 11) * g.diff.dmg, this.x, this.y, 150); g.hitCause = null;
-      g.puddles.push({ x: this.x, y: this.y, r: R, life: this.big ? 6 : 4.5, max: this.big ? 6 : 4.5, dead: false });
-      for (let i = 0; i < 8; i++) g.spawnP({ x: this.x, y: this.y, z: 2, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(60, 160), grav: 600, life: 0.6, type: 'acid', size: 2.5, emissive: true });
+      if (this.snow) for (let i = 0; i < 10; i++) g.spawnP({ x: this.x, y: this.y, z: 2, vx: rand(-110, 110), vy: rand(-110, 110), vz: rand(60, 180), grav: 600, life: 0.7, type: 'debris', size: rand(2, 3.5), color: '#e8eef4' });
+      else { g.puddles.push({ x: this.x, y: this.y, r: R, life: this.big ? 6 : 4.5, max: this.big ? 6 : 4.5, dead: false });
+      for (let i = 0; i < 8; i++) g.spawnP({ x: this.x, y: this.y, z: 2, vx: rand(-90, 90), vy: rand(-90, 90), vz: rand(60, 160), grav: 600, life: 0.6, type: 'acid', size: 2.5, emissive: true }); }
       g.audio.splat(this.x, this.y);
     }
   }
@@ -3438,7 +3474,7 @@ class Pickup {
       }
       case 'crate': g.openCrate(this, p); break;
       case 'note': {
-        const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = Settings.notes || (Settings.notes = []); if (!got.includes(N.id)) got.push(N.id); Settings.save(); g.netEmit(['note', N.id]);
+        const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = Settings.notes || (Settings.notes = []); if (!got.includes(N.id)) got.push(N.id); g.stats.notes++; Settings.save(); g.netEmit(['note', N.id]);
         g.notice('Document trouvé', `${N.from} · à lire dans le Carnet (${got.length} / ${NOTES.length})`, '#e8dcc0'); g.audio.tone({ f: 900, f2: 1300, dur: 0.12, type: 'triangle', g: 0.12 }); g.audio.pickup(); break;
       }
       case 'shiba': {
@@ -3578,7 +3614,7 @@ function clearSave() { memSave = null; try { localStorage.removeItem(SAVE_KEY); 
 function encodeSave(d) { return 'CF1.' + btoa(unescape(encodeURIComponent(JSON.stringify(d)))); }
 function decodeSave(code) { try { const t = String(code).trim().replace(/^CF1\./, ''); const d = JSON.parse(decodeURIComponent(escape(atob(t)))); return validSave(d) ? d : null; } catch (e) { return null; } }
 // code de transfert : toute la progression (niveau, tenues, succès, shibas, scores, partie en cours) d'un appareil à l'autre
-const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'notes', 'rescued', 'name'];
+const PROFILE_KEYS = ['xp', 'survival', 'paradise', 'hospital', 'pumpkin', 'bestKills', 'daily', 'weekly', 'medals', 'hw', 'seen', 'cstats', 'acc', 'accBy', 'finisher', 'finBy', 'carnet', 'notes', 'rescued', 'xm', 'santaHat', 'name'];
 const b64u = {
   enc: u8 => { let s = ''; for (const b of u8) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
   dec: t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0))
@@ -3616,7 +3652,7 @@ function applyProfile(d) {
   return { lv: levelInfo(Settings.xp || 0).lv, ach: ACH.filter(a => Ach.get()[a[0]]).length, run: !!readSave() };
 }
 function saveLine(d) { return `${CHARS[d.char].name} · ${DIFFS[d.diff].name} · mission ${d.safe + 2} sur ${MISSIONS} · ${fmt(d.cp.score || 0)} pts · ${(d.cp.shibas || []).length}/${SHIBAS_TOTAL} shibas`; }
-function newStats() { return { shots: 0, hits: 0, dmg: 0, deaths: 0, taken: 0 }; }
+function newStats() { return { shots: 0, hits: 0, dmg: 0, deaths: 0, taken: 0, arms: {}, boom: 0, burst: 0, elites: 0, bosses: [], sv: [], notes: 0, crates: 0, sealed: 0, moons: 0 }; }
 const SHIBAS_PER = 3, SHIBAS_TOTAL = SHIBAS_PER * MISSIONS;
 const BESTIARY = [
   { k: 'walker', name: 'Le Traînard', type: 'Zombie ordinaire', m: 1, txt: 'Ancien usager de la ligne 4. Attend toujours son bus, mais accepte un mollet en dédommagement.', tip: 'Lent, mais jamais seul. Recule en tirant.' },
@@ -3632,6 +3668,7 @@ const BESTIARY = [
   { k: 'mini2', name: 'Le Gardien du parking', type: 'Boss · secteur 3', m: 4, boss: true, txt: 'Ton ticket a expiré. Toi aussi, bientôt.', tip: 'Ses barrières ferment les passages. En rage, il pousse des épaves : écarte-toi de la ligne orange.' },
   { k: 'boss', name: 'L\'Abomination', type: 'Boss · secteur 4', m: 5, boss: true, txt: 'Trois conseillers municipaux, un adjoint et un pigeon. Le conseil n\'a jamais été aussi soudé.', tip: 'Tue les zombies qu\'elle aspire avant qu\'elle les avale. En rage, roule au passage des ondes du séisme.' },
   { k: 'mini3', name: 'Le Chirurgien', type: 'Boss · hôpital', m: 5, boss: true, txt: 'Major de sa promo en chirurgie, recalé en anesthésie. Ses patients ne se plaignent plus jamais.', tip: 'Fuis le faisceau de sa frontale. Les lignes blanches annoncent ses scalpels ; à 30 %, il réanime les morts.' },
+  { k: 'mini4', name: 'Le Père Noël zombie', type: 'Boss · Noël', m: 5, boss: true, txt: 'Descendu par une cheminée en décembre 2019. Il n\'est jamais remonté. Sa hotte sent le renne.', tip: 'Esquive ses boules de neige sales, puis frappe quand il rate sa charge.' },
   { k: 'ultimate', name: 'Le Shibanophile', type: 'Boss secret', m: 5, boss: true, txt: 'Mordu par un shiba en 2019. Depuis, c\'est personnel.', tip: 'Laisse : roule ou tire dessus pour la couper. En rage, il attire les shibas avec des croquettes : protège-les.' }
 ];
 // une arme de fortune trouvée par terre n'appartient pas encore au joueur : le marché noir peut la lui vendre
@@ -3680,7 +3717,7 @@ class Game {
     this.mapReports = {}; this.toasts = []; this.pops = []; this.denyMsg = null; this.speech = null; this.achCards = []; this.bannerObj = null; this.notices = []; this.winFx = null; this.mapHover = null;
     this.zombies = []; this.bullets = []; this.flames = []; this.rockets = []; this.throwables = []; this.mines = []; this.acids = [];
     this.puddles = []; this.fires = []; this.shockwaves = []; this.beams = []; this.particles = []; this.pickups = []; this.lights = []; this.survivors = [];
-    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.dropT = null; this.moon = false; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
+    this.timers = []; this.attractions = []; this.texts = []; this.rain = []; this.fogs = []; this.wx = null; this.sewerT = null; this.dropT = null; this.radioT = null; this.radioAt = null; this.santaDone = false; this.santaT = null; this.moon = false; this.hazards = []; this.blackoutT = 0; this.cine = null; this.zoom = 1; this.cineK = 0;
     if (this.level) for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
     this.level = new Level(this); this.director.reset(); this.bossRef = null;
   }
@@ -3840,12 +3877,13 @@ class Game {
     if (this.mode === 'training') this.updateTraining(dt);
     if (this.mode === 'secret') this.updateShibaNPC(dt);
     if (this.mode === 'hospital') this.updateHospital();
+    if (NOEL && !this.xmTip && this.mode !== 'training' && this.mode !== 'hospital') { this.xmTip = true; this.later(4, () => this.toast(Settings.santaHat ? 'Joyeux Noël : la ville est sous la neige, et le bonnet du Père Noël est déjà à toi' : `Noël : abats des zombies à bonnet (${Math.min(xmCount(), XM_GOAL)} / ${XM_GOAL}) pour faire venir le Père Noël zombie`, '#ff5a4a')); }
     if (HALLOWEEN && !this.hwTip && this.mode !== 'training') { this.hwTip = true; this.later(4, () => this.toast(`Halloween : ${hwCount() >= HW_GOAL || Settings.pumpkin ? 'tête de citrouille déjà gagnée, joyeux massacre' : `abats des zombies déguisés (${hwCount()} / ${HW_GOAL}) pour la tête de citrouille`}`, '#ff9a3a')); }
     if ((this.seenT = (this.seenT || 0) - dt) <= 0) { this.seenT = 0.5; this.spotMonsters(); }
     this.updateBuddy(dt); this.updateEvent(dt);
     if (p.flashCd > 0) p.flashCd -= realDt; if (inp.flash && !p.dead) this.flash(); if (this.flashFx > 0) this.flashFx -= realDt;
     if (this.mode !== 'training') this.director.update(dt);
-    if (this.mode === 'story' || this.mode === 'survival') { this.updateSewers(dt); this.updateDrops(dt); }
+    if (this.mode === 'story' || this.mode === 'survival') { this.updateSewers(dt); this.updateDrops(dt); this.updateRadio(dt); this.updateNoel(dt); }
     this.hash.clear(); for (const z of this.zombies) if (!z.dead) this.hash.insert(z);
     this.attractions.length = 0;
     for (const c of this.level.cars) if (c.alarm > 0) this.attractions.push({ x: c.x + c.w / 2, y: c.y + c.h / 2, r: 1000 });
@@ -4091,7 +4129,7 @@ mixin(Game, {
         s.weights = this.dailyMod && this.dailyMod.weights ? this.dailyMod.weights : { walker: 50, runner: 20 + n * 2, bomber: 8, spitter: 6 + n, brute: 2 + n, riot: 3 + n * 1.5, dog: n > 1 ? 2 + n : 0 };
         this.director.queue += Math.min(90, Math.round((8 + n * 5) * this.diff.pop));
         this.banner(`Vague ${n}`, n % 5 === 0 ? 'L\'Abomination revient' : 'Tiens la place'); this.audio.siren();
-        if (n % 5 === 0) this.later(1.5, () => this.spawnBoss());
+        if (n % 5 === 0) this.later(1.5, () => this.spawnBoss()); else if (n > 1 && Math.random() < 0.5) this.later(3, () => this.radio(pick(RADIO_LIVE.wave).replace('{n}', n)));
         if (n >= 10) this.unlock('wave10');
       }
     } else if (this.director.queue <= 0 && this.zombies.length === 0) {
@@ -4283,7 +4321,7 @@ mixin(Game, {
     }
     if (e.t <= 0) { this.toast({ blackout: 'Le courant revient', fog: 'Le brouillard se lève', ash: 'Les cendres retombent', icecream: 'Le camion de glaces s\'éloigne' }[e.id], '#c6c0b2'); this.event = null; }
   },
-  noteRescue(sv) { if (sv.idx == null) return; const R = Settings.rescued || (Settings.rescued = {}); R[sv.idx] = (R[sv.idx] || 0) + 1; Settings.save(); this.netEmit(['rescued', sv.idx]); },
+  noteRescue(sv) { (this.stats.sv || (this.stats.sv = [])).push(sv.name); if (sv.idx == null) return; const R = Settings.rescued || (Settings.rescued = {}); R[sv.idx] = (R[sv.idx] || 0) + 1; Settings.save(); this.netEmit(['rescued', sv.idx]); },
   onPlayerDeath() {
     const p = this.player; if (p.dead) return;
     if (this.mode !== 'training') { const d = carnet().deaths, k = p.lastCause || 'explosion'; d[k] = (d[k] || 0) + 1; Settings.save(); }
@@ -4444,10 +4482,25 @@ mixin(Game, {
     if (this.endless) { $('end-eyebrow').textContent = 'Nuit sans fin'; $('end-title').textContent = `Tombé pendant la nuit ${this.endless.night}`; $('end-stamp').textContent = `Nuit ${this.endless.night}`; stats.unshift(['Nuits survécues', String(this.endless.night - 1)], ['Mutations', String(Object.values(this.endless.m).reduce((a, b) => a + b, 0))]); }
     if (this.dailyMod) { $('end-eyebrow').textContent = `${this.dailyMod.week ? 'Défi de la semaine' : 'Défi du jour'} · ${this.dailyMod.name}`; $('end-title').textContent = 'Défi terminé'; $('end-stamp').textContent = `Vague ${wave}`; }
     $('end-stats').innerHTML = stats.map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join('');
+    { const R = this.nightRecap(); this.recap = R; $('end-recap').innerHTML = `<div class="rc-card rc-best"><small>Meilleur moment</small><b>${R.best}</b></div><div class="rc-card"><small>Arme de la nuit</small><b>${R.arm}</b><span>${R.armN}</span></div><div class="rc-card"><small>Survivants sauvés</small><b>${R.svN}</b><span>${R.svTxt}</span></div>${R.extra ? `<p class="rc-extra">${R.extra}</p>` : ''}`; }
     { const h = newBeastsHTML(this.takeActBeasts()); $('end-beasts').innerHTML = h; $('end-beasts').hidden = !h; if (h) drawBestiary(); }
     $('end-name').value = Settings.name || 'Survivant'; $('btn-save').disabled = false; $('end-namebox').hidden = false;
     $('end-scores').innerHTML = scoreTable(Scores.list());
     this.showScreen('scr-end'); $('end-name').focus(); $('end-name').select();
+  },
+  // le récit de la nuit : meilleur moment, arme la plus utilisée, survivants, petits bonus
+  nightRecap() {
+    const st = this.stats || {}, arms = Object.entries(st.arms || {}).sort((a, b) => b[1] - a[1]), sv = st.sv || [], n = v => v > 1 ? 's' : '';
+    const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k;
+    let best;
+    if ((st.bosses || []).length) best = `${st.bosses[st.bosses.length - 1]} est tombé${/^La /.test(st.bosses[st.bosses.length - 1]) ? 'e' : ''} sous tes coups`;
+    else if (st.boom >= 5) best = `${st.boom} zombies emportés par une seule explosion`;
+    else if (st.burst >= 12) best = `${st.burst} zombies abattus en moins de huit secondes`;
+    else if (st.elites) best = `${st.elites} zombie${n(st.elites)} d'élite abattu${n(st.elites)}`;
+    else if ((this.maxMult || 1) >= 5) best = `Multiplicateur poussé jusqu'à ×${this.maxMult.toFixed(1)}`;
+    else best = `Tu as tenu ${fmtTime(this.runTime || 0)} dans la nuit`;
+    const extra = [st.notes && `${st.notes} document${n(st.notes)} trouvé${n(st.notes)}`, st.crates && `${st.crates} caisse${n(st.crates)} de ravitaillement`, st.sealed && `${st.sealed} bouche${n(st.sealed)} d'égout scellée${n(st.sealed)}`, st.moons && 'une nuit de pleine lune'].filter(Boolean).join(' · ');
+    return { best, arm: arms.length ? wName(arms[0][0]) : 'Aucune', armN: arms.length ? `${fmt(arms[0][1])} zombie${n(arms[0][1])}` : 'Pas un seul zombie', armId: arms.length ? arms[0][0] : null, svN: String(sv.length), svTxt: sv.length ? [...new Set(sv)].join(', ') : 'Personne cette nuit', extra };
   },
   saveScore() {
     if (this.savedScore) return; this.savedScore = true;
@@ -4602,7 +4655,7 @@ mixin(Game, {
   sealSewer(s) {
     this.sealFx(s); this.netEmit(['seal', this.level.spawners.indexOf(s)]);
     const pts = Math.round((s.rumble > 0 ? 700 : 400) * this.diff.score); this.score += pts; this.floatText(s.x, s.y - 30, `BOUCHE SCELLÉE +${fmt(pts)}`, '#9fd6e6');
-    const c = carnet(); c.sealed++; Settings.save(); if (c.sealed >= 10) this.unlock('plombier');
+    const c = carnet(); c.sealed++; this.stats.sealed++; Settings.save(); if (c.sealed >= 10) this.unlock('plombier');
   },
   sealFx(s) {
     s.sealed = true; s.rumble = 0; s.anim = 0;
@@ -4617,6 +4670,7 @@ mixin(Game, {
   // entrée du boss : 3 mises en scène par boss, tirées au hasard, et un endroit qui change
   bossEntry(b) {
     const v = BOSS_PICK[b.bkind] || 0, p = this.player, E = BOSS_ENTRIES[b.bkind][v], T = b.ultimate || !b.mini ? 2.6 : 2.2;
+    if (this.mode !== 'secret') this.later(T + 1.5, () => this.radio(pick(b.bkind === 'perenoel' ? RADIO_LIVE.santa : RADIO_LIVE.boss), true));
     const hosp = this.mode === 'hospital', k = clamp(this.activeZone, 0, 3), Z = ZONES[k];
     const x0 = hosp ? HOSP.morgue + 70 : Z.x0 + 80, x1 = hosp ? ZONES[0].x1 - 70 : Z.x1 - 80, aim = p.aim || 0;
     const spot = (a, d) => { for (let t = 0; t < 12; t++) { const aa = a + (t ? rand(-0.6, 0.6) : 0), dd = d * (t ? rand(0.8, 1.15) : 1), x = clamp(p.x + Math.cos(aa) * dd, x0, x1), y = clamp(p.y + Math.sin(aa) * dd, ST + 60, SB - 60); if (Math.hypot(x - p.x, y - p.y) > d * 0.65 && !this.level.pointObstacle(x, y) && !this.level.queryRect(x - 40, y - 40, 80, 80).some(o => rectDist(x, y, o) < 34)) return { x, y }; } return null; };
@@ -4679,6 +4733,7 @@ mixin(Game, {
       z.damage(dmg * f, dx / d, dy / d, 'explosion'); if (z.dead) killed++; hitN++;
     }
     if (src === 'car' && killed >= 8) this.unlock('alarm');
+    if (src !== 'bomber' && killed > (this.stats.boom || 0)) this.stats.boom = killed;
     if (src === 'grenade' || src === 'rocket') for (const s of this.level.spawners) if (s.kind === 'sewer' && !s.sealed && dist2(s.x, s.y, x, y) < (R * 0.5 + 10) ** 2) this.sealSewer(s);
     this.hitCause = src === 'bomber' ? 'bomber' : 'explosion'; for (const p of this.players()) if (!p.dead) { const d = Math.hypot(p.x - x, p.y - y); if (d < R) { const f = 1 - d / R, mul = { rocket: 0.35, grenade: 0.45, mine: 0.3, decoy: 0.3, car: 0.55, barrel: 0.55, bomber: 0.9 }[src] ?? 0.5; const a = dmg * mul * f * this.diff.dmg; if (a > 2) p.hurt(a, x, y, 520 * f); } }
     this.hitCause = null;
@@ -4710,14 +4765,14 @@ mixin(Game, {
     for (let s = 0; s < len; s += 220) this.addLight(x + dx * s, y + dy * s, 200, '140,210,255', 0.9, 0.18);
     return hitSet.size > 0;
   },
-  spit(x, y, tx, ty, big) { this.acids.push(new Acid(this, x, y, tx, ty, big)); this.audio.spit(x, y); },
+  spit(x, y, tx, ty, big) { const a = new Acid(this, x, y, tx, ty, big), b = this.bossRef; if (b && !b.dead && b.bkind === 'perenoel' && dist2(x, y, b.x, b.y) < 220 * 220) a.snow = true; this.acids.push(a); this.audio.spit(x, y); },
   onZombieKilled(z, src) {
     if (this.state !== 'playing') return;
     this.netEmit(['die', z.nid, Math.round(z.x), Math.round(z.y)]);
     if (this.mode === 'training') { this.trainKill(z); return; }
     const T = ZTYPES[z.type]; this.kills++; this.noteKill(z);
-    { const c = carnet(), w = this.player.weapon, a = KILL_ARM[src] || ((src === 'bullet' || src === 'rail') && w ? w.def.id : null); c.kills++; if (a) c.arms[a] = (c.arms[a] || 0) + 1; if (z.elite) c.elites++; }
-    { const now = this.time; this.recentKills = (this.recentKills || []).filter(t0 => now - t0 < 8); this.recentKills.push(now);
+    { const c = carnet(), st = this.stats, w = this.player.weapon, a = KILL_ARM[src] || ((src === 'bullet' || src === 'rail') && w ? w.def.id : null); c.kills++; if (a) { c.arms[a] = (c.arms[a] || 0) + 1; st.arms[a] = (st.arms[a] || 0) + 1; } if (z.elite) { c.elites++; st.elites++; } }
+    { const now = this.time; this.recentKills = (this.recentKills || []).filter(t0 => now - t0 < 8); this.recentKills.push(now); this.stats.burst = Math.max(this.stats.burst || 0, this.recentKills.length);
       const k0 = this.activeZone, o0 = k0 >= 0 && this.level.obj[k0];
       if (this.mode === 'story' && o0 && (k0 < 3 ? o0.done : o0.dead) && this.director.queue <= 0 && !(this.cleared || (this.cleared = []))[k0] && !this.zombies.some(o => o !== z && !o.dead)) {
         this.cleared[k0] = true; this.finFx = currentFinisher(); this.slowMo(2.2, 'RUE NETTOYÉE'); this.slowCd = now + 20; this.recentKills = [];
@@ -4769,6 +4824,11 @@ mixin(Game, {
       if (Settings.hw.n >= HW_GOAL && !Settings.pumpkin) { Settings.pumpkin = true; this.later(0.4, () => { this.achCards.push({ name: 'Halloween · Tête de citrouille débloquée', t: 4.5 }); this.audio.objective(); }); }
       else if (!Settings.pumpkin && Settings.hw.n % 10 === 0) this.floatText(z.x, z.y - 52, `🎃 ${Settings.hw.n} / ${HW_GOAL}`, '#ff9a3a');
     }
+    if (NOEL && XM_COSTUMES.includes(z.costume)) {
+      const y = new Date().getFullYear(); if (!Settings.xm || Settings.xm.y !== y) Settings.xm = { y, n: 0 }; Settings.xm.n++;
+      if (Settings.xm.n === XM_GOAL && !Settings.santaHat) this.later(0.5, () => this.toast('Tu as été vilain : le Père Noël zombie arrive', '#ff5a4a'));
+      else if (!Settings.santaHat && Settings.xm.n < XM_GOAL && Settings.xm.n % 5 === 0) this.floatText(z.x, z.y - 52, `🎅 ${Settings.xm.n} / ${XM_GOAL}`, '#ff5a4a');
+    }
     Settings.save();
   },
   noteNewBeast(k) { const A = this.actBeasts || (this.actBeasts = []); if (!A.includes(k)) A.push(k); },
@@ -4781,12 +4841,14 @@ mixin(Game, {
     if (nw) Settings.save(); // la découverte est annoncée en fin d'acte, pas pendant la partie
   },
   onBossKilled(b) {
+    (this.stats.bosses || (this.stats.bosses = [])).push(bossName(b));
     this.audio.setTheme(this.mode === 'secret' ? 'paradis' : this.mode === 'hospital' ? 'parking' : ['gare', 'boulevard', 'parking', 'mairie'][clamp(this.activeZone, 0, 3)]); this.blackoutT = 0; for (const h of this.hazards) if (h.kind !== 'barrier' && h.kind !== 'ram') h.dead = true;
     if (b.mini) {
       this.slowMo(1.6, b.title + ' EST TOMBÉ'); this.audio.roar(1); this.shake(0.8); if (this.bossRef === b) this.bossRef = null;
       const pts = Math.round(6000 * this.diff.score); this.score += pts; this.player.money += 400; this.unlock('boss');
       for (const kd of ['med', 'ammo', 'grenade']) this.pickups.push(new Pickup(this, kd, b.x + rand(-30, 30), b.y + rand(-20, 20), 0));
       this.later(1.2, () => this.toast(`${b.title.toLowerCase().replace(/^./, m => m.toUpperCase())} vaincu : +${fmt(pts)} points, +$400`, '#ffd23a'));
+      if (b.bkind === 'perenoel') { Settings.santaHat = true; Settings.save(); this.later(0.6, () => { this.achCards.push({ name: 'Noël · Bonnet de Père Noël débloqué', t: 4.5 }); this.audio.objective(); }); this.later(2.2, () => this.toast('Le bonnet du Père Noël est à toi : choisis-le dans la fiche de ton personnage', '#ff5a4a')); return; }
       if (this.mode === 'hospital') { this.level.obj[0].dead = true; Settings.hospital = true; Settings.save(); for (const z of this.zombies) if (!z.dead) z.burn = Math.max(z.burn, 0.01); if (this.hcamp) this.later(1.6, () => { if (this.state === 'playing') this.finishCampaign(); }); else this.later(3.2, () => { if (this.mode === 'hospital' && this.state === 'playing') this.showEnd(true); }); }
       return;
     }
@@ -4886,6 +4948,30 @@ mixin(Game, {
       c.strokeStyle = shade(z.skin, -0.35); c.lineWidth = s * 0.28; c.lineCap = 'round'; c.beginPath(); c.moveTo(s * 0.4, -s * 0.5); c.lineTo(s * 1.2, -s * 1.1); c.moveTo(s * 0.3, s * 0.5); c.lineTo(s * 0.9, s * 1.2); c.stroke();
     });
   },
+  // ---------- Noël : les zombies à bonnet font venir le Père Noël zombie ; le battre offre son bonnet
+  updateNoel(dt) {
+    if (!NOEL || Settings.santaHat || this.santaDone || this.net === 'guest' || this.mode === 'hospital') return;
+    if (xmCount() < XM_GOAL || (this.bossRef && !this.bossRef.dead) || this.player.dead || this.cine) return;
+    if ((this.santaT = (this.santaT ?? 12) - dt) <= 0) this.spawnSanta();
+  },
+  spawnSanta() {
+    this.santaDone = true; const s = this.findSpawnPoint(clamp(this.activeZone, 0, 3)) || { x: this.player.x + 420, y: this.player.y }, b = new MiniBoss(this, s.x, s.y, 4);
+    this.bossEntry(b); this.zombies.push(b); this.bossRef = b; this.audio.roar(1.1); this.shake(0.7); this.banner(MINI_BOSSES[4].title, MINI_BOSSES[4].sub); this.torchFlicker = 0.8;
+  },
+  // ---------- radio des survivants pendant la partie : alertes et petites nouvelles, espacées d'au moins 14 s
+  radio(text, force) {
+    if (this.mode === 'training' || this.state !== 'playing') return; const now = this.time;
+    if (!force && now - (this.radioAt ?? -99) < 14) return; this.radioAt = now;
+    this.toast(`📻 Radio : ${text}`, '#9fd6e6'); this.audio.noise({ f: 2600, type: 'bandpass', q: 2, dur: 0.35, g: 0.1 }); this.audio.noise({ f: 1800, type: 'bandpass', q: 3, dur: 0.15, g: 0.07, delay: 0.45 });
+  },
+  dirName(x, y) { const p = this.player, a = Math.atan2(p.y - y, x - p.x), i = ((Math.round(a / (TAU / 8)) % 8) + 8) % 8; return ['à l\'est', 'au nord-est', 'au nord', 'au nord-ouest', 'à l\'ouest', 'au sud-ouest', 'au sud', 'au sud-est'][i]; },
+  updateRadio(dt) {
+    const p = this.player; if (p.dead || this.cine || this.net === 'guest') return;
+    if ((this.radioT = (this.radioT ?? rand(25, 40)) - dt) > 0) return; this.radioT = rand(40, 70);
+    const near = this.zombies.filter(z => !z.dead && z.type !== 'boss' && dist2(z.x, z.y, p.x, p.y) > 300 * 300 && dist2(z.x, z.y, p.x, p.y) < 900 * 900);
+    if (near.length >= 10) { let sx = 0, sy = 0; for (const z of near) { sx += z.x; sy += z.y; } this.radio(pick(RADIO_LIVE.horde).replace('{dir}', this.dirName(sx / near.length, sy / near.length)).replace('{n}', near.length)); return; }
+    this.radio(pick(p.hp < 35 ? RADIO_LIVE.low : RADIO_LIVE.idle));
+  },
   // ---------- ravitaillement par hélico : une caisse sous une fusée rouge ; bon matériel, mais la horde converge dessus
   updateDrops(dt) {
     const p = this.player; if (p.dead || this.cine || this.mode === 'hospital') return;
@@ -4896,7 +4982,7 @@ mixin(Game, {
       const a = rand(0, TAU), d = rand(350, 620), x = Math.round(clamp(p.x + Math.cos(a) * d, Z.x0 + 90, Z.x1 - 90)), y = Math.round(clamp(p.y + Math.sin(a) * d * 0.6, ST + 80, SB - 50));
       if (Math.hypot(x - p.x, y - p.y) < 300 || this.level.queryRect(x - 30, y - 30, 60, 60).some(o => rectDist(x, y, o) < 30)) continue; /* jamais sur la tête du joueur, même au bord d'un secteur */
       const pk = new Pickup(this, 'crate', x, y, 0); pk.life = 75; pk.vx = pk.vy = 0; pk.drop = DROP_FALL; this.pickups.push(pk);
-      this.notice('Ravitaillement largué', 'Une fusée rouge marque la caisse : la horde l\'a vue aussi', '#ff6a4a');
+      this.notice('Ravitaillement largué', 'Une fusée rouge marque la caisse : la horde l\'a vue aussi', '#ff6a4a'); this.later(1, () => this.radio(pick(RADIO_LIVE.crate).replace('{dir}', this.dirName(x, y)), true));
       for (let i = 0; i < 14; i++) this.audio.noise({ f: 260, f2: 120, dur: 0.07, g: 0.22 * (1 - Math.abs(i - 7) / 8), delay: i * 0.11 }); /* rotor qui passe */
       this.director.queue += Math.round(6 * this.diff.pop); return;
     }
@@ -4910,7 +4996,7 @@ mixin(Game, {
     for (const w of p.weapons) if (own(w) && !w.def.infinite) w.reserve += Math.ceil(w.def.ammoPack * 0.5);
     new Pickup(this, 'scrap', pk.x, pk.y, 0).collect(p);
     this.notice('Caisse ouverte', `$${fmt(cash)} · 2 grenades · munitions · soins · une arme de fortune`, '#ff6a4a'); this.audio.objective();
-    if (this.mode !== 'training') carnet().drops++;
+    if (this.mode !== 'training') { carnet().drops++; this.stats.crates++; }
   },
   // ---------- nuit de pleine lune : zombies plus rapides, points et argent doublés ; l'hôte tire au sort, l'invité suit
   setMoon(on) {
@@ -4918,15 +5004,16 @@ mixin(Game, {
     if (!on) { if (this.state === 'playing') this.toast('La lune rouge se cache derrière les nuages', '#c6c0b2'); return; }
     for (const z of this.zombies) if (!z.dead && z.type !== 'boss') z.speed *= MOON_SPEED;
     this.later(2.6, () => { if (this.moon) this.banner('Nuit de pleine lune', 'Les zombies courent plus vite, mais rapportent le double'); }); this.audio.roar(0.5);
-    if (this.state === 'playing' && this.net !== 'guest') carnet().moons++;
+    if (this.net !== 'guest') this.later(5, () => { if (this.moon) this.radio(pick(RADIO_LIVE.moon), true); });
+    if (this.state === 'playing' && this.net !== 'guest') { carnet().moons++; this.stats.moons++; }
   },
   rollMoon(chance) { if (this.net !== 'guest') this.setMoon(Math.random() < chance); },
   // ---------- météo : clair, averse, brouillard, orage ; l'hôte décide, l'invité suit
   wxOn() { return (this.mode === 'story' || this.mode === 'survival') && !this.level.hosp; },
   setWeather(k) {
-    const X = this.wx, W0 = WEATHER[k]; if (!X || !W0 || X.k === k) return;
+    const X = this.wx, W0 = NOEL && k === 'averse' ? { ...WEATHER[k], name: 'Tempête de neige', sub: 'Les flocons cachent tout au-delà de ta lampe' } : WEATHER[k]; if (!X || !W0 || X.k === k) return;
     X.k = k; X.t = rand(45, 80); if (k === 'orage') X.boltCd = rand(2, 5);
-    this.netEmit(['wx', k]); this.notice(W0.name, W0.sub, W0.col);
+    this.netEmit(['wx', k]); this.notice(W0.name, W0.sub, W0.col); if (this.net !== 'guest') this.later(1.6, () => this.radio(pick(RADIO_LIVE.wx[NOEL && k === 'averse' ? 'neige' : k]), true));
     if (k === 'orage') this.audio.noise({ f: 300, f2: 50, dur: 2.6, g: 0.35, delay: 0.4 });
   },
   bolt() {
@@ -4950,9 +5037,9 @@ mixin(Game, {
       const nr = Math.round((TOUCH ? 150 : 260) * X.rain * (PERF_LOW || Settings.quality === 'eco' ? 0.5 : 1)); if (this.rain.length > nr) this.rain.length = nr;
       while (this.rain.length < nr) this.rain.push({ x: cx + rand(-hw, hw), y: cy + rand(-hh, hh), z: rand(0, 380), v: rand(650, 900) });
       for (const d of this.rain) {
-        d.z -= d.v * dt; d.x -= 60 * dt;
+        d.z -= d.v * dt * (NOEL ? 0.22 : 1); d.x -= (NOEL ? 22 : 60) * dt; /* en décembre, la pluie tombe en flocons */
         if (d.z <= 0) {
-          if (Math.random() < 0.35 && this.particles.length < 1500) this.spawnP({ x: d.x, y: d.y, life: 0.25, type: 'splash', size: 1, grow: 14, drag: 0 });
+          if (!NOEL && Math.random() < 0.35 && this.particles.length < 1500) this.spawnP({ x: d.x, y: d.y, life: 0.25, type: 'splash', size: 1, grow: 14, drag: 0 });
           d.x = cx + rand(-hw, hw); d.y = cy + rand(-hh, hh); d.z = rand(250, 420);
         }
         if (d.x < cx - hw || d.x > cx + hw || d.y < cy - hh || d.y > cy + hh) { d.x = cx + rand(-hw, hw); d.y = cy + rand(-hh, hh); }
@@ -5099,7 +5186,8 @@ mixin(Game, {
     c.globalAlpha = 1;
     // pluie et brouillard (visibles là où la lumière tombe)
     if (this.fogs.length) for (const f of this.fogs) { const gr = c.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r); gr.addColorStop(0, `rgba(160,168,178,${f.a})`); gr.addColorStop(1, 'rgba(160,168,178,0)'); c.fillStyle = gr; c.beginPath(); c.arc(f.x, f.y, f.r, 0, TAU); c.fill(); }
-    if (this.rain.length && this.mode === 'secret') { c.fillStyle = 'rgba(255,170,210,.7)'; for (const d of this.rain) c.fillRect(d.x + Math.sin(d.z * 0.03) * 8, d.y - d.z * 0.5, 3, 2); }
+    if (this.rain.length && NOEL && this.mode !== 'secret') { c.fillStyle = 'rgba(240,244,250,.85)'; for (const d of this.rain) c.fillRect(d.x + Math.sin(d.z * 0.02 + d.y) * 6, d.y - d.z * 0.5, 2.5, 2.5); }
+    else if (this.rain.length && this.mode === 'secret') { c.fillStyle = 'rgba(255,170,210,.7)'; for (const d of this.rain) c.fillRect(d.x + Math.sin(d.z * 0.03) * 8, d.y - d.z * 0.5, 3, 2); }
     else if (this.rain.length) { c.strokeStyle = 'rgba(175,188,205,.45)'; c.lineWidth = 1; c.beginPath(); for (const d of this.rain) { c.moveTo(d.x, d.y - d.z); c.lineTo(d.x + 3, d.y - d.z - 16); } c.stroke(); }
     // lumière
     this.renderLights(S, ox, oy, inView);
@@ -5183,7 +5271,7 @@ mixin(Game, {
     }
     for (const z of this.zombies) { if (z.type === 'bomber') glow(z.x, z.y - 14, 70, '140,255,90', 0.35 + Math.sin(t * 8 + z.walkT) * 0.1); else if (z.type === 'boss') glow(z.x, z.y - 40, 140, '255,40,20', 0.35); }
     for (const pd of this.puddles) glow(pd.x, pd.y, pd.r * 1.8, Settings.cb ? '80,160,255' : '120,255,60', 0.2 * Math.min(1, pd.life / 1.5));
-    for (const a of this.acids) glow(a.x, a.y - a.z, 40, '140,255,70', 0.4);
+    for (const a of this.acids) glow(a.x, a.y - a.z, 40, a.snow ? '220,230,255' : '140,255,70', 0.4);
     for (const th of this.throwables) if (th.kind === 'decoy' && th.landed) glow(th.x, th.y, 260, '255,60,40', 0.75 + Math.random() * 0.25);
     for (const m of this.mines) if (m.arm <= 0 && Math.floor(m.t * 2) % 2 === 0) glow(m.x, m.y, 30, '255,40,30', 0.5);
     for (const o of this.level.machines) if (!o.broken) glow(o.x + o.w / 2, o.y + o.h + 4, 70, '255,90,80', 0.28);
@@ -5230,7 +5318,8 @@ mixin(Game, {
       c.lineTo(b.x2, b.y2 - 14);
       c.strokeStyle = `rgba(150,215,255,${k})`; c.lineWidth = (b.bolt ? 6 : 9) * k; c.stroke(); c.strokeStyle = `rgba(255,255,255,${k})`; c.lineWidth = 2.5 * k; c.stroke();
     }
-    for (const a of this.acids) { c.fillStyle = ACID(); c.globalAlpha = 0.85; c.beginPath(); c.arc(a.x, a.y - a.z, a.big ? 7 : 5, 0, TAU); c.fill(); } c.globalAlpha = 1;
+    for (const a of this.acids) { c.fillStyle = a.snow ? '#eef3f8' : ACID(); c.globalAlpha = 0.85; c.beginPath(); c.arc(a.x, a.y - a.z, a.big ? 7 : 5, 0, TAU); c.fill(); } c.globalAlpha = 1;
+    for (const f of this.level.fixedLights) if (f.xmas && inView(f.x, f.y)) { const on = Math.sin(t * 2 + f.x * 0.05) > -0.3; c.fillStyle = `rgba(${f.c},${on ? 0.95 : 0.35})`; c.beginPath(); c.arc(f.x, f.y, 2.6, 0, TAU); c.fill(); }
     for (const s of this.shockwaves) { c.strokeStyle = `rgba(255,140,60,${1 - s.r / s.max})`; c.lineWidth = 6; c.beginPath(); c.ellipse(s.x, s.y, s.r, s.r * 0.85, 0, 0, TAU); c.stroke(); }
     // yeux dans la nuit
     for (const z of this.zombies) {
@@ -5615,7 +5704,7 @@ mixin(Game, {
       if (E.fx === 'tv') { const u = clamp((ek - 0.35) / 0.4, 0.02, 1); c.translate(0, -r * 1.4); c.scale(Math.min(1, 0.3 + u), u); c.translate(0, r * 1.4); if (u < 1) { c.fillStyle = 'rgba(255,255,255,.9)'; c.fillRect(-r * 1.4, -r * 1.45, r * 2.8, 3 / u); } }
       if (E.fx === 'burst') { const u = E.prop === 'cage' ? (ek < 0.6 ? 0.45 : Math.min(1.12, 0.45 + (ek - 0.6) * 3)) : 1; c.translate(0, 0); c.scale(Math.min(1, u), Math.min(1, u)); if (E.prop === 'cage' && ek < 0.6) c.translate(Math.sin(t * 40) * 3, 0); }
     }
-    const fn = { controleur: 'drawControleur', speakerine: 'drawSpeakerine', gardien: 'drawGardien', abomination: 'drawAbomination', chirurgien: 'drawChirurgien', shibanophile: 'drawShibanophile' }[z.bkind];
+    const fn = { controleur: 'drawControleur', speakerine: 'drawSpeakerine', gardien: 'drawGardien', abomination: 'drawAbomination', chirurgien: 'drawChirurgien', perenoel: 'drawPereNoel', shibanophile: 'drawShibanophile' }[z.bkind];
     if (!hide) this.inkBoss(z, () => { const g2 = ctx; g2.save(); const sq = Math.sin(z.walkT * 2.4) * 0.028 + Math.sin(t * 2.2) * 0.012; g2.scale(1 + sq, 1 - sq); if (fn) this[fn](g2, z, ca, sa, r, t); else this.drawBoss(z, ca, sa); g2.restore(); if (E) this.drawEntryOver(g2, z, E, ek, r, t); });
     if (E) { // neige télé par-dessus le boss
       if (E.prop === 'snow' && ek < 0.85) { for (let i = 0; i < 90; i++) { c.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,.75)' : 'rgba(40,40,40,.75)'; c.fillRect(rand(-r * 1.2, r * 1.2), rand(-r * 3.2, 0), 3, 3); } }
@@ -5699,6 +5788,22 @@ mixin(Game, {
     if (z.phase >= 2) { const cols = ['#e8e8e8', '#e8e030', '#30e0e0', '#30e030', '#e030e0', '#e03030', '#3030e0']; cols.forEach((col, i) => { c.fillStyle = col; c.fillRect(sx + i * swd / 7, sy, swd / 7 + 1, sh * 0.7); }); c.fillStyle = '#111'; c.fillRect(sx, sy + sh * 0.7, swd, sh * 0.3); c.fillStyle = '#ff3a2a'; c.fillRect(sx + swd * 0.35, sy + sh * 0.25, swd * 0.3, sh * 0.2); }
     else { c.fillStyle = z.state === 'tvOff' ? '#0a0a0a' : '#7fc8c0'; c.fillRect(sx, sy, swd, sh); if (z.state !== 'tvOff') { c.fillStyle = '#1a3a38'; c.beginPath(); c.ellipse(sx + swd * 0.32, sy + sh * 0.38, 3, 4, 0, 0, TAU); c.ellipse(sx + swd * 0.68, sy + sh * 0.38, 3, 4, 0, 0, TAU); c.fill(); c.strokeStyle = '#1a3a38'; c.lineWidth = 2; c.beginPath(); c.arc(sx + swd / 2, sy + sh * 0.6, swd * 0.16, 0.2, Math.PI - 0.2); c.stroke(); c.fillStyle = '#b0234a'; c.fillRect(sx + swd * 0.38, sy + sh * 0.68, swd * 0.24, 3); } }
     c.fillStyle = 'rgba(255,255,255,.12)'; for (let i = 0; i < 5; i++) c.fillRect(sx, sy + ((t * 60 + i * 13) % sh), swd, 1.5); c.restore();
+  },
+  drawPereNoel(c, z, ca, sa, r, t) {
+    const F = col => z.hitFlash > 0 ? '#f0f0d0' : col, sw = Math.sin(z.walkT * 1.4) * r * 0.12, hx = ca * r * 0.1;
+    for (const sd of [-1, 1]) { const lx = sd * r * 0.42, ly = sd * sw; c.fillStyle = '#1a1a1a'; c.fillRect(lx - r * 0.2, -r * 0.62 + ly, r * 0.4, r * 0.62); }
+    const sack = () => { c.fillStyle = F('#6a4a2a'); c.beginPath(); c.ellipse(-ca * r * 0.95, -r * 1.75, r * 0.72, r * 0.82, 0, 0, TAU); c.fill(); c.fillStyle = '#4a3218'; c.fillRect(-ca * r * 0.95 - r * 0.25, -r * 2.55, r * 0.5, r * 0.14); c.fillStyle = '#c8b030'; c.fillRect(-ca * r * 0.95 - r * 0.12, -r * 2.68, r * 0.24, r * 0.2); };
+    if (sa < 0) sack();
+    c.fillStyle = F('#b0231c'); c.beginPath(); RR(c, -r * 0.98, -r * 2.1, r * 1.96, r * 1.6, r * 0.5); c.fill();
+    c.fillStyle = F('#efefe8'); c.fillRect(-r * 0.98, -r * 0.72, r * 1.96, r * 0.2); c.fillRect(-r * 0.12, -r * 2.1, r * 0.24, r * 1.4);
+    c.fillStyle = '#1a1a1a'; c.fillRect(-r * 0.98, -r * 1.27, r * 1.96, r * 0.2); c.fillStyle = '#d0a020'; c.fillRect(-r * 0.18, -r * 1.29, r * 0.36, r * 0.24);
+    c.fillStyle = 'rgba(80,10,8,.55)'; c.beginPath(); c.ellipse(r * 0.45, -r * 1.6, r * 0.22, r * 0.14, 0.5, 0, TAU); c.fill();
+    c.fillStyle = F('#7a9a7a'); c.beginPath(); c.arc(hx, -r * 2.45, r * 0.42, 0, TAU); c.fill();
+    c.fillStyle = F('#efefe8'); c.beginPath(); c.moveTo(hx - r * 0.44, -r * 2.42); c.quadraticCurveTo(hx, -r * 1.45 + Math.sin(t * 3) * 2, hx + r * 0.44, -r * 2.42); c.closePath(); c.fill();
+    c.fillStyle = '#ff3a2a'; if (sa > -0.5) { c.fillRect(hx - r * 0.2, -r * 2.6, 4, 3); c.fillRect(hx + r * 0.1, -r * 2.6, 4, 3); }
+    const pb = Math.sin(t * 2) * 2; c.fillStyle = F('#c8201a'); c.beginPath(); c.moveTo(hx - r * 0.46, -r * 2.74); c.quadraticCurveTo(hx, -r * 3.6, hx + r * 0.9, -r * 3.25 + pb); c.lineTo(hx + r * 0.46, -r * 2.74); c.closePath(); c.fill();
+    c.fillStyle = '#efefe8'; c.fillRect(hx - r * 0.5, -r * 2.84, r, r * 0.16); c.beginPath(); c.arc(hx + r * 0.92, -r * 3.25 + pb, r * 0.15, 0, TAU); c.fill();
+    if (sa >= 0) sack();
   },
   drawGardien(c, z, ca, sa, r, t) {
     const F = col => z.hitFlash > 0 ? '#f0f0d0' : col, sw = Math.sin(z.walkT * 1.4) * r * 0.12;
@@ -6278,9 +6383,9 @@ const REWARDS = [
   { lv: 15, type: 'acc', id: 'aureole', name: 'Auréole' },
   { lv: 20, type: 'acc', id: 'cornes', name: 'Cornes de démon' }
 ];
-const hasReward = id => id === 'citrouille' ? !!Settings.pumpkin : REWARDS.some(r => r.id === id && playerLevel() >= r.lv);
-const ACCS = [{ id: 'aucun', name: 'Aucun', lv: 1 }].concat(REWARDS.filter(r => r.type === 'acc'), [{ id: 'citrouille', name: 'Tête de citrouille', lv: 1, ev: true }]);
-const accOk = a => a.ev ? !!Settings.pumpkin : playerLevel() >= a.lv;
+const hasReward = id => id === 'citrouille' ? !!Settings.pumpkin : id === 'noel' ? !!Settings.santaHat : REWARDS.some(r => r.id === id && playerLevel() >= r.lv);
+const ACCS = [{ id: 'aucun', name: 'Aucun', lv: 1 }].concat(REWARDS.filter(r => r.type === 'acc'), [{ id: 'citrouille', name: 'Tête de citrouille', lv: 1, ev: true }, { id: 'noel', name: 'Bonnet de Père Noël', lv: 1, ev: true }]);
+const accOk = a => a.ev ? !!(a.id === 'noel' ? Settings.santaHat : Settings.pumpkin) : playerLevel() >= a.lv;
 const currentAcc = (ch = game.charKey) => { const a = (Settings.accBy && Settings.accBy[ch]) || Settings.acc; return (a && hasReward(a)) ? a : 'aucun'; };
 // carnet de route de chaque survivant (parties, zombies, record, XP)
 function cstat(ch) { const all = Settings.cstats || (Settings.cstats = {}); return all[ch] || (all[ch] = { games: 0, wins: 0, kills: 0, best: 0, xp: 0, time: 0 }); }
@@ -6300,6 +6405,7 @@ function drawAccessory(g, ch, acc, x, y, s) {
   if (acc === 'couronne') { K('#ffd23a', () => { g.moveTo(-28, top + 8); g.lineTo(-28, top - 18); g.lineTo(-14, top - 6); g.lineTo(0, top - 26); g.lineTo(14, top - 6); g.lineTo(28, top - 18); g.lineTo(28, top + 8); g.closePath(); }); g.fillStyle = '#d0141e'; g.beginPath(); g.arc(0, top - 2, 4, 0, TAU); g.fill(); }
   if (acc === 'clown') { K('#e0321f', () => g.arc(0, eye + 20, 11, 0, TAU), 3); g.fillStyle = 'rgba(255,255,255,.6)'; g.beginPath(); g.arc(-3, eye + 16, 3, 0, TAU); g.fill(); }
   if (acc === 'aureole') { g.lineWidth = 7; g.strokeStyle = '#ffe07a'; g.shadowColor = '#ffe07a'; g.shadowBlur = 14; g.beginPath(); g.ellipse(0, top - 20, 34, 9, 0, 0, TAU); g.stroke(); g.shadowBlur = 0; }
+  if (acc === 'noel') { K('#c8201a', () => { g.moveTo(-40, top + 14); g.quadraticCurveTo(-6, top - 70, 58, top - 40); g.lineTo(40, top + 14); g.closePath(); }); K('#f2f2ee', () => RR(g, -46, top + 2, 92, 22, 11)); K('#f2f2ee', () => g.arc(60, top - 40, 13, 0, TAU)); }
   if (acc === 'cornes') { K('#8a0c2a', () => { g.moveTo(-26, top + 14); g.quadraticCurveTo(-40, top - 10, -30, top - 30); g.quadraticCurveTo(-24, top - 6, -12, top + 6); g.closePath(); g.moveTo(26, top + 14); g.quadraticCurveTo(40, top - 10, 30, top - 30); g.quadraticCurveTo(24, top - 6, 12, top + 6); g.closePath(); }); }
   g.restore();
 }
@@ -6313,6 +6419,7 @@ function drawAccessoryTop(c, acc, hx, hy) {
   if (acc === 'clown') { c.fillStyle = '#e0321f'; c.beginPath(); c.arc(hx, hy + 2, 2.4, 0, TAU); c.fill(); }
   if (acc === 'aureole') { c.strokeStyle = '#ffe07a'; c.lineWidth = 1.6; c.beginPath(); c.ellipse(hx, hy - 12, 7, 2.2, 0, 0, TAU); c.stroke(); }
   if (acc === 'citrouille') { c.save(); c.translate(hx, hy + 1); c.scale(0.62, 0.62); drawPumpkin(c, 0, 0, 1, game.time, true); c.restore(); return; }
+  if (acc === 'noel') { c.fillStyle = '#c8201a'; c.beginPath(); c.moveTo(hx - 7, hy - 4); c.quadraticCurveTo(hx, hy - 16, hx + 9, hy - 12); c.lineTo(hx + 7, hy - 4); c.fill(); c.fillStyle = '#f2f2ee'; c.fillRect(hx - 8, hy - 6, 16, 3); c.beginPath(); c.arc(hx + 9, hy - 12, 2.2, 0, TAU); c.fill(); }
   if (acc === 'cornes') { c.fillStyle = '#8a0c2a'; c.beginPath(); c.moveTo(hx - 5, hy - 5); c.lineTo(hx - 8, hy - 12); c.lineTo(hx - 2, hy - 6); c.moveTo(hx + 5, hy - 5); c.lineTo(hx + 8, hy - 12); c.lineTo(hx + 2, hy - 6); c.fill(); }
 }
 const accThumbs = new Map();
@@ -6323,8 +6430,8 @@ function accThumb(ch, acc) {
 function renderAccPicker() {
   const el = $('acc-pick'); if (!el || !ficheKey) return; const ch = ficheKey, lv = playerLevel(), cur = currentAcc(ch);
   el.className = 'acc-tiles';
-  const lockTxt = a => a.ev ? `Halloween : abats ${HW_GOAL} zombies déguisés (${hwCount()} / ${HW_GOAL})` : 'se débloque au niveau ' + a.lv;
-  el.innerHTML = ACCS.filter(a => !a.ev || HALLOWEEN || Settings.pumpkin).map(a => { const ok = accOk(a); return `<button type="button" class="acc-tile ${ok ? '' : 'locked'} ${accPreview === a.id ? 'preview' : ''} ${a.ev ? 'ev' : ''}" data-acc="${a.id}" aria-pressed="${a.id === cur}" title="${ok ? 'Équiper' : 'Aperçu · ' + lockTxt(a)}"><canvas width="128" height="128" aria-hidden="true"></canvas><span>${a.name}</span><small>${ok ? (a.id === cur ? 'équipé' : 'équiper') : a.ev ? `🎃 ${hwCount()} / ${HW_GOAL}` : '🔒 niv. ' + a.lv}</small></button>`; }).join('') + `<p class="fiche-preview" id="acc-prev-msg">${accPreview ? `Aperçu : ${ACCS.find(a => a.id === accPreview).name} · ${lockTxt(ACCS.find(a => a.id === accPreview))}` : ''}</p>`;
+  const lockTxt = a => a.id === 'noel' ? `Noël : abats ${XM_GOAL} zombies à bonnet puis le Père Noël zombie (${Math.min(xmCount(), XM_GOAL)} / ${XM_GOAL})` : a.ev ? `Halloween : abats ${HW_GOAL} zombies déguisés (${hwCount()} / ${HW_GOAL})` : 'se débloque au niveau ' + a.lv;
+  el.innerHTML = ACCS.filter(a => !a.ev || (a.id === 'noel' ? NOEL || Settings.santaHat : HALLOWEEN || Settings.pumpkin)).map(a => { const ok = accOk(a); return `<button type="button" class="acc-tile ${ok ? '' : 'locked'} ${accPreview === a.id ? 'preview' : ''} ${a.ev ? 'ev' : ''}" data-acc="${a.id}" aria-pressed="${a.id === cur}" title="${ok ? 'Équiper' : 'Aperçu · ' + lockTxt(a)}"><canvas width="128" height="128" aria-hidden="true"></canvas><span>${a.name}</span><small>${ok ? (a.id === cur ? 'équipé' : 'équiper') : a.ev ? `🎃 ${hwCount()} / ${HW_GOAL}` : '🔒 niv. ' + a.lv}</small></button>`; }).join('') + `<p class="fiche-preview" id="acc-prev-msg">${accPreview ? `Aperçu : ${ACCS.find(a => a.id === accPreview).name} · ${lockTxt(ACCS.find(a => a.id === accPreview))}` : ''}</p>`;
   for (const b of el.querySelectorAll('[data-acc]')) {
     b.querySelector('canvas').getContext('2d').drawImage(accThumb(ch, b.dataset.acc), 0, 0);
     b.addEventListener('click', () => {
@@ -6700,6 +6807,8 @@ function drawPumpkin(c, x, y, s, t, head) {
   c.restore();
 }
 function drawCostume(c, k, hx, hy, r, t) {
+  if (k === 'bonnet') { const sw = Math.sin(t) * 1.5; c.fillStyle = '#c8201a'; c.beginPath(); c.moveTo(hx - r * 0.55, hy - r * 0.28); c.quadraticCurveTo(hx - r * 0.1, hy - r * 1.25, hx + r * 0.75 + sw, hy - r * 0.95); c.lineTo(hx + r * 0.55, hy - r * 0.28); c.closePath(); c.fill(); c.fillStyle = '#f2f2ee'; c.fillRect(hx - r * 0.6, hy - r * 0.4, r * 1.2, r * 0.2); c.beginPath(); c.arc(hx + r * 0.78 + sw, hy - r * 0.95, r * 0.17, 0, TAU); c.fill(); return; }
+  if (k === 'renne') { c.strokeStyle = '#7a5230'; c.lineWidth = Math.max(1.5, r * 0.12); c.lineCap = 'round'; c.beginPath(); for (const s of [-1, 1]) { c.moveTo(hx + s * r * 0.3, hy - r * 0.35); c.lineTo(hx + s * r * 0.55, hy - r * 1.0); c.moveTo(hx + s * r * 0.46, hy - r * 0.75); c.lineTo(hx + s * r * 0.82, hy - r * 0.85); } c.stroke(); c.fillStyle = '#ff2a1a'; c.beginPath(); c.arc(hx, hy + r * 0.12, r * 0.15, 0, TAU); c.fill(); return; }
   if (k === 'casquette') { c.fillStyle = '#1c2a48'; c.beginPath(); c.ellipse(hx, hy - r * 0.32, r * 0.56, r * 0.3, 0, Math.PI, TAU); c.fill(); c.fillRect(hx - r * 0.56, hy - r * 0.36, r * 1.12, r * 0.12); c.fillStyle = '#d0a020'; c.fillRect(hx - r * 0.5, hy - r * 0.44, r, r * 0.08); c.fillStyle = '#10182c'; c.beginPath(); c.ellipse(hx + r * 0.3, hy - r * 0.28, r * 0.36, r * 0.1, 0, 0, TAU); c.fill(); return; }
   if (k === 'citrouille') { c.save(); c.translate(hx, hy); const s = r / 13 * 0.62; c.scale(s * 1.6, s * 1.6); c.translate(0, 2); drawPumpkin(c, 0, 0, 1, t, true); c.restore(); return; }
   if (k === 'sorciere') { c.fillStyle = '#1c1424'; c.beginPath(); c.ellipse(hx, hy - r * 0.38, r * 0.85, r * 0.24, 0, 0, TAU); c.fill(); c.beginPath(); c.moveTo(hx - r * 0.45, hy - r * 0.42); c.lineTo(hx + r * 0.25 + Math.sin(t * 0.5) * 2, hy - r * 1.55); c.lineTo(hx + r * 0.45, hy - r * 0.42); c.fill(); c.fillStyle = '#7a3ab0'; c.fillRect(hx - r * 0.42, hy - r * 0.58, r * 0.84, r * 0.14); return; }
@@ -8364,13 +8473,36 @@ function makeSouvenir(g0) {
   g.fillStyle = '#120c09'; g.fillRect(0, H2 - 40, W2, 40); g.fillStyle = '#efe6cf'; g.font = '18px "Special Elite", monospace'; g.textAlign = 'center'; g.fillText('COUVRE-FEU · UN JEU NADRAX PROD · L\'INFO QUI PIQUE… ET QUI MORD', W2 / 2, H2 - 14);
   return cv;
 }
-function openSouvenir() {
-  const cv = makeSouvenir(game), url = cv.toDataURL('image/png');
-  $('photo-img').src = url; $('photo-dl').href = url; $('photo-dl').download = `couvre-feu-${CHARS[(Settings.lastRun || {}).char || game.charKey].name.toLowerCase()}.png`;
+function openSouvenir() { showShareImage(makeSouvenir(game), `couvre-feu-${CHARS[(Settings.lastRun || {}).char || game.charKey].name.toLowerCase()}.png`, 'Une de KE-DLA-D TV avec ta partie'); }
+function showShareImage(cv, name, alt) {
+  const url = cv.toDataURL('image/png');
+  $('photo-img').src = url; $('photo-img').alt = alt; $('photo-dl').href = url; $('photo-dl').download = name;
   $('photo-modal').hidden = false; $('photo-close').focus();
   $('photo-share').hidden = !(navigator.canShare);
-  $('photo-share').onclick = () => cv.toBlob(b => { const f = new File([b], $('photo-dl').download, { type: 'image/png' }); if (navigator.canShare && navigator.canShare({ files: [f] })) navigator.share({ files: [f], title: 'Couvre-Feu', text: 'Ma nuit dans Couvre-Feu' }).catch(() => { }); else $('photo-dl').click(); });
+  $('photo-share').onclick = () => cv.toBlob(b => { const f = new File([b], name, { type: 'image/png' }); if (navigator.canShare && navigator.canShare({ files: [f] })) navigator.share({ files: [f], title: 'Couvre-Feu', text: 'Ma nuit dans Couvre-Feu' }).catch(() => { }); else $('photo-dl').click(); });
 }
+// récap de la nuit en image : portrait, chiffres, meilleur moment, arme et survivants
+function makeRecap(g0) {
+  const R = g0.recap || g0.nightRecap(), ch = g0.charKey, W2 = 1080, H2 = 1350, cv = document.createElement('canvas'); cv.width = W2; cv.height = H2; const g = cv.getContext('2d');
+  const bg = g.createLinearGradient(0, 0, 0, H2); bg.addColorStop(0, '#1c1416'); bg.addColorStop(1, '#070506'); g.fillStyle = bg; g.fillRect(0, 0, W2, H2);
+  const rr = mulberry32(11); for (let i = 0; i < 2600; i++) { g.fillStyle = rr() < 0.5 ? 'rgba(0,0,0,.35)' : 'rgba(255,255,255,.025)'; g.fillRect(rr() * W2, rr() * H2, 1 + rr() * 3, 1 + rr() * 3); }
+  g.fillStyle = 'rgba(110,10,8,.55)'; for (let i = 0; i < 9; i++) { g.beginPath(); g.ellipse(rr() * W2, rr() * H2, 30 + rr() * 90, 20 + rr() * 50, rr() * 3, 0, TAU); g.fill(); }
+  g.textAlign = 'center'; grungeTitle(g, 'COUVRE-FEU', W2 / 2, 130, 120, { rage: true });
+  g.font = `26px ${FT}`; g.fillStyle = '#c6c0b2'; g.fillText($('end-eyebrow').textContent, W2 / 2, 190);
+  g.font = `64px ${FD}`; g.fillStyle = '#d8d2c4'; g.fillText($('end-title').textContent.toUpperCase(), W2 / 2, 262);
+  const pc = document.createElement('canvas'); pc.width = 480; pc.height = 360; renderPortrait(pc, ch);
+  g.save(); g.translate(W2 / 2 - 270, 300); g.fillStyle = '#000'; g.fillRect(-8, -8, 556, 421); g.drawImage(pc, 0, 0, 540, 405); g.strokeStyle = '#b0231c'; g.lineWidth = 5; g.strokeRect(0, 0, 540, 405); g.restore();
+  g.save(); g.translate(W2 / 2 + 230, 690); g.rotate(-0.12); g.strokeStyle = 'rgba(176,35,28,.9)'; g.lineWidth = 5; g.strokeRect(-150, -38, 300, 64); g.font = `40px ${FD}`; g.fillStyle = 'rgba(176,35,28,.95)'; g.fillText($('end-stamp').textContent.toUpperCase(), 0, 10); g.restore();
+  const big = [['SCORE', fmt(Math.floor(g0.score))], ['ZOMBIES', fmt(g0.kills)], ['TEMPS', fmtTime(g0.runTime || 0)]];
+  big.forEach(([k, v], i) => { const x = 90 + i * 310; g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(x, 760, 280, 120); g.fillStyle = '#b0231c'; g.fillRect(x, 760, 6, 120); g.textAlign = 'left'; g.font = `58px ${FD}`; g.fillStyle = '#d8d2c4'; g.fillText(v, x + 26, 830); g.font = `20px ${FD}`; g.fillStyle = '#8b867b'; g.fillText(k, x + 26, 864); });
+  const card = (y, h, label, title, sub, art) => { g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(90, y, 900, h); g.fillStyle = '#b0231c'; g.fillRect(90, y, 6, h); g.textAlign = 'left'; g.font = `20px ${FD}`; g.fillStyle = '#8b867b'; g.fillText(label, 120, y + 36); g.font = `38px ${FD}`; g.fillStyle = '#f0b25a'; const L = wrapLines(g, title, art ? 560 : 840); L.slice(0, 2).forEach((l, i) => g.fillText(l, 120, y + 82 + i * 42)); if (sub) { g.font = `24px ${FT}`; g.fillStyle = '#c6c0b2'; g.fillText(sub, 120, y + 82 + Math.min(2, L.length) * 42); } if (art) { try { weaponArt(g, art, 830, y + h / 2 + 10, 220); } catch (e) { } } };
+  card(910, 130, 'MEILLEUR MOMENT', R.best);
+  card(1056, 140, 'ARME DE LA NUIT', R.arm, R.armN, WEAPONS.some(w => w.id === R.armId) ? R.armId : null);
+  card(1212, 96, 'SURVIVANTS SAUVÉS · ' + R.svN, R.svTxt);
+  g.textAlign = 'center'; g.font = `22px ${FT}`; g.fillStyle = '#8b867b'; g.fillText(`${CHARS[ch].name} · ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} · lmcfly.github.io/couvre-feu`, W2 / 2, H2 - 22);
+  return cv;
+}
+function openRecap() { showShareImage(makeRecap(game), `couvre-feu-recap-${CHARS[game.charKey].name.toLowerCase()}.png`, 'Récapitulatif de ta nuit dans Couvre-Feu'); }
 const NEWS = [
   { h: 'Macaron s\'excuse… par SMS', t: '« Dsl pr la bombe 😬 » : le message a mis trois semaines à arriver, les antennes ayant fondu.', draw: g => { bgSummit(g); macaron(g, 240, 400, 1.0, { mood: 'shock' }); sfx(g, 'DSL…', 380, 90, 44, 0.1); } },
   { h: 'Trompe : « Les zombies ? Des fake news »', t: 'Le président a tenu sa conférence depuis un bunker, porte blindée fermée à double tour.', draw: g => { speedBg(g, '#6a1a14'); ZB(g, 110, 420, 0.95); trompe(g, 300, 420, 1.0, { mood: 'angry' }); sfx(g, 'FAKE !', 380, 80, 48, -0.1); } },
@@ -8614,7 +8746,8 @@ $('btn-pause-back').addEventListener('click', () => { game.audio.ui(); $('pause-
 $('btn-map-go').addEventListener('click', () => game.mapContinue());
 $('btn-map-home').addEventListener('click', () => { game.audio.flame(false); game.setupDemo(); game.showScreen('scr-title'); refreshContinue(); });
 function refreshHw() {
-  const el = $('hw-chip'); if (!el) return; el.hidden = !HALLOWEEN; if (!HALLOWEEN) return;
+  const el = $('hw-chip'); if (!el) return; el.hidden = !HALLOWEEN && !NOEL; if (!HALLOWEEN && !NOEL) return;
+  if (!HALLOWEEN) { el.innerHTML = Settings.santaHat ? '<b>🎅 Noël</b> tout le mois de décembre · la ville est sous la neige · bonnet du Père Noël gagné !' : `<b>🎅 Noël</b> tout le mois de décembre · zombies à bonnet abattus : ${Math.min(xmCount(), XM_GOAL)} / ${XM_GOAL}, puis le Père Noël zombie`; return; }
   el.innerHTML = Settings.pumpkin ? '<b>🎃 Halloween</b> jusqu\'au 2 novembre · citrouilles piégées, zombies déguisés · tête de citrouille gagnée !' : `<b>🎃 Halloween</b> jusqu'au 2 novembre · zombies déguisés abattus : ${hwCount()} / ${HW_GOAL} pour la tête de citrouille`;
 }
 function refreshSurvivalBtn() {
@@ -8822,6 +8955,7 @@ $('btn-save').addEventListener('click', () => game.saveScore());
 $('end-name').addEventListener('keydown', e => { if (e.key === 'Enter') game.saveScore(); });
 $('btn-again').addEventListener('click', () => { if (game.net === 'host' && Net.ok()) { game.netStartHost(game.netMode); return; } if (game.netGuest) { game.toast('C\'est l\'hôte qui relance la partie', '#9fd6e6'); return; } if (game.coop) game.newCoop(); else if (game.endless) game.newEndless(); else if (game.dailyMod) { if (game.dailyMod.week) game.newWeekly(); else game.newDaily(); } else if (game.mode === 'survival') game.newSurvival(false); else if (game.mode === 'secret') game.newSecret(false); else if (game.mode === 'hospital') game.newHospital(); else game.newGame(); });
 $('btn-photo').addEventListener('click', openSouvenir);
+$('btn-recap').addEventListener('click', openRecap);
 $('photo-close').addEventListener('click', () => { $('photo-modal').hidden = true; $('btn-photo').focus(); });
 $('btn-menu').addEventListener('click', () => { if (game.net || game.netGuest) { game.netLeave(); return; } game.setupDemo(); game.showScreen('scr-title'); refreshSurvivalBtn(); });
 // ---------- personnalisation des touches
@@ -8943,6 +9077,11 @@ $('btn-binds-reset').addEventListener('click', () => { Settings.binds = JSON.par
 addEventListener('keydown', e => { if (game.keysOpen && !capture && e.code === 'Escape') { e.preventDefault(); closeKeys(); } });
 // ---------- Nouveautés : journal des mises à jour (le plus récent en haut)
 const WN = [
+  { v: 82, d: '9 nov.', t: 'Radio, récap et Noël', s: 'La radio parle pendant la nuit, la nuit se raconte à la fin, et décembre arrive.', it: [
+    ['new', 'Radio en mission', 'Radio Survivants grésille pendant la partie : hordes qui arrivent et leur direction, caisses larguées, météo, boss, et quelques nouvelles de la ville.'],
+    ['new', 'Récap de la nuit', 'L\'écran de fin raconte ta nuit : meilleur moment, arme de la nuit, survivants sauvés. Le bouton Partager le récap en fait une image à envoyer.'],
+    ['new', 'Noël', 'Tout le mois de décembre : la ville sous la neige, des guirlandes sur les façades, et des zombies à bonnet ou à bois de renne. Abats-en 25 pour faire venir le Père Noël zombie. Bats-le pour gagner son bonnet.']
+  ] },
   { v: 81, d: '6 nov.', t: 'Ravitaillement et visages', s: 'Le ciel largue de l\'aide, et les survivants ont enfin un visage.', it: [
     ['new', 'Ravitaillement', 'De temps en temps, un hélico largue une caisse sous une fusée rouge : argent, grenades, munitions, soins et une arme de fortune. Mais la horde l\'a vue aussi et fonce dessus.'],
     ['new', 'Portraits de survivants', 'Chaque survivant sauvé laisse sa fiche dans le Carnet : son portrait, son histoire et sa phrase.'],

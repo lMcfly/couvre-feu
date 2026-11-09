@@ -42,7 +42,7 @@ mixin(Game, {
   sealSewer(s) {
     this.sealFx(s); this.netEmit(['seal', this.level.spawners.indexOf(s)]);
     const pts = Math.round((s.rumble > 0 ? 700 : 400) * this.diff.score); this.score += pts; this.floatText(s.x, s.y - 30, `BOUCHE SCELLÉE +${fmt(pts)}`, '#9fd6e6');
-    const c = carnet(); c.sealed++; Settings.save(); if (c.sealed >= 10) this.unlock('plombier');
+    const c = carnet(); c.sealed++; this.stats.sealed++; Settings.save(); if (c.sealed >= 10) this.unlock('plombier');
   },
   sealFx(s) {
     s.sealed = true; s.rumble = 0; s.anim = 0;
@@ -57,6 +57,7 @@ mixin(Game, {
   // entrée du boss : 3 mises en scène par boss, tirées au hasard, et un endroit qui change
   bossEntry(b) {
     const v = BOSS_PICK[b.bkind] || 0, p = this.player, E = BOSS_ENTRIES[b.bkind][v], T = b.ultimate || !b.mini ? 2.6 : 2.2;
+    if (this.mode !== 'secret') this.later(T + 1.5, () => this.radio(pick(b.bkind === 'perenoel' ? RADIO_LIVE.santa : RADIO_LIVE.boss), true));
     const hosp = this.mode === 'hospital', k = clamp(this.activeZone, 0, 3), Z = ZONES[k];
     const x0 = hosp ? HOSP.morgue + 70 : Z.x0 + 80, x1 = hosp ? ZONES[0].x1 - 70 : Z.x1 - 80, aim = p.aim || 0;
     const spot = (a, d) => { for (let t = 0; t < 12; t++) { const aa = a + (t ? rand(-0.6, 0.6) : 0), dd = d * (t ? rand(0.8, 1.15) : 1), x = clamp(p.x + Math.cos(aa) * dd, x0, x1), y = clamp(p.y + Math.sin(aa) * dd, ST + 60, SB - 60); if (Math.hypot(x - p.x, y - p.y) > d * 0.65 && !this.level.pointObstacle(x, y) && !this.level.queryRect(x - 40, y - 40, 80, 80).some(o => rectDist(x, y, o) < 34)) return { x, y }; } return null; };
@@ -119,6 +120,7 @@ mixin(Game, {
       z.damage(dmg * f, dx / d, dy / d, 'explosion'); if (z.dead) killed++; hitN++;
     }
     if (src === 'car' && killed >= 8) this.unlock('alarm');
+    if (src !== 'bomber' && killed > (this.stats.boom || 0)) this.stats.boom = killed;
     if (src === 'grenade' || src === 'rocket') for (const s of this.level.spawners) if (s.kind === 'sewer' && !s.sealed && dist2(s.x, s.y, x, y) < (R * 0.5 + 10) ** 2) this.sealSewer(s);
     this.hitCause = src === 'bomber' ? 'bomber' : 'explosion'; for (const p of this.players()) if (!p.dead) { const d = Math.hypot(p.x - x, p.y - y); if (d < R) { const f = 1 - d / R, mul = { rocket: 0.35, grenade: 0.45, mine: 0.3, decoy: 0.3, car: 0.55, barrel: 0.55, bomber: 0.9 }[src] ?? 0.5; const a = dmg * mul * f * this.diff.dmg; if (a > 2) p.hurt(a, x, y, 520 * f); } }
     this.hitCause = null;
@@ -150,14 +152,14 @@ mixin(Game, {
     for (let s = 0; s < len; s += 220) this.addLight(x + dx * s, y + dy * s, 200, '140,210,255', 0.9, 0.18);
     return hitSet.size > 0;
   },
-  spit(x, y, tx, ty, big) { this.acids.push(new Acid(this, x, y, tx, ty, big)); this.audio.spit(x, y); },
+  spit(x, y, tx, ty, big) { const a = new Acid(this, x, y, tx, ty, big), b = this.bossRef; if (b && !b.dead && b.bkind === 'perenoel' && dist2(x, y, b.x, b.y) < 220 * 220) a.snow = true; this.acids.push(a); this.audio.spit(x, y); },
   onZombieKilled(z, src) {
     if (this.state !== 'playing') return;
     this.netEmit(['die', z.nid, Math.round(z.x), Math.round(z.y)]);
     if (this.mode === 'training') { this.trainKill(z); return; }
     const T = ZTYPES[z.type]; this.kills++; this.noteKill(z);
-    { const c = carnet(), w = this.player.weapon, a = KILL_ARM[src] || ((src === 'bullet' || src === 'rail') && w ? w.def.id : null); c.kills++; if (a) c.arms[a] = (c.arms[a] || 0) + 1; if (z.elite) c.elites++; }
-    { const now = this.time; this.recentKills = (this.recentKills || []).filter(t0 => now - t0 < 8); this.recentKills.push(now);
+    { const c = carnet(), st = this.stats, w = this.player.weapon, a = KILL_ARM[src] || ((src === 'bullet' || src === 'rail') && w ? w.def.id : null); c.kills++; if (a) { c.arms[a] = (c.arms[a] || 0) + 1; st.arms[a] = (st.arms[a] || 0) + 1; } if (z.elite) { c.elites++; st.elites++; } }
+    { const now = this.time; this.recentKills = (this.recentKills || []).filter(t0 => now - t0 < 8); this.recentKills.push(now); this.stats.burst = Math.max(this.stats.burst || 0, this.recentKills.length);
       const k0 = this.activeZone, o0 = k0 >= 0 && this.level.obj[k0];
       if (this.mode === 'story' && o0 && (k0 < 3 ? o0.done : o0.dead) && this.director.queue <= 0 && !(this.cleared || (this.cleared = []))[k0] && !this.zombies.some(o => o !== z && !o.dead)) {
         this.cleared[k0] = true; this.finFx = currentFinisher(); this.slowMo(2.2, 'RUE NETTOYÉE'); this.slowCd = now + 20; this.recentKills = [];
@@ -209,6 +211,11 @@ mixin(Game, {
       if (Settings.hw.n >= HW_GOAL && !Settings.pumpkin) { Settings.pumpkin = true; this.later(0.4, () => { this.achCards.push({ name: 'Halloween · Tête de citrouille débloquée', t: 4.5 }); this.audio.objective(); }); }
       else if (!Settings.pumpkin && Settings.hw.n % 10 === 0) this.floatText(z.x, z.y - 52, `🎃 ${Settings.hw.n} / ${HW_GOAL}`, '#ff9a3a');
     }
+    if (NOEL && XM_COSTUMES.includes(z.costume)) {
+      const y = new Date().getFullYear(); if (!Settings.xm || Settings.xm.y !== y) Settings.xm = { y, n: 0 }; Settings.xm.n++;
+      if (Settings.xm.n === XM_GOAL && !Settings.santaHat) this.later(0.5, () => this.toast('Tu as été vilain : le Père Noël zombie arrive', '#ff5a4a'));
+      else if (!Settings.santaHat && Settings.xm.n < XM_GOAL && Settings.xm.n % 5 === 0) this.floatText(z.x, z.y - 52, `🎅 ${Settings.xm.n} / ${XM_GOAL}`, '#ff5a4a');
+    }
     Settings.save();
   },
   noteNewBeast(k) { const A = this.actBeasts || (this.actBeasts = []); if (!A.includes(k)) A.push(k); },
@@ -221,12 +228,14 @@ mixin(Game, {
     if (nw) Settings.save(); // la découverte est annoncée en fin d'acte, pas pendant la partie
   },
   onBossKilled(b) {
+    (this.stats.bosses || (this.stats.bosses = [])).push(bossName(b));
     this.audio.setTheme(this.mode === 'secret' ? 'paradis' : this.mode === 'hospital' ? 'parking' : ['gare', 'boulevard', 'parking', 'mairie'][clamp(this.activeZone, 0, 3)]); this.blackoutT = 0; for (const h of this.hazards) if (h.kind !== 'barrier' && h.kind !== 'ram') h.dead = true;
     if (b.mini) {
       this.slowMo(1.6, b.title + ' EST TOMBÉ'); this.audio.roar(1); this.shake(0.8); if (this.bossRef === b) this.bossRef = null;
       const pts = Math.round(6000 * this.diff.score); this.score += pts; this.player.money += 400; this.unlock('boss');
       for (const kd of ['med', 'ammo', 'grenade']) this.pickups.push(new Pickup(this, kd, b.x + rand(-30, 30), b.y + rand(-20, 20), 0));
       this.later(1.2, () => this.toast(`${b.title.toLowerCase().replace(/^./, m => m.toUpperCase())} vaincu : +${fmt(pts)} points, +$400`, '#ffd23a'));
+      if (b.bkind === 'perenoel') { Settings.santaHat = true; Settings.save(); this.later(0.6, () => { this.achCards.push({ name: 'Noël · Bonnet de Père Noël débloqué', t: 4.5 }); this.audio.objective(); }); this.later(2.2, () => this.toast('Le bonnet du Père Noël est à toi : choisis-le dans la fiche de ton personnage', '#ff5a4a')); return; }
       if (this.mode === 'hospital') { this.level.obj[0].dead = true; Settings.hospital = true; Settings.save(); for (const z of this.zombies) if (!z.dead) z.burn = Math.max(z.burn, 0.01); if (this.hcamp) this.later(1.6, () => { if (this.state === 'playing') this.finishCampaign(); }); else this.later(3.2, () => { if (this.mode === 'hospital' && this.state === 'playing') this.showEnd(true); }); }
       return;
     }

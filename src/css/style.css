@@ -1241,3 +1241,12 @@ h3,.start-title,.set-tile b,.wn-h,#news-body .wn-h,.wn-hub-h,.beast-txt>b{-webki
 .cn-sv q{font-family:var(--type);font-style:italic;font-size:13px;color:#e8dcc0}
 .cn-sv.locked{opacity:.5;border-left-color:#3a2e30}
 @media (max-width:640px){.cn-sv{grid-template-columns:72px 1fr}.cn-sv canvas{width:72px;height:72px}}
+/* écran de fin : récapitulatif de la nuit */
+.end-recap{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px;margin:6px 0 10px}
+.rc-card{display:flex;flex-direction:column;gap:3px;padding:10px 12px;min-width:0;background:var(--grime),linear-gradient(180deg,#2c2526,#141011);background-size:256px 256px,100% 100%;border:1px solid #4a3e40;border-left:3px solid var(--blood)}
+.rc-card small{font-family:var(--display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ash)}
+.rc-card b{font-family:var(--display);font-weight:400;font-size:20px;line-height:1.15;color:var(--sodium);overflow-wrap:anywhere}
+.rc-card span{font-family:var(--type);font-size:13px;color:var(--bone);overflow-wrap:anywhere}
+.rc-best b{font-size:22px}
+.rc-extra{grid-column:1/-1;margin:0;font-family:var(--type);font-size:13px;color:var(--ash)}
+@media (max-width:640px){.end-recap{grid-template-columns:1fr 1fr}.rc-best{grid-column:1/-1}}
