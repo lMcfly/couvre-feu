@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node tools/build.js*)",
+      "Bash(node tools/check.js*)",
+      "Bash(node tools/smoke.js*)",
+      "Bash(node tools/*)",
+      "Bash(npm run *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)"
+    ],
+    "deny": [
+      "Edit(index.html)",
+      "Write(index.html)"
+    ]
+  }
+}
