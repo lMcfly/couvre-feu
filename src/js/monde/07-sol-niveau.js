@@ -172,7 +172,7 @@ class Level {
       for (let t = 0; t < 30; t++) { const x = Math.round(Z.x0 + 200 + r() * (Z.x1 - Z.x0 - 400)), y = Math.round(k === 2 ? (r() < 0.5 ? 600 : ST + 100) : 280 + r() * 640); if (free(x - 20, y - 20, 40, 40, 10)) { this.spawners.push({ x, y, kind: 'sewer', zone: k, anim: 0 }); reserved.push({ x: x - 20, y: y - 20, w: 40, h: 40 }); break; } }
     }
     // documents pas encore lus et une arme de fortune : tirage à part, posés en dernier
-    { const rd = mulberry32(5101 + k * 31 + (g.shibaSeed || 0)), got = Settings.notes || [], at = () => { for (let t = 0; t < 60; t++) { const x = Math.round(Z.x0 + 160 + rd() * (Z.x1 - Z.x0 - 320)), y = Math.round(rd() < 0.55 ? ST + 92 + rd() * 60 : 280 + rd() * 640); if (free(x - 16, y - 16, 32, 32, 8)) return [x, y]; } return null; };
+    { const rd = mulberry32(5101 + k * 31 + (g.shibaSeed || 0)), got = notesGot(), at = () => { for (let t = 0; t < 60; t++) { const x = Math.round(Z.x0 + 160 + rd() * (Z.x1 - Z.x0 - 320)), y = Math.round(rd() < 0.55 ? ST + 92 + rd() * 60 : 280 + rd() * 640); if (free(x - 16, y - 16, 32, 32, 8)) return [x, y]; } return null; };
       for (const n of NOTES) if (n.m === k && !got.includes(n.id)) { const s = at(); if (s) pickup('note', s[0], s[1], n.id); }
       if (rd() < 0.75) { const s = at(); if (s) pickup('scrap', s[0], s[1], 0); } }
     // Noël : guirlandes lumineuses le long des façades

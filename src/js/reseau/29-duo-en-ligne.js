@@ -110,6 +110,7 @@ setInterval(() => {
 const NET_EDGES = ['firePressed', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'cycleUp', 'cycleDown'];
 const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap', 'scream'];
 const NET_PK = ['x', 'y', 'aim', 'hp', 'maxHp', 'dead', 'rollT', 'rollDir', 'cur', 'vx', 'vy', 'inv', 'walkT', 'muzzleT', 'meleeT', 'recoil', 'playDead', 'hidden', 'battery', 'stamina', 'armor', 'grenades', 'mines', 'decoys', 'money', 'reloadT', 'charging', 'charge', 'spCd', 'spMax', 'flashCd', 'exhausted', 'hpTrail', 'char', 'downX', 'downY', 'revT', 'slowT', 'dazeT', 'carry'];
+const MUTE_AUDIO = new Proxy({}, { get: () => () => { } }); // audio muet pour les effets rejoués chez l'invité
 const NET_ZS = ['type', 'r', 'skin', 'cloth', 'pants', 'costume', 'spawnMax', 'spawnKind', 'seed', 'mini', 'mk', 'bkind', 'ultimate', 'title', 'maxHp', 'target', 'elite'];
 const NET_BOSS = ['state', 'st', 'phase', 'weakT', 'rageT', 'jumpZ', 'echoA', 'ramA', 'bladeA', 'entry', 'dir', 'hp', 'maxHp', 'r'];
 // propriétés calculées du joueur (accesseurs) : on ne les écrit pas
@@ -131,7 +132,7 @@ mixin(Game, {
   // ----- hôte
   netAttachP2(gc, x, y) {
     const p = this.player, c1 = this.charKey; this.charKey = CHARS[gc] ? gc : 'zeus'; const q = new Player(this, x, y); this.charKey = c1; q.isP2 = true; q.inv = 1.5;
-    q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = o.owned; w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
+    q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = own(o); w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
   },
   newOnlineStory(gc) {
     this.newGame(); this.net = 'host'; this.coop = true; this.netEv = []; this.netH = { t: 0, cnt: {}, prevF: false, pend: {} }; this.netIn = null; this.netWrapAudio();
@@ -141,7 +142,7 @@ mixin(Game, {
   newOnlineSurvival(gc) {
     this.newSurvival(false); this.net = 'host'; this.coop = true; this.netEv = []; this.netH = { t: 0, cnt: {}, prevF: false, pend: {} }; this.netIn = null; this.netWrapAudio();
     const p = this.player, c1 = this.charKey; this.charKey = CHARS[gc] ? gc : 'zeus'; const q = new Player(this, PLAZA + 50, 820); this.charKey = c1; q.isP2 = true; q.inv = 1.5;
-    q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = o.owned; w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
+    q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = own(o); w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
   },
   netStartHost(mode) { const pr = Net.peer; if (!pr) return; mode = mode || this.netMode || 'survival'; this.netMode = mode; Net.send({ t: 'start', mode, diff: this.diffKey, hc: this.charKey, gc: pr.char, hn: Settings.name || 'Hôte' }, true); if (mode === 'story') this.newOnlineStory(pr.char); else this.newOnlineSurvival(pr.char); },
   netRemoteInput() {
@@ -204,7 +205,7 @@ mixin(Game, {
     else if (d.t === 'ZS') for (const [nid, cls, vals] of d.z) { if (this.zmap.has(nid)) continue; const C = cls === 'u' ? UltimateBoss : cls === 'm' ? MiniBoss : cls === 'b' ? Boss : Zombie, z = Object.create(C.prototype);
       Object.assign(z, { g: this, nid, x: 0, y: 0, dir: 0, walkT: 0, hp: 1, spawnT: 0, hitFlash: 0, burn: 0, stun: 0, lunge: 0, bState: 'walk', dead: false, kx: 0, ky: 0 }); NET_ZS.forEach((k, i) => { if (vals[i] !== undefined && vals[i] !== null) z[k] = vals[i]; }); if (z.mini) z.cfg = MINI_BOSSES[z.mk]; z._new = true; this.zmap.set(nid, z); this.netNeed.delete(nid); }
     else if (d.t === 'pz') { this._netQuiet = true; if (d.on) this.pause(); else this.resume(); this._netQuiet = false; }
-    else if (d.t === 'end') { this.score = d.sc; this.kills = d.ki; if (this.surv) this.surv.wave = d.wv; this.runTime = d.rt; this.lastVictory = !!d.vi; netWait(null); this.state = 'playing'; this.netGuestEnd = true; this.showEnd(!!d.vi); }
+    else if (d.t === 'end') { this.netRecap = d.rc && typeof d.rc === 'object' ? d.rc : null; this.score = d.sc; this.kills = d.ki; if (this.surv) this.surv.wave = d.wv; this.runTime = d.rt; this.lastVictory = !!d.vi; netWait(null); this.state = 'playing'; this.netGuestEnd = true; this.showEnd(!!d.vi); }
   },
   netApply(S) {
     const me = this.player, h = this.p2, set = (p, row, skipPos) => NET_PK.forEach((k, i) => { if (skipPos && (k === 'x' || k === 'y' || k === 'aim' || k === 'walkT')) return; if (row[i] !== undefined && row[i] !== null && !NET_RO.has(k)) p[k] = row[i]; });
@@ -252,6 +253,10 @@ mixin(Game, {
     else if (this.state !== 'comic') netWait(G.st === 'comic' ? 'Ton ami lit la BD…' : G.st === 'map' ? 'Ton ami regarde la carte et prépare la prochaine mission…' : G.st === 'shop' ? 'Ton ami fait ses achats au marché noir…' : 'En attente de ton ami…');
   },
   // l'hôte est passé à la mission 5 : l'invité bâtit le même hôpital
+  // l'hôte envoie déjà les sons : l'invité rejoue l'effet en silence pour ne pas l'entendre deux fois
+  quietFx(fn) { const A = this.audio; this.audio = MUTE_AUDIO; try { fn(); } finally { this.audio = A; } },
+  // les bouches d'égout sont repérées par leur position : leur ordre change quand l'hôte reconstruit un secteur
+  sewerAt(x, y) { return this.level.spawners.find(s => s.kind === 'sewer' && Math.abs(s.x - x) < 2 && Math.abs(s.y - y) < 2); },
   netGuestHospital() {
     this.resetWorld(); this.mode = 'hospital'; this.hcamp = true; this.buildHospital(); this.activeZone = 0; this.level.setGate(ZONES[0].x1, true);
     this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.oidMap = new Map(this.level.obstacles.map(o => [o.oid, o])); this.netG.hz = new Map();
@@ -270,13 +275,13 @@ mixin(Game, {
       case 'notice': this.notice(a[0], a[1], a[2]); break;
       case 'text': this.floatText(...a); break;
       case 'scream': this.screamFx(a[0], a[1]); break;
-      case 'wx': this.setWeather(a[0]); break;
-      case 'bolt': this.bolt(); break;
-      case 'note': { const got = Settings.notes || (Settings.notes = []); if (!got.includes(a[0])) { got.push(a[0]); Settings.save(); } break; }
-      case 'moon': this.setMoon(!!a[0]); break;
+      case 'wx': if (Object.hasOwn(WEATHER, a[0])) this.quietFx(() => this.setWeather(a[0])); break;
+      case 'bolt': this.quietFx(() => this.bolt()); break;
+      case 'note': { const got = notesGot(); if (NOTES.some(o => o.id === a[0]) && !got.includes(a[0])) { got.push(a[0]); Settings.save(); } break; }
+      case 'moon': this.quietFx(() => this.setMoon(!!a[0])); break;
       case 'rescued': { const R = Settings.rescued || (Settings.rescued = {}); R[a[0]] = (R[a[0]] || 0) + 1; Settings.save(); break; }
-      case 'rumble': { const s = this.level.spawners[a[0]]; if (s) { s.rumble = a[1]; this.later(a[1], () => { s.rumble = 0; }); } break; }
-      case 'seal': { const s = this.level.spawners[a[0]]; if (s && !s.sealed) this.sealFx(s); break; }
+      case 'rumble': { const s = this.sewerAt(a[0], a[1]); if (s) { s.rumble = a[2]; this.later(a[2], () => { s.rumble = 0; }); } break; }
+      case 'seal': { const s = this.sewerAt(a[0], a[1]); if (s && !s.sealed) this.quietFx(() => this.sealFx(s)); break; }
       case 'trap': { const t = (this.level.traps || []).find(x => x.ob.oid === a[0]); if (t) { t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = a[1]; this.trapFx(t); } break; }
       case 'win': this.winFx = { t: 0, title: a[0], sub: a[1] }; this.audio.objective(); break;
       case 'slow': this.slowT = a[0]; this.slowMax = a[0]; this.slowLabel = a[1]; break;

@@ -52,3 +52,14 @@ Si une commande échoue, corriger puis relancer. Ne jamais déclarer une tâche 
 | `ux-mobile` | interface tactile, CSS, accessibilité |
 
 Pour une grosse tâche : l'agent spécialisé fait le travail, puis `qa-navigateur` teste, puis `relecteur` relit.
+
+## Économie de tokens (demande de l'utilisateur)
+Les agents coûtent cher : l'utilisateur a demandé de les utiliser avec parcimonie.
+- **Par défaut, pas d'agent** : faire soi-même tout ce qui tient en quelques commandes ou lectures ciblées.
+- **Un seul agent à la fois**, jamais plusieurs en parallèle, sauf demande explicite.
+- Mission **courte et bornée** : un objectif précis, les fichiers à lire, ce qu'il ne doit pas faire, et un rapport bref.
+  Pas de « audite tout le projet ».
+- Pour les tâches simples (lecture, recherche, relecture d'un petit diff), choisir un modèle plus léger (`sonnet` ou `haiku`).
+- Les longs tests (`smoke.js`, séries Playwright) tournent en local : les lancer et lire seulement le résumé
+  (`| tail`), jamais les journaux complets.
+- Lire les fichiers par extraits (`grep -n`, `sed -n` sur une plage), pas en entier.

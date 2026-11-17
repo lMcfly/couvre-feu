@@ -53,7 +53,10 @@ Settings.binds = JSON.parse(JSON.stringify(DEFAULT_BINDS));
 Settings.padBinds = JSON.parse(JSON.stringify(DEFAULT_PAD));
 Settings.load();
 // carnet de survie : compteurs cumulés de toutes les parties (hors entraînement)
-function carnet() { const c = Settings.carnet && typeof Settings.carnet === 'object' ? Settings.carnet : (Settings.carnet = {}); for (const k of ['runs', 'time', 'kills', 'shots', 'hits', 'sealed', 'bolts', 'elites', 'saved', 'broken', 'moons', 'drops']) if (typeof c[k] !== 'number') c[k] = 0; for (const k of ['deaths', 'arms']) if (!c[k] || typeof c[k] !== 'object') c[k] = {}; return c; }
+const CARNET_NUM = ['runs', 'time', 'kills', 'shots', 'hits', 'sealed', 'bolts', 'elites', 'saved', 'broken', 'moons', 'drops'], CARNET_MAP = ['deaths', 'arms'];
+function carnet() { const c = Settings.carnet && typeof Settings.carnet === 'object' ? Settings.carnet : (Settings.carnet = {}); if (c._ok) return c; for (const k of CARNET_NUM) if (typeof c[k] !== 'number' || !isFinite(c[k])) c[k] = 0; for (const k of CARNET_MAP) if (!c[k] || typeof c[k] !== 'object' || Array.isArray(c[k])) c[k] = {}; Object.defineProperty(c, '_ok', { value: true }); return c; }
+// documents lus : toujours un tableau d'identifiants connus (le code de transfert peut apporter n'importe quoi)
+function notesGot() { if (!Array.isArray(Settings.notes)) Settings.notes = Settings.notes && typeof Settings.notes === 'object' ? Object.values(Settings.notes).filter(v => typeof v === 'string') : []; return Settings.notes; }
 function countShot(g, hit) { const k = hit ? 'hits' : 'shots'; g.stats[k]++; if (g.mode !== 'training' && g.state === 'playing') carnet()[k]++; }
 // ancienne sauvegarde de touches : le sprint disparaît, sa touche passe à la roulade
 { const sv = Settings.binds; if (sv && sv.sprint) { const r = Array.isArray(sv.roll) ? sv.roll : ['', '']; sv.roll = [sv.sprint[0] || 'ShiftLeft', r[0] || 'Space']; delete sv.sprint; } }

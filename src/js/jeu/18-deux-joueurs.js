@@ -3,7 +3,7 @@ mixin(Game, {
   // ---------- deux joueurs
   syncP2Gear() {
     const p = this.player, q = this.p2; if (!q) return;
-    p.weapons.forEach((w, i) => { const v = q.weapons[i]; if (w.owned && !v.owned) { v.owned = true; v.ammo = v.magSize(); } v.lvl = { ...w.lvl }; if (!v.def.infinite) v.reserve = Math.max(v.reserve, w.reserve); });
+    p.weapons.forEach((w, i) => { const v = q.weapons[i]; if (own(w) && !v.owned) { v.owned = true; v.ammo = v.magSize(); } v.lvl = { ...w.lvl }; if (!v.def.infinite) v.reserve = Math.max(v.reserve, w.reserve); });
     q.armor = Math.max(q.armor, p.armor); q.grenades = Math.max(q.grenades, p.grenades); q.mines = Math.max(q.mines, p.mines); q.decoys = Math.max(q.decoys, p.decoys);
   },
   players() { return this.p2 ? [this.player, this.p2] : [this.player]; },

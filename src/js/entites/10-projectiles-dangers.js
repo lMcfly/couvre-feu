@@ -194,7 +194,7 @@ class Pickup {
       case 'grenade': p.grenades++; g.toast('+1 grenade', '#d8d2c4'); g.audio.pickup(); break;
       case 'weapon': {
         const w = p.weapons[this.val];
-        if (!w.owned) { w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack; p.switchTo(this.val); g.notice('Arme trouvée', `${w.def.name} · touche ${this.val + 1}`, '#f0b25a'); }
+        if (!own(w)) { w.owned = true; if (w.scrap) w.scrap.temp = false; w.ammo = w.magSize(); w.reserve = Math.max(w.reserve, w.def.ammoPack); p.switchTo(this.val); g.notice('Arme trouvée', `${w.def.name} · touche ${this.val + 1}`, '#f0b25a'); }
         else { w.reserve += w.def.ammoPack; g.toast(`+${w.def.ammoPack} munitions · ${w.def.name}`, '#d8d2c4'); }
         g.audio.pickup(); break;
       }
@@ -208,7 +208,7 @@ class Pickup {
       }
       case 'crate': g.openCrate(this, p); break;
       case 'note': {
-        const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = Settings.notes || (Settings.notes = []); if (!got.includes(N.id)) got.push(N.id); g.stats.notes++; Settings.save(); g.netEmit(['note', N.id]);
+        const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = notesGot(); if (!got.includes(N.id)) got.push(N.id); g.stats.notes++; Settings.save(); g.netEmit(['note', N.id]);
         g.notice('Document trouvé', `${N.from} · à lire dans le Carnet (${got.length} / ${NOTES.length})`, '#e8dcc0'); g.audio.tone({ f: 900, f2: 1300, dur: 0.12, type: 'triangle', g: 0.12 }); g.audio.pickup(); break;
       }
       case 'shiba': {

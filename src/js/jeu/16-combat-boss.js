@@ -35,14 +35,14 @@ mixin(Game, {
     if (p.dead || this.cine || (this.sewerT = (this.sewerT ?? rand(20, 35)) - dt) > 0) return;
     this.sewerT = rand(28, 50);
     const near = this.level.spawners.filter(s => s.kind === 'sewer' && !s.sealed && !(s.rumble > 0) && dist2(s.x, s.y, p.x, p.y) > 230 * 230 && dist2(s.x, s.y, p.x, p.y) < 560 * 560);
-    if (!near.length) return; const s = pick(near); s.rumble = 3.2; this.netEmit(['rumble', this.level.spawners.indexOf(s), 3.2]);
+    if (!near.length) return; const s = pick(near); s.rumble = 3.2; this.netEmit(['rumble', s.x, s.y, 3.2]);
     this.audio.noise({ f: 180, f2: 60, dur: 1.8, g: 0.45, pan: clamp((s.x - p.x) / 600, -1, 1) });
     if (!this.sewTip && carnet().sealed < 3) { this.sewTip = true; this.toast('Une bouche d\'égout gronde : une grenade dessus la bouche pour de bon', '#9fd6e6'); }
   },
   sealSewer(s) {
-    this.sealFx(s); this.netEmit(['seal', this.level.spawners.indexOf(s)]);
+    this.sealFx(s); this.netEmit(['seal', s.x, s.y]);
     const pts = Math.round((s.rumble > 0 ? 700 : 400) * this.diff.score); this.score += pts; this.floatText(s.x, s.y - 30, `BOUCHE SCELLÉE +${fmt(pts)}`, '#9fd6e6');
-    const c = carnet(); c.sealed++; this.stats.sealed++; Settings.save(); if (c.sealed >= 10) this.unlock('plombier');
+    this.stats.sealed++; if (this.mode !== 'training') { const c = carnet(); c.sealed++; Settings.save(); if (c.sealed >= 10) this.unlock('plombier'); }
   },
   sealFx(s) {
     s.sealed = true; s.rumble = 0; s.anim = 0;
@@ -50,7 +50,8 @@ mixin(Game, {
     this.audio.tone({ f: 90, f2: 40, dur: 0.5, g: 0.4 });
   },
   spawnMiniBoss(k) {
-    if (this.mode !== 'story' || this.activeZone !== k || (this.bossRef && !this.bossRef.dead)) return;
+    if (this.mode !== 'story' || this.activeZone !== k) return;
+    if (this.bossRef && !this.bossRef.dead) { if (this.bossRef.bkind === 'perenoel') this.later(3, () => this.spawnMiniBoss(k)); return; }
     const s = this.findSpawnPoint(k) || { x: this.player.x + 400, y: this.player.y }, b = new MiniBoss(this, s.x, s.y, k); this.bossEntry(b);
     this.zombies.push(b); this.bossRef = b; this.audio.roar(1.1); this.shake(0.7); this.banner(MINI_BOSSES[k].title, MINI_BOSSES[k].sub); this.torchFlicker = 0.8;
   },

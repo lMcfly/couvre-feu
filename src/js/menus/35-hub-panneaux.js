@@ -78,15 +78,13 @@ function closeSheets() { for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden 
 for (const sh of document.querySelectorAll('.sheet')) sh.addEventListener('click', e => { if (e.target === sh || e.target.closest('.sheet-close')) { closeSheets(); game.audio.ui(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !game.keysOpen && document.querySelector('.sheet:not([hidden])')) { e.preventDefault(); if (!setBack()) closeSheets(); } });
 // ---------- carnet de survie : ce que la ville t'a fait, partie après partie
-const DEATH_BY = { explosion: 'Une explosion', spitter: 'Un crachat d\'acide', bomber: 'Le Gonflé', dot: 'Le feu ou l\'acide', trap: 'Un piège du décor' };
-const ARM_BY = { feu: 'Le feu', explosifs: 'Les explosifs', melee: 'Corps à corps', piege: 'Les pièges du décor', shiba: 'Le shiba', special: 'Capacité spéciale' };
 function carnetTop(o, name) {
-  const l = Object.entries(o).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 4), max = l.length ? l[0][1] : 1;
-  return l.length ? `<ol class="cn-bars">${l.map(([k, n]) => `<li><span>${name(k)}</span><b>${fmt(n)}</b><i style="--w:${Math.max(4, Math.round(100 * n / max))}%"></i></li>`).join('')}</ol>` : '<p class="hint">Rien encore.</p>';
+  const l = Object.entries(o).filter(e => +e[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 4), max = l.length ? l[0][1] : 1;
+  return l.length ? `<ol class="cn-bars">${l.map(([k, n]) => `<li><span>${escapeHtml(name(k))}</span><b>${fmt(+n || 0)}</b><i style="--w:${Math.max(4, Math.round(100 * n / max))}%"></i></li>`).join('')}</ol>` : '<p class="hint">Rien encore.</p>';
 }
 function carnetHTML() {
   const c = carnet(), t = Math.floor(c.time), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, dead = Object.values(c.deaths).reduce((a, b) => a + b, 0);
-  if (!c.runs && !c.kills && !(Settings.notes || []).length) return '<p class="cn-empty">Page blanche. La ville n\'a encore rien écrit sur toi : lance une partie.</p>';
+  if (!c.runs && !c.kills && !notesGot().length) return '<p class="cn-empty">Page blanche. La ville n\'a encore rien écrit sur toi : lance une partie.</p>';
   const cells = [['Zombies abattus', fmt(c.kills)], ['Temps dans les rues', h ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`], ['Parties', fmt(c.runs)], ['Morts', fmt(dead)], ['Précision', (c.shots ? Math.round(100 * c.hits / c.shots) : 0) + ' %'], ['Survivants sauvés', fmt(c.saved)], ['Zombies d\'élite', fmt(c.elites)], ['Bouches scellées', fmt(c.sealed)], ['Éclairs encaissés', fmt(c.bolts)], ['Nuits de pleine lune', fmt(c.moons)], ['Armes de fortune cassées', fmt(c.broken)]];
   const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k, dName = k => (BESTIARY.find(b => b.k === k) || {}).name || DEATH_BY[k] || 'Inconnu';
   return `<p class="cn-intro">Tout ce que tu as vécu dans les rues, sur cet appareil.</p><div class="pause-stats cn-grid">${cells.map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`
@@ -94,7 +92,7 @@ function carnetHTML() {
 }
 // documents trouvés dans la ville, rangés par mission ; ceux qui manquent restent sous scellés
 function notesHTML() {
-  const got = Settings.notes || [], n = NOTES.filter(o => got.includes(o.id)).length;
+  const got = notesGot(), n = NOTES.filter(o => got.includes(o.id)).length;
   return `<h4 class="cn-docs-h">Documents trouvés · ${n} / ${NOTES.length}</h4><p class="cn-intro">Lettres et notes cachées dans les rues. Elles brillent faiblement au sol.</p><div class="cn-docs">${NOTES.map(o => got.includes(o.id)
     ? `<details class="cn-doc"><summary><small>Mission ${o.m + 1}</small><b>${o.from}</b></summary><p>${o.t}</p></details>`
     : `<div class="cn-doc locked"><small>Mission ${o.m + 1}</small><b>Document introuvable</b></div>`).join('')}</div>`;
@@ -103,7 +101,7 @@ function notesHTML() {
 function rescuedHTML() {
   const R = Settings.rescued || {};
   return `<h4 class="cn-docs-h">Survivants sauvés · ${SURVIVORS.filter((s, i) => R[i]).length} / ${SURVIVORS.length}</h4><div class="cn-svs">${SURVIVORS.map((s, i) => { const m = MISSION_SURV.indexOf(i) + 1;
-    return R[i] ? `<article class="cn-sv"><canvas width="160" height="160" data-sv="${i}" aria-hidden="true"></canvas><div><small>Mission ${m} · ${s.who}</small><b>${s.name}</b><p>${s.bio}</p><q>${s.line}</q><small>Sauvé${s.f ? 'e' : ''} ${R[i]} fois</small></div></article>`
+    return R[i] ? `<article class="cn-sv"><canvas width="160" height="160" data-sv="${i}" aria-hidden="true"></canvas><div><small>Mission ${m} · ${s.who}</small><b>${s.name}</b><p>${s.bio}</p><q>${s.line}</q><small>Sauvé${s.f ? 'e' : ''} ${fmt(+R[i] || 0)} fois</small></div></article>`
       : `<article class="cn-sv locked"><canvas width="160" height="160" data-sv="${i}" data-off="1" aria-hidden="true"></canvas><div><small>Mission ${m}</small><b>Survivant inconnu</b><p>Quelqu'un attend encore de l'aide dans cette mission.</p></div></article>`; }).join('')}</div>`;
 }
 // portrait en buste d'un survivant : manteau, visage, et un détail qui le résume

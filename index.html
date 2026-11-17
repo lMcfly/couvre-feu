@@ -1719,7 +1719,10 @@ Settings.binds = JSON.parse(JSON.stringify(DEFAULT_BINDS));
 Settings.padBinds = JSON.parse(JSON.stringify(DEFAULT_PAD));
 Settings.load();
 // carnet de survie : compteurs cumulés de toutes les parties (hors entraînement)
-function carnet() { const c = Settings.carnet && typeof Settings.carnet === 'object' ? Settings.carnet : (Settings.carnet = {}); for (const k of ['runs', 'time', 'kills', 'shots', 'hits', 'sealed', 'bolts', 'elites', 'saved', 'broken', 'moons', 'drops']) if (typeof c[k] !== 'number') c[k] = 0; for (const k of ['deaths', 'arms']) if (!c[k] || typeof c[k] !== 'object') c[k] = {}; return c; }
+const CARNET_NUM = ['runs', 'time', 'kills', 'shots', 'hits', 'sealed', 'bolts', 'elites', 'saved', 'broken', 'moons', 'drops'], CARNET_MAP = ['deaths', 'arms'];
+function carnet() { const c = Settings.carnet && typeof Settings.carnet === 'object' ? Settings.carnet : (Settings.carnet = {}); if (c._ok) return c; for (const k of CARNET_NUM) if (typeof c[k] !== 'number' || !isFinite(c[k])) c[k] = 0; for (const k of CARNET_MAP) if (!c[k] || typeof c[k] !== 'object' || Array.isArray(c[k])) c[k] = {}; Object.defineProperty(c, '_ok', { value: true }); return c; }
+// documents lus : toujours un tableau d'identifiants connus (le code de transfert peut apporter n'importe quoi)
+function notesGot() { if (!Array.isArray(Settings.notes)) Settings.notes = Settings.notes && typeof Settings.notes === 'object' ? Object.values(Settings.notes).filter(v => typeof v === 'string') : []; return Settings.notes; }
 function countShot(g, hit) { const k = hit ? 'hits' : 'shots'; g.stats[k]++; if (g.mode !== 'training' && g.state === 'playing') carnet()[k]++; }
 // ancienne sauvegarde de touches : le sprint disparaît, sa touche passe à la roulade
 { const sv = Settings.binds; if (sv && sv.sprint) { const r = Array.isArray(sv.roll) ? sv.roll : ['', '']; sv.roll = [sv.sprint[0] || 'ShiftLeft', r[0] || 'Space']; delete sv.sprint; } }
@@ -1928,6 +1931,9 @@ const RADIO_LIVE = {
 };
 // ravitaillement par hélico : temps de chute de la caisse sous son parachute (s)
 const DROP_FALL = 3;
+// carnet : libellés des causes de mort et des armes qui ne sont pas des armes à feu
+const DEATH_BY = { explosion: 'Une explosion', spitter: 'Un crachat d\'acide', bomber: 'Le Gonflé', dot: 'Le feu ou l\'acide', trap: 'Un piège du décor' };
+const ARM_BY = { feu: 'Le feu', explosifs: 'Les explosifs', melee: 'Corps à corps', piege: 'Les pièges du décor', shiba: 'Le shiba', special: 'Capacité spéciale' };
 // nuit de pleine lune : vitesse des zombies et multiplicateur des points et de l'argent
 const MOON_SPEED = 1.22, MOON_GAIN = 2;
 // arme de fortune : plus forte, mais elle s'use à chaque tir et finit par casser
@@ -1937,6 +1943,7 @@ const $ = id => document.getElementById(id);
 const canvas = $('game'); let ctx = canvas.getContext('2d'); // let : le teaser des fiches emprunte le moteur de dessin
 const lightCanvas = document.createElement('canvas'), lctx = lightCanvas.getContext('2d');
 let PERF_LOW = false; // 2e cran de la qualité automatique : lumière plus grossière, moins de pluie et de particules
+const perfLow = () => PERF_LOW && Settings.quality === 'auto';
 let RW = 0, RH = 0, W = 0, H = 0, DPR = 1, VS = 1, dprCap = 2, SAFE = { l: 0, r: 0, t: 0, b: 0 }; // dprCap : baissé automatiquement si l'appareil n'arrive pas à suivre
 let TOUCH = false; try { TOUCH = matchMedia('(pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches; } catch (e) { }
 const STICK_R = 58;
@@ -1949,7 +1956,7 @@ function readSafe() { let el = document.getElementById('safe-probe'); if (!el) {
   // en paysage, iOS réserve la même marge des deux côtés alors que l'encoche (ou la Dynamic Island) n'est que d'un côté : on rend la place de l'autre
   if (SAFE.l > 30 && SAFE.r > 30 && Math.abs(SAFE.l - SAFE.r) < 4) { const o = typeof window.orientation === 'number' ? (window.orientation + 360) % 360 : screen.orientation && typeof screen.orientation.angle === 'number' ? screen.orientation.angle : 0; if (o === 90) SAFE.r = 16; else if (o === 270) SAFE.l = 16; } }
 function resize() { readSafe(); if (Settings.quality === 'eco') dprCap = 1; else if (Settings.quality === 'high') dprCap = 2;
-  DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, dprCap)); LD = (TOUCH ? 3 : 2) + (PERF_LOW && Settings.quality === 'auto' ? 1 : 0);
+  DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, dprCap)); LD = (TOUCH ? 3 : 2) + (perfLow() ? 1 : 0);
   const cw = window.innerWidth, ch = window.innerHeight; RW = cw; RH = ch;
   W = Math.max(1, Math.floor(cw * DPR)); H = Math.max(1, Math.floor(ch * DPR));
   canvas.width = W; canvas.height = H;
@@ -2513,7 +2520,7 @@ class Level {
       for (let t = 0; t < 30; t++) { const x = Math.round(Z.x0 + 200 + r() * (Z.x1 - Z.x0 - 400)), y = Math.round(k === 2 ? (r() < 0.5 ? 600 : ST + 100) : 280 + r() * 640); if (free(x - 20, y - 20, 40, 40, 10)) { this.spawners.push({ x, y, kind: 'sewer', zone: k, anim: 0 }); reserved.push({ x: x - 20, y: y - 20, w: 40, h: 40 }); break; } }
     }
     // documents pas encore lus et une arme de fortune : tirage à part, posés en dernier
-    { const rd = mulberry32(5101 + k * 31 + (g.shibaSeed || 0)), got = Settings.notes || [], at = () => { for (let t = 0; t < 60; t++) { const x = Math.round(Z.x0 + 160 + rd() * (Z.x1 - Z.x0 - 320)), y = Math.round(rd() < 0.55 ? ST + 92 + rd() * 60 : 280 + rd() * 640); if (free(x - 16, y - 16, 32, 32, 8)) return [x, y]; } return null; };
+    { const rd = mulberry32(5101 + k * 31 + (g.shibaSeed || 0)), got = notesGot(), at = () => { for (let t = 0; t < 60; t++) { const x = Math.round(Z.x0 + 160 + rd() * (Z.x1 - Z.x0 - 320)), y = Math.round(rd() < 0.55 ? ST + 92 + rd() * 60 : 280 + rd() * 640); if (free(x - 16, y - 16, 32, 32, 8)) return [x, y]; } return null; };
       for (const n of NOTES) if (n.m === k && !got.includes(n.id)) { const s = at(); if (s) pickup('note', s[0], s[1], n.id); }
       if (rd() < 0.75) { const s = at(); if (s) pickup('scrap', s[0], s[1], 0); } }
     // Noël : guirlandes lumineuses le long des façades
@@ -3460,7 +3467,7 @@ class Pickup {
       case 'grenade': p.grenades++; g.toast('+1 grenade', '#d8d2c4'); g.audio.pickup(); break;
       case 'weapon': {
         const w = p.weapons[this.val];
-        if (!w.owned) { w.owned = true; w.ammo = w.magSize(); w.reserve = w.def.ammoPack; p.switchTo(this.val); g.notice('Arme trouvée', `${w.def.name} · touche ${this.val + 1}`, '#f0b25a'); }
+        if (!own(w)) { w.owned = true; if (w.scrap) w.scrap.temp = false; w.ammo = w.magSize(); w.reserve = Math.max(w.reserve, w.def.ammoPack); p.switchTo(this.val); g.notice('Arme trouvée', `${w.def.name} · touche ${this.val + 1}`, '#f0b25a'); }
         else { w.reserve += w.def.ammoPack; g.toast(`+${w.def.ammoPack} munitions · ${w.def.name}`, '#d8d2c4'); }
         g.audio.pickup(); break;
       }
@@ -3474,7 +3481,7 @@ class Pickup {
       }
       case 'crate': g.openCrate(this, p); break;
       case 'note': {
-        const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = Settings.notes || (Settings.notes = []); if (!got.includes(N.id)) got.push(N.id); g.stats.notes++; Settings.save(); g.netEmit(['note', N.id]);
+        const N = NOTES.find(o => o.id === this.val); if (!N) break; const got = notesGot(); if (!got.includes(N.id)) got.push(N.id); g.stats.notes++; Settings.save(); g.netEmit(['note', N.id]);
         g.notice('Document trouvé', `${N.from} · à lire dans le Carnet (${got.length} / ${NOTES.length})`, '#e8dcc0'); g.audio.tone({ f: 900, f2: 1300, dur: 0.12, type: 'triangle', g: 0.12 }); g.audio.pickup(); break;
       }
       case 'shiba': {
@@ -3883,7 +3890,7 @@ class Game {
     this.updateBuddy(dt); this.updateEvent(dt);
     if (p.flashCd > 0) p.flashCd -= realDt; if (inp.flash && !p.dead) this.flash(); if (this.flashFx > 0) this.flashFx -= realDt;
     if (this.mode !== 'training') this.director.update(dt);
-    if (this.mode === 'story' || this.mode === 'survival') { this.updateSewers(dt); this.updateDrops(dt); this.updateRadio(dt); this.updateNoel(dt); }
+    if (this.mode === 'survival' || (this.mode === 'story' && this.activeZone >= 0)) { this.updateSewers(dt); this.updateDrops(dt); this.updateRadio(dt); this.updateNoel(dt); } /* pas en planque */
     this.hash.clear(); for (const z of this.zombies) if (!z.dead) this.hash.insert(z);
     this.attractions.length = 0;
     for (const c of this.level.cars) if (c.alarm > 0) this.attractions.push({ x: c.x + c.w / 2, y: c.y + c.h / 2, r: 1000 });
@@ -4064,7 +4071,7 @@ mixin(Game, {
     const spot = R => { for (let t = 0; t < 40; t++) { const x = Math.round(R.x0 + rs() * (R.x1 - R.x0)), y = Math.round(R.y0 + rs() * (R.y1 - R.y0)); if (!this.level.pointObstacle(x, y) && !this.level.pointObstacle(x + 14, y + 14) && !this.level.pointObstacle(x - 14, y - 14)) return [x, y]; } return null; };
     for (let i = 0; i < SHIBAS_PER; i++) { const s = spot(rooms[i]); if (!s || this.shibaFound.has('4-' + i)) continue; const pk = new Pickup(this, 'shiba', s[0], s[1], i); pk.zone = 0; pk.sid = '4-' + i; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); }
     const s = spot(rooms[SHIBAS_PER]); if (s && this.run.sv[4] !== 2) this.survivors.push(new Survivor(this, s[0], s[1], 4, MISSION_SURV[4]));
-    NOTES.filter(n => n.m === 4 && !(Settings.notes || []).includes(n.id)).forEach((n, i) => { const d = rooms[SHIBAS_PER + 1 + i] && spot(rooms[SHIBAS_PER + 1 + i]); if (!d) return; const pk = new Pickup(this, 'note', d[0], d[1], n.id); pk.zone = 0; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); });
+    NOTES.filter(n => n.m === 4 && !notesGot().includes(n.id)).forEach((n, i) => { const d = rooms[SHIBAS_PER + 1 + i] && spot(rooms[SHIBAS_PER + 1 + i]); if (!d) return; const pk = new Pickup(this, 'note', d[0], d[1], n.id); pk.zone = 0; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); });
   },
   updateHospital() {
     const o = this.level.obj[0], p = this.player; if (!o || o.spawned || p.dead) return;
@@ -4189,11 +4196,11 @@ mixin(Game, {
   },
   nextNight() {
     const E = this.endless, p = this.player; E.night++;
-    const keep = { money: p.money, armor: p.armor, grenades: p.grenades, mines: p.mines, decoys: p.decoys, weapons: p.weapons.map(w => ({ owned: w.owned, ammo: w.ammo, reserve: w.reserve, lvl: { ...w.lvl } })), maxHp: p.maxHp, battery: p.battery };
+    const keep = { money: p.money, armor: p.armor, grenades: p.grenades, mines: p.mines, decoys: p.decoys, weapons: p.weapons.map(w => w.snapshot()), maxHp: p.maxHp, battery: p.battery };
     const b = DIFFS[this.diffKey], n = E.night - 1; this.diff = { ...b, hp: b.hp * (1 + 0.3 * n), dmg: b.dmg * (1 + 0.15 * n), pop: b.pop * (1 + 0.15 * n), spawn: b.spawn * (1 + 0.1 * n), score: b.score * (1 + 0.25 * n) };
     this.seedOff = Math.floor(Math.random() * 100000); const buddy = this.buddy; this.resetWorld(); this.buddy = buddy;
     const q = this.player = new Player(this, 140, 600); Object.assign(q, { money: keep.money, armor: keep.armor, grenades: keep.grenades, mines: keep.mines, decoys: keep.decoys, maxHp: keep.maxHp, hp: keep.maxHp, battery: 100 });
-    q.weapons.forEach((w, i) => { const k = keep.weapons[i]; w.owned = k.owned; w.ammo = k.ammo; w.reserve = k.reserve; w.lvl = k.lvl; });
+    q.weapons.forEach((w, i) => w.restore(keep.weapons[i]));
     this.zoneEntered = [false, false, false, false]; this.safeEntered = [false, false, false]; this.cleared = []; this.checkpoint = this.makeCheckpoint(140, 600);
     this.cam.x = 600; this.cam.y = 600; this.state = 'playing';
     this.banner(`Nuit ${E.night}`, 'Les zombies sont plus nombreux et plus coriaces'); this.audio.siren();
@@ -4452,7 +4459,7 @@ mixin(Game, {
     return false;
   },
   showEnd(victory) {
-    if (this.net === 'host') Net.send({ t: 'end', sc: Math.floor(this.score), ki: this.kills, wv: this.surv ? this.surv.wave : 0, rt: Math.floor(this.runTime), vi: victory === true ? 1 : 0 }, true);
+    if (this.net === 'host') Net.send({ t: 'end', rc: this.nightRecap(), sc: Math.floor(this.score), ki: this.kills, wv: this.surv ? this.surv.wave : 0, rt: Math.floor(this.runTime), vi: victory === true ? 1 : 0 }, true);
     this.state = 'end'; this.audio.flame(false);
     for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
     const secret = victory === 'secret' || this.mode === 'secret', hosp = this.mode === 'hospital' && !this.hcamp, camp = this.isCampaign();
@@ -4490,6 +4497,7 @@ mixin(Game, {
   },
   // le récit de la nuit : meilleur moment, arme la plus utilisée, survivants, petits bonus
   nightRecap() {
+    if (this.netGuest && this.netRecap) { const r = this.netRecap, e = v => escapeHtml(String(v == null ? '' : v)).slice(0, 300); return { best: e(r.best), arm: e(r.arm), armN: e(r.armN), armId: WEAPONS.some(w => w.id === r.armId) ? r.armId : null, svN: e(r.svN), svTxt: e(r.svTxt), extra: e(r.extra) }; }
     const st = this.stats || {}, arms = Object.entries(st.arms || {}).sort((a, b) => b[1] - a[1]), sv = st.sv || [], n = v => v > 1 ? 's' : '';
     const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k;
     let best;
@@ -4648,14 +4656,14 @@ mixin(Game, {
     if (p.dead || this.cine || (this.sewerT = (this.sewerT ?? rand(20, 35)) - dt) > 0) return;
     this.sewerT = rand(28, 50);
     const near = this.level.spawners.filter(s => s.kind === 'sewer' && !s.sealed && !(s.rumble > 0) && dist2(s.x, s.y, p.x, p.y) > 230 * 230 && dist2(s.x, s.y, p.x, p.y) < 560 * 560);
-    if (!near.length) return; const s = pick(near); s.rumble = 3.2; this.netEmit(['rumble', this.level.spawners.indexOf(s), 3.2]);
+    if (!near.length) return; const s = pick(near); s.rumble = 3.2; this.netEmit(['rumble', s.x, s.y, 3.2]);
     this.audio.noise({ f: 180, f2: 60, dur: 1.8, g: 0.45, pan: clamp((s.x - p.x) / 600, -1, 1) });
     if (!this.sewTip && carnet().sealed < 3) { this.sewTip = true; this.toast('Une bouche d\'égout gronde : une grenade dessus la bouche pour de bon', '#9fd6e6'); }
   },
   sealSewer(s) {
-    this.sealFx(s); this.netEmit(['seal', this.level.spawners.indexOf(s)]);
+    this.sealFx(s); this.netEmit(['seal', s.x, s.y]);
     const pts = Math.round((s.rumble > 0 ? 700 : 400) * this.diff.score); this.score += pts; this.floatText(s.x, s.y - 30, `BOUCHE SCELLÉE +${fmt(pts)}`, '#9fd6e6');
-    const c = carnet(); c.sealed++; this.stats.sealed++; Settings.save(); if (c.sealed >= 10) this.unlock('plombier');
+    this.stats.sealed++; if (this.mode !== 'training') { const c = carnet(); c.sealed++; Settings.save(); if (c.sealed >= 10) this.unlock('plombier'); }
   },
   sealFx(s) {
     s.sealed = true; s.rumble = 0; s.anim = 0;
@@ -4663,7 +4671,8 @@ mixin(Game, {
     this.audio.tone({ f: 90, f2: 40, dur: 0.5, g: 0.4 });
   },
   spawnMiniBoss(k) {
-    if (this.mode !== 'story' || this.activeZone !== k || (this.bossRef && !this.bossRef.dead)) return;
+    if (this.mode !== 'story' || this.activeZone !== k) return;
+    if (this.bossRef && !this.bossRef.dead) { if (this.bossRef.bkind === 'perenoel') this.later(3, () => this.spawnMiniBoss(k)); return; }
     const s = this.findSpawnPoint(k) || { x: this.player.x + 400, y: this.player.y }, b = new MiniBoss(this, s.x, s.y, k); this.bossEntry(b);
     this.zombies.push(b); this.bossRef = b; this.audio.roar(1.1); this.shake(0.7); this.banner(MINI_BOSSES[k].title, MINI_BOSSES[k].sub); this.torchFlicker = 0.8;
   },
@@ -4879,7 +4888,7 @@ mixin(Game, {
 // ============================================================ jeu : effets visuels
 mixin(Game, {
   addLight(x, y, r, c, i, life) { this.netEmit(['light', Math.round(x), Math.round(y), Math.round(r), c, netR(i), netR(life)]); this.lights.push({ x, y, r, c, i, life, max: life, dead: false }); },
-  spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : PERF_LOW ? 500 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
+  spawnP(o) { if (this.particles.length >= (Settings.quality === 'eco' ? 350 : perfLow() ? 500 : TOUCH ? 900 : 1800)) return null; const p = new Particle().init(o); this.particles.push(p); return p; },
   // ---------- pièges du décor : ils frappent tout le monde, zombies comme survivants
   trapNear(p) { for (const t of this.level.traps || []) if (rectDist(p.x, p.y, t.ob) < 40) return t; return null; },
   useTrap(t, by) {
@@ -4977,7 +4986,7 @@ mixin(Game, {
     const p = this.player; if (p.dead || this.cine || this.mode === 'hospital') return;
     if ((this.dropT = (this.dropT ?? rand(60, 100)) - dt) > 0) return;
     this.dropT = rand(80, 130); if (this.pickups.some(k => k.kind === 'crate')) return;
-    const Z = this.activeZone >= 0 ? ZONES[this.activeZone] : { x0: 0, x1: WORLD.w };
+    const Z = ZONES[clamp(this.activeZone, 0, 3)];
     for (let t = 0; t < 30; t++) {
       const a = rand(0, TAU), d = rand(350, 620), x = Math.round(clamp(p.x + Math.cos(a) * d, Z.x0 + 90, Z.x1 - 90)), y = Math.round(clamp(p.y + Math.sin(a) * d * 0.6, ST + 80, SB - 50));
       if (Math.hypot(x - p.x, y - p.y) < 300 || this.level.queryRect(x - 30, y - 30, 60, 60).some(o => rectDist(x, y, o) < 30)) continue; /* jamais sur la tête du joueur, même au bord d'un secteur */
@@ -5001,7 +5010,7 @@ mixin(Game, {
   // ---------- nuit de pleine lune : zombies plus rapides, points et argent doublés ; l'hôte tire au sort, l'invité suit
   setMoon(on) {
     if (!!this.moon === on) return; this.moon = on; this.netEmit(['moon', on ? 1 : 0]);
-    if (!on) { if (this.state === 'playing') this.toast('La lune rouge se cache derrière les nuages', '#c6c0b2'); return; }
+    if (!on) { for (const z of this.zombies) if (!z.dead && z.type !== 'boss') z.speed /= MOON_SPEED; if (this.state === 'playing') this.toast('La lune rouge se cache derrière les nuages', '#c6c0b2'); return; }
     for (const z of this.zombies) if (!z.dead && z.type !== 'boss') z.speed *= MOON_SPEED;
     this.later(2.6, () => { if (this.moon) this.banner('Nuit de pleine lune', 'Les zombies courent plus vite, mais rapportent le double'); }); this.audio.roar(0.5);
     if (this.net !== 'guest') this.later(5, () => { if (this.moon) this.radio(pick(RADIO_LIVE.moon), true); });
@@ -5034,7 +5043,7 @@ mixin(Game, {
     const T = WEATHER[X.k], e = Math.min(1, dt * 0.4); X.vis += (T.vis - X.vis) * e; X.fog += (T.fog - X.fog) * e; X.rain += (T.rain - X.rain) * e; X.bolt = Math.max(0, X.bolt - dt);
     if (this.audio.rainG) this.audio.rainG.gain.value = (Settings.rain ? 0.05 : 0.012) * (0.55 + 0.45 * X.rain);
     if (Settings.rain && this.mode !== 'hospital') {
-      const nr = Math.round((TOUCH ? 150 : 260) * X.rain * (PERF_LOW || Settings.quality === 'eco' ? 0.5 : 1)); if (this.rain.length > nr) this.rain.length = nr;
+      const nr = Math.round((TOUCH ? 150 : 260) * X.rain * (perfLow() || Settings.quality === 'eco' ? 0.5 : 1)); if (this.rain.length > nr) this.rain.length = nr;
       while (this.rain.length < nr) this.rain.push({ x: cx + rand(-hw, hw), y: cy + rand(-hh, hh), z: rand(0, 380), v: rand(650, 900) });
       for (const d of this.rain) {
         d.z -= d.v * dt * (NOEL ? 0.22 : 1); d.x -= (NOEL ? 22 : 60) * dt; /* en décembre, la pluie tombe en flocons */
@@ -5056,7 +5065,7 @@ mixin(Game, {
   // ---------- deux joueurs
   syncP2Gear() {
     const p = this.player, q = this.p2; if (!q) return;
-    p.weapons.forEach((w, i) => { const v = q.weapons[i]; if (w.owned && !v.owned) { v.owned = true; v.ammo = v.magSize(); } v.lvl = { ...w.lvl }; if (!v.def.infinite) v.reserve = Math.max(v.reserve, w.reserve); });
+    p.weapons.forEach((w, i) => { const v = q.weapons[i]; if (own(w) && !v.owned) { v.owned = true; v.ammo = v.magSize(); } v.lvl = { ...w.lvl }; if (!v.def.infinite) v.reserve = Math.max(v.reserve, w.reserve); });
     q.armor = Math.max(q.armor, p.armor); q.grenades = Math.max(q.grenades, p.grenades); q.mines = Math.max(q.mines, p.mines); q.decoys = Math.max(q.decoys, p.decoys);
   },
   players() { return this.p2 ? [this.player, this.p2] : [this.player]; },
@@ -6431,7 +6440,7 @@ function renderAccPicker() {
   const el = $('acc-pick'); if (!el || !ficheKey) return; const ch = ficheKey, lv = playerLevel(), cur = currentAcc(ch);
   el.className = 'acc-tiles';
   const lockTxt = a => a.id === 'noel' ? `Noël : abats ${XM_GOAL} zombies à bonnet puis le Père Noël zombie (${Math.min(xmCount(), XM_GOAL)} / ${XM_GOAL})` : a.ev ? `Halloween : abats ${HW_GOAL} zombies déguisés (${hwCount()} / ${HW_GOAL})` : 'se débloque au niveau ' + a.lv;
-  el.innerHTML = ACCS.filter(a => !a.ev || (a.id === 'noel' ? NOEL || Settings.santaHat : HALLOWEEN || Settings.pumpkin)).map(a => { const ok = accOk(a); return `<button type="button" class="acc-tile ${ok ? '' : 'locked'} ${accPreview === a.id ? 'preview' : ''} ${a.ev ? 'ev' : ''}" data-acc="${a.id}" aria-pressed="${a.id === cur}" title="${ok ? 'Équiper' : 'Aperçu · ' + lockTxt(a)}"><canvas width="128" height="128" aria-hidden="true"></canvas><span>${a.name}</span><small>${ok ? (a.id === cur ? 'équipé' : 'équiper') : a.ev ? `🎃 ${hwCount()} / ${HW_GOAL}` : '🔒 niv. ' + a.lv}</small></button>`; }).join('') + `<p class="fiche-preview" id="acc-prev-msg">${accPreview ? `Aperçu : ${ACCS.find(a => a.id === accPreview).name} · ${lockTxt(ACCS.find(a => a.id === accPreview))}` : ''}</p>`;
+  el.innerHTML = ACCS.filter(a => !a.ev || (a.id === 'noel' ? NOEL || Settings.santaHat : HALLOWEEN || Settings.pumpkin)).map(a => { const ok = accOk(a); return `<button type="button" class="acc-tile ${ok ? '' : 'locked'} ${accPreview === a.id ? 'preview' : ''} ${a.ev ? 'ev' : ''}" data-acc="${a.id}" aria-pressed="${a.id === cur}" title="${ok ? 'Équiper' : 'Aperçu · ' + lockTxt(a)}"><canvas width="128" height="128" aria-hidden="true"></canvas><span>${a.name}</span><small>${ok ? (a.id === cur ? 'équipé' : 'équiper') : a.id === 'noel' ? `🎅 ${Math.min(xmCount(), XM_GOAL)} / ${XM_GOAL}` : a.ev ? `🎃 ${hwCount()} / ${HW_GOAL}` : '🔒 niv. ' + a.lv}</small></button>`; }).join('') + `<p class="fiche-preview" id="acc-prev-msg">${accPreview ? `Aperçu : ${ACCS.find(a => a.id === accPreview).name} · ${lockTxt(ACCS.find(a => a.id === accPreview))}` : ''}</p>`;
   for (const b of el.querySelectorAll('[data-acc]')) {
     b.querySelector('canvas').getContext('2d').drawImage(accThumb(ch, b.dataset.acc), 0, 0);
     b.addEventListener('click', () => {
@@ -7656,6 +7665,7 @@ setInterval(() => {
 const NET_EDGES = ['firePressed', 'melee', 'grenade', 'mine', 'decoy', 'reload', 'special', 'roll', 'flash', 'cycleUp', 'cycleDown'];
 const NET_BSTATE = ['walk', 'wind', 'charge', 'stun', 'crouch', 'leap', 'scream'];
 const NET_PK = ['x', 'y', 'aim', 'hp', 'maxHp', 'dead', 'rollT', 'rollDir', 'cur', 'vx', 'vy', 'inv', 'walkT', 'muzzleT', 'meleeT', 'recoil', 'playDead', 'hidden', 'battery', 'stamina', 'armor', 'grenades', 'mines', 'decoys', 'money', 'reloadT', 'charging', 'charge', 'spCd', 'spMax', 'flashCd', 'exhausted', 'hpTrail', 'char', 'downX', 'downY', 'revT', 'slowT', 'dazeT', 'carry'];
+const MUTE_AUDIO = new Proxy({}, { get: () => () => { } }); // audio muet pour les effets rejoués chez l'invité
 const NET_ZS = ['type', 'r', 'skin', 'cloth', 'pants', 'costume', 'spawnMax', 'spawnKind', 'seed', 'mini', 'mk', 'bkind', 'ultimate', 'title', 'maxHp', 'target', 'elite'];
 const NET_BOSS = ['state', 'st', 'phase', 'weakT', 'rageT', 'jumpZ', 'echoA', 'ramA', 'bladeA', 'entry', 'dir', 'hp', 'maxHp', 'r'];
 // propriétés calculées du joueur (accesseurs) : on ne les écrit pas
@@ -7677,7 +7687,7 @@ mixin(Game, {
   // ----- hôte
   netAttachP2(gc, x, y) {
     const p = this.player, c1 = this.charKey; this.charKey = CHARS[gc] ? gc : 'zeus'; const q = new Player(this, x, y); this.charKey = c1; q.isP2 = true; q.inv = 1.5;
-    q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = o.owned; w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
+    q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = own(o); w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
   },
   newOnlineStory(gc) {
     this.newGame(); this.net = 'host'; this.coop = true; this.netEv = []; this.netH = { t: 0, cnt: {}, prevF: false, pend: {} }; this.netIn = null; this.netWrapAudio();
@@ -7687,7 +7697,7 @@ mixin(Game, {
   newOnlineSurvival(gc) {
     this.newSurvival(false); this.net = 'host'; this.coop = true; this.netEv = []; this.netH = { t: 0, cnt: {}, prevF: false, pend: {} }; this.netIn = null; this.netWrapAudio();
     const p = this.player, c1 = this.charKey; this.charKey = CHARS[gc] ? gc : 'zeus'; const q = new Player(this, PLAZA + 50, 820); this.charKey = c1; q.isP2 = true; q.inv = 1.5;
-    q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = o.owned; w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
+    q.money = p.money; q.weapons.forEach((w, i) => { const o = p.weapons[i]; w.owned = own(o); w.ammo = o.ammo; w.reserve = o.reserve; }); this.p2 = q;
   },
   netStartHost(mode) { const pr = Net.peer; if (!pr) return; mode = mode || this.netMode || 'survival'; this.netMode = mode; Net.send({ t: 'start', mode, diff: this.diffKey, hc: this.charKey, gc: pr.char, hn: Settings.name || 'Hôte' }, true); if (mode === 'story') this.newOnlineStory(pr.char); else this.newOnlineSurvival(pr.char); },
   netRemoteInput() {
@@ -7750,7 +7760,7 @@ mixin(Game, {
     else if (d.t === 'ZS') for (const [nid, cls, vals] of d.z) { if (this.zmap.has(nid)) continue; const C = cls === 'u' ? UltimateBoss : cls === 'm' ? MiniBoss : cls === 'b' ? Boss : Zombie, z = Object.create(C.prototype);
       Object.assign(z, { g: this, nid, x: 0, y: 0, dir: 0, walkT: 0, hp: 1, spawnT: 0, hitFlash: 0, burn: 0, stun: 0, lunge: 0, bState: 'walk', dead: false, kx: 0, ky: 0 }); NET_ZS.forEach((k, i) => { if (vals[i] !== undefined && vals[i] !== null) z[k] = vals[i]; }); if (z.mini) z.cfg = MINI_BOSSES[z.mk]; z._new = true; this.zmap.set(nid, z); this.netNeed.delete(nid); }
     else if (d.t === 'pz') { this._netQuiet = true; if (d.on) this.pause(); else this.resume(); this._netQuiet = false; }
-    else if (d.t === 'end') { this.score = d.sc; this.kills = d.ki; if (this.surv) this.surv.wave = d.wv; this.runTime = d.rt; this.lastVictory = !!d.vi; netWait(null); this.state = 'playing'; this.netGuestEnd = true; this.showEnd(!!d.vi); }
+    else if (d.t === 'end') { this.netRecap = d.rc && typeof d.rc === 'object' ? d.rc : null; this.score = d.sc; this.kills = d.ki; if (this.surv) this.surv.wave = d.wv; this.runTime = d.rt; this.lastVictory = !!d.vi; netWait(null); this.state = 'playing'; this.netGuestEnd = true; this.showEnd(!!d.vi); }
   },
   netApply(S) {
     const me = this.player, h = this.p2, set = (p, row, skipPos) => NET_PK.forEach((k, i) => { if (skipPos && (k === 'x' || k === 'y' || k === 'aim' || k === 'walkT')) return; if (row[i] !== undefined && row[i] !== null && !NET_RO.has(k)) p[k] = row[i]; });
@@ -7798,6 +7808,10 @@ mixin(Game, {
     else if (this.state !== 'comic') netWait(G.st === 'comic' ? 'Ton ami lit la BD…' : G.st === 'map' ? 'Ton ami regarde la carte et prépare la prochaine mission…' : G.st === 'shop' ? 'Ton ami fait ses achats au marché noir…' : 'En attente de ton ami…');
   },
   // l'hôte est passé à la mission 5 : l'invité bâtit le même hôpital
+  // l'hôte envoie déjà les sons : l'invité rejoue l'effet en silence pour ne pas l'entendre deux fois
+  quietFx(fn) { const A = this.audio; this.audio = MUTE_AUDIO; try { fn(); } finally { this.audio = A; } },
+  // les bouches d'égout sont repérées par leur position : leur ordre change quand l'hôte reconstruit un secteur
+  sewerAt(x, y) { return this.level.spawners.find(s => s.kind === 'sewer' && Math.abs(s.x - x) < 2 && Math.abs(s.y - y) < 2); },
   netGuestHospital() {
     this.resetWorld(); this.mode = 'hospital'; this.hcamp = true; this.buildHospital(); this.activeZone = 0; this.level.setGate(ZONES[0].x1, true);
     this.zoneEntered = [true, true, true, true]; this.safeEntered = [true, true, true]; this.oidMap = new Map(this.level.obstacles.map(o => [o.oid, o])); this.netG.hz = new Map();
@@ -7816,13 +7830,13 @@ mixin(Game, {
       case 'notice': this.notice(a[0], a[1], a[2]); break;
       case 'text': this.floatText(...a); break;
       case 'scream': this.screamFx(a[0], a[1]); break;
-      case 'wx': this.setWeather(a[0]); break;
-      case 'bolt': this.bolt(); break;
-      case 'note': { const got = Settings.notes || (Settings.notes = []); if (!got.includes(a[0])) { got.push(a[0]); Settings.save(); } break; }
-      case 'moon': this.setMoon(!!a[0]); break;
+      case 'wx': if (Object.hasOwn(WEATHER, a[0])) this.quietFx(() => this.setWeather(a[0])); break;
+      case 'bolt': this.quietFx(() => this.bolt()); break;
+      case 'note': { const got = notesGot(); if (NOTES.some(o => o.id === a[0]) && !got.includes(a[0])) { got.push(a[0]); Settings.save(); } break; }
+      case 'moon': this.quietFx(() => this.setMoon(!!a[0])); break;
       case 'rescued': { const R = Settings.rescued || (Settings.rescued = {}); R[a[0]] = (R[a[0]] || 0) + 1; Settings.save(); break; }
-      case 'rumble': { const s = this.level.spawners[a[0]]; if (s) { s.rumble = a[1]; this.later(a[1], () => { s.rumble = 0; }); } break; }
-      case 'seal': { const s = this.level.spawners[a[0]]; if (s && !s.sealed) this.sealFx(s); break; }
+      case 'rumble': { const s = this.sewerAt(a[0], a[1]); if (s) { s.rumble = a[2]; this.later(a[2], () => { s.rumble = 0; }); } break; }
+      case 'seal': { const s = this.sewerAt(a[0], a[1]); if (s && !s.sealed) this.quietFx(() => this.sealFx(s)); break; }
       case 'trap': { const t = (this.level.traps || []).find(x => x.ob.oid === a[0]); if (t) { t.on = t.kind === 'fence' ? 6 : 4; t.cd = t.on + 14; t.ang = a[1]; this.trapFx(t); } break; }
       case 'win': this.winFx = { t: 0, title: a[0], sub: a[1] }; this.audio.objective(); break;
       case 'slow': this.slowT = a[0]; this.slowMax = a[0]; this.slowLabel = a[1]; break;
@@ -8678,15 +8692,13 @@ function closeSheets() { for (const [pid, bid] of TITLE_PANELS) { $(pid).hidden 
 for (const sh of document.querySelectorAll('.sheet')) sh.addEventListener('click', e => { if (e.target === sh || e.target.closest('.sheet-close')) { closeSheets(); game.audio.ui(); } });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !game.keysOpen && document.querySelector('.sheet:not([hidden])')) { e.preventDefault(); if (!setBack()) closeSheets(); } });
 // ---------- carnet de survie : ce que la ville t'a fait, partie après partie
-const DEATH_BY = { explosion: 'Une explosion', spitter: 'Un crachat d\'acide', bomber: 'Le Gonflé', dot: 'Le feu ou l\'acide', trap: 'Un piège du décor' };
-const ARM_BY = { feu: 'Le feu', explosifs: 'Les explosifs', melee: 'Corps à corps', piege: 'Les pièges du décor', shiba: 'Le shiba', special: 'Capacité spéciale' };
 function carnetTop(o, name) {
-  const l = Object.entries(o).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 4), max = l.length ? l[0][1] : 1;
-  return l.length ? `<ol class="cn-bars">${l.map(([k, n]) => `<li><span>${name(k)}</span><b>${fmt(n)}</b><i style="--w:${Math.max(4, Math.round(100 * n / max))}%"></i></li>`).join('')}</ol>` : '<p class="hint">Rien encore.</p>';
+  const l = Object.entries(o).filter(e => +e[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 4), max = l.length ? l[0][1] : 1;
+  return l.length ? `<ol class="cn-bars">${l.map(([k, n]) => `<li><span>${escapeHtml(name(k))}</span><b>${fmt(+n || 0)}</b><i style="--w:${Math.max(4, Math.round(100 * n / max))}%"></i></li>`).join('')}</ol>` : '<p class="hint">Rien encore.</p>';
 }
 function carnetHTML() {
   const c = carnet(), t = Math.floor(c.time), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, dead = Object.values(c.deaths).reduce((a, b) => a + b, 0);
-  if (!c.runs && !c.kills && !(Settings.notes || []).length) return '<p class="cn-empty">Page blanche. La ville n\'a encore rien écrit sur toi : lance une partie.</p>';
+  if (!c.runs && !c.kills && !notesGot().length) return '<p class="cn-empty">Page blanche. La ville n\'a encore rien écrit sur toi : lance une partie.</p>';
   const cells = [['Zombies abattus', fmt(c.kills)], ['Temps dans les rues', h ? `${h} h ${String(m).padStart(2, '0')}` : `${m} min`], ['Parties', fmt(c.runs)], ['Morts', fmt(dead)], ['Précision', (c.shots ? Math.round(100 * c.hits / c.shots) : 0) + ' %'], ['Survivants sauvés', fmt(c.saved)], ['Zombies d\'élite', fmt(c.elites)], ['Bouches scellées', fmt(c.sealed)], ['Éclairs encaissés', fmt(c.bolts)], ['Nuits de pleine lune', fmt(c.moons)], ['Armes de fortune cassées', fmt(c.broken)]];
   const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k, dName = k => (BESTIARY.find(b => b.k === k) || {}).name || DEATH_BY[k] || 'Inconnu';
   return `<p class="cn-intro">Tout ce que tu as vécu dans les rues, sur cet appareil.</p><div class="pause-stats cn-grid">${cells.map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`
@@ -8694,7 +8706,7 @@ function carnetHTML() {
 }
 // documents trouvés dans la ville, rangés par mission ; ceux qui manquent restent sous scellés
 function notesHTML() {
-  const got = Settings.notes || [], n = NOTES.filter(o => got.includes(o.id)).length;
+  const got = notesGot(), n = NOTES.filter(o => got.includes(o.id)).length;
   return `<h4 class="cn-docs-h">Documents trouvés · ${n} / ${NOTES.length}</h4><p class="cn-intro">Lettres et notes cachées dans les rues. Elles brillent faiblement au sol.</p><div class="cn-docs">${NOTES.map(o => got.includes(o.id)
     ? `<details class="cn-doc"><summary><small>Mission ${o.m + 1}</small><b>${o.from}</b></summary><p>${o.t}</p></details>`
     : `<div class="cn-doc locked"><small>Mission ${o.m + 1}</small><b>Document introuvable</b></div>`).join('')}</div>`;
@@ -8703,7 +8715,7 @@ function notesHTML() {
 function rescuedHTML() {
   const R = Settings.rescued || {};
   return `<h4 class="cn-docs-h">Survivants sauvés · ${SURVIVORS.filter((s, i) => R[i]).length} / ${SURVIVORS.length}</h4><div class="cn-svs">${SURVIVORS.map((s, i) => { const m = MISSION_SURV.indexOf(i) + 1;
-    return R[i] ? `<article class="cn-sv"><canvas width="160" height="160" data-sv="${i}" aria-hidden="true"></canvas><div><small>Mission ${m} · ${s.who}</small><b>${s.name}</b><p>${s.bio}</p><q>${s.line}</q><small>Sauvé${s.f ? 'e' : ''} ${R[i]} fois</small></div></article>`
+    return R[i] ? `<article class="cn-sv"><canvas width="160" height="160" data-sv="${i}" aria-hidden="true"></canvas><div><small>Mission ${m} · ${s.who}</small><b>${s.name}</b><p>${s.bio}</p><q>${s.line}</q><small>Sauvé${s.f ? 'e' : ''} ${fmt(+R[i] || 0)} fois</small></div></article>`
       : `<article class="cn-sv locked"><canvas width="160" height="160" data-sv="${i}" data-off="1" aria-hidden="true"></canvas><div><small>Mission ${m}</small><b>Survivant inconnu</b><p>Quelqu'un attend encore de l'aide dans cette mission.</p></div></article>`; }).join('')}</div>`;
 }
 // portrait en buste d'un survivant : manteau, visage, et un détail qui le résume

@@ -236,7 +236,7 @@ mixin(Game, {
     return false;
   },
   showEnd(victory) {
-    if (this.net === 'host') Net.send({ t: 'end', sc: Math.floor(this.score), ki: this.kills, wv: this.surv ? this.surv.wave : 0, rt: Math.floor(this.runTime), vi: victory === true ? 1 : 0 }, true);
+    if (this.net === 'host') Net.send({ t: 'end', rc: this.nightRecap(), sc: Math.floor(this.score), ki: this.kills, wv: this.surv ? this.surv.wave : 0, rt: Math.floor(this.runTime), vi: victory === true ? 1 : 0 }, true);
     this.state = 'end'; this.audio.flame(false);
     for (const o of this.level.obstacles) if (o.snd) this.audio.alarmStop(o);
     const secret = victory === 'secret' || this.mode === 'secret', hosp = this.mode === 'hospital' && !this.hcamp, camp = this.isCampaign();
@@ -274,6 +274,7 @@ mixin(Game, {
   },
   // le récit de la nuit : meilleur moment, arme la plus utilisée, survivants, petits bonus
   nightRecap() {
+    if (this.netGuest && this.netRecap) { const r = this.netRecap, e = v => escapeHtml(String(v == null ? '' : v)).slice(0, 300); return { best: e(r.best), arm: e(r.arm), armN: e(r.armN), armId: WEAPONS.some(w => w.id === r.armId) ? r.armId : null, svN: e(r.svN), svTxt: e(r.svTxt), extra: e(r.extra) }; }
     const st = this.stats || {}, arms = Object.entries(st.arms || {}).sort((a, b) => b[1] - a[1]), sv = st.sv || [], n = v => v > 1 ? 's' : '';
     const wName = k => (WEAPONS.find(w => w.id === k) || {}).name || ARM_BY[k] || k;
     let best;

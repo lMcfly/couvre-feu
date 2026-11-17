@@ -182,7 +182,7 @@ class Game {
     this.updateBuddy(dt); this.updateEvent(dt);
     if (p.flashCd > 0) p.flashCd -= realDt; if (inp.flash && !p.dead) this.flash(); if (this.flashFx > 0) this.flashFx -= realDt;
     if (this.mode !== 'training') this.director.update(dt);
-    if (this.mode === 'story' || this.mode === 'survival') { this.updateSewers(dt); this.updateDrops(dt); this.updateRadio(dt); this.updateNoel(dt); }
+    if (this.mode === 'survival' || (this.mode === 'story' && this.activeZone >= 0)) { this.updateSewers(dt); this.updateDrops(dt); this.updateRadio(dt); this.updateNoel(dt); } /* pas en planque */
     this.hash.clear(); for (const z of this.zombies) if (!z.dead) this.hash.insert(z);
     this.attractions.length = 0;
     for (const c of this.level.cars) if (c.alarm > 0) this.attractions.push({ x: c.x + c.w / 2, y: c.y + c.h / 2, r: 1000 });

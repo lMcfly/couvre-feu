@@ -109,7 +109,7 @@ mixin(Game, {
     const spot = R => { for (let t = 0; t < 40; t++) { const x = Math.round(R.x0 + rs() * (R.x1 - R.x0)), y = Math.round(R.y0 + rs() * (R.y1 - R.y0)); if (!this.level.pointObstacle(x, y) && !this.level.pointObstacle(x + 14, y + 14) && !this.level.pointObstacle(x - 14, y - 14)) return [x, y]; } return null; };
     for (let i = 0; i < SHIBAS_PER; i++) { const s = spot(rooms[i]); if (!s || this.shibaFound.has('4-' + i)) continue; const pk = new Pickup(this, 'shiba', s[0], s[1], i); pk.zone = 0; pk.sid = '4-' + i; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); }
     const s = spot(rooms[SHIBAS_PER]); if (s && this.run.sv[4] !== 2) this.survivors.push(new Survivor(this, s[0], s[1], 4, MISSION_SURV[4]));
-    NOTES.filter(n => n.m === 4 && !(Settings.notes || []).includes(n.id)).forEach((n, i) => { const d = rooms[SHIBAS_PER + 1 + i] && spot(rooms[SHIBAS_PER + 1 + i]); if (!d) return; const pk = new Pickup(this, 'note', d[0], d[1], n.id); pk.zone = 0; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); });
+    NOTES.filter(n => n.m === 4 && !notesGot().includes(n.id)).forEach((n, i) => { const d = rooms[SHIBAS_PER + 1 + i] && spot(rooms[SHIBAS_PER + 1 + i]); if (!d) return; const pk = new Pickup(this, 'note', d[0], d[1], n.id); pk.zone = 0; pk.life = Infinity; pk.vx = pk.vy = 0; this.pickups.push(pk); });
   },
   updateHospital() {
     const o = this.level.obj[0], p = this.player; if (!o || o.spawned || p.dead) return;
@@ -234,11 +234,11 @@ mixin(Game, {
   },
   nextNight() {
     const E = this.endless, p = this.player; E.night++;
-    const keep = { money: p.money, armor: p.armor, grenades: p.grenades, mines: p.mines, decoys: p.decoys, weapons: p.weapons.map(w => ({ owned: w.owned, ammo: w.ammo, reserve: w.reserve, lvl: { ...w.lvl } })), maxHp: p.maxHp, battery: p.battery };
+    const keep = { money: p.money, armor: p.armor, grenades: p.grenades, mines: p.mines, decoys: p.decoys, weapons: p.weapons.map(w => w.snapshot()), maxHp: p.maxHp, battery: p.battery };
     const b = DIFFS[this.diffKey], n = E.night - 1; this.diff = { ...b, hp: b.hp * (1 + 0.3 * n), dmg: b.dmg * (1 + 0.15 * n), pop: b.pop * (1 + 0.15 * n), spawn: b.spawn * (1 + 0.1 * n), score: b.score * (1 + 0.25 * n) };
     this.seedOff = Math.floor(Math.random() * 100000); const buddy = this.buddy; this.resetWorld(); this.buddy = buddy;
     const q = this.player = new Player(this, 140, 600); Object.assign(q, { money: keep.money, armor: keep.armor, grenades: keep.grenades, mines: keep.mines, decoys: keep.decoys, maxHp: keep.maxHp, hp: keep.maxHp, battery: 100 });
-    q.weapons.forEach((w, i) => { const k = keep.weapons[i]; w.owned = k.owned; w.ammo = k.ammo; w.reserve = k.reserve; w.lvl = k.lvl; });
+    q.weapons.forEach((w, i) => w.restore(keep.weapons[i]));
     this.zoneEntered = [false, false, false, false]; this.safeEntered = [false, false, false]; this.cleared = []; this.checkpoint = this.makeCheckpoint(140, 600);
     this.cam.x = 600; this.cam.y = 600; this.state = 'playing';
     this.banner(`Nuit ${E.night}`, 'Les zombies sont plus nombreux et plus coriaces'); this.audio.siren();

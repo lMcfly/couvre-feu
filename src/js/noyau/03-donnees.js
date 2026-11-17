@@ -146,6 +146,9 @@ const RADIO_LIVE = {
 };
 // ravitaillement par hélico : temps de chute de la caisse sous son parachute (s)
 const DROP_FALL = 3;
+// carnet : libellés des causes de mort et des armes qui ne sont pas des armes à feu
+const DEATH_BY = { explosion: 'Une explosion', spitter: 'Un crachat d\'acide', bomber: 'Le Gonflé', dot: 'Le feu ou l\'acide', trap: 'Un piège du décor' };
+const ARM_BY = { feu: 'Le feu', explosifs: 'Les explosifs', melee: 'Corps à corps', piege: 'Les pièges du décor', shiba: 'Le shiba', special: 'Capacité spéciale' };
 // nuit de pleine lune : vitesse des zombies et multiplicateur des points et de l'argent
 const MOON_SPEED = 1.22, MOON_GAIN = 2;
 // arme de fortune : plus forte, mais elle s'use à chaque tir et finit par casser
