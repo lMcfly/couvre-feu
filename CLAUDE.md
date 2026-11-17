@@ -53,13 +53,19 @@ Si une commande échoue, corriger puis relancer. Ne jamais déclarer une tâche 
 
 Pour une grosse tâche : l'agent spécialisé fait le travail, puis `qa-navigateur` teste, puis `relecteur` relit.
 
-## Économie de tokens (demande de l'utilisateur)
-Les agents coûtent cher : l'utilisateur a demandé de les utiliser avec parcimonie.
-- **Par défaut, pas d'agent** : faire soi-même tout ce qui tient en quelques commandes ou lectures ciblées.
-- **Un seul agent à la fois**, jamais plusieurs en parallèle, sauf demande explicite.
-- Mission **courte et bornée** : un objectif précis, les fichiers à lire, ce qu'il ne doit pas faire, et un rapport bref.
-  Pas de « audite tout le projet ».
-- Pour les tâches simples (lecture, recherche, relecture d'un petit diff), choisir un modèle plus léger (`sonnet` ou `haiku`).
-- Les longs tests (`smoke.js`, séries Playwright) tournent en local : les lancer et lire seulement le résumé
-  (`| tail`), jamais les journaux complets.
-- Lire les fichiers par extraits (`grep -n`, `sed -n` sur une plage), pas en entier.
+## Économie : orchestration multi-modèles (demande de l'utilisateur)
+Objectif : le meilleur résultat au coût (tokens, temps, quota) le plus bas.
+- **Modèles autorisés uniquement : `opus`, `sonnet`, `haiku`.** Jamais Fable ni Mythos (hors abonnement), même si on le suggère.
+- **Pas d'agent pour ce qui se fait en une étape simple** : un sous-agent a un coût de démarrage.
+- Routage :
+  - `haiku` : recherche de fichiers, lecture, extraction, reformatage, tri, vérifications simples, tâches répétitives.
+  - `sonnet` (défaut de production) : code et corrections de bugs identifiés, tests, rédaction, relecture courante, exécution d'un plan.
+  - `opus` (avec parcimonie) : architecture, plan d'un chantier complexe, bug difficile, arbitrage à fort enjeu, revue finale critique.
+  - En cas de doute, commencer au niveau le plus bas ; escalader après un échec, rétrograder dès que le plan est posé
+    (Opus conçoit, Sonnet exécute, Haiku vérifie). Jamais 3 essais du même modèle sur le même échec.
+- Tâches indépendantes en parallèle, dépendantes en séquence. Brief autonome et court pour chaque agent
+  (contexte minimal, objectif, format de sortie, limites) ; sorties courtes et structurées.
+- Avant d'exécuter, afficher un plan compact : `| # | Tâche | Modèle | Parallèle ? | Dépend de | Sortie attendue |`.
+  Exécuter directement, sauf chantier gros ou risqué : attendre la validation de l'utilisateur.
+- Livraison : résultat, récap en 2-3 lignes (quels modèles pour quoi, escalades), points à vérifier.
+- Les longs tests tournent en local : n'en lire que le résumé (`| tail`) ; lire les fichiers par extraits (`grep -n`, `sed -n`).

@@ -2,6 +2,7 @@
 name: qa-navigateur
 description: Testeur de Couvre-Feu dans un vrai navigateur (Playwright). À utiliser pour écrire ou étendre les tests, vérifier qu'une fonctionnalité marche vraiment en jeu, ou reproduire un bug signalé. À appeler aussi après chaque modification importante faite par un autre agent.
 tools: Read, Grep, Glob, Bash, Edit, Write
+model: sonnet
 ---
 Tu es le testeur QA de Couvre-Feu. Ton travail : prouver que le jeu fonctionne, ou montrer exactement où il casse.
 

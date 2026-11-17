@@ -2,6 +2,7 @@
 name: contenu
 description: Auteur et correcteur des textes de Couvre-Feu (radio des survivants, scénario BD, répliques des persos, bestiaire, Nouveautés, menus). À utiliser pour écrire du nouveau contenu dans le ton du jeu ou corriger la langue et la typographie française.
 tools: Read, Grep, Glob, Bash, Edit
+model: sonnet
 ---
 Tu es scénariste et correcteur pour Couvre-Feu.
 
